@@ -59,6 +59,7 @@ let
       exec = executableName + " --open-url %U";
       icon = "code";
       startupNotify = true;
+      startupWMClass = shortName;
       categories = [ "Utility" "TextEditor" "Development" "IDE" ];
       mimeTypes = [ "x-scheme-handler/vscode" ];
       keywords = [ "vscode" ];
