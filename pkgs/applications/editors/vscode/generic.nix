@@ -40,7 +40,7 @@ let
       exec = "${executableName} %F";
       icon = "code";
       startupNotify = true;
-      startupWMClass = shortName;
+      startupWMClass = "codium-url-handler"; # workaround - https://github.com/microsoft/vscode/issues/154693#issuecomment-1420923233
       categories = [ "Utility" "TextEditor" "Development" "IDE" ];
       mimeTypes = [ "text/plain" "inode/directory" ];
       keywords = [ "vscode" ];
