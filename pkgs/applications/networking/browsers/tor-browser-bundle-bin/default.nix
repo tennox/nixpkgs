@@ -89,7 +89,7 @@ let
   fteLibPath = lib.makeLibraryPath [ stdenv.cc.cc gmp ];
 
   # Upstream source
-  version = "12.0.6";
+  version = "12.5.2";
 
   lang = "ALL";
 
@@ -101,7 +101,7 @@ let
         "https://tor.eff.org/dist/torbrowser/${version}/tor-browser-linux64-${version}_${lang}.tar.xz"
         "https://tor.calyxinstitute.org/dist/torbrowser/${version}/tor-browser-linux64-${version}_${lang}.tar.xz"
       ];
-      hash = "sha256-MLy/T8A+udasITWYSzaqXSFhA3PJsG7DnKJG0b9UYvA=";
+      hash = "sha256-Mm2/ianon+RtOJqmuZCl+2cPliKiJvIOZ+TyzJ8l5es=";
     };
 
     i686-linux = fetchurl {
@@ -111,7 +111,7 @@ let
         "https://tor.eff.org/dist/torbrowser/${version}/tor-browser-linux32-${version}_${lang}.tar.xz"
         "https://tor.calyxinstitute.org/dist/torbrowser/${version}/tor-browser-linux32-${version}_${lang}.tar.xz"
       ];
-      hash = "sha256-njJB5k7rQxRyL7foU8fLCQxy43dJvV26oKvQ+fw6U0o=";
+      hash = "sha256-mouxVi/Y5duIQXHYd8WcIzLZEXs5FZAt20dFq4vHzso=";
     };
   };
 
@@ -248,7 +248,7 @@ stdenv.mkDerivation rec {
 
     # Hard-code path to TBB fonts; see also FONTCONFIG_FILE in
     # the wrapper below.
-    FONTCONFIG_FILE=$TBB_IN_STORE/TorBrowser/Data/fontconfig/fonts.conf
+    FONTCONFIG_FILE=$TBB_IN_STORE/fontconfig/fonts.conf
     sed -i "$FONTCONFIG_FILE" \
         -e "s,<dir>fonts</dir>,<dir>$TBB_IN_STORE/fonts</dir>,"
 
@@ -469,7 +469,7 @@ stdenv.mkDerivation rec {
     homepage = "https://www.torproject.org/";
     changelog = "https://gitweb.torproject.org/builders/tor-browser-build.git/plain/projects/tor-browser/Bundle-Data/Docs/ChangeLog.txt?h=maint-${version}";
     platforms = attrNames sources;
-    maintainers = with maintainers; [ offline matejc thoughtpolice joachifm hax404 KarlJoad ];
+    maintainers = with maintainers; [ felschr panicgh joachifm hax404 ];
     mainProgram = "tor-browser";
     # MPL2.0+, GPL+, &c.  While it's not entirely clear whether
     # the compound is "libre" in a strict sense (some components place certain

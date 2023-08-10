@@ -36,6 +36,9 @@
 
   # ####### GNOME 43 #######
 
+  "lockkeys@vaina.lt" = "lock-keys";
+  "lockkeys@fawtytoo" = "lock-keys-2";
+
   # DEPRECATED: Use "Caffeine" instead
   "KeepAwake@jepfa.de" = "keep-awake";
   "awake@vixalien.com" = null;
@@ -52,9 +55,6 @@
 
   # ####### GNOME 42 #######
 
-  "lockkeys@vaina.lt" = "lock-keys";
-  "lockkeys@fawtytoo" = "lock-keys-2";
-
   "wireguard-indicator@gregos.me" = "wireguard-indicator-2";
   "wireguard-indicator@atareao.es" = "wireguard-indicator";
 
@@ -63,6 +63,9 @@
 
   "true-color-invert@jackkenney" = "true-color-invert";
   "true-color-window-invert@lynet101" = "true-color-window-invert";
+
+  "SomaFm-Radio@alireza6677.gmail.com" = "somafm-internet-radio";
+  "SomaFm-Radio@cajhne.gmail.com" = "somafm-internet-radio-2";
 
   # ####### GNOME 41 #######
 
@@ -89,9 +92,6 @@
 
   "Hide_Activities@shay.shayel.org" = "hide-activities-button";
   "hide-activities-button@nmingori.gnome-shell-extensions.org" = "hide-activities-button-2";
-
-  "SomaFm-Radio@alireza6677.gmail.com" = "somafm-internet-radio";
-  "SomaFm-Radio@cajhne.gmail.com" = "somafm-internet-radio-2";
 
   "extension-list@tu.berry" = "extension-list";
   "screen-lock@garciabaameiro.com" = "screen-lock"; # Don't know why they got 'extension-list' as slug
