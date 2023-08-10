@@ -10945,6 +10945,7 @@ with pkgs;
   };
   nextcloud26Packages = callPackage ../servers/nextcloud/packages {
     apps = lib.importJSON ../servers/nextcloud/packages/26.json;
+  };
   nextcloud27Packages = callPackage ../servers/nextcloud/packages {
     apps = lib.importJSON ../servers/nextcloud/packages/27.json;
   };
