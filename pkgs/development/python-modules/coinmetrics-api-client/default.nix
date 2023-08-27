@@ -5,10 +5,11 @@
 , orjson
 , pandas
 , poetry-core
-, pytestCheckHook
 , pytest-mock
-, pythonOlder
+, pytestCheckHook
 , python-dateutil
+, pythonOlder
+, pythonRelaxDepsHook
 , requests
 , typer
 , websocket-client
@@ -16,7 +17,7 @@
 
 buildPythonPackage rec {
   pname = "coinmetrics-api-client";
-  version = "2023.5.26.17";
+  version = "2023.7.11.17";
   format = "pyproject";
 
   disabled = pythonOlder "3.9";
@@ -26,11 +27,16 @@ buildPythonPackage rec {
   src = fetchPypi {
     inherit version;
     pname = "coinmetrics_api_client";
-    hash = "sha256-GCHXraeH6WWTlCnw9B1Xwtb6jwcxcvW1siy2T/8x14Q=";
+    hash = "sha256-s5hg9qaa5j/l/qy5DS6f1w5LH2URVyG1Uf02BSIplbc=";
   };
+
+  pythonRelaxDeps = [
+    "typer"
+  ];
 
   nativeBuildInputs = [
     poetry-core
+    pythonRelaxDepsHook
   ];
 
   propagatedBuildInputs = [
@@ -52,7 +58,9 @@ buildPythonPackage rec {
 
   passthru = {
     optional-dependencies = {
-      pandas = [ pandas ];
+      pandas = [
+        pandas
+      ];
     };
     updateScript = nix-update-script { };
   };
