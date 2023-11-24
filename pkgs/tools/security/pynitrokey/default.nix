@@ -10,12 +10,12 @@ with python3Packages;
 
 buildPythonApplication rec {
   pname = "pynitrokey";
-  version = "0.4.39";
-  format = "flit";
+  version = "0.4.40";
+  format = "pyproject";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-KXYHeWwV9Tw1ZpO/vASHjDnceeb+1K0yIUohb7EcRAI=";
+    hash = "sha256-Hu+8UooDzv4GhkWt0sCckQQyHjWn4V/zt2ADlVCoHmk=";
   };
 
   propagatedBuildInputs = [
@@ -39,13 +39,19 @@ buildPythonApplication rec {
     urllib3
     tlv8
     typing-extensions
+    importlib-metadata
   ];
 
   nativeBuildInputs = [
+    flit-core
     pythonRelaxDepsHook
   ];
 
+  # FIXME: does pythonRelaxDepsHook not work for pypaBuildHook + flit-core?
+  pypaBuildFlags = [ "--skip-dependency-check" ];
+
   pythonRelaxDeps = [
+    "click"
     "cryptography"
     "protobuf"
     "python-dateutil"

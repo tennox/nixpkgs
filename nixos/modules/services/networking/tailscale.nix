@@ -6,7 +6,7 @@ let
   cfg = config.services.tailscale;
   isNetworkd = config.networking.useNetworkd;
 in {
-  meta.maintainers = with maintainers; [ danderson mbaillie twitchyliquid64 ];
+  meta.maintainers = with maintainers; [ danderson mbaillie twitchyliquid64 mfrw ];
 
   options.services.tailscale = {
     enable = mkEnableOption (lib.mdDoc "Tailscale client daemon");
@@ -30,6 +30,12 @@ in {
     };
 
     package = lib.mkPackageOptionMD pkgs "tailscale" {};
+
+    openFirewall = mkOption {
+      default = false;
+      type = types.bool;
+      description = lib.mdDoc "Whether to open the firewall for the specified port.";
+    };
 
     useRoutingFeatures = mkOption {
       type = types.enum [ "none" "client" "server" "both" ];
@@ -112,6 +118,8 @@ in {
       "net.ipv4.conf.all.forwarding" = mkOverride 97 true;
       "net.ipv6.conf.all.forwarding" = mkOverride 97 true;
     };
+
+    networking.firewall.allowedUDPPorts = mkIf cfg.openFirewall [ cfg.port ];
 
     networking.firewall.checkReversePath = mkIf (cfg.useRoutingFeatures == "client" || cfg.useRoutingFeatures == "both") "loose";
 

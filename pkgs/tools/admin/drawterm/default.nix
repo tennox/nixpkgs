@@ -18,13 +18,13 @@
 
 stdenv.mkDerivation {
   pname = "drawterm";
-  version = "unstable-2023-06-27";
+  version = "unstable-2023-09-03";
 
   src = fetchFrom9Front {
     owner = "plan9front";
     repo = "drawterm";
-    rev = "36debf46ac184a22c6936345d22e4cfad995948c";
-    hash = "sha256-ebqw1jqeRC0FWeUIO/HaEovuwzU6+B48TjZbVJXByvA=";
+    rev = "c4ea4d299aa1bbbcc972c04adf06c18245ce7674";
+    hash = "sha256-Tp3yZb1nteOlz/KhydFdjBrj3OrY20s/Ltfk/EBrIyk=";
   };
 
   enableParallelBuilding = true;
@@ -64,5 +64,6 @@ stdenv.mkDerivation {
     license = licenses.mit;
     maintainers = with maintainers; [ luc65r moody ];
     platforms = platforms.linux;
+    mainProgram = "drawterm";
   };
 }

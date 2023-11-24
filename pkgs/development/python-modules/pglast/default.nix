@@ -8,14 +8,14 @@
 
 buildPythonPackage rec {
   pname = "pglast";
-  version = "5.3";
+  version = "5.5";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-fiNd+11hqMHgzSMNT7fgne3pTeJ4nu5krA48LCgIaIQ=";
+    hash = "sha256-yz6Q+Vt7ZuT9NaxuQQA+BH7U6Efaim7No6GJmnOQo1o=";
   };
 
   propagatedBuildInputs = [
@@ -37,10 +37,15 @@ buildPythonPackage rec {
     pytest
   '';
 
+  pythonImportsCheck = [
+    "pglast"
+    "pglast.parser"
+  ];
+
   meta = with lib; {
     homepage = "https://github.com/lelit/pglast";
     description = "PostgreSQL Languages AST and statements prettifier";
-    changelog = "https://github.com/lelit/pglast/raw/v${version}/CHANGES.rst";
+    changelog = "https://github.com/lelit/pglast/blob/v${version}/CHANGES.rst";
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ marsam ];
     mainProgram = "pgpp";

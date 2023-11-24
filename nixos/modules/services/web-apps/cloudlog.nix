@@ -69,7 +69,7 @@ let
 in
 {
   options.services.cloudlog = with types; {
-    enable = mkEnableOption (mdDoc "Whether to enable Cloudlog");
+    enable = mkEnableOption (mdDoc "Cloudlog");
     dataDir = mkOption {
       type = str;
       default = "/var/lib/cloudlog";
@@ -308,8 +308,6 @@ in
       pools.cloudlog = {
         inherit (cfg) user;
         group = config.services.nginx.group;
-        # cloudlog is currently broken on php 8.2
-        phpPackage = pkgs.php81;
         settings =  {
           "listen.owner" = config.services.nginx.user;
           "listen.group" = config.services.nginx.group;

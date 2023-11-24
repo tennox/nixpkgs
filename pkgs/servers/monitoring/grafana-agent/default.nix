@@ -1,26 +1,35 @@
 { lib
 , buildGoModule
 , fetchFromGitHub
+, fetchYarnDeps
+, fixup_yarn_lock
 , grafana-agent
 , nixosTests
+, nodejs
 , stdenv
 , systemd
 , testers
+, yarn
 }:
 
 buildGoModule rec {
   pname = "grafana-agent";
-  version = "0.35.2";
+  version = "0.38.0";
 
   src = fetchFromGitHub {
     owner = "grafana";
     repo = "agent";
     rev = "v${version}";
-    hash = "sha256-jotJe7DIPYNekAxiMdghdykEXVD7Pk/MPWSH2XjhkL8=";
+    hash = "sha256-lXjtKZJNkYffizNiX+rrRVu94mr+WXnsKKpEaLdd2Rs=";
   };
 
-  vendorHash = "sha256-MqUkGKOzx8Qo9xbD9GdUryVwKjpVUOXFo2x0/2uz8Uk=";
+  vendorHash = "sha256-+6ReDdjCHED8kYVt7WSUFT+Gsmg+AIyS3oIfj2kTCGo=";
   proxyVendor = true; # darwin/linux hash mismatch
+
+  frontendYarnOfflineCache = fetchYarnDeps {
+    yarnLock = src + "/web/ui/yarn.lock";
+    hash = "sha256-rT0UCInISo/p60xzQC7wAJFuKFByIzhNf0RxFFJx+3k=";
+  };
 
   ldflags = let
     prefix = "github.com/grafana/agent/pkg/build";
@@ -34,7 +43,10 @@ buildGoModule rec {
     "-X ${prefix}.BuildDate=1980-01-01T00:00:00Z"
   ];
 
+  nativeBuildInputs = [ fixup_yarn_lock nodejs yarn ];
+
   tags = [
+    "builtinassets"
     "nonetwork"
     "nodocker"
     "promtail_journal_enabled"
@@ -43,7 +55,26 @@ buildGoModule rec {
   subPackages = [
     "cmd/grafana-agent"
     "cmd/grafana-agentctl"
+    "web/ui"
   ];
+
+  preBuild = ''
+    export HOME="$TMPDIR"
+
+    pushd web/ui
+    fixup_yarn_lock yarn.lock
+    yarn config --offline set yarn-offline-mirror $frontendYarnOfflineCache
+    yarn install --offline --frozen-lockfile --ignore-platform --ignore-scripts --no-progress --non-interactive
+    patchShebangs node_modules
+    yarn --offline run build
+    popd
+  '';
+
+  # do not pass preBuild to go-modules.drv, as it would otherwise fail to build.
+  # but even if it would work, it simply isn't needed in that scope.
+  overrideModAttrs = (_: {
+    preBuild = null;
+  });
 
   # uses go-systemd, which uses libsystemd headers
   # https://github.com/coreos/go-systemd/issues/351

@@ -1,28 +1,30 @@
 { lib
 , buildPythonPackage
 , fetchFromGitHub
+, freezegun
 , poetry-core
 , pydantic
-, requests
-, pytestCheckHook
 , pytest-asyncio
+, pytestCheckHook
+, pythonOlder
+, requests
 }:
 
-buildPythonPackage {
+buildPythonPackage rec {
   pname = "langsmith";
-  version = "0.0.14";
+  version = "0.0.63";
   format = "pyproject";
+
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
-    repo = "langchainplus-sdk";
-    # there are no correct tags
-    # https://github.com/langchain-ai/langchainplus-sdk/issues/105
-    rev = "092f67222e4beabca0f51ba03f1ee028f916da63";
-    hash = "sha256-U8fs16Uq80EB7Ey5YuQhUKKI9DOXJWlabM5JdoDnWP0=";
+    repo = "langsmith-sdk";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-KE+WMnuWAq1stZuuwZkOPOKQ2lZNKtxzNbZMRoOdmz0=";
   };
 
-  sourceRoot = "source/python";
+  sourceRoot = "${src.name}/python";
 
   nativeBuildInputs = [
     poetry-core
@@ -34,20 +36,36 @@ buildPythonPackage {
   ];
 
   nativeCheckInputs = [
+    freezegun
     pytest-asyncio
     pytestCheckHook
   ];
 
   disabledTests = [
-    # these tests require network access
+    # These tests require network access
     "integration_tests"
+    # due to circular import
+    "test_as_runnable"
+    "test_as_runnable_batch"
+    "test_as_runnable_async"
+    "test_as_runnable_async_batch"
   ];
 
-  pythonImportsCheck = [ "langsmith" ];
+  disabledTestPaths = [
+    # due to circular import
+    "tests/integration_tests/test_client.py"
+  ];
+
+  pythonImportsCheck = [
+    "langsmith"
+  ];
+
+  __darwinAllowLocalNetworking = true;
 
   meta = with lib; {
     description = "Client library to connect to the LangSmith LLM Tracing and Evaluation Platform";
-    homepage = "https://github.com/langchain-ai/langchainplus-sdk";
+    homepage = "https://github.com/langchain-ai/langsmith-sdk";
+    changelog = "https://github.com/langchain-ai/langsmith-sdk/releases/tag/v${version}";
     license = licenses.mit;
     maintainers = with maintainers; [ natsukium ];
   };

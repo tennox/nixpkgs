@@ -1,7 +1,7 @@
 { lib
 , buildPythonPackage
 , fetchFromGitHub
-, poetry-core
+, hatchling
 , anyio
 , distro
 , httpx
@@ -16,8 +16,8 @@
 
 buildPythonPackage rec {
   pname = "anthropic";
-  version = "0.3.6";
-  format = "pyproject";
+  version = "0.5.0";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
@@ -25,11 +25,11 @@ buildPythonPackage rec {
     owner = "anthropics";
     repo = "anthropic-sdk-python";
     rev = "refs/tags/v${version}";
-    hash = "sha256-dfMlM7IRP1PG7Ynr+MR4OPeKnHBbhhWKSug7UQ4/4rI=";
+    hash = "sha256-+EiFp55tPsILl6uuTh9qmeQDMKlUzegn3xUo6BupN2E=";
   };
 
   nativeBuildInputs = [
-    poetry-core
+    hatchling
   ];
 
   propagatedBuildInputs = [
@@ -61,6 +61,5 @@ buildPythonPackage rec {
     changelog = "https://github.com/anthropics/anthropic-sdk-python/releases/tag/v${version}";
     license = licenses.mit;
     maintainers = with maintainers; [ natsukium ];
-    broken = lib.versionAtLeast pydantic.version "2";
   };
 }

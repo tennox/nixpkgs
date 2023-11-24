@@ -23,6 +23,7 @@
 , glib
 , graphene
 , gtk4
+, libGL
 , libadwaita
 , libdrm
 , mesa
@@ -36,19 +37,19 @@ let
   nvtop = fetchFromGitHub {
     owner = "Syllo";
     repo = "nvtop";
-    rev = "9a8458b541a195a0c5cadafb66e240962c852b39";
-    hash = "sha256-iFBZbESRTuwgLSUuHnjcXwmpvdeQrd3oUJd7BRyxu84=";
+    rev = "be47f8c560487efc6e6a419d59c69bfbdb819324";
+    hash = "sha256-MdaZYLxCuVX4LvbwBYNfHHoJWqZAy4J8NBK7Guh2whc=";
   };
 in
 stdenv.mkDerivation rec {
   pname = "mission-center";
-  version = "0.2.5";
+  version = "0.3.3";
 
   src = fetchFromGitLab {
     owner = "mission-center-devs";
     repo = "mission-center";
     rev = "v${version}";
-    hash = "sha256-f6GkwF+3USl60pUxxTu90KzdsfxBiAkiqnBSTTmC2Lc=";
+    hash = "sha256-xLyCLKUk21MvswtPUKm41Hr34vTzCMVQNTaAkuhSGLc=";
   };
 
   cargoDeps = symlinkJoin {
@@ -57,11 +58,11 @@ stdenv.mkDerivation rec {
       (rustPlatform.importCargoLock {
         lockFile = ./Cargo.lock;
         outputHashes = {
-         "pathfinder_canvas-0.5.0" = "sha256-k2Sj69hWA0UzRfv91aG1TAygVIuOX3gmipcDbuZxxc8=";
+          "pathfinder_canvas-0.5.0" = "sha256-k2Sj69hWA0UzRfv91aG1TAygVIuOX3gmipcDbuZxxc8=";
         };
       })
       (rustPlatform.importCargoLock {
-        lockFile = ./proxy-Cargo.lock;
+        lockFile = ./gatherer-Cargo.lock;
       })
     ];
   };
@@ -92,6 +93,7 @@ stdenv.mkDerivation rec {
     glib
     graphene
     gtk4
+    libGL
     libadwaita
     libdrm
     mesa
@@ -102,16 +104,32 @@ stdenv.mkDerivation rec {
   ];
 
   postPatch = ''
-    echo -e "[wrap-file]\ndirectory = nvtop-src\n[provide]\ndependency_names = nvtop" > ./subprojects/nvtop.wrap
-    cp -r --no-preserve=mode,ownership "${nvtop}" ./subprojects/nvtop-src
-    cd ./subprojects/nvtop-src
+    substituteInPlace src/main.rs \
+      --replace "libGL.so.1" "${libGL}/lib/libGL.so.1"
+
+    SRC_GATHERER=$NIX_BUILD_TOP/source/src/sys_info_v2/gatherer
+    SRC_GATHERER_NVTOP=$SRC_GATHERER/3rdparty/nvtop
+
+    substituteInPlace $SRC_GATHERER_NVTOP/nvtop.json \
+      --replace "nvtop-be47f8c560487efc6e6a419d59c69bfbdb819324" "nvtop-src"
+
+    GATHERER_BUILD_DEST=$NIX_BUILD_TOP/source/build/src/sys_info_v2/gatherer/src/debug/build/native
+    mkdir -p $GATHERER_BUILD_DEST
+    NVTOP_SRC=$GATHERER_BUILD_DEST/nvtop-src
+
+    cp -r --no-preserve=mode,ownership "${nvtop}" $NVTOP_SRC
+    pushd $NVTOP_SRC
     mkdir -p include/libdrm
-    for patchfile in $(ls ../packagefiles/nvtop*.patch); do
+    for patchfile in $(ls $SRC_GATHERER_NVTOP/patches/nvtop*.patch); do
       patch -p1 < $patchfile
     done
-    cd ../..
+    popd
+
     patchShebangs data/hwdb/generate_hwdb.py
-    sed -i 's|cmd.arg("dmidecode")|cmd.arg("${dmidecode}/bin/dmidecode")|g' src/sys_info_v2/mem_info.rs
+  '';
+
+  postInstall = ''
+    wrapProgram $out/bin/missioncenter --prefix PATH : $out/bin:${dmidecode}/bin
   '';
 
   meta = with lib; {
@@ -120,5 +138,6 @@ stdenv.mkDerivation rec {
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ GaetanLepage ];
     platforms = platforms.linux;
+    mainProgram = "missioncenter";
   };
 }

@@ -32,16 +32,16 @@
 
 buildPythonPackage rec {
   pname = "angr";
-  version = "9.2.63";
-  format = "pyproject";
+  version = "9.2.78";
+  pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.11";
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "angr";
+    repo = "angr";
     rev = "refs/tags/v${version}";
-    hash = "sha256-vrcziVoH+P0cqnzalwZOyu7awidQ0Lv6vT6Uq9Pu4I0=";
+    hash = "sha256-ohmaj5Gp8VXgXJFtg0yx8uHRcCAVm/MaDD9HGfTrtvo=";
   };
 
   propagatedBuildInputs = [

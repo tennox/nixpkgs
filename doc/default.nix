@@ -19,8 +19,12 @@ let
       { name = "options"; description = "NixOS / nixpkgs option handling"; }
       { name = "path"; description = "path functions"; }
       { name = "filesystem"; description = "filesystem functions"; }
+      { name = "fileset"; description = "file set functions"; }
       { name = "sources"; description = "source filtering functions"; }
       { name = "cli"; description = "command-line serialization functions"; }
+      { name = "gvariant"; description = "GVariant formatted string serialization functions"; }
+      { name = "customisation"; description = "Functions to customise (derivation-related) functions, derivatons, or attribute sets"; }
+      { name = "meta"; description = "functions for derivation metadata"; }
     ];
   };
 

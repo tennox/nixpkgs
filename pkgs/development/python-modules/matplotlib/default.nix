@@ -8,10 +8,13 @@
 
 # https://github.com/matplotlib/matplotlib/blob/main/doc/devel/dependencies.rst
 # build-system
+, certifi
+, oldest-supported-numpy
 , pkg-config
 , pybind11
 , setuptools
 , setuptools-scm
+, wheel
 
 # native libraries
 , ffmpeg-headless
@@ -76,7 +79,7 @@ let
 in
 
 buildPythonPackage rec {
-  version = "3.7.2";
+  version = "3.8.0";
   pname = "matplotlib";
   format = "pyproject";
 
@@ -84,7 +87,7 @@ buildPythonPackage rec {
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-qM25Hd2wRDa9LwmLj99LgTUuaM9NLGdW/MQUeRB2Vps=";
+    hash = "sha256-34UF4cGdXCwmr/NJeny9PM/C6XBD0eTbPnavo5kWS2k=";
   };
 
   env.XDG_RUNTIME_DIR = "/tmp";
@@ -116,11 +119,14 @@ buildPythonPackage rec {
     '';
 
   nativeBuildInputs = [
+    certifi
+    numpy
+    oldest-supported-numpy # TODO remove after updating to 3.8.0
     pkg-config
     pybind11
     setuptools
     setuptools-scm
-    numpy
+    wheel
   ] ++ lib.optionals enableGtk3 [
     gobject-introspection
   ];

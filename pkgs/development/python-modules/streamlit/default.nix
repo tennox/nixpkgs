@@ -12,16 +12,18 @@
 , packaging
 , pandas
 , pillow
-, protobuf3
+, protobuf
 , pyarrow
 , pydeck
 , pympler
 , python-dateutil
 , pythonOlder
+, setuptools
 , requests
 , rich
 , tenacity
 , toml
+, tornado
 , typing-extensions
 , tzlocal
 , validators
@@ -30,15 +32,19 @@
 
 buildPythonPackage rec {
   pname = "streamlit";
-  version = "1.24.1";
-  format = "setuptools";
+  version = "1.28.1";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
-    inherit pname version format;
-    hash = "sha256-/V8LZHmOlwY2RAj7WJt3WVMUpjFdE7LXULljx66X82I=";
+    inherit pname version;
+    hash = "sha256-zKBPbZWxS3vDfwyrrydQS4ava04a+Y1zrMgOzc+8xJI=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     altair
@@ -51,7 +57,7 @@ buildPythonPackage rec {
     packaging
     pandas
     pillow
-    protobuf3
+    protobuf
     pyarrow
     pydeck
     pympler
@@ -60,6 +66,7 @@ buildPythonPackage rec {
     rich
     tenacity
     toml
+    tornado
     typing-extensions
     tzlocal
     validators

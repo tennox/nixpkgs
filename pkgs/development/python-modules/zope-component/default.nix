@@ -3,10 +3,10 @@
 , fetchPypi
 , zope_configuration
 , zope-deferredimport
-, zope_deprecation
+, zope-deprecation
 , zope_event
 , zope-hookable
-, zope_i18nmessageid
+, zope-i18nmessageid
 , zope_interface
 }:
 
@@ -24,10 +24,10 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     zope_configuration
     zope-deferredimport
-    zope_deprecation
+    zope-deprecation
     zope_event
     zope-hookable
-    zope_i18nmessageid
+    zope-i18nmessageid
     zope_interface
   ];
 

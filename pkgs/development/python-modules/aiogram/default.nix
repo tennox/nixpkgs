@@ -17,7 +17,7 @@
 
 buildPythonPackage rec {
   pname = "aiogram";
-  version = "2.25.1";
+  version = "3.0.0";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
@@ -25,8 +25,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "aiogram";
     repo = "aiogram";
-    rev = "v${version}";
-    hash = "sha256-g8nuvna7DpXElvjBehnGKHUsrf+nyQcoKNnyR59RALo=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-bWwK761gn7HsR9ObcBDfvQH0fJfTAo0QAcL/HcNdHik=";
   };
 
   postPatch = ''
@@ -51,6 +51,12 @@ buildPythonPackage rec {
     pytest-lazy-fixture
     pytestCheckHook
     redis
+  ];
+
+  # requires network
+  disabledTests = [
+    "test_download_file_404"
+    "test_download_404"
   ];
 
   pythonImportsCheck = [ "aiogram" ];

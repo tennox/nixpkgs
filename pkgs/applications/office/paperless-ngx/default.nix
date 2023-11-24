@@ -1,6 +1,7 @@
 { lib
 , stdenv
 , fetchFromGitHub
+, fetchpatch
 , buildNpmPackage
 , nixosTests
 , gettext
@@ -19,13 +20,13 @@
 }:
 
 let
-  version = "1.16.5";
+  version = "1.17.4";
 
   src = fetchFromGitHub {
     owner = "paperless-ngx";
     repo = "paperless-ngx";
     rev = "refs/tags/v${version}";
-    hash = "sha256-suwXFqq3QSdY0KzSpr6NKPwm6xtMBR8aP5VV3XTynqI=";
+    hash = "sha256-Kl8AUfHfEiEy40qeDI8x2rxdXcj01mpitw7T/96ibQQ=";
   };
 
   # Use specific package versions required by paperless-ngx
@@ -51,7 +52,7 @@ let
     pname = "paperless-ngx-frontend";
     inherit version src;
 
-    npmDepsHash = "sha256-rzIDivZTZZWt6kgLt8mstYmvv5TlC+O8O/g01+aLMHQ=";
+    npmDepsHash = "sha256-5Q9NtIO7k/6AiF9Er10HhmEBFyQOP9CiTkTZglUeChg=";
 
     nativeBuildInputs = [
       python3
@@ -90,6 +91,16 @@ python.pkgs.buildPythonApplication rec {
   format = "other";
 
   inherit version src;
+
+  patches = [
+    # https://github.com/paperless-ngx/paperless-ngx/pull/4146
+    (fetchpatch {
+      name = "fix-tests-for-python311.patch";
+      url = "https://github.com/paperless-ngx/paperless-ngx/commit/73f6c0a056e3859061339e295f57213fd4239b2d.patch";
+      hash = "sha256-sZcRug5T4cw5ppKpGYrrfz9RxtYxnkeNOlXcMgdWT0E=";
+    })
+  ];
+
 
   nativeBuildInputs = [
     gettext
@@ -204,7 +215,7 @@ python.pkgs.buildPythonApplication rec {
     whoosh
     zipp
     zope_interface
-    zxing_cpp
+    zxing-cpp
   ]
   ++ redis.optional-dependencies.hiredis
   ++ twisted.optional-dependencies.tls
@@ -213,13 +224,13 @@ python.pkgs.buildPythonApplication rec {
   postBuild = ''
     # Compile manually because `pythonRecompileBytecodeHook` only works
     # for files in `python.sitePackages`
-    ${python.pythonForBuild.interpreter} -OO -m compileall src
+    ${python.pythonOnBuildForHost.interpreter} -OO -m compileall src
 
     # Collect static files
-    ${python.pythonForBuild.interpreter} src/manage.py collectstatic --clear --no-input
+    ${python.pythonOnBuildForHost.interpreter} src/manage.py collectstatic --clear --no-input
 
     # Compile string translations using gettext
-    ${python.pythonForBuild.interpreter} src/manage.py compilemessages
+    ${python.pythonOnBuildForHost.interpreter} src/manage.py compilemessages
   '';
 
   installPhase = ''
@@ -242,12 +253,13 @@ python.pkgs.buildPythonApplication rec {
 
   nativeCheckInputs = with python.pkgs; [
     daphne
-    factory_boy
+    factory-boy
     imagehash
     pdfminer-six
     pytest-django
     pytest-env
     pytest-httpx
+    pytest-rerunfailures
     pytest-xdist
     pytestCheckHook
     reportlab

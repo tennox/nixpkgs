@@ -12,7 +12,6 @@
 , importlib-metadata
 , substituteAll
 , runCommand
-, fetchpatch
 
 , config
 
@@ -27,16 +26,18 @@
 let
   inherit (cudaPackages) cudatoolkit;
 in buildPythonPackage rec {
-  # Using an untagged version, with numpy 1.25 support
-  version = "unstable-2023-08-02";
+  # Using an untagged version, with numpy 1.25 support, when it's released
+  # also drop the versioneer patch in postPatch
+  version = "0.58.1";
   pname = "numba";
-  format = "setuptools";
-  disabled = pythonOlder "3.6" || pythonAtLeast "3.11";
+  pyproject = true;
+
+  disabled = pythonOlder "3.8" || pythonAtLeast "3.12";
 
   src = fetchFromGitHub {
     owner = "numba";
     repo = "numba";
-    rev = "fcf94205335dcc6135d2e19c07bbef968d13610d";
+    rev = "refs/tags/${version}";
     # Upstream uses .gitattributes to inject information about the revision
     # hash and the refname into `numba/_version.py`, see:
     #
@@ -49,7 +50,7 @@ in buildPythonPackage rec {
     # use `forceFetchGit = true;`.` If in the future we'll observe the hash
     # changes too often, we can always use forceFetchGit, and inject the
     # relevant strings ourselves, using `sed` commands, in extraPostFetch.
-    hash = "sha256-Wm1sV4uS/Xkz1BkT2xNmwgBZS0X8YziC6jlbfolXGB8=";
+    hash = "sha256-1Tj2GFoUwRRCWBFxhreF+0Mr+Tjyb7+X4peO+T0qGNs=";
   };
   env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.isDarwin "-I${lib.getDev libcxx}/include/c++/v1";
 
@@ -123,6 +124,7 @@ in buildPythonPackage rec {
     description = "Compiling Python code using LLVM";
     homepage = "https://numba.pydata.org/";
     license = licenses.bsd2;
+    mainProgram = "numba";
     maintainers = with maintainers; [ fridh ];
   };
 }

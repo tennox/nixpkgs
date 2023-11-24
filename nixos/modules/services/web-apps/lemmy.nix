@@ -146,7 +146,7 @@ in
         ensureDatabases = [ cfg.settings.database.database ];
         ensureUsers = [{
           name = cfg.settings.database.user;
-          ensurePermissions."DATABASE ${cfg.settings.database.database}" = "ALL PRIVILEGES";
+          ensureDBOwnership = true;
         }];
       };
 
@@ -157,6 +157,10 @@ in
         virtualHosts."${cfg.settings.hostname}" = {
           extraConfig = ''
             handle_path /static/* {
+              root * ${cfg.ui.package}/dist
+              file_server
+            }
+            handle_path /static/${cfg.ui.package.passthru.commit_sha}/* {
               root * ${cfg.ui.package}/dist
               file_server
             }

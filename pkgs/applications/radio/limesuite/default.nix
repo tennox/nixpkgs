@@ -7,13 +7,13 @@
 
 stdenv.mkDerivation rec {
   pname = "limesuite";
-  version = "22.09.1";
+  version = "23.10.0";
 
   src = fetchFromGitHub {
     owner = "myriadrf";
     repo = "LimeSuite";
     rev = "v${version}";
-    sha256 = "sha256-t3v2lhPZ1L/HRRBwA3k1KfIpih6R4TUmBWaIm8sVGdY=";
+    sha256 = "sha256-o58UNc4r+MQbH00727YTV17M7D29BbH8CgUXCORKk7E=";
   };
 
   nativeBuildInputs = [ cmake ];

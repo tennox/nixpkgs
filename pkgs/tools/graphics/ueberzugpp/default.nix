@@ -24,19 +24,17 @@
 , wayland-protocols
 , enableX11 ? stdenv.isLinux
 , xorg
-, withoutStdRanges ? stdenv.isDarwin
-, range-v3
 }:
 
 stdenv.mkDerivation rec {
   pname = "ueberzugpp";
-  version = "2.9.0";
+  version = "2.9.2";
 
   src = fetchFromGitHub {
     owner = "jstkdng";
     repo = "ueberzugpp";
     rev = "v${version}";
-    hash = "sha256-n1cSHHPCx6igJmBxAbny7gntZQk4cMb358zx7f2lMi8=";
+    hash = "sha256-yIohpJRytmwt+6DLCWpmBiuCm9GcCHsGmpTI64/3d8U=";
   };
 
   strictDeps = true;
@@ -69,8 +67,6 @@ stdenv.mkDerivation rec {
   ] ++ lib.optionals enableX11 [
     xorg.libX11
     xorg.xcbutilimage
-  ] ++ lib.optionals withoutStdRanges [
-    range-v3
   ];
 
   cmakeFlags = lib.optionals (!enableOpencv) [

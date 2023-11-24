@@ -37,8 +37,6 @@ in {
         "d /var/lib/nextcloud-data 0750 nextcloud nginx - -"
       ];
 
-      system.stateVersion = "22.11"; # stateVersion >=21.11 to make sure that we use OpenSSL3
-
       services.nextcloud = {
         enable = true;
         datadir = "/var/lib/nextcloud-data";
@@ -90,8 +88,8 @@ in {
       test -e graph
       grep "$what" graph >$out || true
     '';
-    nextcloudUsesImagick = findInClosure "imagick" nodes.nextcloud.config.system.build.vm;
-    nextcloudWithoutDoesntUseIt = findInClosure "imagick" nodes.nextcloudWithoutMagick.config.system.build.vm;
+    nextcloudUsesImagick = findInClosure "imagick" nodes.nextcloud.system.build.vm;
+    nextcloudWithoutDoesntUseIt = findInClosure "imagick" nodes.nextcloudWithoutMagick.system.build.vm;
   in ''
     assert open("${nextcloudUsesImagick}").read() != ""
     assert open("${nextcloudWithoutDoesntUseIt}").read() == ""

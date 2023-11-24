@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "klipper";
-  version = "unstable-2023-08-01";
+  version = "unstable-2023-11-16";
 
   src = fetchFromGitHub {
     owner = "KevinOConnor";
     repo = "klipper";
-    rev = "ed66982b8eb06ce8843d8b5163c6bd290e1754c9";
-    sha256 = "sha256-17iWI+FEX2+liaiVpbpdp0nN7BLxdnTV8qahdsO2ZOg=";
+    rev = "187cc2f1b89e3870d694f8db6a64b116992106b7";
+    sha256 = "sha256-CmnWgX8MvQs/5jQuAR8+1bKM4VsFXF2pV/jme75WJLY=";
   };
 
   sourceRoot = "${src.name}/klippy";
@@ -38,6 +38,10 @@ stdenv.mkDerivation rec {
       substituteInPlace $file \
         --replace '/usr/bin/env python2' '/usr/bin/env python'
     done
+
+    # needed for cross compilation
+    substituteInPlace ./chelper/__init__.py \
+      --replace 'GCC_CMD = "gcc"' 'GCC_CMD = "${stdenv.cc.targetPrefix}cc"'
   '';
 
   # NB: We don't move the main entry point into `/bin`, or even symlink it,

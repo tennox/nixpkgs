@@ -1,4 +1,4 @@
-{ lib, stdenv, stdenvNoCC, lndir, runtimeShell, shellcheck, haskell }:
+{ lib, stdenv, stdenvNoCC, lndir, runtimeShell, shellcheck-minimal }:
 
 let
   inherit (lib)
@@ -304,12 +304,15 @@ rec {
       checkPhase = ''
         ${stdenv.shellDryRun} "$target"
       '';
+      meta.mainProgram = name;
     };
 
   /*
     Similar to writeShellScriptBin and writeScriptBin.
     Writes an executable Shell script to /nix/store/<store path>/bin/<name> and
     checks its syntax with shellcheck and the shell's -n option.
+    Individual checks can be foregone by putting them in the excludeShellChecks
+    list, e.g. [ "SC2016" ].
     Automatically includes sane set of shellopts (errexit, nounset, pipefail)
     and handles creation of PATH based on runtimeInputs
 
@@ -335,10 +338,12 @@ rec {
     { name
     , text
     , runtimeInputs ? [ ]
+    , meta ? { }
     , checkPhase ? null
+    , excludeShellChecks ? [  ]
     }:
     writeTextFile {
-      inherit name;
+      inherit name meta;
       executable = true;
       destination = "/bin/${name}";
       allowSubstitutes = true;
@@ -360,11 +365,12 @@ rec {
         # GHC (=> shellcheck) isn't supported on some platforms (such as risc-v)
         # but we still want to use writeShellApplication on those platforms
         let
-          shellcheckSupported = lib.meta.availableOn stdenv.buildPlatform shellcheck.compiler;
+          shellcheckSupported = lib.meta.availableOn stdenv.buildPlatform shellcheck-minimal.compiler;
+          excludeOption = lib.optionalString (excludeShellChecks != [  ]) "--exclude '${lib.concatStringsSep "," excludeShellChecks}'";
           shellcheckCommand = lib.optionalString shellcheckSupported ''
             # use shellcheck which does not include docs
             # pandoc takes long to build and documentation isn't needed for just running the cli
-            ${lib.getExe (haskell.lib.compose.justStaticExecutables shellcheck.unwrapped)} "$target"
+            ${lib.getExe shellcheck-minimal} ${excludeOption} "$target"
           '';
         in
         if checkPhase == null then ''
@@ -377,21 +383,21 @@ rec {
     };
 
   # Create a C binary
-  writeCBin = name: code:
-    runCommandCC name
+  writeCBin = pname: code:
+    runCommandCC pname
     {
-      inherit name code;
+      inherit pname code;
       executable = true;
       passAsFile = ["code"];
       # Pointless to do this on a remote machine.
       preferLocalBuild = true;
       allowSubstitutes = false;
       meta = {
-        mainProgram = name;
+        mainProgram = pname;
       };
     }
     ''
-      n=$out/bin/$name
+      n=$out/bin/${pname}
       mkdir -p "$(dirname "$n")"
       mv "$codePath" code.c
       $CC -x c code.c -o "$n"
@@ -904,13 +910,17 @@ rec {
              ) + "-patched"
     , patches   ? []
     , postPatch ? ""
-    }: stdenvNoCC.mkDerivation {
+    , ...
+    }@args: stdenvNoCC.mkDerivation {
       inherit name src patches postPatch;
       preferLocalBuild = true;
       allowSubstitutes = false;
       phases = "unpackPhase patchPhase installPhase";
       installPhase = "cp -R ./ $out";
-    };
+    }
+    # Carry `meta` information from the underlying `src` if present.
+    // (optionalAttrs (src?meta) { inherit (src) meta; })
+    // (removeAttrs args [ "src" "name" "patches" "postPatch" ]);
 
   /* An immutable file in the store with a length of 0 bytes. */
   emptyFile = runCommand "empty-file" {

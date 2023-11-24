@@ -7,6 +7,7 @@
 , click
 , colorama
 , dbt-extractor
+, dbt-semantic-interfaces
 , hologram
 , idna
 , isodate
@@ -30,17 +31,17 @@
 
 buildPythonPackage rec {
   pname = "dbt-core";
-  version = "1.5.3";
+  version = "1.6.2";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "dbt-labs";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-ZgP11fVMtXpzo9QaTkejvKl0LzCAkIyGBMcOquBirxQ=";
+    hash = "sha256-zmZdFOB0jQHamRJ7Zuzr/augP6Y2smAdUvqSXDZDuwo=";
   };
 
-  sourceRoot = "source/core";
+  sourceRoot = "${src.name}/core";
 
   nativeBuildInputs = [
     pythonRelaxDepsHook
@@ -51,6 +52,7 @@ buildPythonPackage rec {
     "click"
     "mashumaro"
     "networkx"
+    "logbook"
   ];
 
   propagatedBuildInputs = [
@@ -59,6 +61,7 @@ buildPythonPackage rec {
     click
     colorama
     dbt-extractor
+    dbt-semantic-interfaces
     hologram
     idna
     isodate

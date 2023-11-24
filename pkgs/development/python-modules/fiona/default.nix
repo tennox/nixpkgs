@@ -2,9 +2,11 @@
 , buildPythonPackage
 , pythonOlder
 , fetchFromGitHub
-, cython
+, cython_3
 , gdal
+, oldest-supported-numpy
 , setuptools
+, wheel
 , attrs
 , certifi
 , click
@@ -19,8 +21,8 @@
 
 buildPythonPackage rec {
   pname = "fiona";
-  version = "1.9.4.post1";
-  format = "pyproject";
+  version = "1.9.5";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
@@ -28,13 +30,15 @@ buildPythonPackage rec {
     owner = "Toblerity";
     repo = "Fiona";
     rev = "refs/tags/${version}";
-    hash = "sha256-CeGdWAmWteVtL0BoBQ1sB/+1AWkmxogtK99bL5Fpdbw=";
+    hash = "sha256-fq/BuyzuK4iOxdpE4h+KRH0CxOEk/wdmbb9KgCfJ1cw=";
   };
 
   nativeBuildInputs = [
-    cython
+    cython_3
     gdal # for gdal-config
+    oldest-supported-numpy
     setuptools
+    wheel
   ];
 
   buildInputs = [

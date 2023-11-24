@@ -5,6 +5,7 @@
 , cmake
 , dbus
 , dconf
+, ddcutil
 , glib
 , imagemagick_light
 , libglvnd
@@ -24,7 +25,9 @@
 , vulkan-loader
 , wayland
 , xfce
+, yyjson
 , zlib
+, Apple80211
 , AppKit
 , Cocoa
 , CoreDisplay
@@ -40,13 +43,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "fastfetch";
-  version = "1.12.2";
+  version = "2.2.3";
 
   src = fetchFromGitHub {
     owner = "fastfetch-cli";
     repo = "fastfetch";
     rev = finalAttrs.version;
-    hash = "sha256-l9fIm7+dBsOqGoFUYtpYESAjDy3496rDTUDQjbNU4U0=";
+    hash = "sha256-JaD0R1vfHoWMhipMtTW0dlggR7RbD2evHfHrjoZJBmk=";
   };
 
   nativeBuildInputs = [
@@ -59,10 +62,12 @@ stdenv.mkDerivation (finalAttrs: {
     chafa
     imagemagick_light
     sqlite
+    yyjson
   ]
   ++ lib.optionals stdenv.isLinux [
     dbus
     dconf
+    ddcutil
     glib
     libglvnd
     libpulseaudio
@@ -79,6 +84,7 @@ stdenv.mkDerivation (finalAttrs: {
     zlib
   ]
   ++ lib.optionals stdenv.isDarwin [
+    Apple80211
     AppKit
     Cocoa
     CoreDisplay
@@ -94,6 +100,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeFlags = [
     "-DCMAKE_INSTALL_SYSCONFDIR=${placeholder "out"}/etc"
+    "-DENABLE_SYSTEM_YYJSON=YES"
+  ];
+
+  env.NIX_CFLAGS_COMPILE = toString [
+    # Needed with GCC 12
+    "-Wno-error=uninitialized"
   ];
 
   postInstall = ''
@@ -114,9 +126,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "Like neofetch, but much faster because written in C";
-    inherit (finalAttrs.src.meta) homepage;
+    homepage = "https://github.com/fastfetch-cli/fastfetch";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ gerg-l khaneliman ];
+    maintainers = with lib.maintainers; [ gerg-l khaneliman federicoschonborn ];
     platforms = lib.platforms.all;
     mainProgram = "fastfetch";
   };

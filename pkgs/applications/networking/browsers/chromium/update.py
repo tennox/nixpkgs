@@ -21,12 +21,11 @@ from urllib.request import urlopen
 
 RELEASES_URL = 'https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/all/versions/all/releases'
 DEB_URL = 'https://dl.google.com/linux/chrome/deb/pool/main/g'
-BUCKET_URL = 'https://commondatastorage.googleapis.com/chromium-browser-official'
 
 PIN_PATH = dirname(abspath(__file__)) + '/upstream-info.nix'
 UNGOOGLED_FLAGS_PATH = dirname(abspath(__file__)) + '/ungoogled-flags.toml'
 COMMIT_MESSAGE_SCRIPT = dirname(abspath(__file__)) + '/get-commit-message.py'
-
+NIXPKGS_PATH = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], cwd=dirname(PIN_PATH)).strip()
 
 def load_as_json(path):
     """Loads the given nix file as JSON."""
@@ -41,11 +40,28 @@ def save_dict_as_nix(path, input):
     with open(path, 'w') as out:
         out.write(formatted.decode())
 
+def prefetch_src_sri_hash(attr_path, version):
+    """Prefetches the fixed-output-derivation source tarball and returns its SRI-Hash."""
+    print(f'nix-build (FOD prefetch) {attr_path} {version}')
+    out = subprocess.run(
+        ["nix-build", "--expr", f'(import ./. {{}}).{attr_path}.browser.passthru.recompressTarball {{ version = "{version}"; }}'],
+        cwd=NIXPKGS_PATH,
+        stderr=subprocess.PIPE
+    ).stderr.decode()
+
+    for line in iter(out.split("\n")):
+        match = re.match(r"\s+got:\s+(.+)$", line)
+        if match:
+            print(f'Hash: {match.group(1)}')
+            return match.group(1)
+    print(f'{out}\n\nError: Expected hash in nix-build stderr output.', file=sys.stderr)
+    sys.exit(1)
+
 def nix_prefetch_url(url, algo='sha256'):
     """Prefetches the content of the given URL."""
-    print(f'nix-prefetch-url {url}')
-    out = subprocess.check_output(['nix-prefetch-url', '--type', algo, url])
-    return out.decode('utf-8').rstrip()
+    print(f'nix store prefetch-file {url}')
+    out = subprocess.check_output(['nix', 'store', 'prefetch-file', '--json', '--hash-type', algo, url])
+    return json.loads(out)['hash']
 
 
 def nix_prefetch_git(url, rev):
@@ -63,21 +79,26 @@ def get_file_revision(revision, file_path):
         return base64.b64decode(resp)
 
 
-def get_matching_chromedriver(version):
-    """Gets the matching chromedriver version for the given Chromium version."""
-    # See https://chromedriver.chromium.org/downloads/version-selection
-    build = re.sub('.[0-9]+$', '', version)
-    chromedriver_version_url = f'https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{build}'
-    with urlopen(chromedriver_version_url) as http_response:
-        chromedriver_version = http_response.read().decode()
-        def get_chromedriver_url(system):
-            return ('https://chromedriver.storage.googleapis.com/' +
-                    f'{chromedriver_version}/chromedriver_{system}.zip')
+def get_chromedriver(channel):
+    """Get the latest chromedriver builds given a channel"""
+    # See https://chromedriver.chromium.org/downloads/version-selection#h.4wiyvw42q63v
+    chromedriver_versions_url = f'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json'
+    print(f'GET {chromedriver_versions_url}')
+    with urlopen(chromedriver_versions_url) as http_response:
+        chromedrivers = json.load(http_response)
+        channel = chromedrivers['channels'][channel]
+        downloads = channel['downloads']['chromedriver']
+
+        def get_chromedriver_url(platform):
+            for download in downloads:
+                if download['platform'] == platform:
+                    return download['url']
+
         return {
-            'version': chromedriver_version,
-            'sha256_linux': nix_prefetch_url(get_chromedriver_url('linux64')),
-            'sha256_darwin': nix_prefetch_url(get_chromedriver_url('mac64')),
-            'sha256_darwin_aarch64': nix_prefetch_url(get_chromedriver_url('mac_arm64'))
+            'version': channel['version'],
+            'hash_linux': nix_prefetch_url(get_chromedriver_url('linux64')),
+            'hash_darwin': nix_prefetch_url(get_chromedriver_url('mac-x64')),
+            'hash_darwin_aarch64': nix_prefetch_url(get_chromedriver_url('mac-arm64'))
         }
 
 
@@ -92,7 +113,7 @@ def get_channel_dependencies(version):
             'version': datetime.fromisoformat(gn['date']).date().isoformat(),
             'url': gn['url'],
             'rev': gn['rev'],
-            'sha256': gn['sha256']
+            'hash': gn['hash']
         }
     }
 
@@ -130,10 +151,6 @@ def channel_name_to_attr_name(channel_name):
     """Maps a channel name to the corresponding main Nixpkgs attribute name."""
     if channel_name == 'stable':
         return 'chromium'
-    if channel_name == 'beta':
-        return 'chromiumBeta'
-    if channel_name == 'dev':
-        return 'chromiumDev'
     if channel_name == 'ungoogled-chromium':
         return 'ungoogled-chromium'
     print(f'Error: Unexpected channel: {channel_name}', file=sys.stderr)
@@ -185,6 +202,10 @@ with urlopen(RELEASES_URL) as resp:
         if channel_name in channels:
             continue
 
+        # We only look for channels that are listed in our version pin file.
+        if channel_name not in last_channels:
+            continue
+
         # If we're back at the last release we used, we don't need to
         # keep going -- there's no new version available, and we can
         # just reuse the info from last time.
@@ -201,8 +222,11 @@ with urlopen(RELEASES_URL) as resp:
             google_chrome_suffix = channel_name
 
         try:
-            channel['sha256'] = nix_prefetch_url(f'{BUCKET_URL}/chromium-{release["version"]}.tar.xz')
-            channel['sha256bin64'] = nix_prefetch_url(
+            channel['hash'] = prefetch_src_sri_hash(
+                channel_name_to_attr_name(channel_name),
+                release["version"]
+            )
+            channel['hash_deb_amd64'] = nix_prefetch_url(
                 f'{DEB_URL}/google-chrome-{google_chrome_suffix}/' +
                 f'google-chrome-{google_chrome_suffix}_{release["version"]}-1_amd64.deb')
         except subprocess.CalledProcessError:
@@ -212,12 +236,12 @@ with urlopen(RELEASES_URL) as resp:
 
         channel['deps'] = get_channel_dependencies(channel['version'])
         if channel_name == 'stable':
-            channel['chromedriver'] = get_matching_chromedriver(channel['version'])
+            channel['chromedriver'] = get_chromedriver('Stable')
         elif channel_name == 'ungoogled-chromium':
             ungoogled_repo_url = 'https://github.com/ungoogled-software/ungoogled-chromium.git'
             channel['deps']['ungoogled-patches'] = {
                 'rev': release['ungoogled_tag'],
-                'sha256': nix_prefetch_git(ungoogled_repo_url, release['ungoogled_tag'])['sha256']
+                'hash': nix_prefetch_git(ungoogled_repo_url, release['ungoogled_tag'])['hash']
             }
             with open(UNGOOGLED_FLAGS_PATH, 'w') as out:
                 out.write(get_ungoogled_chromium_gn_flags(release['ungoogled_tag']))

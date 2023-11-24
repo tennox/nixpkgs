@@ -26,20 +26,19 @@
 , perl
 , python3
 , prometheus-cpp
-, re2
 , zlib
 , texinfo
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "proxysql";
-  version = "2.5.4";
+  version = "2.5.5";
 
   src = fetchFromGitHub {
     owner = "sysown";
     repo = "proxysql";
     rev = finalAttrs.version;
-    hash = "sha256-HFhfAWyDB20t+c4s9NlVwdANrFobVyr+vnmZqx+X20Q=";
+    hash = "sha256-+3cOEM5b5HBQhuI+92meupvQnrUj8jgbedzPJqMoXc8=";
   };
 
   patches = [
@@ -117,7 +116,6 @@ stdenv.mkDerivation (finalAttrs: {
           { f = "lz4"; p = lz4; }
           { f = "pcre"; p = pcre; }
           { f = "prometheus-cpp"; p = prometheus-cpp; }
-          { f = "re2"; p = re2; }
         ]
       )}
 

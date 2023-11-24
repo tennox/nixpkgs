@@ -4,7 +4,7 @@
 , dpkg
 , undmg
 , makeWrapper
-, nodePackages
+, asar
 , alsa-lib
 , at-spi2-atk
 , at-spi2-core
@@ -45,14 +45,14 @@ let
 
   pname = "slack";
 
-  x86_64-darwin-version = "4.33.73";
-  x86_64-darwin-sha256 = "0y8plkl3pm8250xpavc91kn5b9gcdwr7bqzd3i79n48395lx11ka";
+  x86_64-darwin-version = "4.34.121";
+  x86_64-darwin-sha256 = "0j04rj8v6aq4kjlkkc6yf466zq821jg3qy6qppmvyg5z0f08cyar";
 
-  x86_64-linux-version = "4.33.73";
-  x86_64-linux-sha256 = "007i8sjnm1ikjxvgw6nisj4nmv99bwk0r4sfpvc2j4w4wk68sx3m";
+  x86_64-linux-version = "4.34.121";
+  x86_64-linux-sha256 = "11199dsp7phmz0bxlk5al61xp2g6yzgj17nwz0zrx1g7ak0qdvz5";
 
-  aarch64-darwin-version = "4.33.73";
-  aarch64-darwin-sha256 = "15s3ss15yawb04dyzn82xmk1gs70sg2i3agsj2aw0xdx73yjl34p";
+  aarch64-darwin-version = "4.34.121";
+  aarch64-darwin-sha256 = "0pvlf9h8433fi31398g4rkii14gk77a684sln8n95xg5p3lxkydy";
 
   version = {
     x86_64-darwin = x86_64-darwin-version;
@@ -81,9 +81,10 @@ let
   meta = with lib; {
     description = "Desktop client for Slack";
     homepage = "https://slack.com";
+    changelog = "https://slack.com/release-notes";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
-    maintainers = with maintainers; [ mmahut maxeaubrey ];
+    maintainers = with maintainers; [ mmahut amaxine ];
     platforms = [ "x86_64-darwin" "x86_64-linux" "aarch64-darwin" ];
     mainProgram = "slack";
   };
@@ -143,7 +144,7 @@ let
       gtk3 # needed for GSETTINGS_SCHEMAS_PATH
     ];
 
-    nativeBuildInputs = [ dpkg makeWrapper nodePackages.asar ];
+    nativeBuildInputs = [ dpkg makeWrapper asar ];
 
     dontUnpack = true;
     dontBuild = true;

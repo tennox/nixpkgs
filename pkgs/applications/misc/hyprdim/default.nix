@@ -2,38 +2,41 @@
 , rustPlatform
 , fetchFromGitHub
 , installShellFiles
+, nix-update-script
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "hyprdim";
-  version = "2.1.0";
+  version = "2.2.2";
 
   src = fetchFromGitHub {
     owner = "donovanglover";
-    repo = pname;
+    repo = "hyprdim";
     rev = version;
-    hash = "sha256-EJ+3rmfRJOt9xiuWlR5IBoEzChwp35CUum25lYnFY14=";
+    hash = "sha256-b2T/ueinKiheuK+siV29vJfEsEodq6qT2J3XxvoD/14=";
   };
 
-  cargoHash = "sha256-Pd7dM+PPI0mwxbdfTu+gZ0tScZDGa2vGqEwuj8gW1Sk=";
+  cargoHash = "sha256-Sf32vaqcxVdg6/kDidxBSr5XDWg3aNEBpEl31do2ZJ8=";
 
   nativeBuildInputs = [
     installShellFiles
   ];
 
   postInstall = ''
-    installManPage man/hyprdim.1
+    installManPage target/man/hyprdim.1
 
     installShellCompletion --cmd hyprdim \
-      --bash <(cat completions/hyprdim.bash) \
-      --fish <(cat completions/hyprdim.fish) \
-      --zsh <(cat completions/_hyprdim)
+      --bash <(cat target/completions/hyprdim.bash) \
+      --fish <(cat target/completions/hyprdim.fish) \
+      --zsh <(cat target/completions/_hyprdim)
   '';
+
+  passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
     description = "Automatically dim windows in Hyprland when switching between them";
     homepage = "https://github.com/donovanglover/hyprdim";
-    license = licenses.mit;
+    license = licenses.gpl3Plus;
     platforms = platforms.linux;
     maintainers = with maintainers; [ donovanglover ];
     mainProgram = "hyprdim";

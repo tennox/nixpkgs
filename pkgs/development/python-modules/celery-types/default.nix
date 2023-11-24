@@ -8,20 +8,15 @@
 
 buildPythonPackage rec {
   pname = "celery-types";
-  version = "0.19.0";
+  version = "0.20.0";
   format = "pyproject";
 
   disabled = pythonOlder "3.10";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-1OLUJxsuxG/sCKDxKiU4i7o5HyaJdIW8rPo8UofMI28=";
+    hash = "sha256-5cdiVVYF7QWSuu2dUZIwBGzo56EcZ6ghVVwIt87OGWA=";
   };
-
-  patchPhase = ''
-    substituteInPlace pyproject.toml \
-      --replace "poetry.masonry.api" "poetry.core.masonry.api"
-  '';
 
   propagatedBuildInputs = [
     typing-extensions

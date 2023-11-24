@@ -1,28 +1,35 @@
 { lib
+, stdenv
 , rustPlatform
 , fetchFromGitHub
 , pkg-config
-, libgit2_1_6
+, libgit2
+, Security
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "gex";
-  version = "0.6.1";
+  version = "0.6.4";
 
   src = fetchFromGitHub {
     owner = "Piturnah";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-OCC2kHPHWFwqdE0THNZbH7d3gxTBD5MUMWY6PO5GuHU";
+    hash = "sha256-Xer7a3UtFIv3idchI7DfZ5u6qgDW/XFWi5ihtcREXqo=";
   };
 
   nativeBuildInputs = [ pkg-config ];
 
   buildInputs = [
-    libgit2_1_6
+    libgit2
+  ] ++ lib.optionals stdenv.isDarwin [
+    Security
   ];
 
-  cargoHash = "sha256-28sMY47LAdaGmPNmxeu/w1Pn6AV3JlWbxFcit5pLkI0";
+  # force the libgit2-sys crate to use the system libgit2 library
+  LIBGIT2_NO_VENDOR = 1;
+
+  cargoHash = "sha256-HNz1wwn0eUhNR6ZLLPMse8LmAS4CzADx0ZR9gJgJQCg=";
 
   meta = with lib; {
     description = "Git Explorer: cross-platform git workflow improvement tool inspired by Magit";

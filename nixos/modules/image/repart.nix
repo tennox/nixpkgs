@@ -34,12 +34,13 @@ let
           };
         });
         default = { };
-        example = lib.literalExpression '' {
-          "/EFI/BOOT/BOOTX64.EFI".source =
-            "''${pkgs.systemd}/lib/systemd/boot/efi/systemd-bootx64.efi";
+        example = lib.literalExpression ''
+          {
+            "/EFI/BOOT/BOOTX64.EFI".source =
+              "''${pkgs.systemd}/lib/systemd/boot/efi/systemd-bootx64.efi";
 
-          "/loader/entries/nixos.conf".source = systemdBootEntry;
-        }
+            "/loader/entries/nixos.conf".source = systemdBootEntry;
+          }
         '';
         description = lib.mdDoc "The contents to end up in the filesystem image.";
       };
@@ -88,29 +89,35 @@ in
       '';
     };
 
+    package = lib.mkPackageOption pkgs "systemd-repart" {
+      default = "systemd";
+      example = "pkgs.systemdMinimal.override { withCryptsetup = true; }";
+    };
+
     partitions = lib.mkOption {
       type = with lib.types; attrsOf (submodule partitionOptions);
       default = { };
-      example = lib.literalExpression '' {
-        "10-esp" = {
-          contents = {
-            "/EFI/BOOT/BOOTX64.EFI".source =
-              "''${pkgs.systemd}/lib/systemd/boot/efi/systemd-bootx64.efi";
-          }
-          repartConfig = {
-            Type = "esp";
-            Format = "fat";
+      example = lib.literalExpression ''
+        {
+          "10-esp" = {
+            contents = {
+              "/EFI/BOOT/BOOTX64.EFI".source =
+                "''${pkgs.systemd}/lib/systemd/boot/efi/systemd-bootx64.efi";
+            }
+            repartConfig = {
+              Type = "esp";
+              Format = "fat";
+            };
+          };
+          "20-root" = {
+            storePaths = [ config.system.build.toplevel ];
+            repartConfig = {
+              Type = "root";
+              Format = "ext4";
+              Minimize = "guess";
+            };
           };
         };
-        "20-root" = {
-          storePaths = [ config.system.build.toplevel ];
-          repartConfig = {
-            Type = "root";
-            Format = "ext4";
-            Minimize = "guess";
-          };
-        };
-      };
       '';
       description = lib.mdDoc ''
         Specify partitions as a set of the names of the partitions with their
@@ -178,9 +185,10 @@ in
       in
       pkgs.runCommand cfg.name
         {
-          nativeBuildInputs = with pkgs; [
-            fakeroot
-            systemd
+          nativeBuildInputs = [
+            cfg.package
+            pkgs.fakeroot
+            pkgs.util-linux
           ] ++ fileSystemTools;
         } ''
         amendedRepartDefinitions=$(${amendRepartDefinitions} ${partitions} ${definitionsDirectory})
@@ -188,7 +196,7 @@ in
         mkdir -p $out
         cd $out
 
-        fakeroot systemd-repart \
+        unshare --map-root-user fakeroot systemd-repart \
           --dry-run=no \
           --empty=create \
           --size=auto \
@@ -200,10 +208,7 @@ in
           | tee repart-output.json
       '';
 
-    meta = {
-      maintainers = with lib.maintainers; [ nikstur ];
-      doc = ./repart.md;
-    };
+    meta.maintainers = with lib.maintainers; [ nikstur ];
 
   };
 }

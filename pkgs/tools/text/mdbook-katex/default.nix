@@ -2,14 +2,14 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "mdbook-katex";
-  version = "0.5.6";
+  version = "0.5.8";
 
   src = fetchCrate {
     inherit pname version;
-    hash = "sha256-aG7mXMDogGfAHwz+itJthl7sJ4o+Oz5RnrTHNstrh28=";
+    hash = "sha256-YFrl0YR/+lDJW8GjLF0wk0D6Bx9zUxAoAXd9twaxrmM=";
   };
 
-  cargoHash = "sha256-LE9NalzCTYvcj7WwQKVc7HkbyUj9zQIA2RfK8uxNfOk=";
+  cargoHash = "sha256-wBaek9AQKwPsg9TzBmS0yBtn1G0KCnmxfmGCGCFNWxc=";
 
   buildInputs = lib.optionals stdenv.isDarwin [ CoreServices ];
 

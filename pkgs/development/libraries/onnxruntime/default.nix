@@ -17,7 +17,7 @@
 , microsoft-gsl
 , iconv
 , gtest
-, protobuf3_21
+, protobuf_21
 , pythonSupport ? true
 }:
 
@@ -92,7 +92,7 @@ stdenv.mkDerivation rec {
     cmake
     pkg-config
     python3Packages.python
-    protobuf3_21
+    protobuf_21
   ] ++ lib.optionals pythonSupport (with python3Packages; [
     setuptools
     wheel
@@ -132,7 +132,7 @@ stdenv.mkDerivation rec {
   cmakeDir = "../cmake";
 
   cmakeFlags = [
-    "-DCMAKE_BUILD_TYPE=RELEASE"
+    "-DABSL_ENABLE_INSTALL=ON"
     "-DFETCHCONTENT_FULLY_DISCONNECTED=ON"
     "-DFETCHCONTENT_QUIET=OFF"
     "-DFETCHCONTENT_SOURCE_DIR_ABSEIL_CPP=${abseil-cpp.src}"
@@ -143,6 +143,7 @@ stdenv.mkDerivation rec {
     "-DFETCHCONTENT_SOURCE_DIR_MP11=${mp11}"
     "-DFETCHCONTENT_SOURCE_DIR_ONNX=${python3Packages.onnx.src}"
     "-DFETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO=${pytorch_cpuinfo}"
+    "-DFETCHCONTENT_SOURCE_DIR_RE2=${re2.src}"
     "-DFETCHCONTENT_SOURCE_DIR_SAFEINT=${safeint}"
     "-DFETCHCONTENT_TRY_FIND_PACKAGE_MODE=ALWAYS"
     "-Donnxruntime_BUILD_SHARED_LIB=ON"
@@ -152,6 +153,13 @@ stdenv.mkDerivation rec {
   ] ++ lib.optionals pythonSupport [
     "-Donnxruntime_ENABLE_PYTHON=ON"
   ];
+
+  env = lib.optionalAttrs stdenv.cc.isClang {
+    NIX_CFLAGS_COMPILE = toString [
+      "-Wno-error=deprecated-declarations"
+      "-Wno-error=unused-but-set-variable"
+    ];
+  };
 
   doCheck = true;
 
@@ -176,7 +184,7 @@ stdenv.mkDerivation rec {
   '';
 
   passthru = {
-    protobuf = protobuf3_21;
+    protobuf = protobuf_21;
     tests = lib.optionalAttrs pythonSupport {
       python = python3Packages.onnxruntime;
     };

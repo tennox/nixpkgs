@@ -15,18 +15,25 @@
 , makeDesktopItem
 }:
 
-stdenv.mkDerivation rec {
+let
+  wxGTK32' = wxGTK32.overrideAttrs (old: {
+    configureFlags = old.configureFlags ++ [
+      "--disable-exceptions"
+    ];
+  });
+in
+stdenv.mkDerivation (finalAttrs: {
   pname = "freefilesync";
-  version = "12.5";
+  version = "13.1";
 
   src = fetchurl {
-    url = "https://freefilesync.org/download/FreeFileSync_${version}_Source.zip";
+    url = "https://freefilesync.org/download/FreeFileSync_${finalAttrs.version}_Source.zip";
     # The URL only redirects to the file on the second attempt
     postFetch = ''
       rm -f $out
       tryDownload "$url"
     '';
-    hash = "sha256-KTN/HbNLP/+z5rryp3wDRo6c7l03vi6tUxCXZPMGUoM=";
+    hash = "sha256-xuJQOegmZHPsCmJU2akTD4nQh05M+rpnjQVEer33SCk=";
   };
 
   sourceRoot = ".";
@@ -63,7 +70,7 @@ stdenv.mkDerivation rec {
     gtk3
     libssh2
     openssl
-    wxGTK32
+    wxGTK32'
   ];
 
   env.NIX_CFLAGS_COMPILE = toString [
@@ -127,4 +134,4 @@ stdenv.mkDerivation rec {
     maintainers = with maintainers; [ wegank ];
     platforms = platforms.linux;
   };
-}
+})

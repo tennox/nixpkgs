@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "glyphslib";
-  version = "6.2.5";
+  version = "6.4.1";
 
   format = "pyproject";
 
@@ -24,7 +24,7 @@ buildPythonPackage rec {
     owner = "googlefonts";
     repo = "glyphsLib";
     rev = "refs/tags/v${version}";
-    hash = "sha256-El2hRY+ELzdW/Bv34JURsisRr74MEv19sFt9tWFHIes=";
+    hash = "sha256-pDFPn1KDiZ5yw1UzPgi0+Syv3h606bsOOzLbdOiag8s=";
   };
 
   SETUPTOOLS_SCM_PRETEND_VERSION = version;
