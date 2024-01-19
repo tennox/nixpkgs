@@ -62,7 +62,7 @@ let
 
       # Run the ExecStart program.
       my $cmd = <<END_CMD;
-      ${service.serviceConfig.ExecStart}
+      ${concatStringsSep "\n" service.serviceConfig.ExecStart}
       END_CMD
 
       print STDERR "running ExecStart: $cmd\n";
@@ -106,12 +106,12 @@ let
 
   opts = { config, name, ... }: {
     options.runner = mkOption {
-    internal = true;
-    description = lib.mdDoc ''
+      internal = true;
+      description = lib.mdDoc ''
         A script that runs the service outside of systemd,
         useful for testing or for using NixOS services outside
         of NixOS.
-    '';
+      '';
     };
     config.runner = makeScript name config;
   };
