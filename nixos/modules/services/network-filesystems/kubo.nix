@@ -3,11 +3,12 @@ with lib;
 let
   cfg = config.services.kubo;
 
-  settingsFormat = pkgs.formats.json {};
+  settingsFormat = pkgs.formats.json { };
 
-  rawDefaultConfig = lib.importJSON (pkgs.runCommand "kubo-default-config" {
-    nativeBuildInputs = [ cfg.package ];
-  } ''
+  rawDefaultConfig = lib.importJSON (pkgs.runCommand "kubo-default-config"
+    {
+      nativeBuildInputs = [ cfg.package ];
+    } ''
     export IPFS_PATH="$TMPDIR"
     ipfs init --empty-repo --profile=${profile}
     ipfs --offline config show > "$out"
@@ -52,19 +53,21 @@ let
 
   multiaddrsToListenStreams = addrIn:
     let
-      addrs = if builtins.typeOf addrIn == "list"
-      then addrIn else [ addrIn ];
+      addrs =
+        if builtins.typeOf addrIn == "list"
+        then addrIn else [ addrIn ];
       unfilteredResult = map multiaddrToListenStream addrs;
     in
-      builtins.filter (addr: addr != null) unfilteredResult;
+    builtins.filter (addr: addr != null) unfilteredResult;
 
   multiaddrsToListenDatagrams = addrIn:
     let
-      addrs = if builtins.typeOf addrIn == "list"
-      then addrIn else [ addrIn ];
+      addrs =
+        if builtins.typeOf addrIn == "list"
+        then addrIn else [ addrIn ];
       unfilteredResult = map multiaddrToListenDatagram addrs;
     in
-      builtins.filter (addr: addr != null) unfilteredResult;
+    builtins.filter (addr: addr != null) unfilteredResult;
 
   multiaddrToListenStream = addrRaw:
     let
@@ -279,8 +282,8 @@ in
       {
         assertion = !((lib.versionAtLeast cfg.package.version "0.21") && (builtins.hasAttr "Experimental" cfg.settings) && (builtins.hasAttr "AcceleratedDHTClient" cfg.settings.Experimental));
         message = ''
-    The `services.kubo.settings.Experimental.AcceleratedDHTClient` option was renamed to `services.kubo.settings.Routing.AcceleratedDHTClient` in Kubo 0.21.
-  '';
+          The `services.kubo.settings.Experimental.AcceleratedDHTClient` option was renamed to `services.kubo.settings.Routing.AcceleratedDHTClient` in Kubo 0.21.
+        '';
       }
     ];
 
@@ -319,7 +322,8 @@ in
     ];
 
     # The hardened systemd unit breaks the fuse-mount function according to documentation in the unit file itself
-    systemd.packages = if cfg.autoMount
+    systemd.packages =
+      if cfg.autoMount
       then [ cfg.package.systemd_unit ]
       else [ cfg.package.systemd_unit_hardened ];
 
@@ -361,7 +365,7 @@ in
         umount --quiet '${cfg.ipnsMountDir}' '${cfg.ipfsMountDir}' || true
       '';
       serviceConfig = {
-        ExecStart = [ "" "${cfg.package}/bin/ipfs daemon ${kuboFlags}" ];
+        ExecStart = "${cfg.package}/bin/ipfs daemon ${kuboFlags}";
         User = cfg.user;
         Group = cfg.group;
         StateDirectory = "";

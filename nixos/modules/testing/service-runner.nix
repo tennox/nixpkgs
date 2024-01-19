@@ -62,7 +62,7 @@ let
 
       # Run the ExecStart program.
       my $cmd = <<END_CMD;
-      ${concatStringsSep "\n" service.serviceConfig.ExecStart}
+      ${service.serviceConfig.ExecStart}
       END_CMD
 
       print STDERR "running ExecStart: $cmd\n";
