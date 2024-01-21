@@ -35,10 +35,13 @@ in {
         else package-darwin;
     in {
       inherit package-linux package-darwin;
+      __attrsFailEvaluation = true;
 
       jdk-hotspot = callPackage package.jdk-hotspot {};
       jre-hotspot = callPackage package.jre-hotspot {};
+    } // lib.optionalAttrs (package?jdk-openj9) {
       jdk-openj9  = callPackage package.jdk-openj9  {};
+    } // lib.optionalAttrs (package?jre-openj9) {
       jre-openj9  = callPackage package.jre-openj9  {};
     };
 

@@ -4,6 +4,7 @@
 , fetchPypi
 , postfix
 , lynx
+, nixosTests
 }:
 
 with python3.pkgs;
@@ -31,10 +32,11 @@ buildPythonPackage rec {
     gunicorn
     lazr-config
     passlib
+    python-dateutil
     requests
     sqlalchemy
     zope-component
-    zope_configuration
+    zope-configuration
   ];
 
   checkInputs = [
@@ -76,6 +78,8 @@ buildPythonPackage rec {
   # has all the necessary search paths to execute unwrapped 'master' and
   # 'runner' scripts.
   dontWrapPythonPrograms = true;
+
+  passthru.tests = { inherit (nixosTests) mailman; };
 
   meta = {
     homepage = "https://www.gnu.org/software/mailman/";

@@ -2,13 +2,13 @@
 
 buildGoModule rec {
   pname = "podman-tui";
-  version = "0.12.0";
+  version = "0.16.0";
 
   src = fetchFromGitHub {
     owner = "containers";
     repo = "podman-tui";
     rev = "v${version}";
-    hash = "sha256-l6jbc/+Fi5xx7yhK0e5/iqcm7i8JnU37Qr4niVG4OvU=";
+    hash = "sha256-Ndy7B0T2RgdkBA+nTYvAJ2RnIH48bUu9MdUDAVQUa6s=";
   };
 
   vendorHash = null;
@@ -45,5 +45,6 @@ buildGoModule rec {
     description = "Podman Terminal UI";
     license = licenses.asl20;
     maintainers = with maintainers; [ aaronjheng ];
+    mainProgram = "podman-tui";
   };
 }

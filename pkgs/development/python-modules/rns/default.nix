@@ -5,12 +5,13 @@
 , netifaces
 , pyserial
 , pythonOlder
+, setuptools
 }:
 
 buildPythonPackage rec {
   pname = "rns";
-  version = "0.6.8";
-  format = "setuptools";
+  version = "0.7.0";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
@@ -18,8 +19,12 @@ buildPythonPackage rec {
     owner = "markqvist";
     repo = "Reticulum";
     rev = "refs/tags/${version}";
-    hash = "sha256-MDD0Vs5XIWqxKHbrAa0vXJRd8uYZDlr//hP1NBf4b7U=";
+    hash = "sha256-iwW52jPSCwelfByerKHxKgH4NbWwCJLPyHXyBeJPwaM=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     cryptography
