@@ -62,7 +62,7 @@ buildPythonPackage rec {
   makeWrapperArgs = [
     # Add the installed directories to the python path so the daemon can find them
     "--prefix PYTHONPATH : ${makePythonPath propagatedBuildInputs}"
-    "--prefix PYTHONPATH : $out/lib/${python.libPrefix}/site-packages"
+    "--prefix PYTHONPATH : $out/${python.sitePackages}"
   ];
 
   nativeCheckInputs = [
@@ -96,6 +96,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "Open-source Dropbox client for macOS and Linux";
+    mainProgram = "maestral";
     homepage = "https://maestral.app";
     changelog = "https://github.com/samschott/maestral/releases/tag/v${version}";
     license = licenses.mit;

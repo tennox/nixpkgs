@@ -151,7 +151,7 @@ in
     startupNotify = true;
     startupWMClass = shortName;
     categories = [ "Utility" "TextEditor" "Development" "IDE" ];
-    mimeTypes = [ "x-scheme-handler/vscode" ];
+    mimeTypes = [ "x-scheme-handler/vs${executableName}" ];
     keywords = [ "vscode" ];
     noDisplay = true;
   };

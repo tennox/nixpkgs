@@ -6,13 +6,13 @@
 
 buildGoModule rec {
   pname = "govulncheck";
-  version = "1.0.2";
+  version = "1.0.4";
 
   src = fetchFromGitHub {
     owner = "golang";
     repo = "vuln";
     rev = "refs/tags/v${version}";
-    hash = "sha256-vTHP7I3r7EAt4puh7bonKj6A94j169tKWgTfxASWyo0=";
+    hash = "sha256-GLZaJ/hVA1A2Mek1G7QkDGowqa5Bm4sRh0Y7QMhud/w=";
   };
 
   patches = [
@@ -41,6 +41,7 @@ buildGoModule rec {
     homepage = "https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck";
     downloadPage = "https://github.com/golang/vuln";
     description = "The database client and tools for the Go vulnerability database, also known as vuln";
+    mainProgram = "govulncheck";
     longDescription = ''
       Govulncheck reports known vulnerabilities that affect Go code. It uses
       static analysis of source code or a binary's symbol table to narrow down

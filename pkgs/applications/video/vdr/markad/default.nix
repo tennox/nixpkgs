@@ -19,12 +19,12 @@
 }:
 stdenv.mkDerivation rec {
   pname = "vdr-markad";
-  version = "3.4.5";
+  version = "3.4.12";
 
   src = fetchFromGitHub {
     repo = "vdr-plugin-markad";
     owner = "kfb77";
-    sha256 = "sha256-qg3Y449n0xPMQSEn8QwvFC1FA8/MfhY0KPHPHGbApbA=";
+    sha256 = "sha256-yc/zWMGzsfZl3n+Qt5Se2duo3jwntCWaYq1yACsrPzM=";
     rev = "V${version}";
   };
 
@@ -51,6 +51,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     inherit (src.meta) homepage;
     description = "Plugin for VDR that marks advertisements";
+    mainProgram = "markad";
     maintainers = [ maintainers.ck3d ];
     license = licenses.gpl2;
     inherit (vdr.meta) platforms;

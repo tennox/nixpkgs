@@ -11,13 +11,13 @@
 
 stdenv.mkDerivation rec {
   pname = "mokutil";
-  version = "0.6.0";
+  version = "0.7.1";
 
   src = fetchFromGitHub {
     owner = "lcp";
     repo = pname;
     rev = version;
-    sha256 = "sha256-qwSEv14mMpaKmm6RM882JzEnBQG3loqsoglg4qTFWUg=";
+    sha256 = "sha256-vxSYwsQ+xjW7a7gZhvgX4lzA7my6BZCYGwE1bLceTQA=";
   };
 
   nativeBuildInputs = [
@@ -35,6 +35,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     homepage = "https://github.com/lcp/mokutil";
     description = "Utility to manipulate machines owner keys";
+    mainProgram = "mokutil";
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ nickcao ];
     platforms = platforms.linux;

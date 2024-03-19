@@ -9,16 +9,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "maturin";
-  version = "1.3.0";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "PyO3";
     repo = "maturin";
     rev = "v${version}";
-    hash = "sha256-MVmu9m+9XhWuPBEEoaYmsSbMFziSZaM5Gg5kOr1DT54=";
+    hash = "sha256-mD/7wWeclV5Xqii9hcZMustvR6tf7MoyTZ3WsvEc61U=";
   };
 
-  cargoHash = "sha256-hrdrGFtL2vGczINnvDa4rclkXsNWnEqtTt3NVaRay8w=";
+  cargoHash = "sha256-w8XpCJ8GS2VszW/9/O2suy82zVO1UpWTrU1lFGYwhvw=";
 
   buildInputs = lib.optionals stdenv.isDarwin [ Security libiconv ];
 
@@ -29,6 +29,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     description = "Build and publish Rust crates Python packages";
+    mainProgram = "maturin";
     longDescription = ''
       Build and publish Rust crates with PyO3, rust-cpython, and
       cffi bindings as well as Rust binaries as Python packages.

@@ -5,7 +5,7 @@
 , importlib-metadata
 , keyring
 , pkginfo
-, readme_renderer
+, readme-renderer
 , requests
 , requests-toolbelt
 , rich
@@ -31,7 +31,7 @@ buildPythonPackage rec {
     importlib-metadata
     keyring
     pkginfo
-    readme_renderer
+    readme-renderer
     requests
     requests-toolbelt
     rfc3986
@@ -46,6 +46,7 @@ buildPythonPackage rec {
 
   meta = {
     description = "Collection of utilities for interacting with PyPI";
+    mainProgram = "twine";
     homepage = "https://github.com/pypa/twine";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ fridh ];
