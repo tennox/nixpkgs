@@ -14,15 +14,15 @@ buildGoModule rec {
   version = "3.1.0";
 
   src = fetchFromGitHub {
-    owner = "browserpass";
+    owner = "tennox";
     repo = "browserpass-native";
-    rev = version;
-    sha256 = "sha256-UZzOPRRiCUIG7uSSp9AEPMDN/+4cgyK47RhrI8oUx8U=";
+    rev = "c4c71108293b259bf592ec5d9a7f13559a5f8fca";
+    sha256 = "sha256-hYvdKPme719qpOnGGwvrlhNelLtbGwLngI5ggmVUahA=";
   };
 
   nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.isLinux [ autoPatchelfHook ];
 
-  vendorHash = "sha256-CjuH4ANP2bJDeA+o+1j+obbtk5/NVLet/OFS3Rms4r0=";
+  vendorHash = "sha256-Qihtt86MrCaFqxWnS57vxNPWwD6ZYt9ESJFyUp+uCXQ=";
 
   doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
 
@@ -69,6 +69,6 @@ buildGoModule rec {
     mainProgram = "browserpass";
     homepage = "https://github.com/browserpass/browserpass-native";
     license = licenses.isc;
-    maintainers = with maintainers; [ rvolosatovs ];
+    maintainers = with maintainers; [ rvolosatovs tennox ];
   };
 }
