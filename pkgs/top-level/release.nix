@@ -234,7 +234,7 @@ let
                 };
               };
             in {
-              inherit (bootstrap) build dist test;
+              inherit (bootstrap) build test;
             }
           else if hasSuffix "-darwin" config then
             let
@@ -243,7 +243,7 @@ let
               };
             in {
               # Lightweight distribution and test
-              inherit (bootstrap) build dist test;
+              inherit (bootstrap) build test;
               # Test a full stdenv bootstrap from the bootstrap tools definition
               # TODO: Re-enable once the new bootstrap-tools are in place.
               #inherit (bootstrap.test-pkgs) stdenv;
@@ -270,6 +270,7 @@ let
         "ghc92"
         "ghc94"
         "ghc96"
+        "ghc98"
       ] (compilerName: {
         inherit (packagePlatforms pkgs.haskell.packages.${compilerName})
           haskell-language-server;

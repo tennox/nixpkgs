@@ -1,23 +1,22 @@
-{ lib
-, fetchFromGitHub
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  python3,
 }:
 
 python3.pkgs.buildPythonApplication rec {
   pname = "checkov";
-  version = "3.2.44";
+  version = "3.2.55";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "bridgecrewio";
     repo = "checkov";
     rev = "refs/tags/${version}";
-    hash = "sha256-/5kT+msrsiz9NuqEjeJNEdX/qbt8Ohuz2RNNYK6eqpw=";
+    hash = "sha256-uhR+DnedQ2xn90/cCrZknBeV15WLzPWnoNRszz2vC3w=";
   };
 
-  patches = [
-    ./flake8-compat-5.x.patch
-  ];
+  patches = [ ./flake8-compat-5.x.patch ];
 
   pythonRelaxDeps = [
     "boto3"
@@ -30,6 +29,7 @@ python3.pkgs.buildPythonApplication rec {
     "networkx"
     "openai"
     "packageurl-python"
+    "packaging"
     "pycep-parser"
     "termcolor"
   ];
@@ -145,9 +145,7 @@ python3.pkgs.buildPythonApplication rec {
     "dogfood_tests/test_checkov_dogfood.py"
   ];
 
-  pythonImportsCheck = [
-    "checkov"
-  ];
+  pythonImportsCheck = [ "checkov" ];
 
   postInstall = ''
     chmod +x $out/bin/checkov
@@ -162,6 +160,9 @@ python3.pkgs.buildPythonApplication rec {
       Kubernetes, Serverless framework and other infrastructure-as-code-languages.
     '';
     license = licenses.asl20;
-    maintainers = with maintainers; [ anhdle14 fab ];
+    maintainers = with maintainers; [
+      anhdle14
+      fab
+    ];
   };
 }

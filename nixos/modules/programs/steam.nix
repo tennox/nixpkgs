@@ -45,6 +45,8 @@ in {
       apply = steam: steam.override (prev: {
         extraEnv = (lib.optionalAttrs (cfg.extraCompatPackages != [ ]) {
           STEAM_EXTRA_COMPAT_TOOLS_PATHS = makeSearchPathOutput "steamcompattool" "" cfg.extraCompatPackages;
+        }) // (optionalAttrs cfg.extest.enable {
+          LD_PRELOAD = "${pkgs.pkgsi686Linux.extest}/lib/libextest.so";
         }) // (prev.extraEnv or {});
         extraLibraries = pkgs: let
           prevLibs = if prev ? extraLibraries then prev.extraLibraries pkgs else [ ];
@@ -59,8 +61,6 @@ in {
           # use the setuid wrapped bubblewrap
           bubblewrap = "${config.security.wrapperDir}/..";
         };
-      } // optionalAttrs cfg.extest.enable {
-        extraEnv.LD_PRELOAD = "${pkgs.pkgsi686Linux.extest}/lib/libextest.so";
       });
       description = lib.mdDoc ''
         The Steam package to use. Additional libraries are added from the system
@@ -161,7 +161,7 @@ in {
     };
 
     programs.gamescope.enable = mkDefault cfg.gamescopeSession.enable;
-    services.xserver.displayManager.sessionPackages = mkIf cfg.gamescopeSession.enable [ gamescopeSessionFile ];
+    services.displayManager.sessionPackages = mkIf cfg.gamescopeSession.enable [ gamescopeSessionFile ];
 
     # optionally enable 32bit pulseaudio support if pulseaudio is enabled
     hardware.pulseaudio.support32Bit = config.hardware.pulseaudio.enable;

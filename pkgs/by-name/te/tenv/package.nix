@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "tenv";
-  version = "1.2.0";
+  version = "1.7.0";
 
   src = fetchFromGitHub {
     owner = "tofuutils";
     repo = "tenv";
     rev = "v${version}";
-    hash = "sha256-yLNdBwKF6Jts661P+YZhFGNr71TG7Scb6RGvFxTLqYQ=";
+    hash = "sha256-yAwjNh4Qc09VNpVZ6/e6nnPrz61K/tkSa1df+sMXBj8=";
   };
 
-  vendorHash = "sha256-GGWiP1rIDF6qxST2ZmnKNkgbS+15hxaCs1d1+UEiYgU=";
+  vendorHash = "sha256-NMkR90+kJ3VsuhF45l5K68uOqenPfINZDEE0GfjULro=";
 
   # Tests disabled for requiring network access to release.hashicorp.com
   doCheck = false;

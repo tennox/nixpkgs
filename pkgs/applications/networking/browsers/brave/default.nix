@@ -94,11 +94,11 @@ in
 
 stdenv.mkDerivation rec {
   pname = "brave";
-  version = "1.64.109";
+  version = "1.64.113";
 
   src = fetchurl {
     url = "https://github.com/brave/brave-browser/releases/download/v${version}/brave-browser_${version}_amd64.deb";
-    hash = "sha256-36igba0U3p8i7t91RxeG6PqlKYyHDDlj295ICcYmCNc=";
+    hash = "sha256-T0uVq1yxDXNi6x9ot5bs3NRaOQ+RwBThvULS6EZ+Bdg=";
   };
 
   dontConfigure = true;
@@ -176,12 +176,12 @@ stdenv.mkDerivation rec {
       --prefix PATH : ${binpath}
       --suffix PATH : ${lib.makeBinPath [ xdg-utils coreutils ]}
       ${optionalString (enableFeatures != []) ''
-      --add-flags "--enable-features=${strings.concatStringsSep "," enableFeatures}"
+      --add-flags "--enable-features=${strings.concatStringsSep "," enableFeatures}\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+,WaylandWindowDecorations}}"
       ''}
       ${optionalString (disableFeatures != []) ''
       --add-flags "--disable-features=${strings.concatStringsSep "," disableFeatures}"
       ''}
-      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}"
+      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto}}"
       ${optionalString vulkanSupport ''
       --prefix XDG_DATA_DIRS  : "${addOpenGLRunpath.driverLink}/share"
       ''}
