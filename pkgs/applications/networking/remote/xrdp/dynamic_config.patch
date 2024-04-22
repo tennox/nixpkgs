@@ -180,10 +180,19 @@ index f2d1a4d4..5178cbf8 100644
                  list_delete(values);
                  return 1;
 diff --git a/sesman/libsesman/sesman_config.c b/sesman/libsesman/sesman_config.c
-index 9e3d9e72..0d2475a3 100644
+
+index 61e9e403..0466f61a 100644
 --- a/sesman/libsesman/sesman_config.c
 +++ b/sesman/libsesman/sesman_config.c
-@@ -171,7 +171,7 @@ config_output_policy_string(unsigned int value,
+@@ -34,6 +34,7 @@
+ #include "sesman.h"
+ #include "log.h"
+ #include "string_calls.h"
++#include <string.h>
+ //#include "chansrv/chansrv_common.h"
+ 
+ /***************************************************************************//**
+@@ -47,11 +48,10 @@
   *
   */
  static int
