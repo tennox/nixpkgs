@@ -24,9 +24,11 @@
 , stb
 , wlroots
 , libliftoff
+, libdecor
 , libdisplay-info
 , lib
 , makeBinaryWrapper
+, patchelfUnstable
 , nix-update-script
 , enableExecutable ? true
 , enableWsi ? true
@@ -41,14 +43,14 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "gamescope";
-  version = "3.14.2";
+  version = "3.14.4";
 
   src = fetchFromGitHub {
     owner = "ValveSoftware";
     repo = "gamescope";
     rev = "refs/tags/${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-Ym1kl9naAm1MGlxCk32ssvfiOlstHiZPy7Ga8EZegus=";
+    hash = "sha256-kmi+3EH5h5kQeyTB3RnnndPn+akHFAF0N7Gt/aCOdcs=";
   };
 
   patches = [
@@ -99,7 +101,7 @@ stdenv.mkDerivation (finalAttrs: {
     glm
   ] ++ lib.optionals enableWsi [
     vulkan-headers
-  ] ++ lib.optionals enableExecutable [
+  ] ++ lib.optionals enableExecutable (wlroots.buildInputs ++ [  # gamescope uses a custom wlroots branch
     xorg.libXcomposite
     xorg.libXcursor
     xorg.libXdamage
@@ -114,7 +116,7 @@ stdenv.mkDerivation (finalAttrs: {
     libdrm
     libliftoff
     SDL2
-    wlroots
+    libdecor
     libinput
     libxkbcommon
     gbenchmark
@@ -122,9 +124,13 @@ stdenv.mkDerivation (finalAttrs: {
     libcap
     stb
     libdisplay-info
-  ];
+  ]);
 
   postInstall = lib.optionalString enableExecutable ''
+    # using patchelf unstable because the stable version corrupts the binary
+    ${lib.getExe patchelfUnstable} $out/bin/gamescope \
+      --add-rpath ${vulkan-loader}/lib --add-needed libvulkan.so.1
+
     # --debug-layers flag expects these in the path
     wrapProgram "$out/bin/gamescope" \
       --prefix PATH : ${with xorg; lib.makeBinPath [xprop xwininfo]}

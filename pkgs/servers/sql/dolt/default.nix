@@ -2,18 +2,18 @@
 
 buildGoModule rec {
   pname = "dolt";
-  version = "1.35.7";
+  version = "1.35.10";
 
   src = fetchFromGitHub {
     owner = "dolthub";
     repo = "dolt";
     rev = "v${version}";
-    sha256 = "sha256-n6J6gFXdUvR1G2KmZf/k1ngeXAUbYorNFDxND+e5YIY=";
+    sha256 = "sha256-VTScVd9GHbwHGZDGquld05zP6CrvqfdfhRO9GHH2zHA=";
   };
 
   modRoot = "./go";
   subPackages = [ "cmd/dolt" ];
-  vendorHash = "sha256-o9b+eoFCrC7oN26nyeFGMWnLtvU+Wk7e9cr38bSsKTs=";
+  vendorHash = "sha256-4lmwDD9LKTATA8vJiWaWaWueIoSFrfW+C0O5uCh3TJw=";
   proxyVendor = true;
   doCheck = false;
 
