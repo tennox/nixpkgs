@@ -24,7 +24,7 @@
 , MediaPlayer, MediaAccessibility, SecurityInterface, Vision, CoreML, OpenDirectory, Accelerate
 , cups, openbsm, runCommand, xcbuild, writeScriptBin
 , ffmpeg_4 ? null
-, lib, stdenv, fetchpatch
+, lib, stdenv
 , version ? null
 , qtCompatVersion
 , pipewireSupport ? stdenv.isLinux
@@ -292,7 +292,7 @@ qtModule ({
   requiredSystemFeatures = [ "big-parallel" ];
 
   meta = with lib; {
-    description = "A web engine based on the Chromium web browser";
+    description = "Web engine based on the Chromium web browser";
     mainProgram = "qwebengine_convert_dict";
     maintainers = with maintainers; [ matthewbauer ];
 

@@ -1,12 +1,13 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, flit-core
-, pytestCheckHook
-, numpy
-, xarray
-, xarray-dataclasses
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+  flit-core,
+  pytestCheckHook,
+  numpy,
+  xarray,
+  xarray-dataclasses,
 }:
 
 buildPythonPackage rec {
@@ -23,9 +24,7 @@ buildPythonPackage rec {
     hash = "sha256-nCsxPhIgGmZZntYbhQ3KnzptcKdN288eNixbQDgECSQ=";
   };
 
-  nativeBuildInputs = [
-    flit-core
-  ];
+  nativeBuildInputs = [ flit-core ];
 
   propagatedBuildInputs = [
     numpy
@@ -38,7 +37,7 @@ buildPythonPackage rec {
   pythonImportsCheck = [ "spatial_image" ];
 
   meta = with lib; {
-    description = "A multi-dimensional spatial image data structure for scientific Python";
+    description = "Multi-dimensional spatial image data structure for scientific Python";
     homepage = "https://github.com/spatial-image/spatial-image";
     changelog = "https://github.com/spatial-image/spatial-image/releases/tag/v${version}";
     license = licenses.mit;

@@ -59,6 +59,12 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-b+oqrGpGEPvQQAr7C83b5yWKZMY/H2jlhV68DGWXEM0=";
   };
 
+  patches = lib.optionals (lib.versionOlder finalAttrs.version "8.7.2") [
+    # https://github.com/curl/curl/pull/13219
+    # https://github.com/newsboat/newsboat/issues/2728
+    ./8.7.1-compression-fix.patch
+  ];
+
   postPatch = ''
     patchShebangs scripts
   '';
@@ -205,7 +211,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     changelog = "https://curl.se/changes.html#${lib.replaceStrings [ "." ] [ "_" ] finalAttrs.version}";
-    description = "A command line tool for transferring files with URL syntax";
+    description = "Command line tool for transferring files with URL syntax";
     homepage    = "https://curl.se/";
     license = licenses.curl;
     maintainers = with maintainers; [ lovek323 ];

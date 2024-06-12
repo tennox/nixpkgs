@@ -49,7 +49,7 @@ in (chromium.override { upstream-info = info.chromium; }).mkDerivation (base: {
 
   src = null;
 
-  patches = base.patches ++ lib.optional (lib.versionAtLeast info.version "29")
+  patches = base.patches ++ lib.optional (lib.versionAtLeast info.version "29" && lib.versionOlder info.version "30")
     (substituteAll {
       # disable a component that requires CIPD blobs
       name = "disable-screen-ai.patch";
@@ -236,7 +236,7 @@ in (chromium.override { upstream-info = info.chromium; }).mkDerivation (base: {
     homepage = "https://github.com/electron/electron";
     platforms = lib.platforms.linux;
     license = licenses.mit;
-    maintainers = with maintainers; [ yayayayaka yuka ];
+    maintainers = with maintainers; [ yayayayaka teutat3s ];
     mainProgram = "electron";
     hydraPlatforms = lib.optionals (!(hasInfix "alpha" info.version) && !(hasInfix "beta" info.version)) ["aarch64-linux" "x86_64-linux"];
     timeout = 172800; # 48 hours (increased from the Hydra default of 10h)

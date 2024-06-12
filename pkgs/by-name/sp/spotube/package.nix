@@ -8,7 +8,7 @@
   makeBinaryWrapper,
   makeWrapper,
   undmg,
-  wrapGAppsHook,
+  wrapGAppsHook3,
 
   libappindicator,
   libnotify,
@@ -22,7 +22,7 @@ let
   version = "3.6.0";
 
   meta = {
-    description = "An open source, cross-platform Spotify client compatible across multiple platforms";
+    description = "Open source, cross-platform Spotify client compatible across multiple platforms";
     longDescription = ''
       Spotube is an open source, cross-platform Spotify client compatible across
       multiple platforms utilizing Spotify's data API and YouTube (or Piped.video or JioSaavn)
@@ -84,7 +84,7 @@ let
       autoPatchelfHook
       dpkg
       makeWrapper
-      wrapGAppsHook
+      wrapGAppsHook3
     ];
 
     buildInputs = [

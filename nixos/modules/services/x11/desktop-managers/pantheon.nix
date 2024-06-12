@@ -159,7 +159,7 @@ in
       services.gsignond.plugins = with pkgs.gsignondPlugins; [ lastfm mail oauth ];
       services.udisks2.enable = true;
       services.upower.enable = config.powerManagement.enable;
-      services.xserver.libinput.enable = mkDefault true;
+      services.libinput.enable = mkDefault true;
       services.xserver.updateDbusEnvironment = true;
       services.zeitgeist.enable = mkDefault true;
       services.geoclue2.enable = mkDefault true;
@@ -268,11 +268,6 @@ in
       # Shell integration for VTE terminals
       programs.bash.vteIntegration = mkDefault true;
       programs.zsh.vteIntegration = mkDefault true;
-
-      # Use native GTK file chooser on Qt apps. This is because Qt does not know Pantheon.
-      # https://invent.kde.org/qt/qt/qtbase/-/blob/6.6/src/gui/platform/unix/qgenericunixthemes.cpp#L1312
-      # https://github.com/elementary/default-settings/blob/7.0.2/profile.d/qt-qpa-platformtheme.sh
-      environment.variables.QT_QPA_PLATFORMTHEME = mkDefault "gtk3";
 
       # Default Fonts
       fonts.packages = with pkgs; [

@@ -1,24 +1,25 @@
-{ lib
-, stdenv
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
+{
+  lib,
+  stdenv,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
 
-# build-system
-, setuptools
-, setuptools-scm
+  # build-system
+  setuptools,
+  setuptools-scm,
 
-# dependencies
-, packaging
-, requests
-, urllib3
+  # dependencies
+  packaging,
+  requests,
+  urllib3,
 
-# optional-dependenices
-, paramiko
-, websocket-client
+  # optional-dependenices
+  paramiko,
+  websocket-client,
 
-# tests
-, pytestCheckHook
+  # tests
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -45,25 +46,17 @@ buildPythonPackage rec {
   ];
 
   passthru.optional-dependencies = {
-    ssh = [
-      paramiko
-    ];
-    websockets = [
-      websocket-client
-    ];
+    ssh = [ paramiko ];
+    websockets = [ websocket-client ];
   };
 
-  pythonImportsCheck = [
-    "docker"
-  ];
+  pythonImportsCheck = [ "docker" ];
 
   nativeCheckInputs = [
     pytestCheckHook
   ] ++ lib.flatten (lib.attrValues passthru.optional-dependencies);
 
-  pytestFlagsArray = [
-    "tests/unit"
-  ];
+  pytestFlagsArray = [ "tests/unit" ];
 
   # Deselect socket tests on Darwin because it hits the path length limit for a Unix domain socket
   disabledTests = lib.optionals stdenv.isDarwin [
@@ -74,7 +67,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     changelog = "https://github.com/docker/docker-py/releases/tag/${version}";
-    description = "An API client for docker written in Python";
+    description = "API client for docker written in Python";
     homepage = "https://github.com/docker/docker-py";
     license = licenses.asl20;
     maintainers = with maintainers; [ jonringer ];

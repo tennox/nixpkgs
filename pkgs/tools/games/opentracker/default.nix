@@ -3,7 +3,7 @@
   stdenv,
   buildDotnetModule,
   fetchFromGitHub,
-  wrapGAppsHook,
+  wrapGAppsHook3,
   dotnetCorePackages,
   fontconfig,
   gtk3,
@@ -39,7 +39,7 @@ buildDotnetModule rec {
   ];
 
   nativeBuildInputs = [
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [
@@ -63,7 +63,7 @@ buildDotnetModule rec {
     ]);
 
   meta = with lib; {
-    description = "A tracking application for A Link to the Past Randomizer";
+    description = "Tracking application for A Link to the Past Randomizer";
     homepage = "https://github.com/trippsc2/OpenTracker";
     sourceProvenance = with sourceTypes; [
       fromSource

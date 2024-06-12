@@ -1,17 +1,20 @@
-{ lib
-, stdenvNoCC
-, fetchurl
-, undmg
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+  undmg,
+  nix-update-script,
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "stats";
-  version = "2.10.10";
+  version = "2.10.16";
 
   src = fetchurl {
     url = "https://github.com/exelban/stats/releases/download/v${finalAttrs.version}/Stats.dmg";
-    hash = "sha256-CdTY5Qv/xF9ItNgHQFqec5nKObnImx/+MuFShTfdrAo=";
+    hash = "sha256-fSn4qZMXRlWxqIZ2Jh1anLQPbx/TqHA7UFRq+pR3o+4=";
   };
+
   sourceRoot = ".";
 
   nativeBuildInputs = [ undmg ];
@@ -25,12 +28,18 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  meta = with lib; {
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
     description = "macOS system monitor in your menu bar";
     homepage = "https://github.com/exelban/stats";
-    license = licenses.mit;
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      donteatoreo
+      emilytrau
+      Enzime
+    ];
+    platforms = lib.platforms.darwin;
     sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-    maintainers = with maintainers; [ emilytrau Enzime ];
-    platforms = platforms.darwin;
   };
 })

@@ -1,34 +1,38 @@
 {
     "testing": {
-        "version": "6.9-rc4",
-        "hash": "sha256:11wpak03nv9cg00jiyfrk21p7mzka553ih2c2dxr0ridig6mj8b3"
+        "version": "6.10-rc3",
+        "hash": "sha256:11kjvjww4n0l4knq1v4rsbnac4s01r69yk1lrb9hgikszxyjklwk"
     },
     "6.1": {
-        "version": "6.1.87",
-        "hash": "sha256:092iv5w5d6kwgiyzs7zajmhdxc1w03sinvvr1dwy9bp8f9mg2ypw"
+        "version": "6.1.92",
+        "hash": "sha256:1j9n8gk76nn4gw42iba5zgghr360gb9n1mslr5dyv76wpwkz86ch"
     },
     "5.15": {
-        "version": "5.15.156",
-        "hash": "sha256:0y3p7sqr8hsn0v9ybqlcmn1z150zc13yckgrymb10sck9k8na14z"
+        "version": "5.15.160",
+        "hash": "sha256:018v19a7rhzc4szybzzn86jlnk42x7jm6xkadfd2d3xq6f7727pl"
     },
     "5.10": {
-        "version": "5.10.215",
-        "hash": "sha256:1af6h86flx96pszg006agpak2f9dkk2jqaazfykd7aafqdcs3747"
+        "version": "5.10.218",
+        "hash": "sha256:1mmj5hwm5i16gc1y4nzr1cs882vi6vrihrincdcivv63x11v4dlw"
     },
     "5.4": {
-        "version": "5.4.274",
-        "hash": "sha256:1m4yyyv48mfkzhqms88dv1jf39zsfp88az5zpqynmm1wlhhv9iza"
+        "version": "5.4.277",
+        "hash": "sha256:0l8zq3k07hdprfpvw69ykkf2pdg8wiv28xz733yxsjcfb0l5n7vy"
     },
     "4.19": {
-        "version": "4.19.312",
-        "hash": "sha256:0jppa4p73pssd7m3jpc7i6rgnj9gawjcgk4wmqyy87ijzrgzm553"
+        "version": "4.19.315",
+        "hash": "sha256:1j1j8awy0237jp2r211qpa305c10y7rlcbkxkzdvzbgyhwy4spkc"
     },
     "6.6": {
-        "version": "6.6.28",
-        "hash": "sha256:151kdpp25fcl5qki138jxl90h9iyk5rk0kp2xamadnz72gnid1w1"
+        "version": "6.6.32",
+        "hash": "sha256:1qbc8dqmk2xs1cz968rysw5xvhq3lj8g0pxp48fr2qbzy3m29a5a"
     },
     "6.8": {
-        "version": "6.8.7",
-        "hash": "sha256:1bigq9my88d9xh647hgsy8gzval7p06hhacpxaqb71sfmwgil799"
+        "version": "6.8.12",
+        "hash": "sha256:0fb0m0fv4521g63gq04d7lm6hy8169s1rykiav5bkd99s9b1kcqr"
+    },
+    "6.9": {
+        "version": "6.9.3",
+        "hash": "sha256:1bnzxparybwh320019pr2msaapas41dhjmvg4gy791rn05jc88f3"
     }
 }

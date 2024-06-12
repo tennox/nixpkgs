@@ -5,6 +5,7 @@
 , makeWrapper
 # graphs will not sync without matching upstream's major electron version
 , electron_27
+, autoPatchelfHook
 , git
 , nix-update-script
 }:
@@ -14,11 +15,11 @@ stdenv.mkDerivation (finalAttrs: let
 
 in {
   pname = "logseq";
-  version = "0.10.8";
+  version = "0.10.9";
 
   src = fetchurl {
     url = "https://github.com/logseq/logseq/releases/download/${version}/logseq-linux-x64-${version}.AppImage";
-    hash = "sha256-kVnQ33gozrL6BOWQxUfiMypiIZOffeT2cMVMHIfsaWg=";
+    hash = "sha256-XROuY2RlKnGvK1VNvzauHuLJiveXVKrIYPppoz8fCmc=";
     name = "${pname}-${version}.AppImage";
   };
 
@@ -30,7 +31,8 @@ in {
   dontConfigure = true;
   dontBuild = true;
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeWrapper autoPatchelfHook ];
+  buildInputs = [ stdenv.cc.cc.lib ];
 
   installPhase = ''
     runHook preInstall
@@ -66,7 +68,7 @@ in {
   passthru.updateScript = nix-update-script { };
 
   meta = {
-    description = "A local-first, non-linear, outliner notebook for organizing and sharing your personal knowledge base";
+    description = "Local-first, non-linear, outliner notebook for organizing and sharing your personal knowledge base";
     homepage = "https://github.com/logseq/logseq";
     changelog = "https://github.com/logseq/logseq/releases/tag/${version}";
     license = lib.licenses.agpl3Plus;

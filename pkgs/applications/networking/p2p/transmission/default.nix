@@ -21,7 +21,7 @@
 , enableGTK3 ? false
 , gtk3
 , xorg
-, wrapGAppsHook
+, wrapGAppsHook3
 , enableQt ? false
 , qt5
 , nixosTests
@@ -71,7 +71,7 @@ stdenv.mkDerivation (finalAttrs: {
     pkg-config
     cmake
   ]
-  ++ lib.optionals enableGTK3 [ wrapGAppsHook ]
+  ++ lib.optionals enableGTK3 [ wrapGAppsHook3 ]
   ++ lib.optionals enableQt [ qt5.wrapQtAppsHook ]
   ;
 
@@ -125,7 +125,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    description = "A fast, easy and free BitTorrent client";
+    description = "Fast, easy and free BitTorrent client";
     mainProgram = if enableQt then "transmission-qt" else if enableGTK3 then "transmission-gtk" else "transmission-cli";
     longDescription = ''
       Transmission is a BitTorrent client which features a simple interface

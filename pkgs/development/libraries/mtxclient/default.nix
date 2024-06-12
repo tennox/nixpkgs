@@ -1,7 +1,6 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, fetchpatch
 , cmake
 , pkg-config
 , coeurl
@@ -54,7 +53,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with lib; {
-    description = "Client API library for the Matrix protocol.";
+    description = "Client API library for the Matrix protocol";
     homepage = "https://github.com/Nheko-Reborn/mtxclient";
     license = licenses.mit;
     maintainers = with maintainers; [ fpletz pstn ];

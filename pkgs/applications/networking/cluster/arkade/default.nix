@@ -7,13 +7,13 @@
 
 buildGoModule rec {
   pname = "arkade";
-  version = "0.11.9";
+  version = "0.11.13";
 
   src = fetchFromGitHub {
     owner = "alexellis";
     repo = "arkade";
     rev = version;
-    hash = "sha256-TJja4FL440ZG5VsCfJsKUYeM2YPlMSl2+ejjlgyP5IY=";
+    hash = "sha256-mXT0/cDfvzE9fBCy4rY1epeOolXmc50QNNXSn3bHi1I=";
   };
 
   CGO_ENABLED = 0;

@@ -3,7 +3,7 @@
 , fetchFromGitHub
 , cmake
 , ninja
-, wrapGAppsHook
+, wrapGAppsHook3
 , makeWrapper
 , wxGTK
 , Cocoa
@@ -12,19 +12,19 @@
 
 stdenv.mkDerivation rec {
   pname = "treesheets";
-  version = "unstable-2024-04-11";
+  version = "0-unstable-2024-06-05";
 
   src = fetchFromGitHub {
     owner = "aardappel";
     repo = "treesheets";
-    rev = "5e9e95a34221d4bda584d2130586177e29ee8fe7";
-    sha256 = "X0aB0rJZd9G8S+QWviSAdB/YQMT4lVV3yiELzZs+P3g=";
+    rev = "1ad0ec1ad235dd00bbd6bfdb27e24f3dcd610da4";
+    hash = "sha256-1Xb4Jdw04E2xTg/93zsGse3Yao8h51kDcJpbvx41yp0=";
   };
 
   nativeBuildInputs = [
     cmake
     ninja
-    wrapGAppsHook
+    wrapGAppsHook3
     makeWrapper
   ];
 
@@ -45,7 +45,9 @@ stdenv.mkDerivation rec {
   '';
 
   passthru = {
-    updateScript = unstableGitUpdater { };
+    updateScript = unstableGitUpdater {
+      hardcodeZeroVersion = true;
+    };
   };
 
   meta = with lib; {

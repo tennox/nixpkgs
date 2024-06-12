@@ -13,21 +13,21 @@ let
 
   channels = {
     stable = {
-      version = "2.9.3";
+      version = "2.10.3";
       hash = {
-        x86_64-linux = "sha256-6VS21x2egWBV6eJqRCBGG7mEGPIDFtY9GN6Ry4ilC70=";
-        x86_64-darwin = "sha256-UBUGjA+jUkT6p9714l8IvDDI/qhWNctVFOvcA2S5kQU=";
-        aarch64-linux = "sha256-2QAahqcM2gi3lT+18q2Nm9GNqVsqzX3RajBsTn+KB1c=";
-        aarch64-darwin = "sha256-uEH7Y7c9BcU/Q/jwx/inFMvUrgm2dUruID+FJL+rA6Y=";
+        x86_64-linux = "sha256-FjvGGJqo1/LskZ6RteaE2q+W6K1zi8mphAD+TzYp6K4=";
+        x86_64-darwin = "sha256-/Z8nOqeFzBfauGDGZtrBheSbSQhtWI3HuE36o0cPJ4Y=";
+        aarch64-linux = "sha256-RI6FqL5GXFCwvgZAO2/evPfZAsO8NatRfTRrkL7jYt0=";
+        aarch64-darwin = "sha256-x1Wf6tyZPUo1y2IdL15v8SjYgYWuiI0wL94oi9Uak6w=";
       };
     };
     mainline = {
-      version = "2.10.1";
+      version = "2.11.2";
       hash = {
-        x86_64-linux = "sha256-jNPL30e5xvyajlIqivtEpSb3cRhfgFhLFlC+CaLY2IM=";
-        x86_64-darwin = "sha256-U1eQaYwnm/mdQoZ8YxK/+s3HboVfMIAtdI7aQnCiDM8=";
-        aarch64-linux = "sha256-YtSyKZYG8vdubZUfo2FjEoVwSF82TXzeLJjPpHqgFDk=";
-        aarch64-darwin = "sha256-aQSiXK7voP5/mPFIscfTnSc4Ae5/f+WW8MR6ZtuC/eY=";
+        x86_64-linux = "sha256-kvQPrYGDkfzTOb3c9f3VNdg3oltKmm1Z4pXeHJ9LIyo=";
+        x86_64-darwin = "sha256-AUfbdJNBK2fCJ6Pq4gkH4+y/undu6Nx64wcejVAB7iU=";
+        aarch64-linux = "sha256-FWgTLE3fW/6j1W1FNDqyVOTMGuFqc4e3Eq2tj8IEcWk=";
+        aarch64-darwin = "sha256-oM+dEUYNUcYHemDWYBf5mqUo3aHXEu6LUuLOboGfTrQ=";
       };
     };
   };
@@ -100,7 +100,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     homepage = "https://coder.com";
     license = lib.licenses.agpl3Only;
     mainProgram = "coder";
-    maintainers = with lib.maintainers; [ ghuntley urandom ];
+    maintainers = with lib.maintainers; [ ghuntley kylecarbs urandom ];
   };
 
   passthru = {

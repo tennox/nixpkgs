@@ -1,7 +1,7 @@
 { lib
 , fetchurl
 , stdenv
-, wrapGAppsHook
+, wrapGAppsHook3
 , dpkg
 , autoPatchelfHook
 , glibc
@@ -23,7 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   nativeBuildInputs = [
-    wrapGAppsHook
+    wrapGAppsHook3
     autoPatchelfHook
     dpkg
   ];
@@ -67,7 +67,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   meta = with lib; {
-    description = "A powerful to-do & task management app with seamless cloud synchronization across all your devices";
+    description = "Powerful to-do & task management app with seamless cloud synchronization across all your devices";
     homepage = "https://ticktick.com/home/";
     license = licenses.unfree;
     maintainers = with maintainers; [ hbjydev ];

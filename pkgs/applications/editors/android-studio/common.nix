@@ -227,7 +227,7 @@ in runCommand
       unwrapped = androidStudio;
     };
     meta = with lib; {
-      description = "The Official IDE for Android (${channel} channel)";
+      description = "Official IDE for Android (${channel} channel)";
       longDescription = ''
         Android Studio is the official IDE for Android app development, based on
         IntelliJ IDEA.
@@ -245,9 +245,9 @@ in runCommand
       # source-code itself).
       platforms = [ "x86_64-linux" ];
       maintainers = with maintainers; rec {
-        stable = [ alapshin msfjarvis ];
-        beta = [ alapshin msfjarvis ];
-        canary = [ alapshin msfjarvis ];
+        stable = [ alapshin ];
+        beta = [ alapshin ];
+        canary = [ alapshin ];
         dev = canary;
       }."${channel}";
       mainProgram = pname;

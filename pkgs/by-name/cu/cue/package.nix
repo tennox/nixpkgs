@@ -9,22 +9,22 @@
 
 buildGoModule rec {
   pname = "cue";
-  version = "0.8.1";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "cue-lang";
     repo = "cue";
     rev = "v${version}";
-    hash = "sha256-0HNE7NzTdq1bXj9tBZvBQ3m6Q5iuyAMKMOz0kyOJi7w=";
+    hash = "sha256-gjuQ7sp6/GeKSqyyicOtH5Q/1xRy/7cta4KKMn2cfzQ=";
   };
 
-  vendorHash = "sha256-0OZtKIDdEnQLnSj109EpGvaZvMIy7gPAZ+weHzYKGSg=";
+  vendorHash = "sha256-FsFignBh669E60S8l8siQHLzeSfB5X/XOHBXPMDX3Cg=";
 
   subPackages = [ "cmd/*" ];
 
   nativeBuildInputs = [ installShellFiles ];
 
-  ldflags = [ "-s" "-w" "-X cuelang.org/go/cmd/cue/cmd.version=${version}" ];
+  ldflags = [ "-s" "-w" ];
 
   postInstall = ''
     installShellCompletion --cmd cue \
@@ -40,12 +40,13 @@ buildGoModule rec {
       version = testers.testVersion {
         package = cue;
         command = "cue version";
+        version = "v${version}";
       };
     };
   };
 
   meta = with lib;  {
-    description = "A data constraint language which aims to simplify tasks involving defining and using data";
+    description = "Data constraint language which aims to simplify tasks involving defining and using data";
     homepage = "https://cuelang.org/";
     license = lib.licenses.asl20;
     maintainers = with maintainers; [ aaronjheng ];

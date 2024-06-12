@@ -216,8 +216,8 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = with lib; {
-    description = "A small library to render SVG images to Cairo surfaces";
-    homepage = "https://wiki.gnome.org/Projects/LibRsvg";
+    description = "Small library to render SVG images to Cairo surfaces";
+    homepage = "https://gitlab.gnome.org/GNOME/librsvg";
     license = licenses.lgpl2Plus;
     maintainers = teams.gnome.members;
     mainProgram = "rsvg-convert";

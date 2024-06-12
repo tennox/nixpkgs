@@ -25,7 +25,7 @@
 
 buildPythonPackage rec {
   pname = "openai";
-  version = "1.23.2";
+  version = "1.33.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7.1";
@@ -34,7 +34,7 @@ buildPythonPackage rec {
     owner = "openai";
     repo = "openai-python";
     rev = "refs/tags/v${version}";
-    hash = "sha256-ScBD+g+xbbZOdIip4ISXYug9MqKLahutUNIoQnD1tHc=";
+    hash = "sha256-vnIkShEi5ilcrf4DhP33mKijFgb3bfIxoO6vt5VL1MM=";
   };
 
   build-system = [

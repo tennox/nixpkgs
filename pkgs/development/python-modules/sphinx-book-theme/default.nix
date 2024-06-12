@@ -1,10 +1,11 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchPypi
-, sphinx
-, pydata-sphinx-theme
-, jupyter-book
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchPypi,
+  sphinx,
+  pydata-sphinx-theme,
+  jupyter-book,
 }:
 
 buildPythonPackage rec {
@@ -28,19 +29,17 @@ buildPythonPackage rec {
     sphinx
   ];
 
-  pythonImportsCheck = [
-    "sphinx_book_theme"
-  ];
+  pythonImportsCheck = [ "sphinx_book_theme" ];
 
   passthru.tests = {
     inherit jupyter-book;
   };
 
   meta = with lib; {
-    description = "A clean book theme for scientific explanations and documentation with Sphinx";
+    description = "Clean book theme for scientific explanations and documentation with Sphinx";
     homepage = "https://github.com/executablebooks/sphinx-book-theme";
     changelog = "https://github.com/executablebooks/sphinx-book-theme/raw/v${version}/CHANGELOG.md";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ marsam ];
+    maintainers = with maintainers; [ ];
   };
 }

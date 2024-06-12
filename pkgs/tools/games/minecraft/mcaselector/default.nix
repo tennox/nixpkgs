@@ -2,7 +2,7 @@
 , stdenvNoCC
 , fetchurl
 , makeWrapper
-, wrapGAppsHook
+, wrapGAppsHook3
 , jre
 }:
 
@@ -18,7 +18,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   dontUnpack = true;
   dontBuild = true;
 
-  nativeBuildInputs = [ jre makeWrapper wrapGAppsHook ];
+  nativeBuildInputs = [ jre makeWrapper wrapGAppsHook3 ];
 
   dontWrapGApps = true;
 
@@ -36,7 +36,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     homepage = "https://github.com/Querz/mcaselector";
-    description = "A tool to select chunks from Minecraft worlds for deletion or export";
+    description = "Tool to select chunks from Minecraft worlds for deletion or export";
     mainProgram = "mcaselector";
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
     license = licenses.mit;

@@ -7,22 +7,22 @@
 
 let
   pname = "osu-lazer-bin";
-  version = "2024.412.1";
+  version = "2024.521.2";
 
   src = {
     aarch64-darwin = fetchzip {
       url = "https://github.com/ppy/osu/releases/download/${version}/osu.app.Apple.Silicon.zip";
-      hash = "sha256-iV9m6w2bs2123uUmH1lgc+sZFG0NtvEIaQmADkaF/x8=";
+      hash = "sha256-YaCET5njEkjWEON3hDUwQ1vg7//7fiJ+5bDRKPRR6M0=";
       stripRoot = false;
     };
     x86_64-darwin = fetchzip {
       url = "https://github.com/ppy/osu/releases/download/${version}/osu.app.Intel.zip";
-      hash = "sha256-yuVoNApIp9g+Un2LHdDsvVo+BCflPT4rMPtOf1vltZA=";
+      hash = "sha256-M7fPOEcdOsPnrbyyh4JAiQnoffDK5Ba6lejtHwcqifM=";
       stripRoot = false;
     };
     x86_64-linux = fetchurl {
       url = "https://github.com/ppy/osu/releases/download/${version}/osu.AppImage";
-      hash = "sha256-9mMP8+Ee8lZcaIkZfcaDmgDqe/rFvEGc01oGwFpnhOY=";
+      hash = "sha256-QVDgY04PmGJ/eOfes/qBAbBKsk9uOaqLjwZSQH+F9ro=";
     };
   }.${stdenv.system} or (throw "${pname}-${version}: ${stdenv.system} is unsupported.");
 
@@ -64,7 +64,7 @@ else appimageTools.wrapType2 {
       contents = appimageTools.extract { inherit pname version src; };
     in
     ''
-      mv -v $out/bin/${pname}-${version} $out/bin/osu\!
+      mv -v $out/bin/${pname} $out/bin/osu\!
       install -m 444 -D ${contents}/osu\!.desktop -t $out/share/applications
       for i in 16 32 48 64 96 128 256 512 1024; do
         install -D ${contents}/osu\!.png $out/share/icons/hicolor/''${i}x$i/apps/osu\!.png

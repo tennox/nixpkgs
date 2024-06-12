@@ -267,14 +267,14 @@ in stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     homepage = "https://www.rust-lang.org/";
-    description = "A safe, concurrent, practical language";
+    description = "Safe, concurrent, practical language";
     maintainers = with maintainers; [ havvy ] ++ teams.rust.members;
     license = [ licenses.mit licenses.asl20 ];
     platforms = [
       # Platforms with host tools from
       # https://doc.rust-lang.org/nightly/rustc/platform-support.html
       "x86_64-darwin" "i686-darwin" "aarch64-darwin"
-      "i686-freebsd13" "x86_64-freebsd13"
+      "i686-freebsd" "x86_64-freebsd"
       "x86_64-solaris"
       "aarch64-linux" "armv6l-linux" "armv7l-linux" "i686-linux"
       "loongarch64-linux" "powerpc64-linux" "powerpc64le-linux"
