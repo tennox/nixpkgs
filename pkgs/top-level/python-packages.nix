@@ -1330,6 +1330,17 @@ self: super: with self; {
 
   babelgladeextractor = callPackage ../development/python-modules/babelgladeextractor { };
 
+  babeltrace = toPythonModule (pkgs.babeltrace.override {
+    pythonPackages = self;
+    enablePython = true;
+  });
+
+  babeltrace2 = toPythonModule (pkgs.babeltrace2.override {
+    inherit (self) python;
+    pythonPackages = self;
+    enablePython = true;
+  });
+
   bambi = callPackage ../development/python-modules/bambi { };
 
   pad4pi = callPackage ../development/python-modules/pad4pi { };
@@ -2206,6 +2217,8 @@ self: super: with self; {
 
   clf = callPackage ../development/python-modules/clf { };
 
+  cli-ui = callPackage ../development/python-modules/cli-ui { };
+
   clip = callPackage ../development/python-modules/clip { };
 
   clip-anytorch = callPackage ../development/python-modules/clip-anytorch { };
@@ -2725,6 +2738,8 @@ self: super: with self; {
   dasbus = callPackage ../development/python-modules/dasbus { };
 
   dash = callPackage ../development/python-modules/dash { };
+
+  dash-bootstrap-components = callPackage ../development/python-modules/dash-bootstrap-components { };
 
   dash-core-components = callPackage ../development/python-modules/dash-core-components { };
 
@@ -3483,8 +3498,6 @@ self: super: with self; {
   dockerpty = callPackage ../development/python-modules/dockerpty { };
 
   docker-pycreds = callPackage ../development/python-modules/docker-pycreds { };
-
-  docker-py = callPackage ../development/python-modules/docker-py { };
 
   dockerspawner = callPackage ../development/python-modules/dockerspawner { };
 
@@ -4711,6 +4724,8 @@ self: super: with self; {
 
   generic = callPackage ../development/python-modules/generic { };
 
+  genie-partner-sdk = callPackage ../development/python-modules/genie-partner-sdk { };
+
   geniushub-client = callPackage ../development/python-modules/geniushub-client { };
 
   genome-collector = callPackage ../development/python-modules/genome-collector { };
@@ -5821,6 +5836,8 @@ self: super: with self; {
 
   inkex = callPackage ../development/python-modules/inkex { };
 
+  inline-snapshot = callPackage ../development/python-modules/inline-snapshot { };
+
   inlinestyler = callPackage ../development/python-modules/inlinestyler { };
 
   inotify = callPackage ../development/python-modules/inotify { };
@@ -6533,6 +6550,7 @@ self: super: with self; {
 
   laszip = callPackage ../development/python-modules/laszip {
     inherit (pkgs) cmake ninja;
+    inherit (pkgs.__splicedPackages) laszip;
   };
 
   latex2mathml = callPackage ../development/python-modules/latex2mathml { };
@@ -7053,6 +7071,8 @@ self: super: with self; {
 
   loguru = callPackage ../development/python-modules/loguru { };
 
+  loguru-logging-intercept = callPackage ../development/python-modules/loguru-logging-intercept { };
+
   logutils = callPackage ../development/python-modules/logutils {
     redis-server = pkgs.redis;
   };
@@ -7078,6 +7098,8 @@ self: super: with self; {
   lsassy = callPackage ../development/python-modules/lsassy { };
 
   lsprotocol = callPackage ../development/python-modules/lsprotocol { };
+
+  lsp-tree-sitter = callPackage ../development/python-modules/lsp-tree-sitter { };
 
   ltpycld2 = callPackage ../development/python-modules/ltpycld2 { };
 
@@ -8662,6 +8684,8 @@ self: super: with self; {
 
   natasha = callPackage ../development/python-modules/natasha { };
 
+  natural = callPackage ../development/python-modules/natural { };
+
   nomadnet = callPackage ../development/python-modules/nomadnet { };
 
   noneprompt = callPackage ../development/python-modules/noneprompt {  };
@@ -10083,6 +10107,8 @@ self: super: with self; {
 
   pyrender = callPackage ../development/python-modules/pyrender { };
 
+  pyreqwest-impersonate = callPackage ../development/python-modules/pyreqwest-impersonate { };
+
   pyrevolve = callPackage ../development/python-modules/pyrevolve { };
 
   pyrfxtrx = callPackage ../development/python-modules/pyrfxtrx { };
@@ -11054,8 +11080,6 @@ self: super: with self; {
 
   pyfcm = callPackage ../development/python-modules/pyfcm { };
 
-  pyfftw = callPackage ../development/python-modules/pyfftw { };
-
   pyfido = callPackage ../development/python-modules/pyfido { };
 
   pyfiglet = callPackage ../development/python-modules/pyfiglet { };
@@ -11563,6 +11587,8 @@ self: super: with self; {
   pyopenssl = callPackage ../development/python-modules/pyopenssl { };
 
   pyopenuv = callPackage ../development/python-modules/pyopenuv { };
+
+  pyopenweathermap = callPackage ../development/python-modules/pyopenweathermap { };
 
   pyopnsense = callPackage ../development/python-modules/pyopnsense { };
 
@@ -13079,6 +13105,8 @@ self: super: with self; {
 
   rapidgzip = callPackage ../development/python-modules/rapidgzip { inherit (pkgs) nasm; };
 
+  rapidocr-onnxruntime = callPackage ../development/python-modules/rapidocr-onnxruntime { };
+
   rapt-ble = callPackage ../development/python-modules/rapt-ble { };
 
   rarfile = callPackage ../development/python-modules/rarfile {
@@ -13491,8 +13519,6 @@ self: super: with self; {
   rpi-bad-power = callPackage ../development/python-modules/rpi-bad-power { };
 
   rpi-gpio = callPackage ../development/python-modules/rpi-gpio { };
-
-  rpi-gpio2 = callPackage ../development/python-modules/rpi-gpio2 { };
 
   rplcd = callPackage ../development/python-modules/rplcd { };
 
@@ -14119,6 +14145,8 @@ self: super: with self; {
   slpp = callPackage ../development/python-modules/slpp { };
 
   slugid = callPackage ../development/python-modules/slugid { };
+
+  py-slvs = callPackage ../development/python-modules/py-slvs { };
 
   sly = callPackage ../development/python-modules/sly { };
 
@@ -15456,6 +15484,20 @@ self: super: with self; {
 
   tree-sitter = callPackage ../development/python-modules/tree-sitter { };
 
+  tree-sitter0_21 = callPackage ../development/python-modules/tree-sitter0_21 { };
+
+  tree-sitter-html = callPackage ../development/python-modules/tree-sitter-html { };
+
+  tree-sitter-python = callPackage ../development/python-modules/tree-sitter-python { };
+
+  tree-sitter-rust = callPackage ../development/python-modules/tree-sitter-rust { };
+
+  tree-sitter-javascript = callPackage ../development/python-modules/tree-sitter-javascript { };
+
+  tree-sitter-json = callPackage ../development/python-modules/tree-sitter-json { };
+
+  tree-sitter-languages = callPackage ../development/python-modules/tree-sitter-languages { };
+
   treelib = callPackage ../development/python-modules/treelib { };
 
   treelog = callPackage ../development/python-modules/treelog { };
@@ -16475,6 +16517,8 @@ self: super: with self; {
   };
 
   uhi = callPackage ../development/python-modules/uhi { };
+
+  uiprotect = callPackage ../development/python-modules/uiprotect { };
 
   ujson = callPackage ../development/python-modules/ujson { };
 

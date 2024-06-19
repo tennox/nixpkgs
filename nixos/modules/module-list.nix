@@ -549,6 +549,7 @@
   ./services/games/xonotic.nix
   ./services/hardware/acpid.nix
   ./services/hardware/actkbd.nix
+  ./services/hardware/amdvlk.nix
   ./services/hardware/argonone.nix
   ./services/hardware/asusd.nix
   ./services/hardware/auto-cpufreq.nix
@@ -1315,6 +1316,7 @@
   ./services/system/zram-generator.nix
   ./services/torrent/deluge.nix
   ./services/torrent/flexget.nix
+  ./services/torrent/flood.nix
   ./services/torrent/magnetico.nix
   ./services/torrent/opentracker.nix
   ./services/torrent/peerflix.nix
