@@ -2,19 +2,19 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "qalculate-gtk";
-  version = "5.1.0";
+  version = "5.2.0";
 
   src = fetchFromGitHub {
     owner = "qalculate";
     repo = "qalculate-gtk";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-yI+8TrNZJt4eJnDX5mk6RozBe2ZeP7sTyAjsgiYQPck=";
+    hash = "sha256-vH4GZaeQ6Ji9aWh8R5B6PE2fBBW7KTyCsFkpgHu6yg8=";
   };
 
   hardeningDisable = [ "format" ];
 
   nativeBuildInputs = [ intltool pkg-config autoreconfHook wrapGAppsHook3 ]
-    ++ lib.optionals stdenv.isDarwin [ desktopToDarwinBundle ];
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ desktopToDarwinBundle ];
   buildInputs = [ libqalculate gtk3 curl ];
   enableParallelBuilding = true;
 

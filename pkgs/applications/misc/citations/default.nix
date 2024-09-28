@@ -27,7 +27,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitLab {
     domain = "gitlab.gnome.org";
     owner = "World";
-    repo = finalAttrs.pname;
+    repo = "citations";
     rev = finalAttrs.version;
     hash = "sha256-RV9oQcXzRsNcvZc/8Xt7qZ/88DvHofC2Av0ftxzeF6Q=";
   };
@@ -56,7 +56,7 @@ stdenv.mkDerivation (finalAttrs: {
     gtksourceview5
     libadwaita
     poppler
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.apple_sdk.frameworks.Foundation
   ];
 

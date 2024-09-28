@@ -70,7 +70,6 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = with lib; {
     maintainers = with maintainers; [
-      kiwi
       arthsmn
     ];
     description = "Desktop Publishing (DTP) and Layout program";
@@ -84,6 +83,6 @@ stdenv.mkDerivation (finalAttrs: {
       mit
       publicDomain
     ];
-    broken = stdenv.isDarwin;
+    broken = stdenv.hostPlatform.isDarwin;
   };
 })

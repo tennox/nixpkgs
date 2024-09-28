@@ -1,4 +1,4 @@
-{ lib, callPackage, fetchFromGitHub, fetchurl, fetchpatch, stdenv, pkgsi686Linux }:
+{ lib, callPackage, fetchFromGitHub, fetchgit, fetchpatch, stdenv, pkgsi686Linux }:
 
 let
   generic = args: let
@@ -22,6 +22,12 @@ let
     url = "https://github.com/gentoo/gentoo/raw/c64caf53/x11-drivers/nvidia-drivers/files/nvidia-drivers-470.223.02-gpl-pfn_valid.patch";
     hash = "sha256-eZiQQp2S/asE7MfGvfe6dA/kdCvek9SYa/FFGp24dVg=";
   };
+
+  # Fixes framebuffer with linux 6.11
+  fbdev_linux_611_patch = fetchpatch {
+    url = "https://patch-diff.githubusercontent.com/raw/NVIDIA/open-gpu-kernel-modules/pull/692.patch";
+    hash = "sha256-OYw8TsHDpBE5DBzdZCBT45+AiznzO9SfECz5/uXN5Uc=";
+  };
 in
 rec {
   mkDriver = generic;
@@ -33,40 +39,41 @@ rec {
   stable = if stdenv.hostPlatform.system == "i686-linux" then legacy_390 else latest;
 
   production = generic {
-    version = "550.90.07";
-    sha256_64bit = "sha256-Uaz1edWpiE9XOh0/Ui5/r6XnhB4iqc7AtLvq4xsLlzM=";
-    sha256_aarch64 = "sha256-uJa3auRlMHr8WyacQL2MyyeebqfT7K6VU0qR7LGXFXI=";
-    openSha256 = "sha256-VLmh7eH0xhEu/AK+Osb9vtqAFni+lx84P/bo4ZgCqj8=";
-    settingsSha256 = "sha256-sX9dHEp9zH9t3RWp727lLCeJLo8QRAGhVb8iN6eX49g=";
-    persistencedSha256 = "sha256-qe8e1Nxla7F0U88AbnOZm6cHxo57pnLCqtjdvOvq9jk=";
+    version = "550.120";
+    sha256_64bit = "sha256-gBkoJ0dTzM52JwmOoHjMNwcN2uBN46oIRZHAX8cDVpc=";
+    sha256_aarch64 = "sha256-dzTEUuSIWKEuAMhsL9QkR7CCHpm6m9ZwtGSpSKqwJdc=";
+    openSha256 = "sha256-O3OrGGDR+xrpfyPVQ04aM3eGI6aWuZfRzmaPjMfnGIg=";
+    settingsSha256 = "sha256-fPfIPwpIijoUpNlAUt9C8EeXR5In633qnlelL+btGbU=";
+    persistencedSha256 = "sha256-ztEemWt0VR+cQbxDmMnAbEVfThdvASHni4SJ0dTZ2T4=";
   };
 
   latest = selectHighestVersion production (generic {
-    version = "550.54.14";
-    sha256_64bit = "sha256-jEl/8c/HwxD7h1FJvDD6pP0m0iN7LLps0uiweAFXz+M=";
-    sha256_aarch64 = "sha256-sProBhYziFwk9rDAR2SbRiSaO7RMrf+/ZYryj4BkLB0=";
-    openSha256 = "sha256-F+9MWtpIQTF18F2CftCJxQ6WwpA8BVmRGEq3FhHLuYw=";
-    settingsSha256 = "sha256-m2rNASJp0i0Ez2OuqL+JpgEF0Yd8sYVCyrOoo/ln2a4=";
-    persistencedSha256 = "sha256-XaPN8jVTjdag9frLPgBtqvO/goB5zxeGzaTU0CdL6C4=";
+    version = "560.35.03";
+    sha256_64bit = "sha256-8pMskvrdQ8WyNBvkU/xPc/CtcYXCa7ekP73oGuKfH+M=";
+    sha256_aarch64 = "sha256-s8ZAVKvRNXpjxRYqM3E5oss5FdqW+tv1qQC2pDjfG+s=";
+    openSha256 = "sha256-/32Zf0dKrofTmPZ3Ratw4vDM7B+OgpC4p7s+RHUjCrg=";
+    settingsSha256 = "sha256-kQsvDgnxis9ANFmwIwB7HX5MkIAcpEEAHc8IBOLdXvk=";
+    persistencedSha256 = "sha256-E2J2wYYyRu7Kc3MMZz/8ZIemcZg68rkzvqEwFAL3fFs=";
+    patchesOpen = [ fbdev_linux_611_patch ];
   });
 
   beta = selectHighestVersion latest (generic {
-    version = "555.52.04";
-    sha256_64bit = "sha256-nVOubb7zKulXhux9AruUTVBQwccFFuYGWrU1ZiakRAI=";
-    sha256_aarch64 = "sha256-Kt60kTTO3mli66De2d1CAoE3wr0yUbBe7eqCIrYHcWk=";
-    openSha256 = "sha256-wDimW8/rJlmwr1zQz8+b1uvxxxbOf3Bpk060lfLKuy0=";
-    settingsSha256 = "sha256-PMh5efbSEq7iqEMBr2+VGQYkBG73TGUh6FuDHZhmwHk=";
-    persistencedSha256 = "sha256-KAYIvPjUVilQQcD04h163MHmKcQrn2a8oaXujL2Bxro=";
+    version = "560.31.02";
+    sha256_64bit = "sha256-0cwgejoFsefl2M6jdWZC+CKc58CqOXDjSi4saVPNKY0=";
+    sha256_aarch64 = "sha256-m7da+/Uc2+BOYj6mGON75h03hKlIWItHORc5+UvXBQc=";
+    openSha256 = "sha256-X5UzbIkILvo0QZlsTl9PisosgPj/XRmuuMH+cDohdZQ=";
+    settingsSha256 = "sha256-A3SzGAW4vR2uxT1Cv+Pn+Sbm9lLF5a/DGzlnPhxVvmE=";
+    persistencedSha256 = "sha256-BDtdpH5f9/PutG3Pv9G4ekqHafPm3xgDYdTcQumyMtg=";
   });
 
   # Vulkan developer beta driver
   # See here for more information: https://developer.nvidia.com/vulkan-driver
   vulkan_beta = generic rec {
-    version = "550.40.63";
+    version = "550.40.71";
     persistencedVersion = "550.54.14";
     settingsVersion = "550.54.14";
-    sha256_64bit = "sha256-YvlNgxcFsCl3DzHFpKe+VXzfc0QIgf3N/hTKsWZ7gDE=";
-    openSha256 = "sha256-mITh1kdSPtB+jP6TDHw04EN7gRx48KGbzbLO0wTSS/U=";
+    sha256_64bit = "sha256-LDh3Kz7Iop+Y2rxXANuPPkDr6WKPuZ5KV9L3+RPa2d0=";
+    openSha256 = "sha256-0HGAE0SlQmEc75E0h7Oq7qu7rVfLhQoBqQF1OuHSa2Y=";
     settingsSha256 = "sha256-m2rNASJp0i0Ez2OuqL+JpgEF0Yd8sYVCyrOoo/ln2a4=";
     persistencedSha256 = "sha256-XaPN8jVTjdag9frLPgBtqvO/goB5zxeGzaTU0CdL6C4=";
     url = "https://developer.nvidia.com/downloads/vulkan-beta-${lib.concatStrings (lib.splitVersion version)}-linux";
@@ -128,14 +135,33 @@ rec {
   };
 
   # Last one supporting x86
-  legacy_390 = generic {
+  legacy_390 = let
+    # Source corresponding to https://aur.archlinux.org/packages/nvidia-390xx-dkms
+    aurPatches = fetchgit {
+      url = "https://aur.archlinux.org/nvidia-390xx-utils.git";
+      rev = "ebb48c240ce329e89ad3b59e78c8c708f46f27b3";
+      hash = "sha256-AGx3/EQ81awBMs6rrXTGWJmyq+UjBCPp6/9z1BQBB9E=";
+    };
+    patchset = [
+      "kernel-4.16+-memory-encryption.patch"
+      "kernel-6.2.patch"
+      "kernel-6.3.patch"
+      "kernel-6.4.patch"
+      "kernel-6.5.patch"
+      "kernel-6.6.patch"
+      "kernel-6.8.patch"
+      "gcc-14.patch"
+      "kernel-6.10.patch"
+    ];
+  in generic {
     version = "390.157";
     sha256_32bit = "sha256-VdZeCkU5qct5YgDF8Qgv4mP7CVHeqvlqnP/rioD3B5k=";
     sha256_64bit = "sha256-W+u8puj+1da52BBw+541HxjtxTSVJVPL3HHo/QubMoo=";
     settingsSha256 = "sha256-uJZO4ak/w/yeTQ9QdXJSiaURDLkevlI81de0q4PpFpw=";
     persistencedSha256 = "sha256-NuqUQbVt80gYTXgIcu0crAORfsj9BCRooyH3Gp1y1ns=";
 
-    broken = kernel.kernelAtLeast "6.2";
+    patches = map (patch: "${aurPatches}/${patch}") patchset;
+    broken = kernel.kernelAtLeast "6.11 ";
 
     # fixes the bug described in https://bbs.archlinux.org/viewtopic.php?pid=2083439#p2083439
     # see https://bbs.archlinux.org/viewtopic.php?pid=2083651#p2083651

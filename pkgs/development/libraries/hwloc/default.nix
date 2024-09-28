@@ -9,11 +9,11 @@
 
 stdenv.mkDerivation rec {
   pname = "hwloc";
-  version = "2.10.0";
+  version = "2.11.1";
 
   src = fetchurl {
     url = "https://www.open-mpi.org/software/hwloc/v${lib.versions.majorMinor version}/downloads/hwloc-${version}.tar.bz2";
-    sha256 = "sha256-AwXdYMneL75lGf4qTo/cbT243ldKDKeBK5LoDAWuE5I=";
+    sha256 = "sha256-BM37/60iXOFfZhhPD0FBMn2r8ojRCouE0T9Rest4cMY=";
   };
 
   configureFlags = [
@@ -27,15 +27,15 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ expat ncurses ]
     ++ lib.optionals x11Support [ cairo libX11 ]
-    ++ lib.optionals stdenv.isLinux [ numactl ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [ numactl ]
     ++ lib.optionals enableCuda [ cudaPackages.cuda_cudart ];
 
   # Since `libpci' appears in `hwloc.pc', it must be propagated.
-  propagatedBuildInputs = lib.optional stdenv.isLinux pciutils;
+  propagatedBuildInputs = lib.optional stdenv.hostPlatform.isLinux pciutils;
 
   enableParallelBuilding = true;
 
-  postInstall = lib.optionalString stdenv.isLinux ''
+  postInstall = lib.optionalString stdenv.hostPlatform.isLinux ''
     if [ -d "${numactl}/lib64" ]; then
       numalibdir="${numactl}/lib64"
     else

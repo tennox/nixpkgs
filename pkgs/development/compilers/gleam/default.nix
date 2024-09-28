@@ -12,21 +12,21 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "gleam";
-  version = "1.2.1";
+  version = "1.5.0";
 
   src = fetchFromGitHub {
     owner = "gleam-lang";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-J3FqaKEeK+Xy8Ri5j7+K+4wpvNeMUHSfj2O68XBPlYs=";
+    hash = "sha256-buMnbBg+/vHXzbBuMPuV8AfdUmYA9J6WTXP7Oqrdo34=";
   };
 
   nativeBuildInputs = [ git pkg-config ];
 
   buildInputs = [ openssl ] ++
-    lib.optionals stdenv.isDarwin [ Security SystemConfiguration ];
+    lib.optionals stdenv.hostPlatform.isDarwin [ Security SystemConfiguration ];
 
-  cargoHash = "sha256-l0LFgmsk87mCVu1UiaFtP3mO01CDV3xTz4Kv+l6AAWw=";
+  cargoHash = "sha256-0Vtf9UXLPW5HuqNIAGNyqIXCMTITdG7PuFdw4H4v6a4=";
 
   passthru.updateScript = nix-update-script { };
 
@@ -34,6 +34,7 @@ rustPlatform.buildRustPackage rec {
     description = "Statically typed language for the Erlang VM";
     mainProgram = "gleam";
     homepage = "https://gleam.run/";
+    changelog = "https://github.com/gleam-lang/gleam/blob/v${version}/CHANGELOG.md";
     license = licenses.asl20;
     maintainers = teams.beam.members ++ [ lib.maintainers.philtaken ];
   };

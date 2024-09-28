@@ -16,17 +16,17 @@
 
 buildGoModule rec {
   pname = "grafana-alloy";
-  version = "1.1.1";
+  version = "1.4.1";
 
   src = fetchFromGitHub {
     rev = "v${version}";
     owner = "grafana";
     repo = "alloy";
-    hash = "sha256-jaOQG+QkVi10lUp6izvSGE9j76ULc4yKbxdDhLHykYI=";
+    hash = "sha256-/LCp4PUt85HR+ig0/v7KlS1cFcFGpI8TXHk3IlcEkvk=";
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-6Xc2siImM1Dl716uGhtAGcn+PO2OLuYLxanzg8Ho6SA=";
+  vendorHash = "sha256-fhUoQGNRoWNbU5U21X45s+eJ8XjCkvYULTRShyq0f3E=";
 
   nativeBuildInputs = [ fixup-yarn-lock yarn nodejs installShellFiles ];
 
@@ -55,9 +55,14 @@ buildGoModule rec {
     "."
   ];
 
+  # Skip building the frontend in the goModules FOD
+  overrideModAttrs = (_: {
+    preBuild = null;
+  });
+
   yarnOfflineCache = fetchYarnDeps {
     yarnLock = "${src}/internal/web/ui/yarn.lock";
-    sha256 = "sha256-o3vCI9GHCr4SjYsiT0wQ4mN76QeAGwOfLVCzGp7NMf4=";
+    hash = "sha256-Y0WcmjFtiNXue2kcJGlvHVBGmMLewGICISoRHnBPHGw=";
   };
 
   preBuild = ''
@@ -79,7 +84,7 @@ buildGoModule rec {
 
   # uses go-systemd, which uses libsystemd headers
   # https://github.com/coreos/go-systemd/issues/351
-  NIX_CFLAGS_COMPILE = lib.optionals stdenv.isLinux [ "-I${lib.getDev systemd}/include" ];
+  NIX_CFLAGS_COMPILE = lib.optionals stdenv.hostPlatform.isLinux [ "-I${lib.getDev systemd}/include" ];
 
   checkFlags = [
     "-tags nonetwork" # disable network tests
@@ -89,7 +94,7 @@ buildGoModule rec {
   # go-systemd uses libsystemd under the hood, which does dlopen(libsystemd) at
   # runtime.
   # Add to RUNPATH so it can be found.
-  postFixup = lib.optionalString stdenv.isLinux ''
+  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     patchelf \
       --set-rpath "${lib.makeLibraryPath [ (lib.getLib systemd) ]}:$(patchelf --print-rpath $out/bin/alloy)" \
       $out/bin/alloy
@@ -107,7 +112,6 @@ buildGoModule rec {
       inherit (nixosTests) alloy;
       version = testers.testVersion {
         version = "v${version}";
-        command = "${lib.getExe grafana-alloy} --version";
         package = grafana-alloy;
       };
     };
@@ -121,7 +125,8 @@ buildGoModule rec {
     mainProgram = "alloy";
     license = licenses.asl20;
     homepage = "https://grafana.com/oss/alloy";
-    maintainers = with maintainers; [ flokli emilylange hbjydev ];
+    changelog = "https://github.com/grafana/alloy/blob/${src.rev}/CHANGELOG.md";
+    maintainers = with maintainers; [ azahi flokli emilylange hbjydev ];
     platforms = lib.platforms.unix;
   };
 }

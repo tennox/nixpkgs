@@ -21,7 +21,6 @@
   stdenv,
   pytest-regressions,
   pytestCheckHook,
-  pythonRelaxDepsHook,
   pythonOlder,
 }:
 
@@ -43,7 +42,6 @@ buildPythonPackage rec {
   pythonRelaxDeps = [ "linkify-it-py" ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     flit-core
   ];
 
@@ -58,7 +56,7 @@ buildPythonPackage rec {
   preCheck = ''
     rm -r benchmarking
   '';
-  doCheck = !stdenv.isi686;
+  doCheck = !stdenv.hostPlatform.isi686;
 
   pythonImportsCheck = [ "markdown_it" ];
 

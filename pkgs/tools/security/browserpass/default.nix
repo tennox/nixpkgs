@@ -20,7 +20,7 @@ buildGoModule rec {
     sha256 = "sha256-hYvdKPme719qpOnGGwvrlhNelLtbGwLngI5ggmVUahA=";
   };
 
-  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.isLinux [ autoPatchelfHook ];
+  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
 
   vendorHash = "sha256-Qihtt86MrCaFqxWnS57vxNPWwD6ZYt9ESJFyUp+uCXQ=";
 

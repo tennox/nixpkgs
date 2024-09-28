@@ -5,7 +5,7 @@
 
 let
   pname = "gate";
-  version = "0.37.1";
+  version = "0.41.0";
 in
 buildGoModule {
   inherit pname version;
@@ -14,10 +14,10 @@ buildGoModule {
     owner = "minekube";
     repo = "gate";
     rev = "refs/tags/v${version}";
-    hash = "sha256-2oWC6l6SFrulk0EPLVtFfMKfVPHZFOngKjvOLprg/Yk=";
+    hash = "sha256-tQO1ClfZasRdnazFOMOWeqnXaEda84lQMQKw5640YCI=";
   };
 
-  vendorHash = "sha256-JaBcGcqFqp9Il3FyU/QwThuggzPg8HWScvFHEAgtgBU=";
+  vendorHash = "sha256-Nl6NGz+sEdwcTzbL+OwHuaQzi2lHX/cN2lE6HNi1uJQ=";
 
   ldflags = [ "-s" "-w" ];
 

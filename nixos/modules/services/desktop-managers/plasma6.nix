@@ -8,7 +8,7 @@
   cfg = config.services.desktopManager.plasma6;
 
   inherit (pkgs) kdePackages;
-  inherit (lib) literalExpression mkDefault mkIf mkOption mkPackageOptionMD types;
+  inherit (lib) literalExpression mkDefault mkIf mkOption mkPackageOption types;
 
   activationScript = ''
     # will be rebuilt automatically
@@ -29,7 +29,7 @@ in {
         description = "Enable Qt 5 integration (theming, etc). Disable for a pure Qt 6 system.";
       };
 
-      notoPackage = mkPackageOptionMD pkgs "Noto fonts - used for UI by default" {
+      notoPackage = mkPackageOption pkgs "Noto fonts - used for UI by default" {
         default = ["noto-fonts"];
         example = "noto-fonts-lgc-plus";
       };
@@ -143,10 +143,16 @@ in {
         kate
         khelpcenter
         dolphin
+        baloo-widgets  # baloo information in Dolphin
         dolphin-plugins
         spectacle
         ffmpegthumbs
         krdp
+        xwaylandvideobridge  # exposes Wayland windows to X11 screen capture
+      ] ++ lib.optionals config.services.flatpak.enable [
+        # Since PackageKit Nix support is not there yet,
+        # only install discover if flatpak is enabled.
+        discover
       ];
     in
       requiredPackages
@@ -213,6 +219,7 @@ in {
     };
 
     programs.gnupg.agent.pinentryPackage = mkDefault pkgs.pinentry-qt;
+    programs.kde-pim.enable = mkDefault true;
     programs.ssh.askPassword = mkDefault "${kdePackages.ksshaskpass.out}/bin/ksshaskpass";
 
     # Enable helpful DBus services.
@@ -237,10 +244,18 @@ in {
     systemd.packages = [kdePackages.drkonqi];
     systemd.services."drkonqi-coredump-processor@".wantedBy = ["systemd-coredump@.service"];
 
+    xdg.icons.enable = true;
+
     xdg.portal.enable = true;
-    xdg.portal.extraPortals = [kdePackages.xdg-desktop-portal-kde];
+    xdg.portal.extraPortals = [
+      kdePackages.xdg-desktop-portal-kde
+      pkgs.xdg-desktop-portal-gtk
+    ];
     xdg.portal.configPackages = mkDefault [kdePackages.xdg-desktop-portal-kde];
     services.pipewire.enable = mkDefault true;
+
+    # Enable screen reader by default
+    services.orca.enable = mkDefault true;
 
     services.displayManager = {
       sessionPackages = [kdePackages.plasma-workspace];
@@ -253,6 +268,7 @@ in {
       extraPackages = with kdePackages; [
         breeze-icons
         kirigami
+        libplasma
         plasma5support
         qtsvg
         qtvirtualkeyboard
@@ -264,9 +280,12 @@ in {
         enable = true;
         package = kdePackages.kwallet-pam;
       };
-      kde.kwallet = {
-        enable = true;
-        package = kdePackages.kwallet-pam;
+      kde = {
+        allowNullPassword = true;
+        kwallet = {
+          enable = true;
+          package = kdePackages.kwallet-pam;
+        };
       };
       kde-fingerprint = lib.mkIf config.services.fprintd.enable { fprintAuth = true; };
       kde-smartcard = lib.mkIf config.security.pam.p11.enable { p11Auth = true; };

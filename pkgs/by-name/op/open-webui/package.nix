@@ -7,25 +7,25 @@
 }:
 let
   pname = "open-webui";
-  version = "0.3.5";
+  version = "0.3.30";
 
   src = fetchFromGitHub {
     owner = "open-webui";
     repo = "open-webui";
-    rev = "v${version}";
-    hash = "sha256-copxy9fgHTHfF14bh9ddF4eTWx2GP2Mkw3lr+1NKKkI=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-zGgCISGpna9L8Eqze0WWagIx26DwhLpeOLCVslpcJ08=";
   };
 
   frontend = buildNpmPackage {
     inherit pname version src;
 
-    npmDepsHash = "sha256-whddW3ThC/zlttqhV3wf15roaCgp0H/BELWLs9/c5Jc=";
+    npmDepsHash = "sha256-508AjFAzQvWPkn+kMv/YQUeG0jikZJJxNkFqfkKi9Ks=";
 
     # Disabling `pyodide:fetch` as it downloads packages during `buildPhase`
     # Until this is solved, running python packages from the browser will not work.
     postPatch = ''
       substituteInPlace package.json \
-        --replace-fail "npm run pyodide:fetch && vite build" "vite build" \
+        --replace-fail "npm run pyodide:fetch && vite build" "vite build"
     '';
 
     env.CYPRESS_INSTALL_BINARY = "0"; # disallow cypress from downloading binaries in sandbox
@@ -59,19 +59,27 @@ python3.pkgs.buildPythonApplication rec {
     "opencv-python-headless"
     # using `psycopg2` instead
     "psycopg2-binary"
+    "docker"
+    "pytest"
+    "pytest-docker"
   ];
 
   dependencies = with python3.pkgs; [
     aiohttp
+    alembic
+    anthropic
     apscheduler
     argon2-cffi
+    authlib
     bcrypt
     beautifulsoup4
     black
     boto3
     chromadb
+    colbert-ai
     docx2txt
     duckduckgo-search
+    einops
     extract-msg
     fake-useragent
     fastapi
@@ -85,18 +93,24 @@ python3.pkgs.buildPythonApplication rec {
     langchain-community
     langfuse
     markdown
+    nltk
+    openai
     opencv4
     openpyxl
     pandas
     passlib
     peewee
     peewee-migrate
+    psutil
     psycopg2
     pydub
     pyjwt
+    pymilvus
+    pymongo
     pymysql
     pypandoc
     pypdf
+    python-dotenv
     python-jose
     python-multipart
     python-pptx
@@ -105,8 +119,10 @@ python3.pkgs.buildPythonApplication rec {
     pyxlsb
     rank-bm25
     rapidocr-onnxruntime
+    redis
     requests
     sentence-transformers
+    tiktoken
     unstructured
     uvicorn
     validators
@@ -115,8 +131,6 @@ python3.pkgs.buildPythonApplication rec {
   ];
 
   build-system = with python3.pkgs; [ hatchling ];
-
-  nativeBuildInputs = [ python3.pkgs.pythonRelaxDepsHook ];
 
   pythonImportsCheck = [ "open_webui" ];
 
@@ -127,7 +141,7 @@ python3.pkgs.buildPythonApplication rec {
   };
 
   meta = {
-    description = "Full-stack of open-webui. open-webui is a user-friendly WebUI for LLMs (Formerly Ollama WebUI)";
+    description = "Comprehensive suite for LLMs with a user-friendly WebUI";
     homepage = "https://github.com/open-webui/open-webui";
     changelog = "https://github.com/open-webui/open-webui/blob/${src.rev}/CHANGELOG.md";
     license = lib.licenses.mit;

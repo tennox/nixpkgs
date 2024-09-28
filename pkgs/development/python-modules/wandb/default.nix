@@ -31,7 +31,6 @@
   nbformat,
   pandas,
   parameterized,
-  pathtools,
   protobuf,
   psutil,
   pydantic,
@@ -40,7 +39,6 @@
   pytest-xdist,
   pytestCheckHook,
   pythonOlder,
-  pythonRelaxDepsHook,
   pyyaml,
   requests,
   responses,
@@ -77,7 +75,6 @@ buildPythonPackage rec {
   ];
 
   nativeBuildInputs = [
-    pythonRelaxDepsHook
     setuptools
   ];
 
@@ -87,7 +84,6 @@ buildPythonPackage rec {
     click
     docker-pycreds
     gitpython
-    pathtools
     protobuf
     psutil
     pyyaml
@@ -284,11 +280,11 @@ buildPythonPackage rec {
       # See https://github.com/wandb/wandb/issues/6836
       "tests/pytest_tests/unit_tests_old/test_logging.py"
     ]
-    ++ lib.optionals stdenv.isLinux [
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       # Same as above
       "tests/pytest_tests/unit_tests/test_artifacts/test_storage.py"
     ]
-    ++ lib.optionals stdenv.isDarwin [
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # Same as above
       "tests/pytest_tests/unit_tests/test_lib/test_filesystem.py"
     ];
@@ -305,7 +301,7 @@ buildPythonPackage rec {
       "test_pytorch_saved_model"
       "test_tensorflow_keras_saved_model"
     ]
-    ++ lib.optionals stdenv.isDarwin [
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # Disable test that fails on darwin due to issue with python3Packages.psutil:
       # https://github.com/giampaolo/psutil/issues/1219
       "test_tpu_system_stats"

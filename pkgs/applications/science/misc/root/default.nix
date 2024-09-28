@@ -56,7 +56,7 @@
 
 stdenv.mkDerivation rec {
   pname = "root";
-  version = "6.32.00";
+  version = "6.32.04";
 
   passthru = {
     tests = import ./tests { inherit callPackage; };
@@ -64,13 +64,15 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://root.cern.ch/download/root_v${version}.source.tar.gz";
-    hash = "sha256-EvIDaBpZBBxHTOlSN2Hm8OiGGzvueN9feZqNtVGJ5dI=";
+    hash = "sha256-Ey8Saq59MO+8zX3NmRt62hiQrleYDvMAwWQh+dTQfqg=";
   };
 
   clad_src = fetchgit {
     url = "https://github.com/vgvassilev/clad";
-    rev = "refs/tags/v1.5"; # Make sure that this is the same tag as in the ROOT build files!
-    hash = "sha256-s0DbHfLthv51ZICnTd30O4qG/DyZPk5tADeu3bBRoOw=";
+    # Make sure that this is the same tag as in the ROOT build files!
+    # https://github.com/root-project/root/blob/master/interpreter/cling/tools/plugins/clad/CMakeLists.txt#L76
+    rev = "refs/tags/v1.6";
+    hash = "sha256-Fv3i84lgoifxtyWKhQjj1c4bR9wSl5SPzUh0ZhZBxFI=";
   };
 
   nativeBuildInputs = [ makeWrapper cmake pkg-config git ];
@@ -107,8 +109,8 @@ stdenv.mkDerivation rec {
     tbb
     xrootd
   ]
-  ++ lib.optionals (!stdenv.isDarwin) [ libX11 libXpm libXft libXext libGLU libGL ]
-  ++ lib.optionals (stdenv.isDarwin) [ Cocoa CoreSymbolication OpenGL ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [ libX11 libXpm libXft libXext libGLU libGL ]
+  ++ lib.optionals (stdenv.hostPlatform.isDarwin) [ Cocoa CoreSymbolication OpenGL ]
   ;
 
   patches = [
@@ -147,11 +149,11 @@ stdenv.mkDerivation rec {
       -e '1iset(nlohmann_json_DIR "${nlohmann_json}/lib/cmake/nlohmann_json/")'
 
     patchShebangs build/unix/
-  '' + lib.optionalString stdenv.isDarwin ''
+  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
     # Eliminate impure reference to /System/Library/PrivateFrameworks
     substituteInPlace core/macosx/CMakeLists.txt \
       --replace "-F/System/Library/PrivateFrameworks " ""
-  '' + lib.optionalString (stdenv.isDarwin && lib.versionAtLeast stdenv.hostPlatform.darwinMinVersion "11") ''
+  '' + lib.optionalString (stdenv.hostPlatform.isDarwin && lib.versionAtLeast stdenv.hostPlatform.darwinMinVersion "11") ''
     MACOSX_DEPLOYMENT_TARGET=10.16
   '';
 
@@ -163,14 +165,14 @@ stdenv.mkDerivation rec {
     "-Dfail-on-missing=ON"
     "-Dfitsio=OFF"
     "-Dgnuinstall=ON"
+    "-Dmathmore=ON"
     "-Dmysql=OFF"
     "-Dpgsql=OFF"
     "-Dsqlite=OFF"
-    "-Dtmva-pymva=OFF"
     "-Dvdt=OFF"
   ]
   ++ lib.optional (stdenv.cc.libc != null) "-DC_INCLUDE_DIRS=${lib.getDev stdenv.cc.libc}/include"
-  ++ lib.optionals stdenv.isDarwin [
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "-DOPENGL_INCLUDE_DIR=${OpenGL}/Library/Frameworks"
 
     # fatal error: module map file '/nix/store/<hash>-Libsystem-osx-10.12.6/include/module.modulemap' not found
@@ -221,6 +223,9 @@ stdenv.mkDerivation rec {
       which
     ]}"
   '';
+
+  # error: aligned allocation function of type 'void *(std::size_t, std::align_val_t)' is only available on macOS 10.13 or newer
+  CXXFLAGS = lib.optional (stdenv.hostPlatform.system == "x86_64-darwin") "-faligned-allocation";
 
   # To use the debug information on the fly (without installation)
   # add the outPath of root.debug into NIX_DEBUG_INFO_DIRS (in PATH-like format)

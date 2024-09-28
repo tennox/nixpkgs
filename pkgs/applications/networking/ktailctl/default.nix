@@ -1,15 +1,16 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, buildGoModule
+, buildGo123Module
 , cmake
 , extra-cmake-modules
 , git
-, go
+, go_1_23
 , wrapQtAppsHook
 , qtbase
 , qtdeclarative
 , qtsvg
+, qtwayland
 , kconfig
 , kcoreaddons
 , kguiaddons
@@ -18,23 +19,24 @@
 , kirigami-addons
 , knotifications
 , nlohmann_json
+, qqc2-desktop-style
 }:
 
 let
-  version = "0.16.0";
+  version = "0.18.0";
 
   src = fetchFromGitHub {
     owner = "f-koehler";
     repo = "KTailctl";
     rev = "v${version}";
-    hash = "sha256-fIx6XfNGK+jDpeaoCzTKwv3J01yWoHOgWxjbwTGVK1U=";
+    hash = "sha256-tZnwn94qZyQ8JAC6Y1dDTmc7Cob+kMZnEaP7+EytbH8=";
   };
 
-  goDeps = (buildGoModule {
-    pname = "tailwrap";
+  goDeps = (buildGo123Module {
+    pname = "ktailctl-go-wrapper";
     inherit src version;
-    modRoot = "tailwrap";
-    vendorHash = "sha256-egTzSdOKrhdEBKarIfROxZUsxbnR9F1JDbdoKzGf9UM=";
+    modRoot = "src/wrapper";
+    vendorHash = "sha256-KdkvAPLnoC7DccRVIz7t/Ns71dnG59DpO5qwOhJk7qc=";
   }).goModules;
 in
 stdenv.mkDerivation {
@@ -42,7 +44,7 @@ stdenv.mkDerivation {
   inherit version src;
 
   postPatch = ''
-    cp -r --reflink=auto ${goDeps} tailwrap/vendor
+    cp -r --reflink=auto ${goDeps} src/wrapper/vendor
   '';
 
   # needed for go build to work
@@ -59,7 +61,7 @@ stdenv.mkDerivation {
     cmake
     extra-cmake-modules
     git
-    go
+    go_1_23
     wrapQtAppsHook
   ];
 
@@ -67,13 +69,16 @@ stdenv.mkDerivation {
     qtbase
     qtdeclarative
     qtsvg
+    qtwayland
     kconfig
     kcoreaddons
     kguiaddons
     ki18n
     kirigami
+    kirigami-addons
     knotifications
     nlohmann_json
+    qqc2-desktop-style
   ];
 
   meta = with lib; {
@@ -82,6 +87,6 @@ stdenv.mkDerivation {
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ k900 ];
     mainProgram = "ktailctl";
-    platforms = platforms.all;
+    platforms = platforms.unix;
   };
 }

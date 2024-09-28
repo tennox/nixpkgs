@@ -7,7 +7,7 @@ stdenv.mkDerivation (finalAttrs: {
   version = "1.0.20";
 
   src = fetchurl {
-    url = "https://download.libsodium.org/libsodium/releases/${finalAttrs.pname}-${finalAttrs.version}.tar.gz";
+    url = "https://download.libsodium.org/libsodium/releases/libsodium-${finalAttrs.version}.tar.gz";
     hash = "sha256-67Ze9spDkzPCu0GgwZkFhyiNoH9sf9B8s6GMwY0wzhk=";
   };
 
@@ -15,7 +15,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [ autoreconfHook ];
 
-  separateDebugInfo = stdenv.isLinux && stdenv.hostPlatform.libc != "musl";
+  separateDebugInfo = stdenv.hostPlatform.isLinux && stdenv.hostPlatform.libc != "musl";
 
   enableParallelBuilding = true;
   hardeningDisable = lib.optional (stdenv.hostPlatform.isMusl && stdenv.hostPlatform.isx86_32) "stackprotector";

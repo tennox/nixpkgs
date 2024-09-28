@@ -70,7 +70,7 @@ stdenv.mkDerivation rec {
     libcap_ng libxcrypt curl nspr nss ldns
     # needed to patch shebangs
     python3 bash
-  ] ++ lib.optional stdenv.isLinux libselinux;
+  ] ++ lib.optional stdenv.hostPlatform.isLinux libselinux;
 
   prePatch = ''
     # Replace wget with curl to save a dependency
@@ -104,7 +104,7 @@ stdenv.mkDerivation rec {
         -i $out/bin/ipsec
   '';
 
-  passthru.tests.libreswan = nixosTests.libreswan;
+  passthru.tests = { inherit (nixosTests) libreswan libreswan-nat; };
 
   meta = with lib; {
     homepage = "https://libreswan.org";

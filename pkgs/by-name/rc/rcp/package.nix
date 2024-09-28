@@ -7,20 +7,20 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "rcp";
-  version = "0.10.1";
+  version = "0.13.0";
 
   src = fetchFromGitHub {
     owner = "wykurz";
     repo = "rcp";
     rev = "v${version}";
-    hash = "sha256-nNMcZyJAvqxVSoytmfSqsfk1yVzzZ5aIOj72L+jFAAM=";
+    hash = "sha256-INLXVruiaK5yv5old0NOWFcg9y13M6Dm7bBMmcPFY1I=";
   };
 
-  buildInputs = lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin (with darwin.apple_sdk.frameworks; [
     IOKit
   ]);
 
-  cargoHash = "sha256-3+w+pTws8WjrUqIWYGbE2V438mVUUyrjBH9mHI8uRMQ=";
+  cargoHash = "sha256-JXDM97uGuGh3qHK3Gh8Nd/YSZq/Kcj81PpufJJMqQQI=";
 
   RUSTFLAGS = "--cfg tokio_unstable";
 
@@ -37,6 +37,6 @@ rustPlatform.buildRustPackage rec {
     mainProgram = "rcp";
     maintainers = with maintainers; [ wykurz ];
     # = note: Undefined symbols for architecture x86_64: "_utimensat"
-    broken = stdenv.isDarwin && stdenv.isx86_64;
+    broken = stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64;
   };
 }

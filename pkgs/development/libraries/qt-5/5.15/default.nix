@@ -23,12 +23,12 @@ Check for any minor version changes.
 
 let
 
-  srcs = import ./srcs.nix { inherit lib fetchgit fetchFromGitHub; } // { __attrsFailEvaluation = true; };
+  srcs = import ./srcs.nix { inherit lib fetchgit fetchFromGitHub; };
 
   qtCompatVersion = srcs.qtbase.version;
 
   patches = {
-    qtbase = lib.optionals stdenv.isDarwin [
+    qtbase = lib.optionals stdenv.hostPlatform.isDarwin [
       ./qtbase.patch.d/0001-qtbase-mkspecs-mac.patch
 
       # Patch framework detection to support X.framework/X.tbd,
@@ -36,14 +36,6 @@ let
       ./qtbase.patch.d/0012-qtbase-tbd-frameworks.patch
 
       ./qtbase.patch.d/0014-aarch64-darwin.patch
-
-      # Fix typo that breaks build on Darwin
-      # FIXME: remove this once merged upstream
-      # See: https://invent.kde.org/qt/qt/qtbase/-/merge_requests/325
-      (fetchpatch {
-        url = "https://invent.kde.org/qt/qt/qtbase/-/commit/e84c0df50f51c61aa49b47823582b0f8de406e3d.patch";
-        hash = "sha256-d1RIY03E71aMzOOVtcIaMeariki/72QRekUne6P2D3M=";
-      })
     ] ++ [
       ./qtbase.patch.d/0003-qtbase-mkspecs.patch
       ./qtbase.patch.d/0004-qtbase-replace-libdir.patch
@@ -71,7 +63,7 @@ let
         hash = "sha256-UEvIXzn387f9BAeBdhheStD/4M7en+rmqX8C6gstl6k=";
       })
     ];
-    qtmultimedia = lib.optionals stdenv.isDarwin [
+    qtmultimedia = lib.optionals stdenv.hostPlatform.isDarwin [
       # build patch for qtmultimedia with xcode 15
       (fetchpatch {
         url = "https://raw.githubusercontent.com/Homebrew/formula-patches/3f509180/qt5/qt5-qtmultimedia-xcode15.patch";
@@ -174,6 +166,12 @@ let
     qtscript = [ ./qtscript.patch ];
     qtserialport = [ ./qtserialport.patch ];
     qtsystems = [
+      # Fix crash if no X11 display available
+      (fetchpatch {
+        url = "https://salsa.debian.org/qt-kde-team/qt/qtsystems/-/raw/1a4df40671d6f1bb0657a9dfdae4cd9bd48fcf21/debian/patches/1005_check_XOpenDisplay.patch";
+        hash = "sha256-/onla2nlUSySEgz2IYOYajx/LZkJzAKDyxwAZzy0Ivs=";
+      })
+
       # Enable building with udisks support
       (fetchpatch {
         url = "https://salsa.debian.org/qt-kde-team/qt/qtsystems/-/raw/a23fd92222c33479d7f3b59e48116def6b46894c/debian/patches/2001_build_with_udisk.patch";
@@ -186,7 +184,7 @@ let
       # See: https://bugreports.qt.io/browse/QTBUG-124375
       # Backport of: https://code.qt.io/cgit/qt/qtwebengine-chromium.git/commit/?id=a766045f65f934df3b5f1aa63bc86fbb3e003a09
       ./qtwebengine-ninja-1.12.patch
-    ] ++ lib.optionals stdenv.isDarwin [
+    ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
       ./qtwebengine-darwin-no-platform-check.patch
       ./qtwebengine-mac-dont-set-dsymutil-path.patch
       ./qtwebengine-darwin-checks.patch
@@ -220,7 +218,7 @@ let
       ./qtwebkit.patch
       ./qtwebkit-icu68.patch
       ./qtwebkit-cstdint.patch
-    ] ++ lib.optionals stdenv.isDarwin [
+    ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
       ./qtwebkit-darwin-no-readline.patch
       ./qtwebkit-darwin-no-qos-classes.patch
     ];
@@ -250,7 +248,7 @@ let
         inherit (srcs.qtbase) src version;
         patches = patches.qtbase;
         inherit bison cups harfbuzz libGL;
-        withGtk3 = !stdenv.isDarwin; inherit dconf gtk3;
+        withGtk3 = !stdenv.hostPlatform.isDarwin; inherit dconf gtk3;
         inherit developerBuild decryptSslTraffic;
         inherit (darwin.apple_sdk_11_0.frameworks) AGL AppKit ApplicationServices AVFoundation Carbon Cocoa CoreAudio CoreBluetooth
           CoreLocation CoreServices DiskArbitration Foundation OpenGL MetalKit IOKit;
@@ -313,10 +311,10 @@ let
         # clang is pinned to clang 15. That also makes fixing the second set of errors unnecessary.
         stdenv =
           let stdenv' = if stdenv.cc.isClang then overrideLibcxx llvmPackages_15.stdenv else stdenv;
-          in if stdenv'.isDarwin then overrideSDK stdenv' "11.0" else stdenv';
+          in if stdenv'.hostPlatform.isDarwin then overrideSDK stdenv' "11.0" else stdenv';
         inherit (srcs.qtwebengine) version;
         python = python3;
-        inherit (darwin) cctools xnu;
+        inherit (darwin) xnu;
         inherit (darwin.apple_sdk_11_0) libpm libunwind;
         inherit (darwin.apple_sdk_11_0.libs) sandbox;
         inherit (darwin.apple_sdk_11_0.frameworks) ApplicationServices AVFoundation Foundation ForceFeedback GameController AppKit
@@ -345,8 +343,8 @@ let
         qtscript qtsensors qtserialport qtsvg qttools qttranslations
         qtvirtualkeyboard qtwebchannel qtwebengine qtwebsockets
         qtwebview qtx11extras qtxmlpatterns qtlottie qtdatavis3d
-      ] ++ lib.optional (!stdenv.isDarwin) qtwayland
-        ++ lib.optional (stdenv.isDarwin) qtmacextras);
+      ] ++ lib.optional (!stdenv.hostPlatform.isDarwin) qtwayland
+        ++ lib.optional (stdenv.hostPlatform.isDarwin) qtmacextras);
 
       qmake = callPackage ({ qtbase }: makeSetupHook {
         name = "qmake-hook";
@@ -362,7 +360,7 @@ let
       wrapQtAppsHook = callPackage ({ makeBinaryWrapper, qtbase, qtwayland }: makeSetupHook {
         name = "wrap-qt5-apps-hook";
         propagatedBuildInputs = [ qtbase.dev makeBinaryWrapper ]
-          ++ lib.optional stdenv.isLinux qtwayland.dev;
+          ++ lib.optional stdenv.hostPlatform.isLinux qtwayland.dev;
       } ../hooks/wrap-qt-apps-hook.sh) { };
     };
 

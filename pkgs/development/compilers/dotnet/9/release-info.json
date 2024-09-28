@@ -1,5 +1,5 @@
 {
-  "tarballHash": "sha256-RD63MT28wOY+EjN8mlGrhKenAdvoSnzHYqzqyvWmZSI=",
-  "artifactsUrl": "https://dotnetcli.azureedge.net/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.9.0.100-preview.5.24257.1.centos.9-x64.tar.gz",
-  "artifactsHash": "sha256-SHhAFlSlRRoUIR/qCox71t5d1PaqSPcfiCSvRiSpDMw="
+  "tarballHash": "sha256-t4BQcN1rCG5XKfsJJqnpBHzyXtCrWbQaxpJ8gBpRrVk=",
+  "artifactsUrl": "https://dotnetcli.azureedge.net/source-built-artifacts/assets/Private.SourceBuilt.Artifacts.9.0.100-rc.1.24452.1.centos.9-x64.tar.gz",
+  "artifactsHash": "sha256-HRu23+7cJVAoTaFm0hnHk1lOC8HiBIvTs9TgWKVS8xw="
 }

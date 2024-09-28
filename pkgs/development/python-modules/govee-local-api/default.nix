@@ -9,7 +9,7 @@
 
 buildPythonPackage rec {
   pname = "govee-local-api";
-  version = "1.5.0";
+  version = "1.5.2";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -18,7 +18,7 @@ buildPythonPackage rec {
     owner = "Galorhallen";
     repo = "govee-local-api";
     rev = "refs/tags/v${version}";
-    hash = "sha256-L9c/58B50E5Kk44j9tvtDZ0+ncJZ4KubTz/U9FI71+E=";
+    hash = "sha256-sxxw/XAPENtNeY/64+pxnPgMBBM7+lpF52ixRm18d48=";
   };
 
   build-system = [ poetry-core ];

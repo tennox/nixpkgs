@@ -109,7 +109,7 @@ let
     );
 
   # Recursively composes the dependencies of a package
-  composePackage = { name, packageName, src, dependencies ? [], ... }:
+  composePackage = { name, packageName, src, dependencies ? [], ... }@args:
     builtins.addErrorContext "while evaluating node package '${packageName}'" ''
       installPackage "${packageName}" "${src}"
       ${includeDependencies { inherit dependencies; }}
@@ -194,7 +194,7 @@ let
   # dependencies in the package.json file to the versions that are actually
   # being used.
 
-  pinpointDependenciesOfPackage = { packageName, dependencies ? [], production ? true, ... }:
+  pinpointDependenciesOfPackage = { packageName, dependencies ? [], production ? true, ... }@args:
     ''
       if [ -d "${packageName}" ]
       then
@@ -496,11 +496,11 @@ let
     let
       extraArgs = removeAttrs args [ "name" "dependencies" "buildInputs" "dontStrip" "dontNpmInstall" "preRebuild" "unpackPhase" "buildPhase" "meta" ];
     in
-    stdenv.mkDerivation (finalAttrs: {
+    stdenv.mkDerivation ({
       name = "${name}${if version == null then "" else "-${version}"}";
       buildInputs = [ tarWrapper python nodejs ]
-        ++ lib.optional (stdenv.isLinux) utillinux
-        ++ lib.optional (stdenv.isDarwin) libtool
+        ++ lib.optional (stdenv.hostPlatform.isLinux) utillinux
+        ++ lib.optional (stdenv.hostPlatform.isDarwin) libtool
         ++ buildInputs;
 
       inherit nodejs;
@@ -508,9 +508,8 @@ let
       inherit dontStrip; # Stripping may fail a build for some package deployments
       inherit dontNpmInstall preRebuild unpackPhase buildPhase;
 
-      # TODO: enable overriding dependencies too?
-      compositionScript = composePackage { inherit packageName dependencies; inherit (finalAttrs) name src; };
-      pinpointDependenciesScript = pinpointDependenciesOfPackage { inherit packageName dependencies production; };
+      compositionScript = composePackage args;
+      pinpointDependenciesScript = pinpointDependenciesOfPackage args;
 
       passAsFile = [ "compositionScript" "pinpointDependenciesScript" ];
 
@@ -592,8 +591,8 @@ let
         name = "node-dependencies-${name}${if version == null then "" else "-${version}"}";
 
         buildInputs = [ tarWrapper python nodejs ]
-          ++ lib.optional (stdenv.isLinux) utillinux
-          ++ lib.optional (stdenv.isDarwin) libtool
+          ++ lib.optional (stdenv.hostPlatform.isLinux) utillinux
+          ++ lib.optional (stdenv.hostPlatform.isDarwin) libtool
           ++ buildInputs;
 
         inherit dontStrip; # Stripping may fail a build for some package deployments
@@ -663,7 +662,7 @@ let
     stdenv.mkDerivation ({
       name = "node-shell-${name}${if version == null then "" else "-${version}"}";
 
-      buildInputs = [ python nodejs ] ++ lib.optional (stdenv.isLinux) utillinux ++ buildInputs;
+      buildInputs = [ python nodejs ] ++ lib.optional (stdenv.hostPlatform.isLinux) utillinux ++ buildInputs;
       buildCommand = ''
         mkdir -p $out/bin
         cat > $out/bin/shell <<EOF

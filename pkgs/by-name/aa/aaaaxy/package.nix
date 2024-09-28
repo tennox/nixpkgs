@@ -20,17 +20,17 @@
 
 buildGoModule rec {
   pname = "aaaaxy";
-  version = "1.5.139";
+  version = "1.5.202";
 
   src = fetchFromGitHub {
     owner = "divVerent";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-j8BpLN0PhMqUQXhF1L7uEW2KLaVq5cfckXnWrkltCgM=";
+    hash = "sha256-UR6rcdNXrDotakDhUW7EFYKpGEqGVmAPUUwrEG9Fiqs=";
     fetchSubmodules = true;
   };
 
-  vendorHash = "sha256-a6nfGP6Lwjwr4wXXRUrCyV9+BCyHOSKczk5rjZdFnlA=";
+  vendorHash = "sha256-rNCzCSVENwoVTWOEcXBCWgVAwiBZtGsbyz3QBT+WUGw=";
 
   buildInputs = [
     alsa-lib

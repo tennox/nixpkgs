@@ -11,16 +11,16 @@
 
 buildGoModule rec {
   pname = "werf";
-  version = "2.6.1";
+  version = "2.10.6";
 
   src = fetchFromGitHub {
     owner = "werf";
     repo = "werf";
     rev = "v${version}";
-    hash = "sha256-10RyCVF1w5xj/qhFXQTlyrt9HG/4di2fUwUtDHU6t44=";
+    hash = "sha256-TVjmPylomSp8WT2YW6x6CPkk6FinKGrGRlDEAtl8vRI=";
   };
 
-  vendorHash = "sha256-d1Dn+JN8tiBVx7YDbtvLW0YgIW2ENrEdx4gKatYy1hw=";
+  vendorHash = "sha256-OR2nIR2q3iRfaSQSQRKn+jbygETx2+WmkOIjOCIB9O8=";
 
   proxyVendor = true;
 
@@ -29,10 +29,10 @@ buildGoModule rec {
   nativeBuildInputs = [ installShellFiles ];
 
   buildInputs =
-    lib.optionals stdenv.isLinux [ btrfs-progs ]
+    lib.optionals stdenv.hostPlatform.isLinux [ btrfs-progs ]
     ++ lib.optionals stdenv.hostPlatform.isGnu [ stdenv.cc.libc.static ];
 
-  CGO_ENABLED = if stdenv.isLinux then 1 else 0;
+  CGO_ENABLED = if stdenv.hostPlatform.isLinux then 1 else 0;
 
   ldflags =
     [

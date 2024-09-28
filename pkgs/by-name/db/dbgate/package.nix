@@ -7,21 +7,21 @@
 }:
 let
   pname = "dbgate";
-  version = "5.3.0";
+  version = "5.3.4";
   src =
     fetchurl
       {
         aarch64-linux = {
           url = "https://github.com/dbgate/dbgate/releases/download/v${version}/dbgate-${version}-linux_arm64.AppImage";
-          hash = "sha256-FoNph6phZEMjndX6KNtSH8TpOpI0x4rmpTBh11bYV3c=";
+          hash = "sha256-szG0orYBB1+DE9Vwjq0sluIaLDBlWOScKuruJR4iQKg=";
         };
         x86_64-linux = {
           url = "https://github.com/dbgate/dbgate/releases/download/v${version}/dbgate-${version}-linux_x86_64.AppImage";
-          hash = "sha256-HsWT099apLtL5KAy3Shw0uEoXzpWGAyD63L3NhT/JlU=";
+          hash = "sha256-C0BJ3dydaeV8ypc8c0EDiMBhvByLAKuKTGHOozqbd+w=";
         };
         x86_64-darwin = {
           url = "https://github.com/dbgate/dbgate/releases/download/v${version}/dbgate-${version}-mac_x64.dmg";
-          hash = "sha256-bdCwvfmfOCpVW1yTFxsLxveg9uQW1O8ODkCGpiujRCE=";
+          hash = "sha256-WwUpFFeZ9NmosHZqrHCbsz673fSbdQvwxhEvz/6JJtw=";
         };
       }
       .${stdenv.system} or (throw "dbgate: ${stdenv.system} is unsupported.");
@@ -40,7 +40,7 @@ let
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
   };
 in
-if stdenv.isDarwin then
+if stdenv.hostPlatform.isDarwin then
   stdenv.mkDerivation {
     inherit
       pname

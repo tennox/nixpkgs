@@ -17,21 +17,25 @@
 , vulkan-loader
 , libxkbcommon
 
-, withX11 ? !stdenv.isDarwin
+, withX11 ? !stdenv.hostPlatform.isDarwin
 , libX11
 , libXcursor
 , libXi
 , libXrandr
 , libxcb
 
-, withWayland ? !stdenv.isDarwin
+, withWayland ? !stdenv.hostPlatform.isDarwin
 , wayland
+
+, testers
+, rio
 }:
 let
-  rlinkLibs = if stdenv.isDarwin then [
+  rlinkLibs = if stdenv.hostPlatform.isDarwin then [
     darwin.libobjc
     darwin.apple_sdk_11_0.frameworks.AppKit
     darwin.apple_sdk_11_0.frameworks.AVFoundation
+    darwin.apple_sdk_11_0.frameworks.MetalKit
     darwin.apple_sdk_11_0.frameworks.Vision
   ] else [
     (lib.getLib gcc-unwrapped)
@@ -51,20 +55,20 @@ let
 in
 rustPlatform.buildRustPackage rec {
   pname = "rio";
-  version = "0.0.39";
+  version = "0.1.16";
 
   src = fetchFromGitHub {
     owner = "raphamorim";
     repo = "rio";
     rev = "v${version}";
-    hash = "sha256-pnU2wxgopHMWgJ7JGdO2P/MCfxqCY7MTEE39qtD0XKw=";
+    hash = "sha256-3OtPlaYkTPIF98CyaXWGZ/1msWHFdscqZXVviu0/O/o=";
   };
 
-  cargoHash = "sha256-GwI2zHX1YcR4pC+qtkDoxx2U+zipbqqxsCI8/XNg2BU=";
+  cargoHash = "sha256-VpS3prTmAbWTd+gwAOA0BXso4gkcAFuhMZh8Go3Dlao=";
 
   nativeBuildInputs = [
     ncurses
-  ] ++ lib.optionals stdenv.isLinux [
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
     cmake
     pkg-config
     autoPatchelfHook
@@ -83,7 +87,7 @@ rustPlatform.buildRustPackage rec {
 
   checkFlags = [
     # Fail to run in sandbox environment.
-    "--skip=screen::context::test"
+    "--skip=sys::unix::eventedfd::EventedFd"
   ];
 
   postInstall = ''
@@ -95,7 +99,7 @@ rustPlatform.buildRustPackage rec {
     tic -xe rio,rio-direct -o "$terminfo/share/terminfo" misc/rio.terminfo
     mkdir -p $out/nix-support
     echo "$terminfo" >> $out/nix-support/propagated-user-env-packages
-  '' + lib.optionalString stdenv.isDarwin ''
+  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir $out/Applications/
     mv misc/osx/Rio.app/ $out/Applications/
     mkdir $out/Applications/Rio.app/Contents/MacOS/
@@ -107,7 +111,10 @@ rustPlatform.buildRustPackage rec {
       extraArgs = [ "--version-regex" "v([0-9.]+)" ];
     };
 
-    tests.test = nixosTests.terminal-emulators.rio;
+    tests = {
+      test = nixosTests.terminal-emulators.rio;
+      version = testers.testVersion { package = rio; };
+    };
   };
 
   meta = {
@@ -116,7 +123,7 @@ rustPlatform.buildRustPackage rec {
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ tornax otavio oluceps ];
     platforms = lib.platforms.unix;
-    changelog = "https://github.com/raphamorim/rio/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/raphamorim/rio/blob/v${version}/docs/docs/releases.md";
     mainProgram = "rio";
   };
 }

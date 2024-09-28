@@ -1,7 +1,6 @@
 {
   lib,
   buildPythonPackage,
-  pythonOlder,
   fetchFromGitHub,
 
   # build-system
@@ -19,6 +18,7 @@
   ipython,
   ipywidgets,
   jsonschema,
+  libcst,
   matplotlib,
   numpy,
   opentelemetry-api,
@@ -35,16 +35,15 @@
   websockets,
   wrapt,
   xarray,
-  importlib-metadata,
 
   # optional-dependencies
+  furo,
   jinja2,
   nbsphinx,
   pyvisa-sim,
   scipy,
   sphinx,
   sphinx-issues,
-  sphinx-rtd-theme,
   towncrier,
   opencensus,
   opencensus-ext-azure,
@@ -63,16 +62,14 @@
 
 buildPythonPackage rec {
   pname = "qcodes";
-  version = "0.45.0";
+  version = "0.48.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "microsoft";
     repo = "Qcodes";
     rev = "refs/tags/v${version}";
-    hash = "sha256-H91CpvxGQW0X+m/jlqXMc1RdI9w62lt5jgYOxZ2iPQg=";
+    hash = "sha256-Q1WyuK1mCbs75kGY1Aaw7S5EfFRjwqzZnhNyeSx7qc8=";
   };
 
   build-system = [
@@ -107,11 +104,12 @@ buildPythonPackage rec {
     websockets
     wrapt
     xarray
-  ] ++ lib.optionals (pythonOlder "3.10") [ importlib-metadata ];
+  ];
 
   optional-dependencies = {
     docs = [
       # autodocsumm
+      furo
       jinja2
       nbsphinx
       pyvisa-sim
@@ -121,7 +119,6 @@ buildPythonPackage rec {
       # sphinx-favicon
       sphinx-issues
       # sphinx-jsonschema
-      sphinx-rtd-theme
       # sphinxcontrib-towncrier
       towncrier
     ];
@@ -132,6 +129,9 @@ buildPythonPackage rec {
       opencensus
       opencensus-ext-azure
     ];
+    refactor = [
+      libcst
+    ];
     zurichinstruments = [
       # zhinst-qcodes
     ];
@@ -140,6 +140,7 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     deepdiff
     hypothesis
+    libcst
     lxml
     pip
     pytest-asyncio
@@ -191,9 +192,13 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "qcodes" ];
 
+  # Remove the `asyncio_default_fixture_loop_scope` option as it has been introduced in newer `pytest-asyncio` v0.24
+  # which is not in nixpkgs yet:
+  # pytest.PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail 'default-version = "0.0"' 'default-version = "${version}"'
+      --replace-fail 'default-version = "0.0"' 'default-version = "${version}"' \
+      --replace-fail 'asyncio_default_fixture_loop_scope = "function"' ""
   '';
 
   postInstall = ''

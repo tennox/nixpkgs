@@ -2,7 +2,8 @@
   lib,
   stdenv,
   stdenvNoCC,
-  crossLibcStdenv,
+  stdenvNoLibc,
+  stdenvLibcMinimal,
   runCommand,
   rsync,
   source,
@@ -23,7 +24,15 @@
 lib.makeOverridable (
   attrs:
   let
-    stdenv' = if attrs.noCC or false then stdenvNoCC else stdenv;
+    stdenv' =
+      if attrs.noCC or false then
+        stdenvNoCC
+      else if attrs.noLibc or false then
+        stdenvNoLibc
+      else if attrs.libcMinimal or false then
+        stdenvLibcMinimal
+      else
+        stdenv;
   in
   stdenv'.mkDerivation (
     rec {
@@ -53,7 +62,6 @@ lib.makeOverridable (
         mandoc
         groff
         statHook
-        rsync
       ];
       buildInputs = compatIfNeeded;
 
@@ -96,14 +104,14 @@ lib.makeOverridable (
       # TODO should CC wrapper set this?
       CPP = "${stdenv'.cc.targetPrefix}cpp";
     }
-    // lib.optionalAttrs stdenv'.isDarwin { MKRELRO = "no"; }
+    // lib.optionalAttrs stdenv'.hostPlatform.isDarwin { MKRELRO = "no"; }
     // lib.optionalAttrs (stdenv'.cc.isClang or false) {
       HAVE_LLVM = lib.versions.major (lib.getVersion stdenv'.cc.cc);
     }
     // lib.optionalAttrs (stdenv'.cc.isGNU or false) {
       HAVE_GCC = lib.versions.major (lib.getVersion stdenv'.cc.cc);
     }
-    // lib.optionalAttrs (stdenv'.isx86_32) { USE_SSP = "no"; }
+    // lib.optionalAttrs (stdenv'.hostPlatform.isx86_32) { USE_SSP = "no"; }
     // lib.optionalAttrs (attrs.headersOnly or false) {
       installPhase = "includesPhase";
       dontBuild = true;

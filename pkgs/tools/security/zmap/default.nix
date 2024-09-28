@@ -4,13 +4,13 @@
 
 stdenv.mkDerivation rec {
   pname = "zmap";
-  version = "4.1.1";
+  version = "4.2.0";
 
   src = fetchFromGitHub {
     owner = "zmap";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-ftdjIBAAe+3qUEHoNMAOCmzy+PWD4neIMWvFXFi2JFo=";
+    sha256 = "sha256-4BSHNR/snwLf0/UsiCM8xzXk59G5GtsxQKb1F2VVL9c=";
   };
 
   cmakeFlags = [ "-DRESPECT_INSTALL_PREFIX_CONFIG=ON" ];
@@ -26,6 +26,6 @@ stdenv.mkDerivation rec {
     description = "Fast single packet network scanner designed for Internet-wide network surveys";
     maintainers = with maintainers; [ ma27 ];
     platforms = platforms.unix;
-    broken = stdenv.isDarwin;
+    broken = stdenv.hostPlatform.isDarwin;
   };
 }

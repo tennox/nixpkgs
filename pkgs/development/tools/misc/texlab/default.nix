@@ -15,23 +15,23 @@ let
 in
 rustPlatform.buildRustPackage rec {
   pname = "texlab";
-  version = "5.16.1";
+  version = "5.19.0";
 
   src = fetchFromGitHub {
     owner = "latex-lsp";
     repo = "texlab";
     rev = "refs/tags/v${version}";
-    hash = "sha256-oXROZdnmkqb0nd2CdLJO/KYkoe+BriYlfMJXe1yKGTA=";
+    hash = "sha256-iH7KqZddP4uKwTBxLLMURUtWBsuEtLHGQppVgGFaWZQ=";
   };
 
-  cargoHash = "sha256-4GWoTHSQD7DnAsiUWEF2TX+2r3XD3t/9+j/PGL7Haq8=";
+  cargoHash = "sha256-QW+q869bVAMYv4SCj/2eKrADoDonrvQuaHuanZHIjMo=";
 
   outputs = [ "out" ] ++ lib.optional (!isCross) "man";
 
   nativeBuildInputs = [ installShellFiles ]
     ++ lib.optional (!isCross) help2man;
 
-  buildInputs = lib.optionals stdenv.isDarwin [
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
     libiconv
     Security
     CoreServices

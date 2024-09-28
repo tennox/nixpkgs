@@ -4,6 +4,7 @@
   buildPythonPackage,
   fetchFromGitHub,
   freezegun,
+  ical,
   mashumaro,
   poetry-core,
   pyjwt,
@@ -15,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "aioautomower";
-  version = "2024.5.1";
+  version = "2024.9.1";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -24,7 +25,7 @@ buildPythonPackage rec {
     owner = "Thomas55555";
     repo = "aioautomower";
     rev = "refs/tags/${version}";
-    hash = "sha256-SwRr8BJOchQ7qObgVkNGTkaFEx7wiB/EPedRG2csH+A=";
+    hash = "sha256-MdsK+QP8YdMceTiNwhuf84KARIHCyn7/g6WKrDB6yCc=";
   };
 
   postPatch = ''
@@ -38,6 +39,7 @@ buildPythonPackage rec {
 
   dependencies = [
     aiohttp
+    ical
     mashumaro
     pyjwt
   ];
@@ -56,6 +58,8 @@ buildPythonPackage rec {
   disabledTests = [
     # File is missing
     "test_standard_mower"
+    # Call no found
+    "test_post_commands"
   ];
 
   meta = with lib; {

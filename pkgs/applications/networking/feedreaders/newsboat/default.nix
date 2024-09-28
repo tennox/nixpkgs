@@ -3,19 +3,19 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "newsboat";
-  version = "2.35";
+  version = "2.36";
 
   src = fetchFromGitHub {
     owner = "newsboat";
     repo = "newsboat";
     rev = "r${version}";
-    hash = "sha256-WbicKP46N8MVjUeerYUdcHJO5Qf7rQFyYCpxexd2wDY=";
+    hash = "sha256-RnDnyRAZ71aE5st5wUcUKjFFGY288oFpiyDXAno15MQ=";
   };
 
-  cargoHash = "sha256-B6U+DxIRm9Sn4x+dZCfNKENNDsTUVZFT6i0Yz47gjTs=";
+  cargoHash = "sha256-0z3G8j0Qk0HEDUKA7fmjFfNW956rRtzKO+0ltNQR4es=";
 
   # TODO: Check if that's still needed
-  postPatch = lib.optionalString stdenv.isDarwin ''
+  postPatch = lib.optionalString stdenv.hostPlatform.isDarwin ''
     # Allow other ncurses versions on Darwin
     substituteInPlace config.sh \
       --replace "ncurses5.4" "ncurses"
@@ -25,10 +25,10 @@ rustPlatform.buildRustPackage rec {
     pkg-config
     asciidoctor
     gettext
-  ] ++ lib.optionals stdenv.isDarwin [ makeWrapper ncurses ];
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ makeWrapper ncurses ];
 
   buildInputs = [ stfl sqlite curl libxml2 json_c ncurses ]
-    ++ lib.optionals stdenv.isDarwin [ Security Foundation libiconv gettext ];
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ Security Foundation libiconv gettext ];
 
   postBuild = ''
     make -j $NIX_BUILD_CORES prefix="$out"
@@ -49,7 +49,7 @@ rustPlatform.buildRustPackage rec {
 
   postInstall = ''
     make -j $NIX_BUILD_CORES prefix="$out" install
-  '' + lib.optionalString stdenv.isDarwin ''
+  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
     for prog in $out/bin/*; do
       wrapProgram "$prog" --prefix DYLD_LIBRARY_PATH : "${stfl}/lib"
     done
@@ -66,5 +66,6 @@ rustPlatform.buildRustPackage rec {
     maintainers = with lib.maintainers; [ dotlambda nicknovitski ];
     license     = lib.licenses.mit;
     platforms   = lib.platforms.unix;
+    mainProgram = "newsboat";
   };
 }

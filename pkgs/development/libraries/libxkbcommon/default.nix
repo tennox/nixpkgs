@@ -13,8 +13,8 @@
 , libX11
   # To enable the "interactive-wayland" subcommand of xkbcli. This is the
   # wayland equivalent of `xev` on X11.
-, xorgserver # for Xvfb in tests
-, withWaylandTools ? stdenv.isLinux
+, xorg
+, withWaylandTools ? stdenv.hostPlatform.isLinux
 , wayland
 , wayland-protocols
 , wayland-scanner
@@ -38,7 +38,7 @@ stdenv.mkDerivation (finalAttrs: {
   outputs = [ "out" "dev" "doc" ];
 
   depsBuildBuild = [ pkg-config ];
-  nativeBuildInputs = [ meson ninja pkg-config bison doxygen xorgserver ]
+  nativeBuildInputs = [ meson ninja pkg-config bison doxygen xorg.xvfb ]
     ++ lib.optional withWaylandTools wayland-scanner;
   buildInputs = [ xkeyboard_config libxcb libxml2 ]
     ++ lib.optionals withWaylandTools [ wayland wayland-protocols ];

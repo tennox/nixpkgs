@@ -129,7 +129,7 @@ stdenv.mkDerivation {
   ] ++ lib.optionals (stdenv.cc.isGNU && lib.versionAtLeast stdenv.cc.version "11") [
     # fix build vts module on gcc11
     "-Wno-error=stringop-overread"
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "-Wno-error=deprecated-declarations"
     "-Wno-error=gnu-folding-constant"
     "-Wno-error=unused-but-set-variable"
@@ -173,7 +173,7 @@ stdenv.mkDerivation {
 
   inherit postPatch;
 
-  hardeningEnable = lib.optional (!stdenv.isDarwin) "pie";
+  hardeningEnable = lib.optional (!stdenv.hostPlatform.isDarwin) "pie";
 
   enableParallelBuilding = true;
 
@@ -211,6 +211,6 @@ stdenv.mkDerivation {
     license     = [ licenses.bsd2 ]
       ++ concatMap (m: m.meta.license) modules;
     platforms   = platforms.all;
-    maintainers = with maintainers; [ fpletz raitobezarius ] ++ teams.helsinki-systems.members;
+    maintainers = with maintainers; [ fpletz raitobezarius ] ++ teams.helsinki-systems.members ++ teams.stridtech.members;
   };
 }

@@ -5,24 +5,24 @@
 
 buildGoModule rec {
   pname = "libeduvpn-common";
-  version = "2.0.1";
+  version = "2.1.0";
 
   src = fetchurl {
     url = "https://github.com/eduvpn/eduvpn-common/releases/download/${version}/eduvpn-common-${version}.tar.xz";
-    hash = "sha256-hTF9CSqU9c0+TOK+/oRGjY1fBCKpisiiTJnWZqcdvjA=";
+    hash = "sha256-OgcinEeKMDtZj3Tw+7cMsF385ZZTBR/J5dqIihDTlj8=";
   };
 
   vendorHash = null;
 
   buildPhase = ''
     runHook preBuild
-    go build -o ${pname}-${version}.so -buildmode=c-shared -tags=release ./exports
+    go build -o libeduvpn-common-${version}.so -buildmode=c-shared -tags=release ./exports
     runHook postBuild
   '';
 
   installPhase = ''
     runHook preInstall
-    install -Dt $out/lib ${pname}-${version}.so
+    install -Dt $out/lib libeduvpn-common-${version}.so
     runHook postInstall
   '';
 

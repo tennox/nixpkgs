@@ -1,25 +1,24 @@
-{ callPackage, makeFontsConf, gnome2, buildFHSEnv, tiling_wm ? false }:
+{ callPackage, makeFontsConf, buildFHSEnv, tiling_wm ? false }:
 
 let
   mkStudio = opts: callPackage (import ./common.nix opts) {
     fontsConf = makeFontsConf {
       fontDirectories = [];
     };
-    inherit (gnome2) GConf gnome_vfs;
     inherit buildFHSEnv;
     inherit tiling_wm;
   };
   stableVersion = {
-    version = "2023.3.1.19"; # "Android Studio Jellyfish | 2023.3.1 Patch 1"
-    sha256Hash = "sha256-FyscJPusmK33UPIexV20GXQ4Z5X8mfNRFPu/2Xeg5ts=";
+    version = "2024.1.2.13"; # "Android Studio Koala Feature Drop | 2024.1.2 Patch 1"
+    sha256Hash = "sha256-aIxlXCMPKYZ6Eq44LMJuxnBr9/ML1Nl/LxXI+WDLG5s=";
   };
   betaVersion = {
-    version = "2023.3.1.17"; # "Android Studio Jellyfish | 2023.3.1.1 RC 2"
-    sha256Hash = "sha256-zROBKzQiP4V2P67HgOIkHgn8q/M0zy5MkZozVSiQsWU=";
+    version = "2024.2.1.7"; # "Android Studio Ladybug | 2024.2.1 Beta 2"
+    sha256Hash = "sha256-YNUtRsKwXHfb7McJmTTT39/wW1rHjzw4kFQRwa12kJE=";
   };
   latestVersion = {
-    version = "2024.1.1.4"; # "Android Studio Koala | 2024.1.1 Canary 6"
-    sha256Hash = "sha256-lfig7lFyF7XZowTQKpo6zGeR23VHq/f7vvUDWCs7jeo=";
+    version = "2024.2.2.4"; # "Android Studio Ladybug Feature Drop | 2024.2.2 Canary 4"
+    sha256Hash = "sha256-Rw+smKU2F11ZpK6lWb3VyLGTKt3qWFoUqnfcs5OXBcU=";
   };
 in {
   # Attributes are named by their corresponding release channels

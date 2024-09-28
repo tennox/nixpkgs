@@ -6,16 +6,16 @@
 
 buildGoModule rec {
   pname = "eksctl";
-  version = "0.182.0";
+  version = "0.191.0";
 
   src = fetchFromGitHub {
     owner = "weaveworks";
     repo = pname;
     rev = version;
-    hash = "sha256-KCd0AuizmsdGOBh7YZLEKcehoygd19HjjFu7V6NsVVw=";
+    hash = "sha256-ypHBvaCvQ1FZiQmKTkQ5h024pLBOpISZooSkIDa1OeQ=";
   };
 
-  vendorHash = "sha256-eaEAC1jDmApcyn0RC5pvonYVWblRCB2PFTr/K5rZvtU=";
+  vendorHash = "sha256-mdGkdiYjcmsmYnM6fbyUeTC4Zb/Q1+geZrqJELv5i+4=";
 
   doCheck = false;
 
@@ -42,6 +42,7 @@ buildGoModule rec {
   meta = with lib; {
     description = "CLI for Amazon EKS";
     homepage = "https://github.com/weaveworks/eksctl";
+    changelog = "https://github.com/eksctl-io/eksctl/releases/tag/v${version}";
     license = licenses.asl20;
     maintainers = with maintainers; [ xrelkd Chili-Man ];
     mainProgram = "eksctl";

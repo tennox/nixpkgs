@@ -1,7 +1,6 @@
 {
   lib,
   stdenv,
-  blis,
   buildPythonPackage,
   callPackage,
   catalogue,
@@ -10,19 +9,15 @@
   fetchPypi,
   hypothesis,
   jinja2,
-  jsonschema,
   langcodes,
   mock,
   murmurhash,
   numpy,
   packaging,
-  pathy,
   preshed,
   pydantic,
   pytestCheckHook,
-  python,
   pythonOlder,
-  pythonRelaxDepsHook,
   requests,
   setuptools,
   spacy-legacy,
@@ -31,7 +26,6 @@
   thinc,
   tqdm,
   typer,
-  typing-extensions,
   wasabi,
   weasel,
   writeScript,
@@ -42,37 +36,39 @@
 
 buildPythonPackage rec {
   pname = "spacy";
-  version = "3.7.4";
+  version = "3.7.6";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-Ul8s7S5AdhViyMrOk+9qHm6MSD8nvVZLwbFfYI776Fs=";
+    hash = "sha256-9AZcCqxcSLv7L/4ZHVXMszv7AFN2r71MzW1ek0FRTjQ=";
   };
 
-  pythonRelaxDeps = [
-    "smart-open"
-    "typer"
-  ];
+  postPatch = ''
+    # thinc version 8.3.0 had no functional changes
+    # also see https://github.com/explosion/spaCy/issues/13607
+    substituteInPlace pyproject.toml setup.cfg \
+      --replace-fail "thinc>=8.2.2,<8.3.0" "thinc>=8.2.2,<8.4.0"
+  '';
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
+  build-system = [
+    cymem
     cython_0
+    murmurhash
+    numpy
+    thinc
   ];
 
-  propagatedBuildInputs = [
-    blis
+  dependencies = [
     catalogue
     cymem
     jinja2
-    jsonschema
     langcodes
     murmurhash
     numpy
     packaging
-    pathy
     preshed
     pydantic
     requests
@@ -85,15 +81,13 @@ buildPythonPackage rec {
     typer
     wasabi
     weasel
-  ] ++ lib.optionals (pythonOlder "3.8") [ typing-extensions ];
+  ];
 
   nativeCheckInputs = [
     pytestCheckHook
     hypothesis
     mock
   ];
-
-  doCheck = true;
 
   # Fixes ModuleNotFoundError when running tests on Cythonized code. See #255262
   preCheck = ''
@@ -135,8 +129,8 @@ buildPythonPackage rec {
     description = "Industrial-strength Natural Language Processing (NLP)";
     mainProgram = "spacy";
     homepage = "https://github.com/explosion/spaCy";
-    changelog = "https://github.com/explosion/spaCy/releases/tag/v${version}";
+    changelog = "https://github.com/explosion/spaCy/releases/tag/release-v${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

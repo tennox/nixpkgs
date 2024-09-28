@@ -26,28 +26,28 @@
 
 buildPythonApplication rec {
   pname = "glances";
-  version = "4.0.7";
+  version = "4.1.2.1";
   disabled = isPyPy;
 
   src = fetchFromGitHub {
     owner = "nicolargo";
     repo = "glances";
     rev = "refs/tags/v${version}";
-    hash = "sha256-Vfsco8Wno57aPM7PtwCc/gI+6FnAG3H/t5OAUngDU5o=";
+    hash = "sha256-SlKt+wjzI9QRmMVvbIERuhQuCCaOh7L89WuNUXNhkuI=";
   };
 
   # On Darwin this package segfaults due to mismatch of pure and impure
   # CoreFoundation. This issues was solved for binaries but for interpreted
   # scripts a workaround below is still required.
   # Relevant: https://github.com/NixOS/nixpkgs/issues/24693
-  makeWrapperArgs = lib.optionals stdenv.isDarwin [
+  makeWrapperArgs = lib.optionals stdenv.hostPlatform.isDarwin [
     "--set"
     "DYLD_FRAMEWORK_PATH"
     "/System/Library/Frameworks"
   ];
 
   doCheck = true;
-  preCheck = lib.optionalString stdenv.isDarwin ''
+  preCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
     export DYLD_FRAMEWORK_PATH=/System/Library/Frameworks
   '';
 
@@ -68,7 +68,7 @@ buildPythonApplication rec {
     jinja2
     orjson
     prometheus-client
-  ] ++ lib.optional stdenv.isLinux hddtemp;
+  ] ++ lib.optional stdenv.hostPlatform.isLinux hddtemp;
 
   meta = {
     homepage = "https://nicolargo.github.io/glances/";
@@ -77,7 +77,6 @@ buildPythonApplication rec {
     changelog = "https://github.com/nicolargo/glances/blob/v${version}/NEWS.rst";
     license = lib.licenses.lgpl3Only;
     maintainers = with lib.maintainers; [
-      jonringer
       primeos
       koral
     ];

@@ -10,13 +10,6 @@
 , sndio
 , pulseaudio
 , vulkan-loader
-, libICE
-, libSM
-, libXi
-, libXcursor
-, libXext
-, libXrandr
-, fontconfig
 , glew
 , libGL
 , udev
@@ -26,14 +19,16 @@
 
 buildDotnetModule rec {
   pname = "ryujinx";
-  version = "1.1.1330"; # Based off of the official github actions builds: https://github.com/Ryujinx/Ryujinx/actions/workflows/release.yml
+  version = "1.1.1398"; # Based off of the official github actions builds: https://github.com/Ryujinx/Ryujinx/actions/workflows/release.yml
 
   src = fetchFromGitHub {
     owner = "Ryujinx";
     repo = "Ryujinx";
-    rev = "c0f2491eaee7eb1088605f5bda8055b941a14f99";
-    sha256 = "0h6gkcgixxfrlcvwsfq6yrnscpqr00iyqc5pb1pyzjrxy6z5yb2v";
+    rev = "319507f2a12a6751f3ab833e498a3efd3119f806";
+    hash = "sha256-3DM/kahNhl8EhSIRuqH0trYoR51OrGxSE+GuOKxKr2c=";
   };
+
+  enableParallelBuilding = false;
 
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
@@ -53,13 +48,6 @@ buildDotnetModule rec {
     udev
 
     # Avalonia UI
-    libICE
-    libSM
-    libXi
-    libXcursor
-    libXext
-    libXrandr
-    fontconfig
     glew
 
     # Headless executable
@@ -122,7 +110,7 @@ buildDotnetModule rec {
       2017.
     '';
     license = licenses.mit;
-    maintainers = with maintainers; [ ivar jk artemist ];
+    maintainers = with maintainers; [ jk artemist ];
     platforms = [ "x86_64-linux" "aarch64-linux" ];
     mainProgram = "Ryujinx";
   };

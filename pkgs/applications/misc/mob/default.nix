@@ -2,20 +2,20 @@
 , buildGoModule
 , fetchFromGitHub
 , stdenv
-, withSpeech ? !stdenv.isDarwin
+, withSpeech ? !stdenv.hostPlatform.isDarwin
 , makeWrapper
 , espeak-ng
 }:
 
 buildGoModule rec {
   pname = "mob";
-  version = "4.5.0";
+  version = "5.2.0";
 
   src = fetchFromGitHub {
     owner = "remotemobprogramming";
-    repo = pname;
+    repo = "mob";
     rev = "v${version}";
-    sha256 = "sha256-uFtE7AprM/ye2sBQeszYy07RV7RmmqD9TGcTTuZwOfY=";
+    hash = "sha256-LktA7GMOWAl12PRLgX8VTyYZ00sh6AHsgw9NdyjAJ64=";
   };
 
   vendorHash = null;

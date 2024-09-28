@@ -1,8 +1,8 @@
-{ lib, stdenv, buildGo122Module, fetchFromGitHub, installShellFiles, makeWrapper, pkg-config
+{ lib, stdenv, buildGoModule, fetchFromGitHub, installShellFiles, makeWrapper, pkg-config
 , withGui ? true, vte
 }:
 
-buildGo122Module rec {
+buildGoModule rec {
   pname = "orbiton";
   version = "2.65.12";
 
@@ -15,7 +15,7 @@ buildGo122Module rec {
 
   vendorHash = null;
 
-  postPatch = lib.optionalString stdenv.isDarwin ''
+  postPatch = lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace Makefile \
       --replace "-Wl,--as-needed" ""
 

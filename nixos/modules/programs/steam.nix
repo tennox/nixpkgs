@@ -50,7 +50,7 @@ in {
         }) // (prev.extraEnv or {});
         extraLibraries = pkgs: let
           prevLibs = if prev ? extraLibraries then prev.extraLibraries pkgs else [ ];
-          additionalLibs = with config.hardware.opengl;
+          additionalLibs = with config.hardware.graphics;
             if pkgs.stdenv.hostPlatform.is64bit
             then [ package ] ++ extraPackages
             else [ package32 ] ++ extraPackages32;
@@ -176,10 +176,9 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    hardware.opengl = { # this fixes the "glXChooseVisual failed" bug, context: https://github.com/NixOS/nixpkgs/issues/47932
+    hardware.graphics = { # this fixes the "glXChooseVisual failed" bug, context: https://github.com/NixOS/nixpkgs/issues/47932
       enable = true;
-      driSupport = true;
-      driSupport32Bit = true;
+      enable32Bit = true;
     };
 
     security.wrappers = lib.mkIf (cfg.gamescopeSession.enable && gamescopeCfg.capSysNice) {
@@ -197,8 +196,9 @@ in {
     programs.gamescope.enable = lib.mkDefault cfg.gamescopeSession.enable;
     services.displayManager.sessionPackages = lib.mkIf cfg.gamescopeSession.enable [ gamescopeSessionFile ];
 
-    # optionally enable 32bit pulseaudio support if pulseaudio is enabled
+    # enable 32bit pulseaudio/pipewire support if needed
     hardware.pulseaudio.support32Bit = config.hardware.pulseaudio.enable;
+    services.pipewire.alsa.support32Bit = config.services.pipewire.alsa.enable;
 
     hardware.steam-hardware.enable = true;
 

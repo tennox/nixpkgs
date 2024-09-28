@@ -1,12 +1,12 @@
-{ lib, fetchurl, appimageTools, wrapGAppsHook3 }:
+{ lib, fetchurl, appimageTools }:
 
 let
   pname = "jbrowse";
-  version = "2.11.2";
+  version = "2.15.1";
 
   src = fetchurl {
     url = "https://github.com/GMOD/jbrowse-components/releases/download/v${version}/jbrowse-desktop-v${version}-linux.AppImage";
-    sha256 = "sha256-7kZsK3vYgxubgtoIG1dByHgEBOlh9GUq+i3u/1eo0/o=";
+    sha256 = "sha256-/dpHUrigO0wnWay0jIkg6eG75ynrVXd7zcIAss6DhSs=";
   };
 
   appimageContents = appimageTools.extractType2 {

@@ -25,14 +25,14 @@
 
 buildPythonPackage rec {
   pname = "black";
-  version = "24.4.0";
+  version = "24.4.2";
   format = "pyproject";
 
   disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-8Htp/aIFeDZ+rrvWcP+PxlOrGB4f+V2ESX+fog59BkE=";
+    hash = "sha256-yHK1MFfwAAhdpmoZxV1o9vjdysJkI5KtOjVYeEBvvU0=";
   };
 
   nativeBuildInputs = [
@@ -86,7 +86,7 @@ buildPythonPackage rec {
       # Make /build the project root for black tests to avoid excluding files.
       touch ../.git
     ''
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       # Work around https://github.com/psf/black/issues/2105
       export TMPDIR="/tmp"
     '';
@@ -96,7 +96,7 @@ buildPythonPackage rec {
       # requires network access
       "test_gen_check_output"
     ]
-    ++ lib.optionals stdenv.isDarwin [
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # fails on darwin
       "test_expression_diff"
       # Fail on Hydra, see https://github.com/NixOS/nixpkgs/pull/130785
@@ -104,7 +104,7 @@ buildPythonPackage rec {
       "test_skip_magic_trailing_comma"
     ];
   # multiple tests exceed max open files on hydra builders
-  doCheck = !(stdenv.isLinux && stdenv.isAarch64);
+  doCheck = !(stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64);
 
   meta = with lib; {
     description = "Uncompromising Python code formatter";

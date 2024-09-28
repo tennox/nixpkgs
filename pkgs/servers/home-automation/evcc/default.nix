@@ -1,11 +1,11 @@
 { lib
 , stdenv
-, buildGo122Module
+, buildGo123Module
 , fetchFromGitHub
 , fetchNpmDeps
 , cacert
-, go_1_22
 , git
+, go_1_23
 , enumer
 , mockgen
 , nodejs
@@ -14,27 +14,22 @@
 , nixosTests
 }:
 
-let
-  buildGoModule = buildGo122Module;
-  go = go_1_22;
-in
-
-buildGoModule rec {
+buildGo123Module rec {
   pname = "evcc";
-  version = "0.127.2";
+  version = "0.130.9";
 
   src = fetchFromGitHub {
     owner = "evcc-io";
     repo = "evcc";
     rev = version;
-    hash = "sha256-85AhiqAvjr63tfXovH2bt1b583ak1N09EtbLLtW7qeA=";
+    hash = "sha256-g3z2yqw/84OMui5mchfqVHoR/6LdwNHgeBodf1jUtj4=";
   };
 
-  vendorHash = "sha256-MdfLJpPEi6Cr34W6eJSraKJwBPtR66HM2tJIbPE9mZs=";
+  vendorHash = "sha256-C2eoNmv0GSi5DV53aUwGcBOw6n2btU/HhniMyu21vLE=";
 
   npmDeps = fetchNpmDeps {
     inherit src;
-    hash = "sha256-6Dxf32myqRbKIlYFcQhkuqZVz+lVvmeJ5lqiWPCQAzA=";
+    hash = "sha256-60F6j87T77JEt3ej4FVTc8rnnpZSGzomrQp8VPWjv6Q=";
   };
 
   nativeBuildInputs = [
@@ -45,7 +40,7 @@ buildGoModule rec {
   overrideModAttrs = _: {
     nativeBuildInputs = [
       enumer
-      go
+      go_1_23
       git
       cacert
       mockgen
@@ -72,30 +67,13 @@ buildGoModule rec {
     make ui
   '';
 
-  doCheck = !stdenv.isDarwin; # darwin sandbox limitations around network access, access to /etc/protocols and likely more
+  doCheck = !stdenv.hostPlatform.isDarwin; # darwin sandbox limitations around network access, access to /etc/protocols and likely more
 
   checkFlags = let
     skippedTests = [
       # network access
       "TestOctopusConfigParse"
-      "TestTemplates/allinpower"
-      "TestTemplates/electricitymaps"
-      "TestTemplates/elering"
-      "TestTemplates/energinet"
-      "TestTemplates/grünstromindex"
-      "TestTemplates/pun"
-      "TestTemplates/entsoe"
-      "TestTemplates/ngeso"
-      "TestTemplates/tibber"
-      "TestTemplates/groupe-e"
-      "TestTemplates/awattar"
-      "TestTemplates/energy-charts-api"
-      "TestTemplates/polestar"
-      "TestTemplates/sma-inverter-speedwire/battery"
-      "TestTemplates/sma-inverter-speedwire/pv"
-      "TestTemplates/smartenergy"
-      "TestTemplates/tibber-pulse/grid"
-
+      "TestTemplates"
     ];
   in
   [ "-skip=^${lib.concatStringsSep "$|^" skippedTests}$" ];

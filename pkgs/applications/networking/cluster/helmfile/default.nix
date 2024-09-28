@@ -1,23 +1,25 @@
 { lib
-, buildGo122Module
+, buildGoModule
 , fetchFromGitHub
 , installShellFiles
 , makeWrapper
 , pluginsDir ? null
 }:
 
-buildGo122Module rec {
+buildGoModule rec {
   pname = "helmfile";
-  version = "0.165.0";
+  version = "0.168.0";
 
   src = fetchFromGitHub {
     owner = "helmfile";
     repo = "helmfile";
     rev = "v${version}";
-    hash = "sha256-fXrfthjWaCo0p7NwP9EWa0uFeCCHInzi7h2tgawHlh0=";
+    hash = "sha256-qpYTYOzQWhjuVANOPpLDsYZyhvRl6FnNQz5ssDZHohw=";
   };
 
-  vendorHash = "sha256-nWfj/E3Lg58wZ27LEI91+Ns9lj+unK6xYTEcxdAFOXI=";
+  vendorHash = "sha256-pCP5PxxOLlqQBmqufpo6G69v4M+NxMpTlIUY6TnclVA=";
+
+  proxyVendor = true; # darwin/linux hash mismatch
 
   doCheck = false;
 

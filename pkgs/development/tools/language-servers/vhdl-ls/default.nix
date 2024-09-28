@@ -5,16 +5,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "vhdl-ls";
-  version = "0.81.0";
+  version = "0.83.0";
 
   src = fetchFromGitHub {
     owner = "VHDL-LS";
     repo = "rust_hdl";
     rev = "v${version}";
-    hash = "sha256-iF8HIfxC7WM5YT85HfCTM5hu5yCFnHpDposGDAO3qJI=";
+    hash = "sha256-WLk8EHzpqUPhrmnRK6mP/4MDfSinytgVDZWi1/OfkyU=";
   };
 
-  cargoHash = "sha256-hkmaMzeQLd3l6A3xyLAZk+MrEeUKPd7H2N4Nsz7nBmk=";
+  cargoHash = "sha256-QkD1dEEphYP0eL4qPe+TAv1ATyVcw5rSPiiIkk21Dms=";
 
   postPatch = ''
     substituteInPlace vhdl_lang/src/config.rs \

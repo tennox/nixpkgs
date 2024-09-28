@@ -59,7 +59,7 @@ stdenv.mkDerivation rec {
       --ignore=test/t/test_screen.py
   '';
 
-  prePatch = lib.optionalString stdenv.isDarwin ''
+  prePatch = lib.optionalString stdenv.hostPlatform.isDarwin ''
     sed -i -e 's/readlink -f/readlink/g' bash_completion completions/*
   '';
 
@@ -68,6 +68,6 @@ stdenv.mkDerivation rec {
     description = "Programmable completion for the bash shell";
     license = licenses.gpl2Plus;
     platforms = platforms.unix;
-    maintainers = [ ];
+    maintainers = with maintainers; [ philiptaron ];
   };
 }

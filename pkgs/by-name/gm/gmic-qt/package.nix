@@ -49,13 +49,13 @@ assert lib.assertMsg
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gmic-qt${lib.optionalString (variant != "standalone") "-${variant}"}";
-  version = "3.4.0";
+  version = "3.4.2";
 
   src = fetchFromGitHub {
     owner = "c-koi";
     repo = "gmic-qt";
     rev = "v.${finalAttrs.version}";
-    hash = "sha256-IZMvvhWQwbnyxF3CkvEjySl3o3DB6UucpjqOFR9NjQ0=";
+    hash = "sha256-fM6dBxBC2b1/v+rfiP//QaAcTJmMtYPn4OUNwVqKhYk=";
   };
 
   nativeBuildInputs = [
@@ -118,7 +118,7 @@ stdenv.mkDerivation (finalAttrs: {
     inherit (variants.${variant}) description;
     license = lib.licenses.gpl3Plus;
     mainProgram = "gmic_qt";
-    maintainers = with lib.maintainers; [ AndersonTorres lilyinstarlight ];
+    maintainers = with lib.maintainers; [ AndersonTorres ];
     platforms = lib.platforms.unix;
   };
 })

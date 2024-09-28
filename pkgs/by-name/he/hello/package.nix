@@ -4,6 +4,7 @@
 , fetchurl
 , nixos
 , testers
+, versionCheckHook
 , hello
 }:
 
@@ -13,12 +14,15 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnu/hello/hello-${finalAttrs.version}.tar.gz";
-    sha256 = "sha256-jZkUKv2SV28wsM18tCqNxoCZmLxdYH2Idh9RLibH2yA=";
+    hash = "sha256-jZkUKv2SV28wsM18tCqNxoCZmLxdYH2Idh9RLibH2yA=";
   };
 
   doCheck = true;
 
   doInstallCheck = true;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
 
   # Give hello some install checks for testing purpose.
   postInstallCheck = ''
@@ -27,12 +31,6 @@ stdenv.mkDerivation (finalAttrs: {
 
   passthru.tests = {
     version = testers.testVersion { package = hello; };
-
-    invariant-under-noXlibs =
-      testers.testEqualDerivation
-        "hello must not be rebuilt when environment.noXlibs is set."
-        hello
-        (nixos { environment.noXlibs = true; }).pkgs.hello;
   };
 
   passthru.tests.run = callPackage ./test.nix { hello = finalAttrs.finalPackage; };
@@ -46,7 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://www.gnu.org/software/hello/manual/";
     changelog = "https://git.savannah.gnu.org/cgit/hello.git/plain/NEWS?h=v${finalAttrs.version}";
     license = licenses.gpl3Plus;
-    maintainers = [ maintainers.eelco ];
+    maintainers = [ ];
     mainProgram = "hello";
     platforms = platforms.all;
   };

@@ -52,13 +52,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "sdrangel";
-  version = "7.21.2";
+  version = "7.22.0";
 
   src = fetchFromGitHub {
     owner = "f4exb";
     repo = "sdrangel";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-cFSD3zroKJPJk1mhXLnSDoSS6p9AU6YN2LJpb+E6HDI=";
+    hash = "sha256-cF6vKwAWz32/XYUWvq/4Wu73TFQ2jaGIFxWmeXmlPCE=";
   };
 
   nativeBuildInputs = [

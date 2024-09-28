@@ -14,6 +14,9 @@
   vulkan-headers,
   vulkan-loader,
 
+  # NOTE: Not coming from vcpkg
+  IMGUI_LINK_GLVND ? !stdenv.hostPlatform.isWindows && (IMGUI_BUILD_OPENGL2_BINDING || IMGUI_BUILD_OPENGL3_BINDING),
+
   # The intent is to mirror vcpkg's flags[^1],
   # but we only actually support Linux and glfw3 until someone contributes the rest
   # [^1]: https://github.com/microsoft/vcpkg/blob/095ee06e7f60dceef7d713e3f8b1c2eb10d650d7/ports/imgui/CMakeLists.txt#L33-L108
@@ -23,15 +26,15 @@
   IMGUI_BUILD_DX10_BINDING ? false,
   IMGUI_BUILD_DX11_BINDING ? false,
   IMGUI_BUILD_DX12_BINDING ? false,
-  IMGUI_BUILD_GLFW_BINDING ? !stdenv.isDarwin,
+  IMGUI_BUILD_GLFW_BINDING ? !stdenv.hostPlatform.isDarwin,
   IMGUI_BUILD_GLUT_BINDING ? false,
-  IMGUI_BUILD_METAL_BINDING ? stdenv.isDarwin,
+  IMGUI_BUILD_METAL_BINDING ? stdenv.hostPlatform.isDarwin,
   IMGUI_BUILD_OPENGL2_BINDING ? false,
   IMGUI_BUILD_OPENGL3_BINDING ?
     IMGUI_BUILD_SDL2_BINDING || IMGUI_BUILD_GLFW_BINDING || IMGUI_BUILD_GLUT_BINDING,
-  IMGUI_BUILD_OSX_BINDING ? stdenv.isDarwin,
+  IMGUI_BUILD_OSX_BINDING ? stdenv.hostPlatform.isDarwin,
   IMGUI_BUILD_SDL2_BINDING ?
-    !IMGUI_BUILD_GLFW_BINDING && !stdenv.isDarwin,
+    !IMGUI_BUILD_GLFW_BINDING && !stdenv.hostPlatform.isDarwin,
   IMGUI_BUILD_SDL2_RENDERER_BINDING ? IMGUI_BUILD_SDL2_BINDING,
   IMGUI_BUILD_VULKAN_BINDING ? false,
   IMGUI_BUILD_WIN32_BINDING ? false,
@@ -46,8 +49,8 @@ let
     patches = [
       # Install imgui into split outputs:
       (fetchpatch {
-        url = "https://github.com/microsoft/vcpkg/commit/e91750f08383112e8850f209e55ed2f960181fa6.patch";
-        hash = "sha256-T+DN42PRl2gWGM8zJb9wZEsDl7+XNT6CFypNX3lBHNc=";
+        url = "https://github.com/microsoft/vcpkg/commit/4108dd75ce9731a4fdcf50fd05034405156eaddf.patch";
+        hash = "sha256-jXbR0NfyuO8EESmva5A+H3WmBfCG83OiA8ZCcWsRhQA=";
       })
     ];
   };
@@ -84,7 +87,7 @@ stdenv.mkDerivation rec {
   ];
 
   propagatedBuildInputs =
-    lib.optionals (IMGUI_BUILD_OPENGL2_BINDING || IMGUI_BUILD_OPENGL3_BINDING) [ libGL ]
+    lib.optionals IMGUI_LINK_GLVND [ libGL ]
     ++ lib.optionals IMGUI_BUILD_GLFW_BINDING [ glfw ]
     ++ lib.optionals IMGUI_BUILD_SDL2_BINDING [ SDL2 ]
     ++ lib.optionals IMGUI_BUILD_VULKAN_BINDING [
@@ -139,7 +142,6 @@ stdenv.mkDerivation rec {
     license = lib.licenses.mit; # vcpkg licensed as MIT too
     maintainers = with lib.maintainers; [
       SomeoneSerge
-      wolfangaukang
     ];
     platforms = lib.platforms.all;
   };

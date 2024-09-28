@@ -1,11 +1,18 @@
 { lib, stdenv, buildPackages, buildHaskellPackages, ghc
-, jailbreak-cabal, hscolour, cpphs
+, jailbreak-cabal, hscolour, cpphs, runCommandCC
 , ghcWithHoogle, ghcWithPackages
 , nodejs
 }:
 
 let
   isCross = stdenv.buildPlatform != stdenv.hostPlatform;
+
+  # Note that ghc.isGhcjs != stdenv.hostPlatform.isGhcjs.
+  # ghc.isGhcjs implies that we are using ghcjs, a project separate from GHC.
+  # (mere) stdenv.hostPlatform.isGhcjs means that we are using GHC's JavaScript
+  # backend. The latter is a normal cross compilation backend and needs little
+  # special accommodation.
+  outputsJS = ghc.isGhcjs or false || stdenv.hostPlatform.isGhcjs;
 
   # Pass the "wrong" C compiler rather than none at all so packages that just
   # use the C preproccessor still work, see
@@ -19,15 +26,11 @@ let
     fetchurl removeReferencesTo
     pkg-config coreutils gnugrep glibcLocales
     emscripten;
+
 in
 
 { pname
-# Note that ghc.isGhcjs != stdenv.hostPlatform.isGhcjs.
-# ghc.isGhcjs implies that we are using ghcjs, a project separate from GHC.
-# (mere) stdenv.hostPlatform.isGhcjs means that we are using GHC's JavaScript
-# backend. The latter is a normal cross compilation backend and needs little
-# special accommodation.
-, dontStrip ? (ghc.isGhcjs or false || stdenv.hostPlatform.isGhcjs)
+, dontStrip ? outputsJS
 , version, revision ? null
 , sha256 ? null
 , src ? fetchurl { url = "mirror://hackage/${pname}-${version}.tar.gz"; inherit sha256; }
@@ -44,13 +47,13 @@ in
 , doHaddockQuickjump ? doHoogle
 , doInstallIntermediates ? false
 , editedCabalFile ? null
-, enableLibraryProfiling ? !(ghc.isGhcjs or false)
+, enableLibraryProfiling ? !outputsJS
 , enableExecutableProfiling ? false
 , profilingDetail ? "exported-functions"
 # TODO enable shared libs for cross-compiling
 , enableSharedExecutables ? false
 , enableSharedLibraries ? !stdenv.hostPlatform.isStatic && (ghc.enableShared or false)
-, enableDeadCodeElimination ? (!stdenv.isDarwin)  # TODO: use -dead_strip for darwin
+, enableDeadCodeElimination ? (!stdenv.hostPlatform.isDarwin)  # TODO: use -dead_strip for darwin
 # Disabling this for ghcjs prevents this crash: https://gitlab.haskell.org/ghc/ghc/-/issues/23235
 , enableStaticLibraries ? !(stdenv.hostPlatform.isWindows || stdenv.hostPlatform.isWasm || stdenv.hostPlatform.isGhcjs)
 , enableHsc2hsViaAsm ? stdenv.hostPlatform.isWindows
@@ -223,7 +226,7 @@ let
   ] ++ optional (allPkgconfigDepends != [])
     "--with-pkg-config=${pkg-config.targetPrefix}pkg-config";
 
-  parallelBuildingFlags = "-j$NIX_BUILD_CORES" + optionalString stdenv.isLinux " +RTS -A64M -RTS";
+  makeGhcOptions = opts: lib.concatStringsSep " " (map (opt: "--ghc-option=${opt}") opts);
 
   buildFlagsString = optionalString (buildFlags != []) (" " + concatStringsSep " " buildFlags);
 
@@ -239,10 +242,10 @@ let
     "--with-gcc=$CC" # Clang won't work without that extra information.
   ] ++ [
     "--package-db=$packageConfDir"
-    (optionalString (enableSharedExecutables && stdenv.isLinux) "--ghc-option=-optl=-Wl,-rpath=$out/${ghcLibdir}/${pname}-${version}")
-    (optionalString (enableSharedExecutables && stdenv.isDarwin) "--ghc-option=-optl=-Wl,-headerpad_max_install_names")
-    (optionalString enableParallelBuilding "--ghc-options=${parallelBuildingFlags}")
-    (optionalString useCpphs "--with-cpphs=${cpphs}/bin/cpphs --ghc-options=-cpp --ghc-options=-pgmP${cpphs}/bin/cpphs --ghc-options=-optP--cpp")
+    (optionalString (enableSharedExecutables && stdenv.hostPlatform.isLinux) "--ghc-option=-optl=-Wl,-rpath=$out/${ghcLibdir}/${pname}-${version}")
+    (optionalString (enableSharedExecutables && stdenv.hostPlatform.isDarwin) "--ghc-option=-optl=-Wl,-headerpad_max_install_names")
+    (optionalString enableParallelBuilding (makeGhcOptions [ "-j$NIX_BUILD_CORES" "+RTS" "-A64M" "-RTS" ]))
+    (optionalString useCpphs ("--with-cpphs=${cpphs}/bin/cpphs " + (makeGhcOptions [ "-cpp"  "-pgmP${cpphs}/bin/cpphs" "-optP--cpp" ])))
     (enableFeature enableLibraryProfiling "library-profiling")
     (optionalString (enableExecutableProfiling || enableLibraryProfiling) "--profiling-detail=${profilingDetail}")
     (enableFeature enableExecutableProfiling "profiling")
@@ -265,16 +268,14 @@ let
   ) ++ optionals enableSeparateBinOutput [
     "--bindir=${binDir}"
   ] ++ optionals (doHaddockInterfaces && isLibrary) [
-    "--ghc-options=-haddock"
+    "--ghc-option=-haddock"
   ];
 
   postPhases = optional doInstallIntermediates "installIntermediatesPhase";
 
   setupCompileFlags = [
     (optionalString (!coreSetup) "-package-db=$setupPackageConfDir")
-    (optionalString enableParallelBuilding parallelBuildingFlags)
     "-threaded"       # https://github.com/haskell/cabal/issues/2398
-    "-rtsopts"        # allow us to pass RTS flags to the generated Setup executable
   ];
 
   isHaskellPkg = x: x ? isHaskellLibrary;
@@ -500,7 +501,7 @@ stdenv.mkDerivation ({
   # the `$out/lib/links` directory to read-only when the build is done after the
   # dist directory has already been exported, which triggers an unnecessary
   # rebuild of modules included in the exported dist directory.
-  + (optionalString (stdenv.isDarwin && (enableSharedLibraries || enableSharedExecutables) && !enableSeparateIntermediatesOutput) ''
+  + (optionalString (stdenv.hostPlatform.isDarwin && (enableSharedLibraries || enableSharedExecutables) && !enableSeparateIntermediatesOutput) ''
     # Work around a limit in the macOS Sierra linker on the number of paths
     # referenced by any one dynamic library:
     #
@@ -789,8 +790,8 @@ stdenv.mkDerivation ({
           lib.optionals (!isCross) setupHaskellDepends);
 
         ghcCommandCaps = lib.toUpper ghcCommand';
-      in stdenv.mkDerivation {
-        inherit name shellHook;
+      in runCommandCC name {
+        inherit shellHook;
 
         depsBuildBuild = lib.optional isCross ghcEnvForBuild;
         nativeBuildInputs =
@@ -798,8 +799,6 @@ stdenv.mkDerivation ({
           collectedToolDepends;
         buildInputs =
           otherBuildInputsSystem;
-        phases = ["installPhase"];
-        installPhase = "echo $nativeBuildInputs $buildInputs > $out";
         LANG = "en_US.UTF-8";
         LOCALE_ARCHIVE = lib.optionalString (stdenv.hostPlatform.libc == "glibc") "${buildPackages.glibcLocales}/lib/locale/locale-archive";
         "NIX_${ghcCommandCaps}" = "${ghcEnv}/bin/${ghcCommand}";
@@ -809,7 +808,7 @@ stdenv.mkDerivation ({
         "NIX_${ghcCommandCaps}_LIBDIR" = if ghc.isHaLVM or false
           then "${ghcEnv}/lib/HaLVM-${ghc.version}"
           else "${ghcEnv}/${ghcLibdir}";
-      };
+      } "echo $nativeBuildInputs $buildInputs > $out";
 
     env = envFunc { };
 
