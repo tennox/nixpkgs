@@ -6,6 +6,7 @@
 , nautilus
 , gobject-introspection
 , gsound
+, fetchzip
 , hddtemp
 , libgda
 , libgtop
@@ -113,6 +114,12 @@ super: lib.trivial.pipe super [
   }))
 
   (patchExtension "pano@elhan.io" (old: {
+    version = "23-alpha3";
+    src = fetchzip {
+      url = "https://github.com/oae/gnome-shell-pano/releases/download/v23-alpha3/pano@elhan.io.zip";
+      sha256 = "sha256-LYpxsl/PC8hwz0ZdH5cDdSZPRmkniBPUCqHQxB4KNhc=";
+      stripRoot = false;
+    };
     patches = [
       (substituteAll {
         src = ./extensionOverridesPatches/pano_at_elhan.io.patch;

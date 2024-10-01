@@ -22,6 +22,6 @@ index 5dd94eb..634b2ef 100644
 +++ b/prefs.js
 @@ -1,3 +1,4 @@
 +import './__nix-prepend-search-paths.js';
+ import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
  import Gdk from 'gi://Gdk';
  import Gtk from 'gi://Gtk';
- import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
