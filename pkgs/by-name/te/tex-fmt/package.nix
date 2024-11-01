@@ -6,16 +6,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "tex-fmt";
-  version = "0.4.3";
+  version = "0.4.6";
 
   src = fetchFromGitHub {
     owner = "WGUNDERWOOD";
     repo = "tex-fmt";
     rev = "refs/tags/v${version}";
-    hash = "sha256-Atq/eyvdAuaUEeYDIC5D9icD44mcvuhsyuctYAPrBSU=";
+    hash = "sha256-Ii/z9ZmsWCHxxqUbkcu7HRBuN2LiLCxzUvqRexwQ/Co=";
   };
 
-  cargoHash = "sha256-ShF2Z5Od/pgsNRM6WmxxFeE67pYZin1q4RR6nVmbrsA=";
+  cargoHash = "sha256-2vPxsXKInH18h/AoOWfl0VteUBmxWDzZa6AtpKfY5Hs=";
 
   meta = {
     description = "LaTeX formatter written in Rust";

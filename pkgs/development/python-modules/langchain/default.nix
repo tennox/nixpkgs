@@ -42,14 +42,14 @@
 
 buildPythonPackage rec {
   pname = "langchain";
-  version = "0.3.0";
+  version = "0.3.4";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
     repo = "langchain";
     rev = "refs/tags/langchain==${version}";
-    hash = "sha256-2dHsZWn1MN/gLnUdYp84gbtWkvB0j0iieij4W9tzPzY=";
+    hash = "sha256-MRpXR4nQDobzofhzkU5Y2OiEsi+VdjCcF/vcxcG/144=";
   };
 
   sourceRoot = "${src.name}/libs/langchain";
@@ -57,6 +57,8 @@ buildPythonPackage rec {
   build-system = [ poetry-core ];
 
   buildInputs = [ bash ];
+
+  pythonRelaxDeps = [ "tenacity" ];
 
   dependencies = [
     aiohttp

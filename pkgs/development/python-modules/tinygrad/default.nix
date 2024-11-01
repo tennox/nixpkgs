@@ -9,14 +9,17 @@
   rocmSupport ? config.rocmSupport,
   cudaPackages,
   ocl-icd,
-  stdenv,
   rocmPackages,
+  stdenv,
 
   # build-system
   setuptools,
 
   # dependencies
+  llvmlite,
   numpy,
+  triton,
+  unicorn,
 
   # tests
   blobfile,
@@ -25,9 +28,9 @@
   hexdump,
   hypothesis,
   librosa,
+  networkx,
   onnx,
   pillow,
-  pydot,
   pytest-xdist,
   pytestCheckHook,
   safetensors,
@@ -36,6 +39,8 @@
   torch,
   tqdm,
   transformers,
+
+  tinygrad,
 }:
 
 buildPythonPackage rec {
@@ -67,6 +72,18 @@ buildPythonPackage rec {
       substituteInPlace tinygrad/runtime/autogen/opencl.py \
         --replace-fail "ctypes.util.find_library('OpenCL')" "'${ocl-icd}/lib/libOpenCL.so'"
     ''
+    # Patch `clang` directly in the source file
+    + ''
+      substituteInPlace tinygrad/runtime/ops_clang.py \
+        --replace-fail "'clang'" "'${lib.getExe clang}'"
+    ''
+    # `cuda_fp16.h` and co. are needed at runtime to compile kernels
+    + lib.optionalString cudaSupport ''
+      substituteInPlace tinygrad/runtime/support/compiler_cuda.py \
+        --replace-fail \
+        ', "-I/usr/local/cuda/include", "-I/usr/include", "-I/opt/cuda/include/"' \
+        ', "-I${lib.getDev cudaPackages.cuda_cudart}/include/"'
+    ''
     + lib.optionalString rocmSupport ''
       substituteInPlace tinygrad/runtime/autogen/hip.py \
         --replace-fail "/opt/rocm/lib/libamdhip64.so" "${rocmPackages.clr}/lib/libamdhip64.so" \
@@ -87,7 +104,19 @@ buildPythonPackage rec {
       # pyobjc-framework-metal
     ];
 
-  pythonImportsCheck = [ "tinygrad" ];
+  optional-dependencies = {
+    llvm = [ llvmlite ];
+    arm = [ unicorn ];
+    triton = [ triton ];
+  };
+
+  pythonImportsCheck =
+    [
+      "tinygrad"
+    ]
+    ++ lib.optionals cudaSupport [
+      "tinygrad.runtime.ops_nv"
+    ];
 
   nativeCheckInputs = [
     blobfile
@@ -96,9 +125,9 @@ buildPythonPackage rec {
     hexdump
     hypothesis
     librosa
+    networkx
     onnx
     pillow
-    pydot
     pytest-xdist
     pytestCheckHook
     safetensors
@@ -107,7 +136,7 @@ buildPythonPackage rec {
     torch
     tqdm
     transformers
-  ];
+  ] ++ networkx.optional-dependencies.extra;
 
   preCheck = ''
     export HOME=$(mktemp -d)
@@ -169,6 +198,10 @@ buildPythonPackage rec {
     # Files under this directory are not considered as tests by upstream and should be skipped
     "extra/"
   ];
+
+  passthru.tests = {
+    withCuda = tinygrad.override { cudaSupport = true; };
+  };
 
   meta = {
     description = "Simple and powerful neural network framework";

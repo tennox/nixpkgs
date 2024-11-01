@@ -39,14 +39,14 @@
 let
   self = buildPythonPackage rec {
     pname = "dask";
-    version = "2024.9.0";
+    version = "2024.10.0";
     pyproject = true;
 
     src = fetchFromGitHub {
       owner = "dask";
       repo = "dask";
       rev = "refs/tags/${version}";
-      hash = "sha256-CaTxhYT2diFOBylLH36iIR1ooWzi2e/RNOnvc11DtDY=";
+      hash = "sha256-UB/LqgDRXnjJ/RjEke9eBDyVAy+Dtak7wYJB63xmDd4=";
     };
 
     build-system = [ setuptools ];

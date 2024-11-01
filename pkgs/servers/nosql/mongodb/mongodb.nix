@@ -4,6 +4,7 @@
 , buildPackages
 , boost
 , gperftools
+, pcre2
 , pcre-cpp
 , snappy
 , zlib
@@ -38,17 +39,12 @@ let
     psutil
     setuptools
     distutils
-  ] ++ lib.optionals (lib.versionAtLeast version "6.0") [
     packaging
     pymongo
   ]);
 
-  mozjsVersion = "60";
-  mozjsReplace = "defined(HAVE___SINCOS)";
-
   system-libraries = [
     "boost"
-    "pcre"
     "snappy"
     "yaml"
     "zlib"
@@ -56,7 +52,13 @@ let
     #"stemmer"  -- not nice to package yet (no versioning, no makefile, no shared libs).
     #"valgrind" -- mongodb only requires valgrind.h, which is vendored in the source.
     #"wiredtiger"
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ "tcmalloc" ];
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ "tcmalloc" ]
+    ++ lib.optionals (lib.versionOlder version "7.0") [
+      "pcre"
+    ]
+    ++ lib.optionals (lib.versionAtLeast version "7.0") [
+      "pcre2"
+    ];
   inherit (lib) systems subtractLists;
 
 in stdenv.mkDerivation rec {
@@ -83,6 +85,7 @@ in stdenv.mkDerivation rec {
     yaml-cpp
     openssl
     openldap
+    pcre2
     pcre-cpp
     sasl
     snappy
@@ -107,13 +110,6 @@ in stdenv.mkDerivation rec {
     #include <string>'
     substituteInPlace src/mongo/db/exec/plan_stats.h --replace '#include <string>' '#include <optional>
     #include <string>'
-  '' + lib.optionalString (stdenv.hostPlatform.isDarwin && lib.versionOlder version "6.0") ''
-    substituteInPlace src/third_party/mozjs-${mozjsVersion}/extract/js/src/jsmath.cpp --replace '${mozjsReplace}' 0
-  '' + lib.optionalString stdenv.hostPlatform.isi686 ''
-
-    # don't fail by default on i686
-    substituteInPlace src/mongo/db/storage/storage_options.h \
-      --replace 'engine("wiredTiger")' 'engine("mmapv1")'
   '' + lib.optionalString (!avxSupport) ''
     substituteInPlace SConstruct \
       --replace-fail "default=['+sandybridge']," 'default=[],'
@@ -163,9 +159,7 @@ in stdenv.mkDerivation rec {
     runHook postInstallCheck
   '';
 
-  installTargets =
-    if (lib.versionAtLeast version "6.0") then "install-devcore"
-    else "install-core";
+  installTargets = "install-devcore";
 
   prefixKey = "DESTDIR=";
 
@@ -180,6 +174,5 @@ in stdenv.mkDerivation rec {
 
     maintainers = with maintainers; [ bluescreen303 offline ];
     platforms = subtractLists systems.doubles.i686 systems.doubles.unix;
-    broken = (versionOlder version "6.0" && stdenv.system == "aarch64-darwin");
   };
 }

@@ -3,31 +3,15 @@
   fetchFromGitHub,
   immich,
   python3,
+  nixosTests,
+  stdenv,
 }:
 let
   python = python3.override {
     self = python;
-
-    packageOverrides = self: super: {
-      pydantic = super.pydantic_1;
-
-      versioningit = super.versioningit.overridePythonAttrs (_: {
-        doCheck = false;
-      });
-
-      albumentations = super.albumentations.overridePythonAttrs (_: rec {
-        version = "1.4.3";
-        src = fetchFromGitHub {
-          owner = "albumentations-team";
-          repo = "albumentations";
-          rev = version;
-          hash = "sha256-JIBwjYaUP4Sc1bVM/zlj45cz9OWpb/LOBsIqk1m+sQA=";
-        };
-      });
-    };
   };
 in
-python.pkgs.buildPythonApplication {
+python.pkgs.buildPythonApplication rec {
   pname = "immich-machine-learning";
   inherit (immich) version;
   src = "${immich.src}/machine-learning";
@@ -40,8 +24,9 @@ python.pkgs.buildPythonApplication {
     substituteInPlace app/test_main.py --replace-fail ": cv2.Mat" ""
   '';
 
-  pythonRelaxDeps = [ "setuptools" ];
-  pythonRemoveDeps = [ "opencv-python-headless" ];
+  pythonRelaxDeps = [
+    "pydantic-settings"
+  ];
 
   build-system = with python.pkgs; [
     poetry-core
@@ -52,22 +37,26 @@ python.pkgs.buildPythonApplication {
     with python.pkgs;
     [
       insightface
-      opencv4
+      opencv-python-headless
       pillow
       fastapi
       uvicorn
+      pydantic
+      pydantic-settings
       aiocache
       rich
       ftfy
-      setuptools
       python-multipart
       orjson
       gunicorn
       huggingface-hub
       tokenizers
-      pydantic
     ]
     ++ uvicorn.optional-dependencies.standard;
+
+  # aarch64-linux tries to get cpu information from /sys, which isn't available
+  # inside the nix build sandbox.
+  doCheck = stdenv.buildPlatform.system != "aarch64-linux";
 
   nativeCheckInputs = with python.pkgs; [
     httpx
@@ -83,7 +72,7 @@ python.pkgs.buildPythonApplication {
     cp -r ann $out/${python.sitePackages}/
 
     makeWrapper ${lib.getExe python.pkgs.gunicorn} "''${!outputBin}"/bin/machine-learning \
-      --prefix PYTHONPATH : "$out/${python.sitePackages}:$PYTHONPATH" \
+      --prefix PYTHONPATH : "$out/${python.sitePackages}:${python.pkgs.makePythonPath dependencies}" \
       --set-default MACHINE_LEARNING_WORKERS 1 \
       --set-default MACHINE_LEARNING_WORKER_TIMEOUT 120 \
       --set-default MACHINE_LEARNING_CACHE_FOLDER /var/cache/immich \
@@ -96,12 +85,14 @@ python.pkgs.buildPythonApplication {
         --log-config-json $out/share/immich/log_conf.json"
   '';
 
+  passthru.tests = {
+    inherit (nixosTests) immich;
+  };
+
   meta = {
-    description = "Self-hosted photo and video backup solution (machine learning component)";
-    homepage = "https://immich.app/";
-    license = lib.licenses.agpl3Only;
-    maintainers = with lib.maintainers; [ jvanbruegge ];
+    description = "${immich.meta.description} (machine learning component)";
+    homepage = "https://github.com/immich-app/immich/tree/main/machine-learning";
     mainProgram = "machine-learning";
-    inherit (immich.meta) platforms;
+    inherit (immich.meta) license maintainers platforms;
   };
 }

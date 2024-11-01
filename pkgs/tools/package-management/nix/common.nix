@@ -16,6 +16,7 @@ let
   atLeast210 = lib.versionAtLeast version "2.10pre";
   atLeast213 = lib.versionAtLeast version "2.13pre";
   atLeast214 = lib.versionAtLeast version "2.14pre";
+  atLeast218 = lib.versionAtLeast version "2.18pre";
   atLeast219 = lib.versionAtLeast version "2.19pre";
   atLeast220 = lib.versionAtLeast version "2.20pre";
   atLeast221 = lib.versionAtLeast version "2.21pre";
@@ -42,6 +43,7 @@ in
 , callPackage
 , coreutils
 , curl
+, darwin
 , docbook_xsl_ns
 , docbook5
 , editline
@@ -59,6 +61,7 @@ in
 , libxml2
 , libxslt
 , lowdown
+, lowdown-unsandboxed
 , toml11
 , man
 , mdbook
@@ -122,7 +125,7 @@ self = stdenv.mkDerivation {
     docbook_xsl_ns
     docbook5
   ] ++ lib.optionals (enableDocumentation && atLeast24) [
-    (lib.getBin lowdown)
+    (lib.getBin lowdown-unsandboxed)
     mdbook
   ] ++ lib.optionals (atLeast213 && enableDocumentation) [
     mdbook-linkcheck
@@ -157,6 +160,8 @@ self = stdenv.mkDerivation {
     libseccomp
   ] ++ lib.optionals withAWS [
     aws-sdk-cpp
+  ] ++ lib.optional (atLeast218 && stdenv.hostPlatform.isDarwin) [
+    darwin.apple_sdk.libs.sandbox
   ];
 
 

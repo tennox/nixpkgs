@@ -83,9 +83,6 @@ self: super: ({
   with-utf8 = addExtraLibrary pkgs.libiconv super.with-utf8;
   with-utf8_1_1_0_0 = addExtraLibrary pkgs.libiconv super.with-utf8_1_1_0_0;
 
-  # the system-fileio tests use canonicalizePath, which fails in the sandbox
-  system-fileio = dontCheck super.system-fileio;
-
   git-annex = overrideCabal (drv: {
     # We can't use testFlags since git-annex side steps the Cabal test mechanism
     preCheck = drv.preCheck or "" + ''
@@ -302,6 +299,13 @@ self: super: ({
     # that access localhost.
     __darwinAllowLocalNetworking = true;
   });
+
+  # network requires `IP_RECVTOS`, which was added in 10.15.
+  network =
+    if lib.versionOlder (lib.getVersion pkgs.apple-sdk) "10.15" then
+      addBuildDepend pkgs.apple-sdk_10_15 super.network
+    else
+      super.network;
 
   foldl = overrideCabal (drv: {
     postPatch = ''

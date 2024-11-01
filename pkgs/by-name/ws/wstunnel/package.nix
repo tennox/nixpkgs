@@ -10,7 +10,7 @@
 }:
 
 let
-  version = "10.1.1";
+  version = "10.1.5";
 in
 
 rustPlatform.buildRustPackage {
@@ -21,10 +21,15 @@ rustPlatform.buildRustPackage {
     owner = "erebe";
     repo = "wstunnel";
     rev = "v${version}";
-    hash = "sha256-qEWIyQkLRrmTH40S96hj8JXFz/VJChIbg8qEQc938nI=";
+    hash = "sha256-MomT9iwIsdou7lIfI7zBU9nEjjYGcsHKTlrYbK4p3BQ=";
   };
 
-  cargoHash = "sha256-3b+pX/qQuhOY1OYr+CfT5wtiJcEJ8CJJsQZ4QOcYv74=";
+  cargoLock = {
+    lockFile = ./Cargo.lock;
+    outputHashes = {
+      "fastwebsockets-0.8.0" = "sha256-eqtCh9fMOG2uvL/GLUVXNiSB+ovYLc/Apuq9zssn8hU=";
+    };
+  };
 
   nativeBuildInputs = [ versionCheckHook ];
   buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
@@ -52,6 +57,7 @@ rustPlatform.buildRustPackage {
     changelog = "https://github.com/erebe/wstunnel/releases/tag/v${version}";
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [
+      raylas
       rvdp
       neverbehave
     ];

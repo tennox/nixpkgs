@@ -14,7 +14,7 @@
 
   openssl,
   libsoup,
-  webkitgtk,
+  webkitgtk_4_0,
   gst_all_1,
   darwin,
 }:
@@ -37,7 +37,7 @@ buildRustPackage rec {
 
   pnpmDeps = pnpm_9.fetchDeps {
     inherit pname version src;
-    hash = "sha256-hjSioKpvrGyo5UKvBrwln0S3aIpnJZ2PUdzBfbT7IC4=";
+    hash = "sha256-hvWXSegUWJvwCU5NLb2vqnl+FIWpCLxw96s9NUIgJTI=";
   };
 
   cargoLock = {
@@ -56,7 +56,7 @@ buildRustPackage rec {
     [
       pnpm_9.configHook
       nodejs
-      cargo-tauri
+      cargo-tauri.hook
       pkg-config
     ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [ wrapGAppsHook3 ]
@@ -66,7 +66,7 @@ buildRustPackage rec {
     lib.optionals stdenv.hostPlatform.isLinux [
       openssl
       libsoup
-      webkitgtk
+      webkitgtk_4_0
       gst_all_1.gstreamer
       gst_all_1.gst-plugins-base
       gst_all_1.gst-plugins-bad
@@ -77,34 +77,7 @@ buildRustPackage rec {
       darwin.apple_sdk_11_0.frameworks.WebKit
     ];
 
-  # remove once cargo-tauri.hook becomes available
-  # https://github.com/NixOS/nixpkgs/pull/335751
-  buildPhase = ''
-    runHook preBuild
-
-    cargo tauri build --bundles ${if stdenv.hostPlatform.isDarwin then "app" else "deb"}
-
-    runHook postBuild
-  '';
-
   doCheck = false; # many scoring tests fail
-
-  # remove once cargo-tauri.hook becomes available
-  installPhase = ''
-    runHook preInstall
-
-    ${lib.optionalString stdenv.hostPlatform.isDarwin ''
-      mkdir -p "$out"/Applications
-      cp -r src-tauri/target/release/bundle/macos/* "$out"/Applications
-    ''}
-
-    ${lib.optionalString stdenv.hostPlatform.isLinux ''
-      mkdir -p "$out"
-      cp -r src-tauri/target/release/bundle/deb/*/data/usr/* "$out"
-    ''}
-
-    runHook postInstall
-  '';
 
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
     makeWrapper "$out"/Applications/en-croissant.app/Contents/MacOS/en-croissant $out/bin/en-croissant

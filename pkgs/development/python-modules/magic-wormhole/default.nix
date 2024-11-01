@@ -36,12 +36,12 @@
 
 buildPythonPackage rec {
   pname = "magic-wormhole";
-  version = "0.15.0";
+  version = "0.16.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-viVjtcVUe6MzvGYI8EgATI821VYTm/L/49n0HaJ5cAY=";
+    hash = "sha256-FObBRomNvaem0ZAmJiOmlBmVU2Pn5DTWSq0tIz1tlMk=";
   };
 
   postPatch =
@@ -57,10 +57,6 @@ buildPythonPackage rec {
     '';
 
   build-system = [ setuptools ];
-
-  pythonRelaxDeps = [
-    "spake2"
-  ];
 
   dependencies = [
     attrs
@@ -78,7 +74,7 @@ buildPythonPackage rec {
     zipstream-ng
   ] ++ autobahn.optional-dependencies.twisted ++ twisted.optional-dependencies.tls;
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     dilation = [ noiseprotocol ];
   };
 
@@ -91,7 +87,7 @@ buildPythonPackage rec {
       mock
       pytestCheckHook
     ]
-    ++ passthru.optional-dependencies.dilation
+    ++ optional-dependencies.dilation
     ++ lib.optionals stdenv.hostPlatform.isDarwin [ unixtools.locale ];
 
   __darwinAllowLocalNetworking = true;

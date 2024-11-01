@@ -35,13 +35,13 @@
 
 let
   pname = "psycopg";
-  version = "3.2.2";
+  version = "3.2.3";
 
   src = fetchFromGitHub {
     owner = "psycopg";
     repo = pname;
     rev = "refs/tags/${version}";
-    hash = "sha256-Udysl00lB6rxmQByME6PI3KL4tlzIZ0/CZNWLVKssS8=";
+    hash = "sha256-vcUZvQeD5MnEM02phk73I9dpf0Eug95V7Rspi0s6S2M=";
   };
 
   patches = [
@@ -161,7 +161,7 @@ buildPythonPackage rec {
     "psycopg_pool"
   ];
 
-  passthru.optional-dependencies = {
+  optional-dependencies = {
     c = [ psycopg-c ];
     pool = [ psycopg-pool ];
   };
@@ -175,8 +175,8 @@ buildPythonPackage rec {
       postgresql
     ]
     ++ lib.optional (stdenv.hostPlatform.isLinux) postgresqlTestHook
-    ++ passthru.optional-dependencies.c
-    ++ passthru.optional-dependencies.pool;
+    ++ optional-dependencies.c
+    ++ optional-dependencies.pool;
 
   env = {
     postgresqlEnableTCP = 1;
@@ -205,13 +205,16 @@ buildPythonPackage rec {
     # Mypy typing test
     "tests/test_typing.py"
     "tests/crdb/test_typing.py"
+    # https://github.com/psycopg/psycopg/pull/915
+    "tests/test_notify.py"
+    "tests/test_notify_async.py"
   ];
 
   pytestFlagsArray = [
     "-o"
     "cache_dir=$TMPDIR"
     "-m"
-    "'not refcount and not timing'"
+    "'not refcount and not timing and not flakey'"
     # pytest.PytestRemovedIn9Warning: Marks applied to fixtures have no effect
     "-W"
     "ignore::pytest.PytestRemovedIn9Warning"

@@ -12,9 +12,14 @@
   - any:
     - changed-files:
       - any-glob-to-any-file:
-        - pkgs/desktops/cinnamon/**/*
         - nixos/modules/services/x11/desktop-managers/cinnamon.nix
         - nixos/tests/cinnamon.nix
+        - nixos/tests/cinnamon-wayland.nix
+        - pkgs/by-name/ci/cinnamon-*/**/*
+        - pkgs/by-name/cj/cjs/**/*
+        - pkgs/by-name/mu/muffin/**/*
+        - pkgs/by-name/ne/nemo/**/*
+        - pkgs/by-name/ne/nemo-*/**/*
 
 "6.topic: dotnet":
   - any:
@@ -34,9 +39,9 @@
         - nixos/modules/services/editors/emacs.nix
         - nixos/modules/services/editors/emacs.xml
         - nixos/tests/emacs-daemon.nix
+        - pkgs/applications/editors/emacs/build-support/**/*
         - pkgs/applications/editors/emacs/elisp-packages/**/*
         - pkgs/applications/editors/emacs/**/*
-        - pkgs/build-support/emacs/**/*
         - pkgs/top-level/emacs-packages.nix
 
 "6.topic: Enlightenment DE":
@@ -73,6 +78,13 @@
         - '**/flake.nix'
         - lib/systems/flake-systems.nix
         - nixos/modules/config/nix-flakes.nix
+
+"6.topic: flutter":
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - pkgs/build-support/flutter/*.nix
+        - pkgs/development/compilers/flutter/**/*.nix
 
 "6.topic: GNOME":
   - any:
@@ -149,7 +161,7 @@
   - any:
     - changed-files:
       - any-glob-to-any-file:
-        - pkgs/development/compilers/llvm/*
+        - pkgs/development/compilers/llvm/**/*
 
 "6.topic: lua":
   - any:
@@ -205,9 +217,9 @@
     - changed-files:
       - any-glob-to-any-file:
         - doc/languages-frameworks/nim.section.md
-        - pkgs/development/compilers/nim/*
-        - pkgs/development/nim-packages/**/*
-        - pkgs/top-level/nim-packages.nix
+        - pkgs/build-support/build-nim-package.nix
+        - pkgs/by-name/ni/nim*
+        - pkgs/top-level/nim-overrides.nix
 
 "6.topic: nodejs":
   - any:
@@ -258,6 +270,12 @@
     - changed-files:
       - any-glob-to-any-file:
         - .github/**/*
+        - CONTRIBUTING.md
+        - pkgs/README.md
+        - nixos/README.md
+        - maintainers/README.md
+        - lib/README.md
+        - doc/README.md
 
 "6.topic: printing":
   - any:
@@ -322,6 +340,15 @@
         - pkgs/os-specific/linux/systemd/**/*
         - nixos/modules/system/boot/systemd*/**/*
 
+"6.topic: tcl":
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - doc/languages-frameworks/tcl.section.md
+        - pkgs/development/interpreters/tcl/*
+        - pkgs/development/tcl-modules/**/*
+        - pkgs/top-level/tcl-packages.nix
+
 "6.topic: TeX":
   - any:
     - changed-files:
@@ -338,6 +365,7 @@
         #       *developed in this repo*;
         #       - not individual tests
         #       - not packages for test frameworks
+        - pkgs/build-support/testers/**
         - nixos/lib/testing/**
         - nixos/lib/test-driver/**
         - nixos/tests/nixos-test-driver/**
@@ -360,6 +388,19 @@
     - changed-files:
       - any-glob-to-any-file:
         - pkgs/applications/editors/vscode/**/*
+
+"6.topic: xen-project":
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - nixos/modules/virtualisation/xen*
+        - pkgs/by-name/xe/xen/*
+        - pkgs/by-name/qe/qemu_xen/*
+        - pkgs/by-name/xe/xen-guest-agent/*
+        - pkgs/by-name/xt/xtf/*
+        - pkgs/build-support/xen/*
+        - pkgs/development/ocaml-modules/xen*/*
+        - pkgs/development/ocaml-modules/vchan/*
 
 "6.topic: xfce":
   - any:

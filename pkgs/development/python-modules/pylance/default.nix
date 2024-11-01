@@ -55,6 +55,7 @@ buildPythonPackage rec {
 
   nativeBuildInputs = [
     pkg-config
+    protobuf # for protoc
     rustPlatform.cargoSetupHook
   ];
 
@@ -100,16 +101,21 @@ buildPythonPackage rec {
     cd python/python/tests
   '';
 
-  disabledTests = lib.optionals stdenv.hostPlatform.isDarwin [
-    # AttributeError: module 'torch.distributed' has no attribute 'is_initialized'
-    "test_convert_int_tensors"
-    "test_ground_truth"
-    "test_index_cast_centroids"
-    "test_index_with_no_centroid_movement"
-    "test_iter_filter"
-    "test_iter_over_dataset_fixed_shape_tensor"
-    "test_iter_over_dataset_fixed_size_lists"
-  ];
+  disabledTests =
+    lib.optionals stdenv.hostPlatform.isDarwin [
+      # AttributeError: module 'torch.distributed' has no attribute 'is_initialized'
+      "test_convert_int_tensors"
+      "test_ground_truth"
+      "test_index_cast_centroids"
+      "test_index_with_no_centroid_movement"
+      "test_iter_filter"
+      "test_iter_over_dataset_fixed_shape_tensor"
+      "test_iter_over_dataset_fixed_size_lists"
+    ]
+    ++ [
+      # incompatible with duckdb 1.1.1
+      "test_duckdb_pushdown_extension_types"
+    ];
 
   passthru.updateScript = nix-update-script {
     extraArgs = [

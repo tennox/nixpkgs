@@ -6,20 +6,21 @@
   gitleaks,
   installShellFiles,
   testers,
+  nix-update-script,
 }:
 
 buildGoModule rec {
   pname = "gitleaks";
-  version = "8.19.3";
+  version = "8.21.2";
 
   src = fetchFromGitHub {
     owner = "zricethezav";
     repo = "gitleaks";
     rev = "refs/tags/v${version}";
-    hash = "sha256-PBgUx4O9CM/yo53go6+1uyEvD3dffo9bNvD+ikOsNFI=";
+    hash = "sha256-1MCSGFpjYD4XdES+kJTz/NTN/B00TWMQ1Rmk/nsKf2Q=";
   };
 
-  vendorHash = "sha256-KdwKogBrsGYyAY4Cmuf3MysnWIsHoGPs04xaihM4QAA=";
+  vendorHash = "sha256-iIgS0fXdiVMYKr3FZTYlCSEqqaH9sxZh1MFry9pGET8=";
 
   ldflags = [
     "-s"
@@ -43,6 +44,8 @@ buildGoModule rec {
     package = gitleaks;
     command = "${pname} version";
   };
+
+  passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
     description = "Scan git repos (or files) for secrets";
