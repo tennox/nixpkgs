@@ -93,6 +93,18 @@ in {
     hash = "sha256-CG3liC48sxDU3KSEV1IuLkgBjs1D2pzfgn9qB1nvsH0=";
     inherit passthruFun;
   };
+
+  python314 = callPackage ./cpython {
+    self = __splicedPackages.python314;
+    sourceVersion = {
+      major = "3";
+      minor = "14";
+      patch = "0";
+      suffix = "a1";
+    };
+    hash = "sha256-PkZLDLt1NeLbNCYv0ZoKOT0OYr4PQ7FRPtmDebBU6tQ=";
+    inherit passthruFun;
+  };
   # Minimal versions of Python (built without optional dependencies)
   python3Minimal = (callPackage ./cpython ({
     self = __splicedPackages.python3Minimal;
@@ -135,8 +147,6 @@ in {
     db = db.override { dbmSupport = !stdenv.hostPlatform.isDarwin; };
     python = __splicedPackages.pythonInterpreters.pypy27_prebuilt;
     inherit passthruFun;
-    inherit (darwin) libunwind;
-    inherit (darwin.apple_sdk.frameworks) Security;
   };
 
   pypy39 = callPackage ./pypy {
@@ -152,8 +162,6 @@ in {
     db = db.override { dbmSupport = !stdenv.hostPlatform.isDarwin; };
     python = __splicedPackages.pypy27;
     inherit passthruFun;
-    inherit (darwin) libunwind;
-    inherit (darwin.apple_sdk.frameworks) Security;
   };
 
   pypy310 = __splicedPackages.pypy39.override {

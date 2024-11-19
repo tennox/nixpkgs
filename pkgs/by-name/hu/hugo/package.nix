@@ -12,22 +12,25 @@
 
 buildGoModule rec {
   pname = "hugo";
-  version = "0.136.4";
+  version = "0.138.0";
 
   src = fetchFromGitHub {
     owner = "gohugoio";
     repo = "hugo";
     rev = "refs/tags/v${version}";
-    hash = "sha256-wCv0lZqvJNOwL/naFuGb6k0Xyk58NpgH1mkhoNnkSno=";
+    hash = "sha256-IDWQRPJrTCkvcTcsaGuyQraVoWWUe0d6FTQvvYHZcD0=";
   };
 
-  vendorHash = "sha256-KqDsa7MlSONyn7AYOepQ95q1CEM83AhWk23iYSQ4twU=";
+  vendorHash = "sha256-5YS76L7kisyPz8yv2RCgZHpY/AkjdHE+SUwMOuo3uLg=";
 
   doCheck = false;
 
   proxyVendor = true;
 
-  tags = [ "extended" ];
+  tags = [
+    "extended"
+    "withdeploy"
+  ];
 
   subPackages = [ "." ];
 

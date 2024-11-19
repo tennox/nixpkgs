@@ -128,8 +128,7 @@ stdenv.mkDerivation (finalAttrs: {
     ./0006-Add-libcd_is_blob_a_linker_signature-implementation.patch
     # Add OpenSSL implementation of CoreCrypto digest functions. Avoids use of private and non-free APIs.
     ./0007-Add-OpenSSL-based-CoreCrypto-digest-functions.patch
-    # ld64 will search `/usr/lib`, `/Library/Frameworks`, etc by default. Disable that.
-    ./0008-Disable-searching-in-standard-library-locations.patch
+    ./remove-unused-and-incomplete-blob-clone.diff
   ];
 
   postPatch = ''
@@ -227,7 +226,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://opensource.apple.com/releases/";
     license = lib.licenses.apple-psl20;
     mainProgram = "ld";
-    maintainers = with lib.maintainers; [ reckenrode ];
+    maintainers = lib.teams.darwin.members;
     platforms = lib.platforms.darwin; # Porting to other platforms is incomplete. Support only Darwin for now.
   };
 })

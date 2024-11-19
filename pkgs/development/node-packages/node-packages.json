@@ -27,7 +27,6 @@
 , "cdktf-cli"
 , "clipboard-cli"
 , "coc-cmake"
-, "coc-css"
 , "coc-docker"
 , "coc-emmet"
 , "coc-eslint"
@@ -138,7 +137,6 @@
 , "meat"
 , "mocha"
 , "multi-file-swagger"
-, "neovim"
 , "nijs"
 , "node-gyp-build"
 , "node2nix"
@@ -237,5 +235,4 @@
 , "webtorrent-cli"
 , "wring"
 , "@yaegassy/coc-nginx"
-, "yalc"
 ]

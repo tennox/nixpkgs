@@ -8,11 +8,11 @@
 }:
 let
   pname = "cursor";
-  version = "0.42.3";
+  version = "0.42.5";
   appKey = "230313mzl4w4u92";
   src = fetchurl {
-    url = "https://download.todesktop.com/230313mzl4w4u92/cursor-0.42.3-build-241016kxu9umuir-x86_64.AppImage";
-    hash = "sha256-GWkilBlpXube//jbxRjmKJjYcmB42nhMY8K0OgkvtwA=";
+    url = "https://download.todesktop.com/230313mzl4w4u92/cursor-0.42.5-build-24111460bf2loz1-x86_64.AppImage";
+    hash = "sha256-fr2P4Na6Jvmhh7FA5JILxrmm8wfI7Ad2+IFeJrxCtmI=";
   };
   appimageContents = appimageTools.extractType2 { inherit version pname src; };
 in
