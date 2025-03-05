@@ -1,25 +1,28 @@
 {
-  callPackage,
-  vips,
-  pkg-config,
-  lib,
   buildNpmPackage,
+  callPackage,
   fetchFromGitHub,
+  lib,
   nix-update-script,
+  nodejs,
+  pkg-config,
+  vips,
 }:
 
 buildNpmPackage rec {
   pname = "netlify-cli";
-  version = "17.37.1";
+  version = "17.37.2";
 
   src = fetchFromGitHub {
     owner = "netlify";
     repo = "cli";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-34WvnbvLv2bB8CTlFKf351eQ5enYRhDqHoHRvJTBq4M=";
+    tag = "v${version}";
+    hash = "sha256-1UaIPCzyHMKNJfDFILPYIrjHwzHAmlYNk+aHZM1Bp6Q=";
   };
 
-  npmDepsHash = "sha256-zbr8TVCIKa/x5vzc3bR++qDcu0AuAgq1rfE69rytCWw=";
+  npmDepsHash = "sha256-pJaNdR9jyFSdfE+yLnQn9/Gbq2CbH6y3aEVbpg3Ft/o=";
+
+  inherit nodejs;
 
   buildInputs = [ vips ];
   nativeBuildInputs = [ pkg-config ];

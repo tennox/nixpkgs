@@ -14,12 +14,12 @@ let
   # kernel config in the xanmod version commit
   variants = {
     lts = {
-      version = "6.6.60";
-      hash = "sha256-hbuMuLoXVaFb/HnkVlJm8BSwStxsWmz5e4y65kXBJto=";
+      version = "6.6.68";
+      hash = "sha256-fuPJgbDJ2PLB74fy/WFnhGdTEKJMeNwsbWm6RVM4Jes=";
     };
     main = {
-      version = "6.11.7";
-      hash = "sha256-+gj6sR20v4+NHR4cqsVK5fVpqXs9zxcBh0kJUH5qpNE=";
+      version = "6.12.7";
+      hash = "sha256-sM9XINKBGRcO29o3kEIKM03t/XojG9nYLirQSBii8Y4=";
     };
   };
 
@@ -78,6 +78,7 @@ let
             atemu
             shawn8901
             zzzsy
+            eljamm
           ];
           description = "Built with custom settings and new features built to provide a stable, responsive and smooth desktop experience";
           broken = stdenv.hostPlatform.isAarch64;

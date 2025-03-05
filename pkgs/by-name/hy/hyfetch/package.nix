@@ -2,6 +2,7 @@
   lib,
   fetchFromGitHub,
   python3Packages,
+  pciutils,
 }:
 python3Packages.buildPythonApplication rec {
   pname = "hyfetch";
@@ -11,7 +12,7 @@ python3Packages.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "hykilpikonna";
     repo = "hyfetch";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-GL1/V+LgSXJ4b28PfinScDrJhU9VDa4pVi24zWEzbAk=";
   };
 
@@ -29,6 +30,11 @@ python3Packages.buildPythonApplication rec {
   pythonImportsCheck = [
     "hyfetch"
   ];
+
+  postFixup = ''
+    wrapProgram $out/bin/neowofetch \
+      --prefix PATH : ${lib.makeBinPath [ pciutils ]}
+  '';
 
   meta = {
     description = "neofetch with pride flags <3";

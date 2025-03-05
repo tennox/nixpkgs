@@ -15,12 +15,12 @@ buildPythonPackage rec {
   version = "3.10";
   pyproject = true;
 
-  disabled = pythonOlder "3.9";
+  disabled = pythonOlder "3.10";
 
   src = fetchFromGitHub {
     owner = "fox-it";
     repo = "dissect.ffs";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-sOMakwJyKgeRXbc37D5j7GVldl3gO7yYMnNq217J7QM=";
   };
 

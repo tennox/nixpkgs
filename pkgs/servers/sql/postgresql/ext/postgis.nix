@@ -1,5 +1,5 @@
 {
-  fetchurl,
+  fetchFromGitHub,
   lib,
   stdenv,
   perl,
@@ -22,6 +22,10 @@
   jitSupport,
   llvm,
   buildPostgresqlExtension,
+  autoconf,
+  automake,
+  libtool,
+  which,
 }:
 
 let
@@ -36,9 +40,11 @@ buildPostgresqlExtension (finalAttrs: {
     "doc"
   ];
 
-  src = fetchurl {
-    url = "https://download.osgeo.org/postgis/source/postgis-${finalAttrs.version}.tar.gz";
-    hash = "sha256-ymmKIswrKzRnrE4GO0OihBPzAE3dUFvczddMVqZH9RA=";
+  src = fetchFromGitHub {
+    owner = "postgis";
+    repo = "postgis";
+    rev = "${finalAttrs.version}";
+    hash = "sha256-wh7Lav2vnKzGWuSvvMFvAaGV7ynD+KgPsFUgujdtzlA=";
   };
 
   buildInputs = [
@@ -51,8 +57,12 @@ buildPostgresqlExtension (finalAttrs: {
     pcre2.dev
   ] ++ lib.optional stdenv.hostPlatform.isDarwin libiconv;
   nativeBuildInputs = [
+    autoconf
+    automake
+    libtool
     perl
     pkg-config
+    which
   ] ++ lib.optional jitSupport llvm;
   dontDisableStatic = true;
 
@@ -70,7 +80,7 @@ buildPostgresqlExtension (finalAttrs: {
 
   setOutputFlags = false;
   preConfigure = ''
-    sed -i 's@/usr/bin/file@${file}/bin/file@' configure
+    ./autogen.sh
   '';
 
   configureFlags = [
@@ -78,14 +88,6 @@ buildPostgresqlExtension (finalAttrs: {
     "--with-jsondir=${json_c.dev}"
     "--disable-extension-upgrades-install"
   ];
-
-  postConfigure = ''
-    mkdir -p $out/bin
-
-    # postgis' build system assumes it is being installed to the same place as postgresql, and looks
-    # for the postgres binary relative to $PREFIX. We gently support this system using an illusion.
-    ln -s ${postgresql}/bin/postgres $out/bin/postgres
-  '';
 
   makeFlags = [
     "PERL=${perl}/bin/perl"
@@ -101,9 +103,6 @@ buildPostgresqlExtension (finalAttrs: {
 
   # create aliases for all commands adding version information
   postInstall = ''
-    # Teardown the illusory postgres used for building; see postConfigure.
-    rm $out/bin/postgres
-
     for prog in $out/bin/*; do # */
       ln -s $prog $prog-${finalAttrs.version}
     done
@@ -139,13 +138,7 @@ buildPostgresqlExtension (finalAttrs: {
     homepage = "https://postgis.net/";
     changelog = "https://git.osgeo.org/gitea/postgis/postgis/raw/tag/${finalAttrs.version}/NEWS";
     license = licenses.gpl2Plus;
-    maintainers =
-      with maintainers;
-      teams.geospatial.members
-      ++ [
-        marcweber
-        wolfgangwalther
-      ];
+    maintainers = with maintainers; teams.geospatial.members ++ [ marcweber ];
     inherit (postgresql.meta) platforms;
   };
 })

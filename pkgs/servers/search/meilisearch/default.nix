@@ -1,10 +1,7 @@
 {
-  stdenv,
   lib,
   rustPlatform,
   fetchFromGitHub,
-  Security,
-  SystemConfiguration,
   nixosTests,
   nix-update-script,
 }:
@@ -19,7 +16,7 @@ rustPlatform.buildRustPackage {
   src = fetchFromGitHub {
     owner = "meilisearch";
     repo = "meiliSearch";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-CVofke9tOGeDEhRHEt6EYwT52eeAYNqlEd9zPpmXQ2U=";
   };
 
@@ -38,11 +35,6 @@ rustPlatform.buildRustPackage {
   buildNoDefaultFeatures = true;
 
   nativeBuildInputs = [ rustPlatform.bindgenHook ];
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    Security
-    SystemConfiguration
-  ];
 
   passthru = {
     updateScript = nix-update-script { };

@@ -15,13 +15,13 @@ assert (!blas.isILP64) && (!lapack.isILP64);
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "R";
-  version = "4.4.1";
+  version = "4.4.2";
 
   src = let
     inherit (finalAttrs) pname version;
   in fetchurl {
     url = "https://cran.r-project.org/src/base/R-${lib.versions.major version}/${pname}-${version}.tar.gz";
-    sha256 = "sha256-tMtnXequtymdOyZdIYzeQ/GSlRzluJt7saUUijay2U0=";
+    sha256 = "sha256-FXjNYD6NhmtYdD5J2L+ZxWnoEHm2pgzzPN973/64F+w=";
   };
 
   outputs = [ "out" "tex" ];
@@ -101,7 +101,10 @@ stdenv.mkDerivation (finalAttrs: {
   # The store path to "which" is baked into src/library/base/R/unix/system.unix.R,
   # but Nix cannot detect it as a run-time dependency because the installed file
   # is compiled and compressed, which hides the store path.
-  postFixup = "echo ${which} > $out/nix-support/undetected-runtime-dependencies";
+  postFixup = ''
+    echo ${which} > $out/nix-support/undetected-runtime-dependencies
+    ${lib.optionalString stdenv.hostPlatform.isLinux ''find $out -name "*.so" -exec patchelf {} --add-rpath $out/lib/R/lib \;''}
+  '';
 
   doCheck = true;
   preCheck = "export HOME=$TMPDIR; export TZ=CET; bin/Rscript -e 'sessionInfo()'";

@@ -1,13 +1,21 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, R, postgresql, buildPostgresqlExtension }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  R,
+  postgresql,
+  buildPostgresqlExtension,
+}:
 
 buildPostgresqlExtension rec {
   pname = "plr";
-  version = "8.4.7";
+  version = "${builtins.replaceStrings [ "_" ] [ "." ] (lib.strings.removePrefix "REL" src.rev)}";
 
   src = fetchFromGitHub {
     owner = "postgres-plr";
     repo = "plr";
-    rev = "REL${builtins.replaceStrings ["."] ["_"] version}";
+    rev = "REL8_4_7";
     sha256 = "sha256-PdvFEmtKfLT/xfaf6obomPR5hKC9F+wqpfi1heBphRk=";
   };
 

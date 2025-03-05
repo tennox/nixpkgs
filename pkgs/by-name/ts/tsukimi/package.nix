@@ -10,23 +10,23 @@
   openssl,
   libepoxy,
   wrapGAppsHook4,
-  makeDesktopItem,
   stdenv,
   nix-update-script,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "tsukimi";
-  version = "0.16.9";
+  version = "0.18.0";
 
   src = fetchFromGitHub {
     owner = "tsukinaha";
     repo = "tsukimi";
     rev = "v${version}";
-    hash = "sha256-SeABeXg2dpGYxGiDDwn811egRe8BYVdxK8hz7qfBagQ=";
+    hash = "sha256-JHB1D94ymVjP3PEHZ4fTT4c6VOEkFgSdpanzs1AzJUc=";
     fetchSubmodules = true;
   };
 
-  cargoHash = "sha256-o6FjBauHjdhxNXpqlJc/yNNTkRJyX3R4smAMrdFUjLA=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-Gh9CPQ73+EpwZTixgQpV4rSwZnedVHQwZRlLQXr8EUo=";
 
   nativeBuildInputs = [
     pkg-config
