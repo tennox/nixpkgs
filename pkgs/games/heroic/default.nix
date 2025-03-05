@@ -3,37 +3,37 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  pnpm,
+  pnpm_9,
   nodejs,
   python3,
   makeWrapper,
   electron,
   vulkan-helper,
   gogdl,
-  legendary-gl,
+  legendary-heroic,
   nile,
   comet-gog,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "heroic-unwrapped";
-  version = "2.15.2";
+  version = "2.16.0";
 
   src = fetchFromGitHub {
     owner = "Heroic-Games-Launcher";
     repo = "HeroicGamesLauncher";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-AndJqk1VAUdC4pOTRzyfhdxmzJMskGF6pUiqPs3fIy4=";
+    hash = "sha256-cuaYgoVyfJHop9MQjHMCVvDMHc9iEDK60r3raTk4QyY=";
   };
 
-  pnpmDeps = pnpm.fetchDeps {
+  pnpmDeps = pnpm_9.fetchDeps {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-/7JIeQZt3QsKrjujSucRLiHfhfSllK7FeumNA4eHqSY=";
+    hash = "sha256-OeCO3ozt8TS+A6b8tz667d5UavaFWiw9HpAjuyzLti8=";
   };
 
   nativeBuildInputs = [
     nodejs
-    pnpm.configHook
+    pnpm_9.configHook
     python3
     makeWrapper
   ];
@@ -79,7 +79,7 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p "$out/opt/heroic/resources/app.asar.unpacked/build/bin/x64/linux"
     ln -s \
       "${lib.getExe gogdl}" \
-      "${lib.getExe legendary-gl}" \
+      "${lib.getExe legendary-heroic}" \
       "${lib.getExe nile}" \
       "${lib.getExe comet-gog}" \
       "${lib.getExe vulkan-helper}" \
@@ -95,7 +95,6 @@ stdenv.mkDerivation (finalAttrs: {
     install -D "flatpak/com.heroicgameslauncher.hgl.desktop" "$out/share/applications/com.heroicgameslauncher.hgl.desktop"
     install -D "src/frontend/assets/heroic-icon.svg" "$out/share/icons/hicolor/scalable/apps/com.heroicgameslauncher.hgl.svg"
     substituteInPlace "$out/share/applications/com.heroicgameslauncher.hgl.desktop" \
-      --replace-fail "StartupWMClass=Heroic" "StartupWMClass=heroic" \
       --replace-fail "Exec=heroic-run" "Exec=heroic"
 
     runHook postInstall

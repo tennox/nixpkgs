@@ -5,16 +5,16 @@
 }:
 buildGoModule rec {
   pname = "opnborg";
-  version = "0.1.51";
+  version = "0.1.64";
 
   src = fetchFromGitHub {
     owner = "paepckehh";
     repo = "opnborg";
     rev = "v${version}";
-    hash = "sha256-HcQl5R+xzk5HUVBUecI7KsrCfz/WK80hZ4oCOSHOGs8=";
+    hash = "sha256-v1+hN77l3Y7IyxoZWJqN96odpzKGQ0fiXfLRFgqy+IQ=";
   };
 
-  vendorHash = "sha256-REXJryUcu+/AdVx1aK0nJ98Wq/EdhrZqL24kC1wK6mc=";
+  vendorHash = "sha256-J4CKwjOkjBb2v/H3x+TTatW7dL7gZYYV8yAvz2pvjTE=";
 
   ldflags = [
     "-s"

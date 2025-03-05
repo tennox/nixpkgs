@@ -5,6 +5,8 @@
   installShellFiles,
   rustPlatform,
   nixosTests,
+  jq,
+  moreutils,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -18,12 +20,8 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-P/q4XYhpXo9kwiltA0F+rQNSlqI+s8TSi5v5lFJWJ/4=";
   };
 
-  # TODO: unify this to one hash because updater do not support this
-  cargoHash =
-    if stdenv.hostPlatform.isLinux then
-      "sha256-JDm7HWMaLSodpOhrR7rm6ZS/ATX/q8fRK+OJ/EKqg3U="
-    else
-      "sha256-mrsqaqJHMyNi3yFDIyAXFBS+LY71VWXE8O7mjvgI6lo=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-0KswWFy44ViPHlMCmwgVlDe7diDjLmVUk2517BEMTtk=";
 
   # atuin's default features include 'check-updates', which do not make sense
   # for distribution builds. List all other default features.

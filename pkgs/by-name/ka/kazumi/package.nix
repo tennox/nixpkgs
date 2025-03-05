@@ -14,13 +14,13 @@
 }:
 flutter327.buildFlutterApplication rec {
   pname = "kazumi";
-  version = "1.5.0";
+  version = "1.5.4";
 
   src = fetchFromGitHub {
     owner = "Predidit";
     repo = "Kazumi";
     tag = version;
-    hash = "sha256-YYg8DpW/O517R9YZ9jpikNIy2MfLQdiLsdhO3uhCusc=";
+    hash = "sha256-OVMJnSaIL0mm+Uf8tnGkbszYcQxf4vl9B+RwQVvzHbA=";
   };
 
   pubspecLock = lib.importJSON ./pubspec.lock.json;
@@ -114,7 +114,7 @@ flutter327.buildFlutterApplication rec {
     homepage = "https://github.com/Predidit/Kazumi";
     mainProgram = "kazumi";
     license = with lib.licenses; [ gpl3Plus ];
-    maintainers = with lib.maintainers; [ aucub ];
+    maintainers = with lib.maintainers; [ ];
     platforms = lib.platforms.linux;
   };
 }

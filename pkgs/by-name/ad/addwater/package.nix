@@ -10,11 +10,12 @@
   python3Packages,
   wrapGAppsHook4,
   appstream,
+  nix-update-script,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "addwater";
-  version = "1.1.6";
+  version = "1.2.5";
   # built with meson, not a python format
   pyproject = false;
 
@@ -22,7 +23,7 @@ python3Packages.buildPythonApplication rec {
     owner = "largestgithubuseronearth";
     repo = "addwater";
     tag = "v${version}";
-    hash = "sha256-5iuSRA18TWj6naw5MraGZ1Y9OUWEVg2oKqQtkC8rMWw=";
+    hash = "sha256-Klz7FYlvkiokoISXsVvyWGKWR/MVhpj4OjQQhvPzju4=";
   };
 
   buildInputs = [
@@ -44,6 +45,8 @@ python3Packages.buildPythonApplication rec {
     pygobject3
     requests
   ];
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Installer for the fantastic GNOME for Firefox theme";

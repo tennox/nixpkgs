@@ -71,6 +71,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   patches = [
     ./no-force-outline-atomics.patch # Do not force compilers to turn on -moutline-atomics switch
+    ./coredumper-explicitly-import-unistd.patch # fix build on aarch64-linux
   ];
 
   ## NOTE: MySQL upstream frequently twiddles the invocations of libtool. When updating, you might proactively grep for libtool references.
@@ -161,7 +162,7 @@ stdenv.mkDerivation (finalAttrs: {
     ''
       moveToOutput "lib/*.a" $static
       so=${stdenv.hostPlatform.extensions.sharedLibrary}
-      ln -s libmysqlclient$so $out/lib/libmysqlclient_r$so
+      ln -s libperconaserverclient$so $out/lib/libmysqlclient_r$so
 
       wrapProgram $out/bin/mysqld_safe --prefix PATH : ${
         lib.makeBinPath [

@@ -5,11 +5,6 @@
   fetchFromGitHub,
   rustPlatform,
 
-  # nativeBuildInputs
-  cargo,
-  rustc,
-  setuptools-rust,
-
   # tests
   h5py,
   numpy,
@@ -19,30 +14,26 @@
 
 buildPythonPackage rec {
   pname = "safetensors";
-  version = "0.5.0";
+  version = "0.5.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = "safetensors";
     tag = "v${version}";
-    hash = "sha256-rs9mYl/2KNdV9e+L/kZr59kLw7ckW9UQPZwkaGyl1Iw=";
-  };
-
-  cargoDeps = rustPlatform.fetchCargoTarball {
-    inherit src;
-    sourceRoot = "${src.name}/bindings/python";
-    hash = "sha256-bQkLBiuhVm2dzrf6hq+S04+zoXUszA7be8iS0WJSoOU=";
+    hash = "sha256-dtHHLiTgrg/a/SQ/Z1w0BsuFDClgrMsGiSTCpbJasUs=";
   };
 
   sourceRoot = "${src.name}/bindings/python";
 
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit pname src sourceRoot;
+    hash = "sha256-hjV2cfS/0WFyAnATt+A8X8sQLzQViDzkNI7zN0ltgpU=";
+  };
+
   nativeBuildInputs = [
-    cargo
-    rustc
     rustPlatform.cargoSetupHook
     rustPlatform.maturinBuildHook
-    setuptools-rust
   ];
 
   nativeCheckInputs = [

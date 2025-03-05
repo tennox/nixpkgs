@@ -7,28 +7,35 @@
 }:
 llvmPackages.stdenv.mkDerivation rec {
   pname = "enzyme";
-  version = "0.0.170";
+  version = "0.0.172";
 
   src = fetchFromGitHub {
     owner = "EnzymeAD";
     repo = "Enzyme";
     rev = "v${version}";
-    hash = "sha256-8ljzf/opZnZMOcXi5IBMiS2KYlvIjrtSq/Aee2/IUdU=";
+    hash = "sha256-/FxjXCML7hBNYOVf1PLG+VwCdaNGYwwirRJSQxIvLcg=";
   };
 
   postPatch = ''
     patchShebangs enzyme
   '';
 
-  nativeBuildInputs = [
+  llvm = llvmPackages.llvm;
+  clang = llvmPackages.clang-unwrapped;
+
+  buildInputs = [
     cmake
     git
-    llvmPackages.llvm
+    llvm
+    clang
   ];
 
   cmakeDir = "../enzyme";
 
-  cmakeFlags = [ "-DLLVM_DIR=${llvmPackages.llvm.dev}" ];
+  cmakeFlags = [
+    "-DLLVM_DIR=${llvm.dev}"
+    "-DClang_DIR=${clang.dev}"
+  ];
 
   enableParallelBuilding = true;
 

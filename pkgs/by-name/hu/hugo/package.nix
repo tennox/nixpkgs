@@ -7,21 +7,20 @@
   buildPackages,
   versionCheckHook,
   nix-update-script,
-  hugo,
 }:
 
 buildGoModule rec {
   pname = "hugo";
-  version = "0.140.1";
+  version = "0.145.0";
 
   src = fetchFromGitHub {
     owner = "gohugoio";
     repo = "hugo";
     tag = "v${version}";
-    hash = "sha256-9H7hXBz/rKJZr/XvqFRmOQylf6sfJtkwik3jh/k+Vec=";
+    hash = "sha256-5SV6VzNWGnFQBD0fBugS5kKXECvV1ZE7sk7SwJCMbqY=";
   };
 
-  vendorHash = "sha256-swcj1JxYoRqKscu/IC0uiAATp4AXN0aANWkSq/mJsyc=";
+  vendorHash = "sha256-aynhBko6ecYyyMG9XO5315kLerWDFZ6V8LQ/WIkvC70=";
 
   checkFlags =
     let
@@ -86,6 +85,7 @@ buildGoModule rec {
       Br1ght0ne
       Frostman
       kachick
+      federicoschonborn
     ];
   };
 }
