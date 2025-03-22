@@ -12,10 +12,10 @@ buildGoModule rec {
   version = "4.17.0";
 
   src = fetchFromGitHub {
-    owner = "StackExchange";
+    owner = "tennox";
     repo = "dnscontrol";
-    tag = "v${version}";
-    hash = "sha256-4h911E5iAfqfuF66PsW0+amKw9hneaV3LS5UFsPR690=";
+    rev = "patch-1";
+    hash = "sha256-xfxBGFq2/li+Ec6VK6X/ejjWrdz69LU5g3sVbnrm41E=";
   };
 
   vendorHash = "sha256-158Rzie6fECkjDK18KE6WVSPlgTZAS++pSkv7KmdByk=";
