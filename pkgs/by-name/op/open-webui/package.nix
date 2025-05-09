@@ -8,13 +8,13 @@
 }:
 let
   pname = "open-webui";
-  version = "0.5.20";
+  version = "0.6.7";
 
   src = fetchFromGitHub {
     owner = "open-webui";
     repo = "open-webui";
     tag = "v${version}";
-    hash = "sha256-GVUEKAuuLrVTVreEeGcIAsDSOltiQAHmWGM67C5RYt4=";
+    hash = "sha256-4V0WhiVhjxYtbwDt+83AfkjJtQFew2P6i1sLtRL13lg=";
   };
 
   frontend = buildNpmPackage rec {
@@ -24,13 +24,13 @@ let
     # must match lock file in open-webui
     # TODO: should we automate this?
     # TODO: with JQ? "jq -r '.packages["node_modules/pyodide"].version' package-lock.json"
-    pyodideVersion = "0.27.2";
+    pyodideVersion = "0.27.3";
     pyodide = fetchurl {
-      hash = "sha256-sZ47IxPiL1e12rmpH3Zv2v6L2+1tz/kIrT4uYbng+Ec=";
+      hash = "sha256-SeK3RKqqxxLLf9DN5xXuPw6ZPblE6OX9VRXMzdrmTV4=";
       url = "https://github.com/pyodide/pyodide/releases/download/${pyodideVersion}/pyodide-${pyodideVersion}.tar.bz2";
     };
 
-    npmDepsHash = "sha256-A84u/IMZX8JlyKXltvQFHZYFXSWPXsx2mr2WwT0Lraw=";
+    npmDepsHash = "sha256-kOqfYAMkpiT2d79fpH1ON5FQAuV1i3/PL9waQq/YR58=";
 
     # Disabling `pyodide:fetch` as it downloads packages during `buildPhase`
     # Until this is solved, running python packages from the browser will not work.
@@ -82,6 +82,7 @@ python312.pkgs.buildPythonApplication rec {
   dependencies =
     with python312.pkgs;
     [
+      accelerate
       aiocache
       aiofiles
       aiohttp
@@ -129,15 +130,29 @@ python312.pkgs.buildPythonApplication rec {
       markdown
       moto
       nltk
+      onnxruntime
       openai
       opencv-python-headless
       openpyxl
       opensearch-py
+      opentelemetry-api
+      opentelemetry-sdk
+      opentelemetry-exporter-otlp
+      opentelemetry-instrumentation
+      opentelemetry-instrumentation-fastapi
+      opentelemetry-instrumentation-sqlalchemy
+      opentelemetry-instrumentation-redis
+      opentelemetry-instrumentation-requests
+      opentelemetry-instrumentation-logging
+      opentelemetry-instrumentation-httpx
+      opentelemetry-instrumentation-aiohttp-client
       pandas
       passlib
       peewee
       peewee-migrate
       pgvector
+      pillow
+      pinecone-client
       playwright
       psutil
       psycopg2-binary
@@ -165,6 +180,7 @@ python312.pkgs.buildPythonApplication rec {
       sentence-transformers
       sentencepiece
       soundfile
+      tencentcloud-sdk-python
       tiktoken
       transformers
       unstructured

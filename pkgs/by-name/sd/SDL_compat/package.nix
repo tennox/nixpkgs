@@ -9,6 +9,7 @@
   libX11,
   mesa,
   pkg-config,
+  pkg-config-unwrapped,
   stdenv,
   # Boolean flags
   libGLSupported ? lib.elem stdenv.hostPlatform.system mesa.meta.platforms,
@@ -16,7 +17,6 @@
 }:
 
 let
-  inherit (darwin.apple_sdk.frameworks) Cocoa;
   inherit (darwin) autoSignDarwinBinariesHook;
 in
 stdenv.mkDerivation (finalAttrs: {
@@ -39,6 +39,9 @@ stdenv.mkDerivation (finalAttrs: {
       autoSignDarwinBinariesHook
     ];
 
+  # re-export PKG_CHECK_MODULES m4 macro used by sdl.m4
+  propagatedNativeBuildInputs = [ pkg-config-unwrapped ];
+
   buildInputs =
     [
       libX11
@@ -46,7 +49,6 @@ stdenv.mkDerivation (finalAttrs: {
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       libiconv
-      Cocoa
     ]
     ++ lib.optionals openglSupport [ libGLU ];
 
@@ -88,7 +90,8 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Cross-platform multimedia library - build SDL 1.2 applications against 2.0";
     license = lib.licenses.zlib;
     mainProgram = "sdl-config";
-    maintainers = lib.teams.sdl.members ++ (with lib.maintainers; [ peterhoeg ]);
+    maintainers = with lib.maintainers; [ peterhoeg ];
+    teams = [ lib.teams.sdl ];
     platforms = lib.platforms.all;
   };
 })
