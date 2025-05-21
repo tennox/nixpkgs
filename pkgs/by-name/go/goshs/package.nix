@@ -1,7 +1,6 @@
 {
   buildGoModule,
   fetchFromGitHub,
-  gitUpdater,
   stdenv,
   versionCheckHook,
   lib,
@@ -9,13 +8,13 @@
 
 buildGoModule (finalAttrs: {
   pname = "goshs";
-  version = "1.0.5";
+  version = "1.0.6";
 
   src = fetchFromGitHub {
     owner = "patrickhener";
     repo = "goshs";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-j/GsNkaheYDavxxoibR61knMR3x7o1pkc6NcmGrHSxY=";
+    hash = "sha256-5/KWAytz0SQYgIerf1xyTfJxzX5ynA2BhKfbYmu/vU8=";
   };
 
   vendorHash = "sha256-LzuY3l6QQnMtAoVM2i206BuoTkVLVHg1DTWZhjIepY8=";
@@ -32,8 +31,6 @@ buildGoModule (finalAttrs: {
     # does not work in sandbox even with __darwinAllowLocalNetworking
     "-skip=^TestGetIPv4Addr$"
   ];
-
-  passthru.updateScript = gitUpdater { rev-prefix = "v"; };
 
   meta = {
     description = "Simple, yet feature-rich web server written in Go";

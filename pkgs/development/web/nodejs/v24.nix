@@ -17,8 +17,8 @@ let
 in
 buildNodejs {
   inherit enableNpm;
-  version = "24.0.0";
-  sha256 = "914f3f1b03f84a0994d7357f190ff13c038800c693b6c06da2290eb588c82761";
+  version = "24.0.2";
+  sha256 = "1597075afc06e5c6145d0bfbd77e2072c2ec0ab71ac4950cf008b2641374cd71";
   patches =
     (
       if (stdenv.hostPlatform.emulatorAvailable buildPackages) then

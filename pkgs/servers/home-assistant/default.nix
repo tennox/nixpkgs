@@ -3,7 +3,6 @@
   lib,
   callPackage,
   fetchFromGitHub,
-  fetchpatch,
   fetchPypi,
   python313,
   replaceVars,
@@ -195,6 +194,16 @@ let
         doCheck = false; # no tests
       });
 
+      plexapi = super.plexapi.overrideAttrs (oldAttrs: rec {
+        version = "4.15.16";
+        src = fetchFromGitHub {
+          owner = "pkkid";
+          repo = "python-plexapi";
+          tag = version;
+          hash = "sha256-NwGGNN6LC3gvE8zoVL5meNWMbqZjJ+6PcU2ebJTfJmU=";
+        };
+      });
+
       # Pinned due to API changes in 0.1.0
       poolsense = super.poolsense.overridePythonAttrs (oldAttrs: rec {
         version = "0.0.8";
@@ -368,7 +377,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2025.5.0";
+  hassVersion = "2025.5.2";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -389,13 +398,13 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-aypBPEI9AOAW9BUkcjJtXa9ssLo4jwEeX47m8320/Gg=";
+    hash = "sha256-el5s82R4MuTjUnMVXRQj4PhPxJxHoL6Jqvc6XRnJl8w=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-7bRBKCchBjAKmW4fjSzShr1RdNRQ677Dd1FXW6sqOQQ=";
+    hash = "sha256-lddnAM3fja9enPYRSonwSe1aG8t55jSJQNveWPwrhOE=";
   };
 
   build-system = with python.pkgs; [
@@ -411,12 +420,6 @@ python.pkgs.buildPythonApplication rec {
 
   # leave this in, so users don't have to constantly update their downstream patch handling
   patches = [
-    (fetchpatch {
-      name = "fix-point-import-error.patch";
-      url = "https://github.com/home-assistant/core/commit/3c4c3dc08e306b75dce486f5f5236a731fd04cf4.patch";
-      hash = "sha256-ke04kJWuBHMANVZo75QL5QwU51DZtO4FBBNu4Szu9q8=";
-    })
-
     # Follow symlinks in /var/lib/hass/www
     ./patches/static-follow-symlinks.patch
 

@@ -22,7 +22,7 @@
 # I've (@connorbaker) attempted to do that, though I'm unsure of how this will interact with overrides.
 {
   config,
-  cudaVersion,
+  cudaMajorMinorVersion,
   lib,
   newScope,
   pkgs,
@@ -44,7 +44,7 @@ let
   flags = import ../development/cuda-modules/flags.nix {
     inherit
       config
-      cudaVersion
+      cudaMajorMinorVersion
       gpus
       lib
       stdenv
@@ -56,7 +56,7 @@ let
 
   passthruFunction = final: {
     inherit
-      cudaVersion
+      cudaMajorMinorVersion
       fixups
       flags
       gpus
@@ -64,10 +64,9 @@ let
       nvccCompatibilities
       pkgs
       ;
-    cudaMajorVersion = versions.major cudaVersion;
-    cudaMajorMinorVersion = versions.majorMinor cudaVersion;
-    cudaOlder = strings.versionOlder cudaVersion;
-    cudaAtLeast = strings.versionAtLeast cudaVersion;
+    cudaMajorVersion = versions.major cudaMajorMinorVersion;
+    cudaOlder = strings.versionOlder cudaMajorMinorVersion;
+    cudaAtLeast = strings.versionAtLeast cudaMajorMinorVersion;
 
     # NOTE: mkVersionedPackageName is an internal, implementation detail and should not be relied on by outside consumers.
     # It may be removed in the future.
@@ -82,9 +81,6 @@ let
     cudaPackages = final // {
       __attrsFailEvaluation = true;
     };
-
-    # TODO(@connorbaker): `cudaFlags` is an alias for `flags` which should be removed in the future.
-    cudaFlags = flags;
 
     # Loose packages
     # Barring packages which share a home (e.g., cudatoolkit and cudatoolkit-legacy-runfile), new packages
@@ -144,10 +140,10 @@ let
           directory = ../development/cuda-modules/packages;
         }
       )
-      (import ../development/cuda-modules/cuda/extension.nix { inherit cudaVersion lib; })
+      (import ../development/cuda-modules/cuda/extension.nix { inherit cudaMajorMinorVersion lib; })
       (import ../development/cuda-modules/generic-builders/multiplex.nix {
         inherit
-          cudaVersion
+          cudaMajorMinorVersion
           flags
           lib
           mkVersionedPackageName
@@ -160,7 +156,7 @@ let
       })
       (import ../development/cuda-modules/cutensor/extension.nix {
         inherit
-          cudaVersion
+          cudaMajorMinorVersion
           flags
           lib
           mkVersionedPackageName
@@ -169,7 +165,7 @@ let
       })
       (import ../development/cuda-modules/cusparselt/extension.nix {
         inherit
-          cudaVersion
+          cudaMajorMinorVersion
           flags
           lib
           mkVersionedPackageName
@@ -178,7 +174,7 @@ let
       })
       (import ../development/cuda-modules/generic-builders/multiplex.nix {
         inherit
-          cudaVersion
+          cudaMajorMinorVersion
           flags
           lib
           mkVersionedPackageName
@@ -189,7 +185,9 @@ let
         releasesModule = ../development/cuda-modules/tensorrt/releases.nix;
         shimsFn = ../development/cuda-modules/tensorrt/shims.nix;
       })
-      (import ../development/cuda-modules/cuda-samples/extension.nix { inherit cudaVersion lib stdenv; })
+      (import ../development/cuda-modules/cuda-samples/extension.nix {
+        inherit cudaMajorMinorVersion lib stdenv;
+      })
       (import ../development/cuda-modules/cuda-library-samples/extension.nix { inherit lib stdenv; })
     ]
     ++ lib.optionals config.allowAliases [ (import ../development/cuda-modules/aliases.nix) ]
