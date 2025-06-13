@@ -6,6 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import datetime
 import hashlib
 import json
+import ctypes
 import os
 import psutil
 import re
@@ -19,6 +20,7 @@ import textwrap
 limine_dir = None
 can_use_direct_paths = False
 install_config = json.load(open('@configPath@', 'r'))
+libc = ctypes.CDLL("libc.so.6")
 
 
 def config(*path: List[str]) -> Optional[Any]:
@@ -168,14 +170,29 @@ def config_entry(levels: int, bootspec: BootSpec, label: str, time: str) -> str:
     return entry
 
 
-def generate_config_entry(profile: str, gen: str) -> str:
+def generate_config_entry(profile: str, gen: str, special: bool) -> str:
     time = datetime.datetime.fromtimestamp(os.stat(get_system_path(profile,gen), follow_symlinks=False).st_mtime).strftime("%F %H:%M:%S")
     boot_json = json.load(open(os.path.join(get_system_path(profile, gen), 'boot.json'), 'r'))
     boot_spec = bootjson_to_bootspec(boot_json)
 
-    entry = config_entry(2, boot_spec, f'Generation {gen}', time)
-    for spec, spec_boot_spec in boot_spec.specialisations.items():
-        entry += config_entry(2, spec_boot_spec, f'Generation {gen}, Specialisation {spec}', str(time))
+    specialisation_list = boot_spec.specialisations.items()
+    depth = 2
+    entry = ""
+
+    if len(specialisation_list) > 0:
+        depth += 1
+        entry += '/' * (depth-1)
+
+        if special:
+            entry += '+'
+
+        entry += f'Generation {gen}' + '\n'
+        entry += config_entry(depth, boot_spec, f'Default', str(time))
+    else:
+        entry += config_entry(depth, boot_spec, f'Generation {gen}', str(time))
+
+    for spec, spec_boot_spec in specialisation_list:
+        entry += config_entry(depth, spec_boot_spec, f'{spec}', str(time))
     return entry
 
 
@@ -217,7 +234,7 @@ def option_from_config(name: str, config_path: List[str], conversion: Callable[[
     return ''
 
 
-def main():
+def install_bootloader() -> None:
     global limine_dir
 
     boot_fs = None
@@ -249,6 +266,10 @@ def main():
             partition formatted as FAT.
         '''))
 
+    if config('secureBoot')['enable'] and not config('secureBoot')['createAndEnrollKeys'] and not os.path.exists("/var/lib/sbctl"):
+        print("There are no sbctl secure boot keys present. Please generate some.")
+        sys.exit(1)
+
     if not os.path.exists(limine_dir):
         os.makedirs(limine_dir)
     else:
@@ -265,13 +286,17 @@ def main():
     editor_enabled = 'yes' if config('enableEditor') else 'no'
     hash_mismatch_panic = 'yes' if config('panicOnChecksumMismatch') else 'no'
 
+    last_gen = get_gens()[-1]
+    last_gen_json = json.load(open(os.path.join(get_system_path('system', last_gen), 'boot.json'), 'r'))
+    last_gen_boot_spec = bootjson_to_bootspec(last_gen_json)
+
     config_file = config('extraConfig') + '\n'
     config_file += textwrap.dedent(f'''
         timeout: {timeout}
         editor_enabled: {editor_enabled}
         hash_mismatch_panic: {hash_mismatch_panic}
         graphics: yes
-        default_entry: 2
+        default_entry: {3 if len(last_gen_boot_spec.specialisations.items()) > 0 else 2}
     ''')
 
     for wallpaper in config('style', 'wallpapers'):
@@ -303,17 +328,23 @@ def main():
         group_name = 'default profile' if profile == 'system' else f"profile '{profile}'"
         config_file += f'/+NixOS {group_name}\n'
 
+        isFirst = True
+
         for gen in sorted(gens, key=lambda x: x, reverse=True):
-            config_file += generate_config_entry(profile, gen)
+            config_file += generate_config_entry(profile, gen, isFirst)
+            isFirst = False
 
     config_file_path = os.path.join(limine_dir, 'limine.conf')
     config_file += '\n# NixOS boot entries end here\n\n'
 
     config_file += config('extraEntries')
 
-    with open(config_file_path, 'w') as file:
+    with open(f"{config_file_path}.tmp", 'w') as file:
         file.truncate()
         file.write(config_file.strip())
+        file.flush()
+        os.fsync(file.fileno())
+    os.rename(f"{config_file_path}.tmp", config_file_path)
 
     paths[config_file_path] = True
 
@@ -352,6 +383,28 @@ def main():
                 print('error: failed to enroll limine config.', file=sys.stderr)
                 sys.exit(1)
 
+        if config('secureBoot')['enable']:
+            sbctl = os.path.join(config('secureBoot')['sbctl'], 'bin', 'sbctl')
+            if config('secureBoot')['createAndEnrollKeys']:
+                print("TEST MODE: creating and enrolling keys")
+                try:
+                    subprocess.run([sbctl, 'create-keys'])
+                except:
+                    print('error: failed to create keys', file=sys.stderr)
+                    sys.exit(1)
+                try:
+                    subprocess.run([sbctl, 'enroll-keys', '--yes-this-might-brick-my-machine'])
+                except:
+                    print('error: failed to enroll keys', file=sys.stderr)
+                    sys.exit(1)
+
+            print('signing limine...')
+            try:
+                subprocess.run([sbctl, 'sign', dest_path])
+            except:
+                print('error: failed to sign limine', file=sys.stderr)
+                sys.exit(1)
+
         if not config('efiRemovable') and not config('canTouchEfiVariables'):
             print('warning: boot.loader.efi.canTouchEfiVariables is set to false while boot.loader.limine.efiInstallAsRemovable.\n  This may render the system unbootable.')
 
@@ -362,22 +415,44 @@ def main():
                 efibootmgr = os.path.join(config('efiBootMgrPath'), 'bin', 'efibootmgr')
                 efi_partition = find_mounted_device(config('efiMountPoint'))
                 efi_disk = find_disk_device(efi_partition)
-                efibootmgr_output = subprocess.check_output([
-                    efibootmgr,
-                    '-c',
-                    '-d', efi_disk,
-                    '-p', efi_partition.removeprefix(efi_disk).removeprefix('p'),
-                    '-l', f'\\efi\\limine\\{boot_file}',
-                    '-L', 'Limine',
-                ], stderr=subprocess.STDOUT, universal_newlines=True)
 
-                for line in efibootmgr_output.split('\n'):
-                    if matches := re.findall(r'Boot([0-9a-fA-F]{4}) has same label Limine', line):
-                        subprocess.run(
-                            [efibootmgr, '-b', matches[0], '-B'],
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL,
-                        )
+                efibootmgr_output = subprocess.check_output([efibootmgr], stderr=subprocess.STDOUT, universal_newlines=True)
+
+                # Check the output of `efibootmgr` to find if limine is already installed and present in the boot record
+                limine_boot_entry = None
+                if matches := re.findall(r'Boot([0-9a-fA-F]{4})\*? Limine', efibootmgr_output):
+                    limine_boot_entry = matches[0]
+
+                # If there's already a Limine entry, replace it
+                if limine_boot_entry:
+                    boot_order = re.findall(r'BootOrder: ((?:[0-9a-fA-F]{4},?)*)', efibootmgr_output)[0]
+
+                    efibootmgr_output = subprocess.check_output([
+                        efibootmgr,
+                        '-b', limine_boot_entry,
+                        '-B',
+                    ], stderr=subprocess.STDOUT, universal_newlines=True)
+
+                    efibootmgr_output = subprocess.check_output([
+                        efibootmgr,
+                        '-c',
+                        '-b', limine_boot_entry,
+                        '-d', efi_disk,
+                        '-p', efi_partition.removeprefix(efi_disk).removeprefix('p'),
+                        '-l', f'\\efi\\limine\\{boot_file}',
+                        '-L', 'Limine',
+                        '-o', boot_order,
+                    ], stderr=subprocess.STDOUT, universal_newlines=True)
+                else:
+                    efibootmgr_output = subprocess.check_output([
+                        efibootmgr,
+                        '-c',
+                        '-d', efi_disk,
+                        '-p', efi_partition.removeprefix(efi_disk).removeprefix('p'),
+                        '-l', f'\\efi\\limine\\{boot_file}',
+                        '-L', 'Limine',
+                    ], stderr=subprocess.STDOUT, universal_newlines=True)
+
     if config('biosSupport'):
         if cpu_family != 'x86':
             raise Exception(f'Unsupported CPU family for BIOS install: {cpu_family}')
@@ -413,4 +488,17 @@ def main():
         if not paths[path]:
             os.remove(path)
 
-main()
+def main() -> None:
+    try:
+        install_bootloader()
+    finally:
+        # Since fat32 provides little recovery facilities after a crash,
+        # it can leave the system in an unbootable state, when a crash/outage
+        # happens shortly after an update. To decrease the likelihood of this
+        # event sync the efi filesystem after each update.
+        rc = libc.syncfs(os.open(f"{config('efiMountPoint')}", os.O_RDONLY))
+        if rc != 0:
+            print(f"could not sync {config('efiMountPoint')}: {os.strerror(rc)}", file=sys.stderr)
+
+if __name__ == '__main__':
+    main()

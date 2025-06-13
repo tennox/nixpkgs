@@ -199,9 +199,17 @@ with pkgs;
 
   buildFHSEnv = recurseIntoAttrs (callPackages ./buildFHSEnv { });
 
-  nixpkgs-check-by-name = throw "tests.nixpkgs-check-by-name is now specified in a separate repository: https://github.com/NixOS/nixpkgs-check-by-name";
-
   auto-patchelf-hook = callPackage ./auto-patchelf-hook { };
+
+  # Accumulate all passthru.tests from arrayUtilities into a single attribute set.
+  arrayUtilities = recurseIntoAttrs (
+    lib.concatMapAttrs (
+      name: value:
+      lib.optionalAttrs (value ? passthru.tests) {
+        ${name} = value.passthru.tests;
+      }
+    ) arrayUtilities
+  );
 
   srcOnly = callPackage ../build-support/src-only/tests.nix { };
 

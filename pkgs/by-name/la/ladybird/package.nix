@@ -29,6 +29,7 @@
   nixosTests,
   unstableGitUpdater,
   apple-sdk_14,
+  libtommath,
 }:
 
 let
@@ -37,13 +38,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "ladybird";
-  version = "0-unstable-2025-05-18";
+  version = "0-unstable-2025-06-03";
 
   src = fetchFromGitHub {
     owner = "LadybirdWebBrowser";
     repo = "ladybird";
-    rev = "4d039fc3d4bf2ca9bf85c482d0b989c2128567ba";
-    hash = "sha256-J29UpFxyKEdHvIOMl3DhvtxIKtEgi6weZsk2UU0py8k=";
+    rev = "4c54a28c45be4e8185158d40a37e083e038a6465";
+    hash = "sha256-YHWkG2RJk6NaouRvis2L+njtYWKB7T569y1Tq+mYdz0=";
   };
 
   postPatch = ''
@@ -86,6 +87,7 @@ stdenv.mkDerivation (finalAttrs: {
     pkg-config
     python3
     qt6Packages.wrapQtAppsHook
+    libtommath
   ];
 
   buildInputs =
@@ -137,7 +139,7 @@ stdenv.mkDerivation (finalAttrs: {
   # ld: [...]/OESVertexArrayObject.cpp.o: undefined reference to symbol 'glIsVertexArrayOES'
   # ld: [...]/libGL.so.1: error adding symbols: DSO missing from command line
   # https://github.com/LadybirdBrowser/ladybird/issues/371#issuecomment-2616415434
-  env.NIX_LDFLAGS = "-lGL";
+  env.NIX_LDFLAGS = "-lGL -lfontconfig";
 
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir -p $out/Applications $out/bin
