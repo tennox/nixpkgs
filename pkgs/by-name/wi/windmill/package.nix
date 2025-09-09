@@ -44,13 +44,13 @@
 
 let
   pname = "windmill";
-  version = "1.474.0";
+  version = "1.540.2";
 
   src = fetchFromGitHub {
     owner = "windmill-labs";
     repo = "windmill";
     rev = "v${version}";
-    hash = "sha256-9BtItmqyW4NbG4istssAYn4CWlfYAv33CE1enL+5LtE=";
+    hash = "sha256-6biqZZWovZOANwrNi1+3Gr3amxrPYPU2mEJHE3lLLzA=";
   };
 in
 rustPlatform.buildRustPackage (finalAttrs: {
@@ -176,7 +176,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
     sourceRoot = "${src.name}/frontend";
 
-    npmDepsHash = "sha256-liWoAgAIgU8+J1x2mR7bGl9MOpCuGIf0Qa1nEouFnBU=";
+    npmDepsHash = "sha256-I3LqC4XlTF2WmwtuVdbet/liW+j+NsPNjqpUu/dxURQ=";
 
     # without these you get a
     # FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
