@@ -29,8 +29,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   preInstall = ''
     substituteInPlace extension.js \
-      --replace-fail "import Gda from 'gi://Gda?version>=5.0'" "imports.gi.GIRepository.Repository.prepend_search_path('${libgda6}/lib/girepository-1.0'); const Gda = (await import('gi://Gda')).default" \
-      --replace-fail "import GSound from 'gi://GSound'" "imports.gi.GIRepository.Repository.prepend_search_path('${gsound}/lib/girepository-1.0'); const GSound = (await import('gi://GSound')).default"
+      --replace-fail "import Gio from 'gi://Gio';" "const GIRepository = imports.gi.GIRepository; GIRepository.Repository.prepend_search_path('${libgda6}/lib/girepository-1.0'); GIRepository.Repository.prepend_search_path('${gsound}/lib/girepository-1.0'); import Gio from 'gi://Gio';" \
+      --replace-fail "import Gda from 'gi://Gda?version>=5.0'" "import Gda from 'gi://Gda'" \
+      --replace-fail "import GSound from 'gi://GSound'" "import GSound from 'gi://GSound'"
   '';
 
   installPhase = ''
