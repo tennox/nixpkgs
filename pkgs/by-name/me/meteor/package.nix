@@ -10,18 +10,18 @@
 }:
 
 let
-  version = "2.7.3";
+  version = "3.3.2";
 
   inherit (stdenv.hostPlatform) system;
 
   srcs = {
     x86_64-linux = fetchurl {
-      url = "https://static-meteor.netdna-ssl.com/packages-bootstrap/${version}/meteor-bootstrap-os.linux.x86_64.tar.gz";
-      sha256 = "sha256-ovsE7jUJIKf96WEoITXECUlPo+o1tEKvHzCc7Xgj614=";
+      url = "https://meteorinstall-4168.kxcdn.com/packages-bootstrap/${version}/meteor-bootstrap-os.linux.x86_64.tar.gz";
+      hash = "sha256-V1Zh5LIMKNv6mp+DsOEAQzts0ROmOGpi7T2ARUAVOyk=";
     };
     x86_64-darwin = fetchurl {
-      url = "https://static-meteor.netdna-ssl.com/packages-bootstrap/${version}/meteor-bootstrap-os.osx.x86_64.tar.gz";
-      sha256 = "11206dbda50a680fdab7044def7ea68ea8f4a9bca948ca56df91fe1392b2ac16";
+      url = "https://meteorinstall-4168.kxcdn.com/packages-bootstrap/${version}/meteor-bootstrap-os.osx.x86_64.tar.gz";
+      hash = "sha256-orV9LrJKO8Btuk2cevMR/eeYJe8VJg1kMOoYTKFZjv8=";
     };
   };
 in
@@ -72,7 +72,6 @@ stdenv.mkDerivation {
     # necessary.
     pushd $out
     patch -p1 < ${./main.patch}
-    patch -p1 < ${./fibers-glibc.patch}
     popd
     substituteInPlace $out/tools/cli/main.js \
       --replace "@INTERPRETER@" "$(cat $NIX_CC/nix-support/dynamic-linker)" \
@@ -93,7 +92,7 @@ stdenv.mkDerivation {
       $out/dev_bundle/bin/node
 
     # Patch mongo.
-    for p in $out/dev_bundle/mongodb/bin/mongo{,d}; do
+    for p in $out/dev_bundle/mongodb/bin/mongo{d,s}; do
       patchelf \
         --set-interpreter $(cat $NIX_CC/nix-support/dynamic-linker) \
         --set-rpath "$(patchelf --print-rpath $p):${

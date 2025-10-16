@@ -1,16 +1,15 @@
 diff --git a/tools/cli/main.js b/tools/cli/main.js
-index 84f94bc..4fbda17 100644
 --- a/tools/cli/main.js
 +++ b/tools/cli/main.js
-@@ -554,6 +554,44 @@
-     }).await());
-   } // Now exec; we're not coming back.
- 
+@@ -515,10 +515,47 @@
+   }
+
+   // Now exec; we're not coming back.
++
 +  // BEGIN HACK
 +  // patch shebang:
 +  var fs = require('fs');
 +  var path = require("path")
-+  var Future = require("fibers/future")
 +  var srcOld = fs.readFileSync(executable, 'utf8');
 +  srcNew = srcOld.replace(/^#!\/bin\/bash/, '#!/bin/sh');
 +  if (srcOld !== srcNew) {
@@ -23,16 +22,16 @@ index 84f94bc..4fbda17 100644
 +  function spawnSync(/*...*/) {
 +    var args = Array.prototype.slice.call(arguments);
 +    var proc = require("child_process").spawn.apply(null, args);
-+    var future = new Future();
-+    proc.on('close', function (code) {
-+      future.return();
++    return new Promise(function(resolve) {
++      proc.on('close', function (code) {
++        resolve();
++      });
 +    });
-+    return future.wait();
 +  }
 +  function patchelf(/*...*/) {
 +    var pathParts = Array.prototype.slice.call(arguments);
 +    var p = path.join.apply(null, [dir, "dev_bundle"].concat(pathParts));
-+    spawnSync('@PATCHELF@', [
++    return spawnSync('@PATCHELF@', [
 +      "--set-interpreter",
 +      interpreter,
 +      "--set-rpath",
@@ -40,17 +39,14 @@ index 84f94bc..4fbda17 100644
 +      p
 +    ], {stdio: 'inherit'});
 +  }
-+  patchelf("bin", "node");
-+  patchelf("mongodb", "bin", "mongo");
-+  patchelf("mongodb", "bin", "mongod");
++  await patchelf("bin", "node");
++  await patchelf("mongodb", "bin", "mongod");
++  await patchelf("mongodb", "bin", "mongos");
 +  // END HACK
-
    require('kexec')(executable, newArgv);
+   throw Error('exec failed?');
+ };
 
-@@ -1485,4 +1523,4 @@
-
-   process.exit(ret);
- }).run();
--//# sourceMappingURL=main.js.map
-\ No newline at end of file
-+//# sourceMappingURL=main.js.map
+ // Springboard to a pre-0.9.0 release.
+ var oldSpringboard = async function (toolsVersion) {
+   // Strip off the "node" and "meteor.js" from argv and replace it with the
