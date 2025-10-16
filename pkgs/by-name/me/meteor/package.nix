@@ -7,6 +7,7 @@
   xz,
   patchelf,
   runtimeShell,
+  openssl_3,
 }:
 
 let
@@ -67,6 +68,11 @@ stdenv.mkDerivation {
     chmod +x $out/bin/meteor
   '';
 
+  preFixup = ''
+    # Remove broken symlinks in test directories (Meteor 3.x)
+    find $out -type l ! -exec test -e {} \; -delete
+  '';
+
   postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     # Patch Meteor to dynamically fixup shebangs and ELF metadata where
     # necessary.
@@ -81,6 +87,7 @@ stdenv.mkDerivation {
           zlib
           curl
           xz
+          openssl_3
         ]
       }" \
       --replace "@PATCHELF@" "${patchelf}/bin/patchelf"
@@ -101,6 +108,7 @@ stdenv.mkDerivation {
             zlib
             curl
             xz
+            openssl_3
           ]
         }" \
         $p

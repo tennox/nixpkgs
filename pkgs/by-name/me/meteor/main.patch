@@ -1,9 +1,8 @@
-diff --git a/tools/cli/main.js b/tools/cli/main.js
---- a/tools/cli/main.js
-+++ b/tools/cli/main.js
-@@ -515,10 +515,47 @@
+--- a/tools/cli/main.js	2025-10-16 23:50:50.027404730 +0200
++++ b/tools/cli/main.js	2025-10-16 23:50:50.027404730 +0200
+@@ -515,6 +515,44 @@
    }
-
+ 
    // Now exec; we're not coming back.
 +
 +  // BEGIN HACK
@@ -46,7 +45,3 @@ diff --git a/tools/cli/main.js b/tools/cli/main.js
    require('kexec')(executable, newArgv);
    throw Error('exec failed?');
  };
-
- // Springboard to a pre-0.9.0 release.
- var oldSpringboard = async function (toolsVersion) {
-   // Strip off the "node" and "meteor.js" from argv and replace it with the
