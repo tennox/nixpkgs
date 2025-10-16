@@ -1,5 +1,8 @@
-{ lib, stdenv, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 stdenv.mkDerivation rec {
   pname = "bento4";
@@ -20,7 +23,8 @@ stdenv.mkDerivation rec {
 
   cmakeFlags = [
     "-DBUILD_SHARED_LIBS=ON"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "-DCMAKE_OSX_ARCHITECTURES="
   ];
 

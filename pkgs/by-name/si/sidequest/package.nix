@@ -1,126 +1,148 @@
-{ stdenv
-, lib
-, fetchurl
-, buildFHSEnv
-, makeDesktopItem
-, makeWrapper
-, alsa-lib
-, at-spi2-atk
-, cairo
-, cups
-, dbus
-, expat
-, gdk-pixbuf
-, glib
-, gtk3
-, mesa
-, nss
-, nspr
-, libdrm
-, xorg
-, libxkbcommon
-, libxshmfence
-, pango
-, systemd
-, icu
-, openssl
-, zlib
+{
+  lib,
+  stdenv,
+  fetchurl,
+  buildFHSEnv,
+  copyDesktopItems,
+  makeDesktopItem,
+  makeWrapper,
+  alsa-lib,
+  at-spi2-atk,
+  cairo,
+  cups,
+  dbus,
+  expat,
+  gdk-pixbuf,
+  glib,
+  gtk3,
+  libgbm,
+  libGL,
+  nss,
+  nspr,
+  libdrm,
+  xorg,
+  libxkbcommon,
+  libxshmfence,
+  pango,
+  systemd,
+  icu,
+  openssl,
+  zlib,
+  bintools,
 }:
-  let
-    pname = "sidequest";
-    version = "0.10.33";
+let
+  pname = "sidequest";
+  version = "0.10.42";
 
-    desktopItem = makeDesktopItem rec {
-      name = "SideQuest";
-      exec = "SideQuest";
-      desktopName = name;
-      genericName = "VR App Store";
-      categories = [ "Settings" "PackageManager" ];
+  sidequest = stdenv.mkDerivation {
+    inherit pname version;
+
+    src = fetchurl {
+      url = "https://github.com/SideQuestVR/SideQuest/releases/download/v${version}/SideQuest-${version}.tar.xz";
+      hash = "sha256-YZp7OAjUOXepVv5dPhh9Q2HicUKjSOGfhrWyMKy2gME=";
     };
 
-    sidequest = stdenv.mkDerivation {
-      inherit pname version;
-
-      src = fetchurl {
-        url = "https://github.com/SideQuestVR/SideQuest/releases/download/v${version}/SideQuest-${version}.tar.xz";
-        sha256 = "8ac3d97400a8e3ce86902b5bea7b8d042a092acd888d20e5139490a38507f995";
-      };
-      dontUnpack = true;
-
-      nativeBuildInputs = [ makeWrapper ];
-
-      installPhase = ''
-        mkdir -p "$out/lib/SideQuest" "$out/bin"
-        tar -xJf "$src" -C "$out/lib/SideQuest" --strip-components 1
-
-        ln -s "$out/lib/SideQuest/sidequest" "$out/bin"
-      '';
-
-      postFixup = let
-        libPath = lib.makeLibraryPath [
-          alsa-lib
-          at-spi2-atk
-          cairo
-          cups
-          dbus
-          expat
-          gdk-pixbuf
-          glib
-          gtk3
-          mesa
-          nss
-          nspr
-          libdrm
-          xorg.libX11
-          xorg.libxcb
-          xorg.libXcomposite
-          xorg.libXdamage
-          xorg.libXext
-          xorg.libXfixes
-          xorg.libXrandr
-          xorg.libxshmfence
-          libxkbcommon
-          xorg.libxkbfile
-          pango
-          (lib.getLib stdenv.cc.cc)
-          systemd
-        ];
-      in ''
-        patchelf \
-          --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
-          --set-rpath "${libPath}:$out/lib/SideQuest" \
-          "$out/lib/SideQuest/sidequest"
-      '';
-    };
-  in buildFHSEnv {
-    name = "SideQuest";
-
-    passthru = {
-      inherit pname version;
-
-      meta = with lib; {
-        description = "Open app store and side-loading tool for Android-based VR devices such as the Oculus Go, Oculus Quest or Moverio BT 300";
-        homepage = "https://github.com/SideQuestVR/SideQuest";
-        downloadPage = "https://github.com/SideQuestVR/SideQuest/releases";
-        sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-        license = licenses.mit;
-        maintainers = with maintainers; [ joepie91 rvolosatovs ];
-        platforms = [ "x86_64-linux" ];
-        mainProgram = "SideQuest";
-      };
-    };
-
-    targetPkgs = pkgs: [
-      sidequest
-      # Needed in the environment on runtime, to make QuestSaberPatch work
-      icu openssl zlib
-      libxkbcommon libxshmfence
+    nativeBuildInputs = [
+      copyDesktopItems
+      makeWrapper
     ];
 
-    extraInstallCommands = ''
-      mkdir -p "$out/share/applications"
-      ln -s ${desktopItem}/share/applications/* "$out/share/applications"
+    desktopItems = [
+      (makeDesktopItem {
+        name = "sidequest";
+        exec = "sidequest";
+        icon = "sidequest";
+        desktopName = "SideQuest";
+        genericName = "VR App Store";
+        categories = [
+          "Settings"
+          "PackageManager"
+        ];
+      })
+    ];
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p "$out/libexec" "$out/bin"
+      cp --recursive . "$out/libexec/sidequest"
+      ln -s "$out/libexec/sidequest/sidequest" "$out/bin/sidequest"
+      for size in 16 24 32 48 64 128 256 512 1024; do
+        install -D --mode=0644 resources/app.asar.unpacked/build/icons/''${size}x''${size}.png $out/share/icons/hicolor/''${size}x''${size}/apps/sidequest.png
+      done
+
+      runHook postInstall
     '';
 
-    runScript = "sidequest";
-  }
+    postFixup = ''
+      patchelf \
+        --set-interpreter "${bintools.dynamicLinker}" \
+        --set-rpath "${
+          lib.makeLibraryPath [
+            alsa-lib
+            at-spi2-atk
+            cairo
+            cups
+            dbus
+            expat
+            gdk-pixbuf
+            glib
+            gtk3
+            libgbm
+            libGL
+            nss
+            nspr
+            libdrm
+            xorg.libX11
+            xorg.libxcb
+            xorg.libXcomposite
+            xorg.libXdamage
+            xorg.libXext
+            xorg.libXfixes
+            xorg.libXrandr
+            xorg.libxshmfence
+            libxkbcommon
+            xorg.libxkbfile
+            pango
+            (lib.getLib stdenv.cc.cc)
+            systemd
+          ]
+        }:$out/libexec/sidequest" \
+        --add-needed libGL.so.1 \
+        "$out/libexec/sidequest/sidequest"
+    '';
+  };
+in
+buildFHSEnv {
+  inherit pname version;
+
+  targetPkgs = pkgs: [
+    sidequest
+    # Needed in the environment on runtime, to make QuestSaberPatch work
+    icu
+    openssl
+    zlib
+    libxkbcommon
+    libxshmfence
+  ];
+
+  extraInstallCommands = ''
+    ln -s ${sidequest}/share "$out/share"
+  '';
+
+  runScript = "sidequest";
+
+  meta = {
+    description = "Open app store and side-loading tool for Android-based VR devices such as the Oculus Go, Oculus Quest or Moverio BT 300";
+    homepage = "https://github.com/SideQuestVR/SideQuest";
+    downloadPage = "https://github.com/SideQuestVR/SideQuest/releases";
+    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      joepie91
+      rvolosatovs
+    ];
+    platforms = [ "x86_64-linux" ];
+    mainProgram = "SideQuest";
+  };
+}

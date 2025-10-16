@@ -1,7 +1,8 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, nix-update-script
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  nix-update-script,
 }:
 buildGoModule rec {
   pname = "arduinoOTA";
@@ -9,8 +10,8 @@ buildGoModule rec {
 
   src = fetchFromGitHub {
     owner = "arduino";
-    repo = pname;
-    rev = version;
+    repo = "arduinoOTA";
+    tag = version;
     hash = "sha256-HaNMkeV/PDEotYp8+rUKFaBxGbZO8qA99Yp2sa6glz8=";
   };
 

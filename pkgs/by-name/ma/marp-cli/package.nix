@@ -1,76 +1,33 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchYarnDeps
-, makeWrapper
-, nodejs
-, fixup-yarn-lock
-, yarn
+{
+  lib,
+  buildNpmPackage,
+  fetchFromGitHub,
+  nodejs,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+buildNpmPackage rec {
   pname = "marp-cli";
-  version = "3.4.0";
+  version = "4.2.3";
 
   src = fetchFromGitHub {
     owner = "marp-team";
     repo = "marp-cli";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-azscuPkQ9/xcQtBg+5pJigXSQQVtBGvbd7ZwiLwU7Qo=";
+    rev = "v${version}";
+    hash = "sha256-CvQq9qndD9S/9t8UBpewQsW83CfV3BXftfFgFZ5Lttk=";
   };
 
-  offlineCache = fetchYarnDeps {
-    yarnLock = "${finalAttrs.src}/yarn.lock";
-    hash = "sha256-b/JyhsfXEbmM6+ajrjL65WhX9u9MEH+m1NHE6cTyf2g=";
-  };
+  npmDepsHash = "sha256-VbpseSPH8uncCWiHtXBvCBARflXCCVTltmLO4uB8qmc=";
+  npmPackFlags = [ "--ignore-scripts" ];
+  makeCacheWritable = true;
 
-  nativeBuildInputs = [
-    makeWrapper
-    nodejs
-    fixup-yarn-lock
-    yarn
-  ];
-
-  configurePhase = ''
-    runHook preConfigure
-
-    export HOME=$(mktemp -d)
-    yarn config --offline set yarn-offline-mirror $offlineCache
-    fixup-yarn-lock yarn.lock
-    yarn --offline --frozen-lockfile --ignore-platform --ignore-scripts --no-progress --non-interactive install
-    patchShebangs node_modules
-
-    runHook postConfigure
-  '';
-
-  buildPhase = ''
-    runHook preBuild
-
-    yarn --offline build
-
-    runHook postBuild
-  '';
-
-  installPhase = ''
-    runHook preInstall
-
-    yarn --offline --production install
-
-    mkdir -p $out/lib/node_modules/@marp-team/marp-cli
-    cp -r lib node_modules marp-cli.js $out/lib/node_modules/@marp-team/marp-cli/
-
-    makeWrapper "${nodejs}/bin/node" "$out/bin/marp" \
-      --add-flags "$out/lib/node_modules/@marp-team/marp-cli/marp-cli.js"
-
-    runHook postInstall
-  '';
+  doCheck = false;
 
   meta = with lib; {
     description = "About A CLI interface for Marp and Marpit based converters";
     homepage = "https://github.com/marp-team/marp-cli";
     license = licenses.mit;
-    maintainers = with maintainers; [ GuillaumeDesforges ];
+    maintainers = [ ];
     platforms = nodejs.meta.platforms;
     mainProgram = "marp";
   };
-})
+}

@@ -1,4 +1,12 @@
-{ stdenv, fetchurl, which, diffutils, gnupatch, gnutar }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  which,
+  diffutils,
+  gnupatch,
+  gnutar,
+}:
 
 stdenv.mkDerivation rec {
   pname = "tla";
@@ -9,11 +17,18 @@ stdenv.mkDerivation rec {
     sha256 = "01mfzj1i6p4s8191cgd5850hds1zls88hkf9rb6qx1vqjv585aj0";
   };
 
-  patches = [ ./configure-tmpdir.patch ];
+  patches = [
+    ./configure-tmpdir.patch
+    ./fix-gcc14.patch
+  ];
 
   buildInputs = [ which ];
 
-  propagatedBuildInputs = [ diffutils gnupatch gnutar ];
+  propagatedBuildInputs = [
+    diffutils
+    gnupatch
+    gnutar
+  ];
 
   # Instead of GNU Autoconf, tla uses Tom Lord's now
   # defunct `package-framework'.
@@ -27,6 +42,6 @@ stdenv.mkDerivation rec {
     description = "GNU Arch (aka. `tla'), a distributed revision control system";
     mainProgram = "tla";
     homepage = "https://www.gnu.org/software/gnu-arch/";
-    license = "GPL";
+    license = lib.licenses.gpl2Plus;
   };
 }

@@ -1,4 +1,10 @@
-{ lib, rustPlatform, fetchFromGitHub, installShellFiles, stdenv }:
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  installShellFiles,
+  stdenv,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "jrsonnet";
@@ -11,12 +17,7 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-OX+iJJ3vdCsWWr8x31psV9Vne6xWDZnJc83NbJqMK1A=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "clap-3.0.0-beta.2" = "sha256-BaLzm2JZEicktfsCIXQipHtEKlEv2lBktfvHP58rjeM=";
-    };
-  };
+  cargoHash = "sha256-DA31NatwQyf3RPpaI38DdAujpRyZfJvoHgr2CZSjH3s=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -28,7 +29,8 @@ rustPlatform.buildRustPackage rec {
   postInstall = ''
     ln -s $out/bin/jrsonnet $out/bin/jsonnet
 
-  '' + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+  ''
+  + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     for shell in bash zsh fish; do
       installShellCompletion --cmd jrsonnet \
         --$shell <($out/bin/jrsonnet --generate $shell /dev/null)
@@ -41,6 +43,9 @@ rustPlatform.buildRustPackage rec {
     description = "Purely-functional configuration language that helps you define JSON data";
     homepage = "https://github.com/CertainLach/jrsonnet";
     license = licenses.mit;
-    maintainers = with maintainers; [ figsoda lach ];
+    maintainers = with maintainers; [
+      figsoda
+      lach
+    ];
   };
 }

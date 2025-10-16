@@ -7,6 +7,7 @@
   tarballHash,
   depsFile,
   bootstrapSdk,
+  fallbackTargetPackages,
 }@args:
 
 let
@@ -27,14 +28,13 @@ let
     }).overrideAttrs
       (old: {
         passthru = old.passthru or { } // {
-          inherit (stage0.vmr) fetch-deps;
+          inherit (stage0.vmr) fetch-drv fetch-deps;
         };
       });
 
 in
 mkPackages {
-  inherit vmr;
-  fallbackTargetPackages = bootstrapSdk.targetPackages;
+  inherit vmr fallbackTargetPackages;
 }
 // {
   stage0 = lib.dontRecurseIntoAttrs stage0;

@@ -1,35 +1,76 @@
-{ lib, stdenv, fetchFromGitea, perl, perlPackages, makeWrapper
-, ps, dnsutils # dig is recommended for multiple categories
-, withRecommends ? false # Install (almost) all recommended tools (see --recommends)
-, withRecommendedSystemPrograms ? withRecommends, util-linuxMinimal, dmidecode
-, file, hddtemp, iproute2, ipmitool, usbutils, kmod, lm_sensors, smartmontools
-, binutils, tree, upower, pciutils
-, withRecommendedDisplayInformationPrograms ? withRecommends, mesa-demos, xorg
+{
+  lib,
+  stdenv,
+  fetchFromGitea,
+  perl,
+  perlPackages,
+  makeWrapper,
+  ps,
+  dnsutils, # dig is recommended for multiple categories
+  withRecommends ? false, # Install (almost) all recommended tools (see --recommends)
+  withRecommendedSystemPrograms ? withRecommends,
+  util-linuxMinimal,
+  dmidecode,
+  file,
+  hddtemp,
+  iproute2,
+  ipmitool,
+  usbutils,
+  kmod,
+  lm_sensors,
+  smartmontools,
+  binutils,
+  tree,
+  upower,
+  pciutils,
+  withRecommendedDisplayInformationPrograms ? withRecommends,
+  mesa-demos,
+  xorg,
 }:
 
 let
-  prefixPath = programs:
-    "--prefix PATH ':' '${lib.makeBinPath programs}'";
+  prefixPath = programs: "--prefix PATH ':' '${lib.makeBinPath programs}'";
   recommendedSystemPrograms = lib.optionals withRecommendedSystemPrograms [
-    util-linuxMinimal dmidecode file hddtemp iproute2 ipmitool usbutils kmod
-    lm_sensors smartmontools binutils tree upower pciutils
+    util-linuxMinimal
+    dmidecode
+    file
+    hddtemp
+    iproute2
+    ipmitool
+    usbutils
+    kmod
+    lm_sensors
+    smartmontools
+    binutils
+    tree
+    upower
+    pciutils
   ];
-  recommendedDisplayInformationPrograms = lib.optionals
-    withRecommendedDisplayInformationPrograms
-    ([ mesa-demos ] ++ (with xorg; [ xdpyinfo xprop xrandr ]));
-  programs = [ ps dnsutils ] # Core programs
-    ++ recommendedSystemPrograms
-    ++ recommendedDisplayInformationPrograms;
-in stdenv.mkDerivation rec {
+  recommendedDisplayInformationPrograms = lib.optionals withRecommendedDisplayInformationPrograms (
+    [ mesa-demos ]
+    ++ (with xorg; [
+      xdpyinfo
+      xprop
+      xrandr
+    ])
+  );
+  programs = [
+    ps
+    dnsutils
+  ] # Core programs
+  ++ recommendedSystemPrograms
+  ++ recommendedDisplayInformationPrograms;
+in
+stdenv.mkDerivation (finalAttrs: {
   pname = "inxi";
-  version = "3.3.35-1";
+  version = "3.3.39-1";
 
   src = fetchFromGitea {
     domain = "codeberg.org";
     owner = "smxi";
     repo = "inxi";
-    rev = version;
-    hash = "sha256-wWG/fs+tZIiFI+dcqfwXeh9RxT2zJDiAZoizhAAu60Q=";
+    tag = finalAttrs.version;
+    hash = "sha256-IfwklyXMOuluQ6L96n7k31RHItE7GmmjExrPAGBjbUQ=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -45,7 +86,7 @@ in stdenv.mkDerivation rec {
     cp inxi.1 $out/share/man/man1/
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Full featured CLI system information tool";
     longDescription = ''
       inxi is a command line system information script built for console and
@@ -55,10 +96,10 @@ in stdenv.mkDerivation rec {
       Processes, RAM usage, and a wide variety of other useful information.
     '';
     homepage = "https://smxi.org/docs/inxi.htm";
-    changelog = "https://github.com/smxi/inxi/blob/${version}/inxi.changelog";
-    license = licenses.gpl3Plus;
-    platforms = platforms.unix;
+    changelog = "https://codeberg.org/smxi/inxi/src/tag/${finalAttrs.version}/inxi.changelog";
+    license = lib.licenses.gpl3Plus;
+    platforms = lib.platforms.unix;
     maintainers = [ ];
     mainProgram = "inxi";
   };
-}
+})

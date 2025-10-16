@@ -1,43 +1,51 @@
-{ stdenv
-, lib
-, fetchurl
-, pkg-config
-, vala
-, glib
-, meson
-, ninja
-, libxslt
-, gtk4
-, enableBackend ? stdenv.hostPlatform.isLinux
-, json-glib
-, keyutils
-, libadwaita
-, librest_1_0
-, libxml2
-, libsecret
-, gobject-introspection
-, gettext
-, gi-docgen
-, glib-networking
-, libsoup_3
-, docbook-xsl-nons
-, gnome
-, gcr_4
-, libkrb5
-, gvfs
-, dbus
-, wrapGAppsHook4
+{
+  stdenv,
+  lib,
+  fetchurl,
+  pkg-config,
+  vala,
+  glib,
+  meson,
+  ninja,
+  libxslt,
+  gtk4,
+  enableBackend ? stdenv.hostPlatform.isLinux,
+  json-glib,
+  keyutils,
+  libadwaita,
+  librest_1_0,
+  libxml2,
+  libsecret,
+  gobject-introspection,
+  gettext,
+  gi-docgen,
+  glib-networking,
+  libsoup_3,
+  docbook-xsl-nons,
+  gnome,
+  gcr_4,
+  libkrb5,
+  gvfs,
+  dbus,
+  wrapGAppsHook4,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-online-accounts";
-  version = "3.52.1";
+  version = "3.54.5";
 
-  outputs = [ "out" "dev" ] ++ lib.optionals enableBackend [ "man" "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+  ]
+  ++ lib.optionals enableBackend [
+    "man"
+    "devdoc"
+  ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/gnome-online-accounts/${lib.versions.majorMinor finalAttrs.version}/gnome-online-accounts-${finalAttrs.version}.tar.xz";
-    hash = "sha256-N8dSL/lFT4NxtahyW7p27XQwyVsfnvx/66YmjwUtHrc=";
+    hash = "sha256-6PEntTIpWimRLRwAc0kx35r/pOv8RK0N5cKWw9J9LJU=";
   };
 
   mesonFlags = [
@@ -49,7 +57,6 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   nativeBuildInputs = [
-    dbus # used for checks and pkg-config to install dbus service/s
     docbook-xsl-nons # for goa-daemon.xml
     gettext
     gi-docgen
@@ -63,6 +70,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
+    dbus
     gcr_4
     glib
     glib-networking
@@ -75,7 +83,8 @@ stdenv.mkDerivation (finalAttrs: {
     libxml2
     libsecret
     libsoup_3
-  ] ++ lib.optionals enableBackend [
+  ]
+  ++ lib.optionals enableBackend [
     keyutils
   ];
 
@@ -98,6 +107,6 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Single sign-on framework for GNOME";
     platforms = platforms.unix;
     license = licenses.lgpl2Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
   };
 })

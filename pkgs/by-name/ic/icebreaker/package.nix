@@ -1,12 +1,13 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, makeBinaryWrapper
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  makeBinaryWrapper,
 }:
 
 buildGoModule {
   pname = "icebreaker";
-  version = "unstable-2023-08-13";
+  version = "0-unstable-2023-08-13";
 
   src = fetchFromGitHub {
     owner = "jonhoo";
@@ -22,7 +23,10 @@ buildGoModule {
     makeBinaryWrapper
   ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   postInstall = ''
     mkdir -p $out/share

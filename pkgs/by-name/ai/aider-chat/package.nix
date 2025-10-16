@@ -1,19 +1,26 @@
 {
   lib,
   stdenv,
-  python311,
+  python312Packages,
   fetchFromGitHub,
+  replaceVars,
   gitMinimal,
   portaudio,
+  playwright-driver,
+  nix-update-script,
 }:
 
 let
-  python3 = python311.override {
-    self = python3;
-    packageOverrides = _: super: { tree-sitter = super.tree-sitter_0_21; };
-  };
-  version = "0.62.0";
-  aider-chat = python3.pkgs.buildPythonApplication {
+  # dont support python 3.13 (Aider-AI/aider#3037)
+  python3Packages = python312Packages;
+
+  aider-nltk-data = python3Packages.nltk.dataDir (d: [
+    d.punkt-tab
+    d.stopwords
+  ]);
+
+  version = "0.86.1";
+  aider-chat = python3Packages.buildPythonApplication {
     pname = "aider-chat";
     inherit version;
     pyproject = true;
@@ -21,15 +28,15 @@ let
     src = fetchFromGitHub {
       owner = "Aider-AI";
       repo = "aider";
-      rev = "refs/tags/v${version}";
-      hash = "sha256-o5vyOaJSUcdwuHBbzgpo5RDpZLnIur5dM+b7Y7PVBXA=";
+      tag = "v${version}";
+      hash = "sha256-UmLcE5gin1iILIY5okl5ac2vtiF30txUFjtC0mouBhs=";
     };
 
     pythonRelaxDeps = true;
 
-    build-system = with python3.pkgs; [ setuptools-scm ];
+    build-system = with python3Packages; [ setuptools-scm ];
 
-    dependencies = with python3.pkgs; [
+    dependencies = with python3Packages; [
       aiohappyeyeballs
       aiohttp
       aiosignal
@@ -38,6 +45,7 @@ let
       attrs
       backoff
       beautifulsoup4
+      cachetools
       certifi
       cffi
       charset-normalizer
@@ -52,8 +60,11 @@ let
       fsspec
       gitdb
       gitpython
+      google-ai-generativelanguage
+      google-generativeai
       grep-ast
       h11
+      hf-xet
       httpcore
       httpx
       huggingface-hub
@@ -73,6 +84,7 @@ let
       networkx
       numpy
       openai
+      oslex
       packaging
       pathspec
       pexpect
@@ -97,21 +109,26 @@ let
       rich
       rpds-py
       scipy
+      shtab
       smmap
       sniffio
       sounddevice
+      socksio
       soundfile
       soupsieve
       tiktoken
       tokenizers
       tqdm
       tree-sitter
-      tree-sitter-languages
+      tree-sitter-language-pack
       typing-extensions
+      typing-inspection
       urllib3
+      watchfiles
       wcwidth
       yarl
       zipp
+      pip
 
       # Not listed in requirements
       mixpanel
@@ -123,7 +140,18 @@ let
 
     buildInputs = [ portaudio ];
 
-    nativeCheckInputs = (with python3.pkgs; [ pytestCheckHook ]) ++ [ gitMinimal ];
+    nativeCheckInputs = [
+      python3Packages.pytestCheckHook
+      gitMinimal
+    ];
+
+    patches = [
+      ./fix-tree-sitter.patch
+
+      (replaceVars ./fix-flake8-invoke.patch {
+        flake8 = lib.getExe python3Packages.flake8;
+      })
+    ];
 
     disabledTestPaths = [
       # Tests require network access
@@ -132,55 +160,136 @@ let
       "tests/help/test_help.py"
     ];
 
-    disabledTests =
-      [
-        # Tests require network
-        "test_urls"
-        "test_get_commit_message_with_custom_prompt"
-        # FileNotFoundError
-        "test_get_commit_message"
-        # Expected 'launch_gui' to have been called once
-        "test_browser_flag_imports_streamlit"
-        # AttributeError
-        "test_simple_send_with_retries"
-        # Expected 'check_version' to have been called once
-        "test_main_exit_calls_version_check"
-      ]
-      ++ lib.optionals stdenv.hostPlatform.isDarwin [
-        # Tests fails on darwin
-        "test_dark_mode_sets_code_theme"
-        "test_default_env_file_sets_automatic_variable"
-      ];
+    disabledTests = [
+      # Tests require network
+      "test_urls"
+      "test_get_commit_message_with_custom_prompt"
+      # FileNotFoundError
+      "test_get_commit_message"
+      # Expected 'launch_gui' to have been called once
+      "test_browser_flag_imports_streamlit"
+      # AttributeError
+      "test_simple_send_with_retries"
+      # Expected 'check_version' to have been called once
+      "test_main_exit_calls_version_check"
+      # AssertionError: assert 2 == 1
+      "test_simple_send_non_retryable_error"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # Tests fails on darwin
+      "test_dark_mode_sets_code_theme"
+      "test_default_env_file_sets_automatic_variable"
+      # FileNotFoundError: [Errno 2] No such file or directory: 'vim'
+      "test_pipe_editor"
+    ];
+
+    makeWrapperArgs = [
+      "--set"
+      "AIDER_CHECK_UPDATE"
+      "false"
+      "--set"
+      "AIDER_ANALYTICS"
+      "false"
+    ];
 
     preCheck = ''
       export HOME=$(mktemp -d)
-      export AIDER_CHECK_UPDATE=false
+      export AIDER_ANALYTICS="false"
     '';
 
-    optional-dependencies = with python3.pkgs; {
+    optional-dependencies = with python3Packages; {
       playwright = [
         greenlet
         playwright
         pyee
         typing-extensions
       ];
+      browser = [
+        streamlit
+      ];
+      help = [
+        llama-index-core
+        llama-index-embeddings-huggingface
+        torch
+        nltk
+      ];
+      bedrock = [
+        boto3
+      ];
     };
 
     passthru = {
-      withPlaywright = aider-chat.overridePythonAttrs (
-        { dependencies, ... }:
+      withOptional =
         {
-          dependencies = dependencies ++ aider-chat.optional-dependencies.playwright;
-        }
-      );
+          withAll ? false,
+          withPlaywright ? withAll,
+          withBrowser ? withAll,
+          withHelp ? withAll,
+          withBedrock ? withAll,
+          ...
+        }:
+        aider-chat.overridePythonAttrs (
+          {
+            pname,
+            dependencies,
+            makeWrapperArgs,
+            propagatedBuildInputs ? [ ],
+            ...
+          }:
+
+          {
+            pname =
+              pname
+              + lib.optionalString withPlaywright "-playwright"
+              + lib.optionalString withBrowser "-browser"
+              + lib.optionalString withHelp "-help"
+              + lib.optionalString withBedrock "-bedrock";
+
+            dependencies =
+              dependencies
+              ++ lib.optionals withPlaywright aider-chat.optional-dependencies.playwright
+              ++ lib.optionals withBrowser aider-chat.optional-dependencies.browser
+              ++ lib.optionals withHelp aider-chat.optional-dependencies.help
+              ++ lib.optionals withBedrock aider-chat.optional-dependencies.bedrock;
+
+            propagatedBuildInputs =
+              propagatedBuildInputs ++ lib.optionals withPlaywright [ playwright-driver.browsers ];
+
+            makeWrapperArgs =
+              makeWrapperArgs
+              ++ lib.optionals withPlaywright [
+                "--set"
+                "PLAYWRIGHT_BROWSERS_PATH"
+                "${playwright-driver.browsers}"
+                "--set"
+                "PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS"
+                "true"
+              ]
+              ++ lib.optionals withHelp [
+                "--set"
+                "NLTK_DATA"
+                "${aider-nltk-data}"
+              ];
+          }
+        );
+
+      updateScript = nix-update-script {
+        extraArgs = [
+          "--version-regex"
+          "^v([0-9.]+)$"
+        ];
+      };
     };
 
     meta = {
       description = "AI pair programming in your terminal";
-      homepage = "https://github.com/paul-gauthier/aider";
-      changelog = "https://github.com/paul-gauthier/aider/blob/v${version}/HISTORY.md";
+      homepage = "https://github.com/Aider-AI/aider";
+      changelog = "https://github.com/Aider-AI/aider/blob/v${version}/HISTORY.md";
       license = lib.licenses.asl20;
-      maintainers = with lib.maintainers; [ taha-yassine ];
+      maintainers = with lib.maintainers; [
+        happysalada
+        yzx9
+      ];
       mainProgram = "aider";
     };
   };

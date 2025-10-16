@@ -1,26 +1,26 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, makeWrapper
-, python3
-, bison
-, flex
-, zlib
-, apple-sdk_11
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  makeWrapper,
+  python3,
+  bison,
+  flex,
+  zlib,
 }:
 
 stdenv.mkDerivation rec {
   pname = "spicy";
-  version = "1.11.3";
+  version = "1.14.0";
 
   strictDeps = true;
 
   src = fetchFromGitHub {
     owner = "zeek";
     repo = "spicy";
-    rev = "v${version}";
-    hash = "sha256-SKhNBqZRgeN2cZZ2lv/IsOqaa5LY666OlICewN/iPVA=";
+    tag = "v${version}";
+    hash = "sha256-Pc4BqQiaifB/kAbcaHYyTUeUE/HLlvg0qDSPdC/gMko=";
     fetchSubmodules = true;
   };
 
@@ -35,8 +35,6 @@ stdenv.mkDerivation rec {
   buildInputs = [
     flex
     zlib
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    apple-sdk_11
   ];
 
   postPatch = ''
@@ -49,7 +47,12 @@ stdenv.mkDerivation rec {
 
   preFixup = ''
     for b in $out/bin/*
-      do wrapProgram "$b" --prefix PATH : "${lib.makeBinPath [ bison flex ]}"
+      do wrapProgram "$b" --prefix PATH : "${
+        lib.makeBinPath [
+          bison
+          flex
+        ]
+      }"
     done
   '';
 

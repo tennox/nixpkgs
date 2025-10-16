@@ -1,17 +1,25 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, sq }:
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  sq,
+}:
 
 buildGoModule rec {
   pname = "sq";
-  version = "0.48.3";
+  version = "0.48.5";
 
   src = fetchFromGitHub {
     owner = "neilotoole";
-    repo = pname;
+    repo = "sq";
     rev = "v${version}";
-    hash = "sha256-22N8DEaLmGBA3Rx6VzxplUK9UAydo/gx4EsQzzaRHNE=";
+    hash = "sha256-y7+UfwTbL0KTQgz4JX/q6QQqL0n8SO1qgKTrK9AFhO4=";
   };
 
-  vendorHash = "sha256-p0r7TuWFpV81Rnxqdj+UJec60EmvVQISURe43SpOpw0=";
+  vendorHash = "sha256-MejUKPIhvjgV2+h81DJUSdBEMD0rvgDbTAvv3E2uTOk=";
 
   proxyVendor = true;
 
@@ -26,7 +34,7 @@ buildGoModule rec {
     "-X=github.com/neilotoole/sq/cli/buildinfo.Version=v${version}"
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd sq \
       --bash <($out/bin/sq completion bash) \
       --fish <($out/bin/sq completion fish) \

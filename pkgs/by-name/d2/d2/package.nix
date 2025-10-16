@@ -1,31 +1,32 @@
-{ lib
-, buildGo123Module
-, fetchFromGitHub
-, installShellFiles
-, git
-, testers
-, d2
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  git,
+  testers,
+  d2,
 }:
 
-buildGo123Module rec {
+buildGoModule (finalAttrs: {
   pname = "d2";
-  version = "0.6.8";
+  version = "0.7.1";
 
   src = fetchFromGitHub {
     owner = "terrastruct";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-Sd4AkXKQVRJIgQTb7BbDNb8DbULyoWX8TuFtiu+Km5Y=";
+    repo = "d2";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-ZRAvMcJKQmvcBbT2foKDYS0gTeqOZqFu3V3iXIbfLsQ=";
   };
 
-  vendorHash = "sha256-PMqN/6kzXR0d1y1PigBE0KJ8uP14n+qQziFqGai5zLE=";
+  vendorHash = "sha256-UZDk2upJ0xTSAg/DpRHCzdAOLnaeI0WLMJ6jNt8elKI=";
 
   excludedPackages = [ "./e2etests" ];
 
   ldflags = [
     "-s"
     "-w"
-    "-X oss.terrastruct.com/d2/lib/version.Version=v${version}"
+    "-X oss.terrastruct.com/d2/lib/version.Version=v${finalAttrs.version}"
   ];
 
   nativeBuildInputs = [ installShellFiles ];
@@ -43,15 +44,18 @@ buildGo123Module rec {
 
   passthru.tests.version = testers.testVersion {
     package = d2;
-    version = "v${version}";
+    version = "v${finalAttrs.version}";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Modern diagram scripting language that turns text to diagrams";
     mainProgram = "d2";
     homepage = "https://d2lang.com";
-    changelog = "https://github.com/terrastruct/d2/releases/tag/v${version}";
-    license = licenses.mpl20;
-    maintainers = with maintainers; [ dit7ya kashw2 ];
+    changelog = "https://github.com/terrastruct/d2/releases/tag/v${finalAttrs.version}";
+    license = lib.licenses.mpl20;
+    maintainers = with lib.maintainers; [
+      dit7ya
+      kashw2
+    ];
   };
-}
+})

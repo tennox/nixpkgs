@@ -1,4 +1,13 @@
-{ lib, stdenv, fetchurl, openssl, perl, which, dns-root-data }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  openssl,
+  perl,
+  which,
+  dns-root-data,
+  autoreconfHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "ldns";
@@ -13,9 +22,18 @@ stdenv.mkDerivation rec {
     patchShebangs doc/doxyparse.pl
   '';
 
-  outputs = [ "out" "dev" "man" "examples" ];
+  outputs = [
+    "out"
+    "dev"
+    "man"
+    "examples"
+  ];
 
-  nativeBuildInputs = [ perl ];
+  nativeBuildInputs = [
+    perl
+    autoreconfHook
+  ];
+
   buildInputs = [ openssl ];
 
   configureFlags = [
@@ -24,7 +42,8 @@ stdenv.mkDerivation rec {
     "--with-drill"
     "--disable-gost"
     "--with-examples"
-  ] ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+  ]
+  ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
     "ac_cv_func_malloc_0_nonnull=yes"
     "ac_cv_func_realloc_0_nonnull=yes"
   ];
@@ -42,7 +61,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Library with the aim of simplifying DNS programming in C";
-    homepage = "http://www.nlnetlabs.nl/projects/ldns/";
+    homepage = "https://www.nlnetlabs.nl/projects/ldns/";
     license = licenses.bsd3;
     maintainers = with maintainers; [ dtzWill ];
     mainProgram = "drill";

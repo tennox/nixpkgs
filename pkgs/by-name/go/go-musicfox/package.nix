@@ -1,27 +1,28 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, pkg-config
-, flac
-, stdenv
-, alsa-lib
-, nix-update-script
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  pkg-config,
+  flac,
+  stdenv,
+  alsa-lib,
+  nix-update-script,
 }:
 
 buildGoModule rec {
   pname = "go-musicfox";
-  version = "4.5.3";
+  version = "4.7.1";
 
   src = fetchFromGitHub {
     owner = "go-musicfox";
     repo = "go-musicfox";
     rev = "v${version}";
-    hash = "sha256-qf4XAAfWWlHAnNGhXaYpnjj+2z+/lWOHaTyv8R4UDgQ=";
+    hash = "sha256-jrrxG26OKOUiUzv12Td8Vy12gnj9+mHog/vZSaTwqmw=";
   };
 
   deleteVendor = true;
 
-  vendorHash = "sha256-oz/kVp/Jj2Lmo19UFOn2VPD/iWbSRCbmKy8fK8RdkYs=";
+  vendorHash = "sha256-TjPJBP1p2j9K10I87RB7KnwKfO3h2K6WFMZqveMUMkw=";
 
   subPackages = [ "cmd/musicfox.go" ];
 
@@ -37,17 +38,22 @@ buildGoModule rec {
 
   buildInputs = [
     flac
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
   ];
 
   passthru.updateScript = nix-update-script { };
 
-  meta = with lib; {
+  meta = {
     description = "Terminal netease cloud music client written in Go";
     homepage = "https://github.com/anhoder/go-musicfox";
-    license = licenses.mit;
+    license = lib.licenses.mit;
     mainProgram = "musicfox";
-    maintainers = with maintainers; [ zendo Ruixi-rebirth aleksana ];
+    maintainers = with lib.maintainers; [
+      zendo
+      Ruixi-rebirth
+      aleksana
+    ];
   };
 }

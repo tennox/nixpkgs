@@ -1,36 +1,37 @@
-{ lib
-, stdenv
-, bash-completion
-, fetchurl
-, fetchpatch
-, gdbm
-, glib
-, gst_all_1
-, gsettings-desktop-schemas
-, gtk-vnc
-, gtk3
-, intltool
-, libcap
-, libgovirt
+{
+  lib,
+  stdenv,
+  bash-completion,
+  fetchurl,
+  fetchpatch,
+  gdbm,
+  glib,
+  gst_all_1,
+  gsettings-desktop-schemas,
+  gtk-vnc,
+  gtk3,
+  intltool,
+  libcap,
+  libgovirt,
   # Currently unsupported. According to upstream, libgovirt is for a very narrow
   # use-case and we don't currently cover it in Nixpkgs. It's safe to disable.
   # https://gitlab.com/virt-viewer/virt-viewer/-/issues/100#note_1265011223
   # Can be enabled again once this is merged:
   # https://gitlab.com/virt-viewer/virt-viewer/-/merge_requests/129
-, ovirtSupport ? false
-, libvirt
-, libvirt-glib
-, libxml2
-, meson
-, ninja
-, pkg-config
-, python3
-, shared-mime-info
-, spice-gtk
-, spice-protocol
-, spiceSupport ? true
-, vte
-, wrapGAppsHook3
+  ovirtSupport ? false,
+  libvirt,
+  libvirt-glib,
+  libxml2,
+  meson,
+  ninja,
+  pkg-config,
+  python3,
+  shared-mime-info,
+  spice-gtk,
+  spice-protocol,
+  spiceSupport ? true,
+  vte,
+  wrapGAppsHook3,
 }:
 stdenv.mkDerivation rec {
   pname = "virt-viewer";
@@ -73,15 +74,20 @@ stdenv.mkDerivation rec {
     libvirt-glib
     libxml2
     vte
-  ] ++ lib.optionals ovirtSupport [
+  ]
+  ++ lib.optionals ovirtSupport [
     libgovirt
-  ] ++ lib.optionals spiceSupport ([
-    gdbm
-    spice-gtk
-    spice-protocol
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
-    libcap
-  ]);
+  ]
+  ++ lib.optionals spiceSupport (
+    [
+      gdbm
+      spice-gtk
+      spice-protocol
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
+      libcap
+    ]
+  );
 
   # Required for USB redirection PolicyKit rules file
   propagatedUserEnvPkgs = lib.optional spiceSupport spice-gtk;
@@ -98,9 +104,13 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Viewer for remote virtual machines";
-    maintainers = with maintainers; [ raskin atemu ];
+    maintainers = with maintainers; [
+      raskin
+      atemu
+    ];
     platforms = with platforms; linux ++ darwin;
     license = licenses.gpl2;
+    mainProgram = "virt-viewer";
   };
   passthru = {
     updateInfo = {

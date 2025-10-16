@@ -1,23 +1,24 @@
-{ lib
-, stdenv
-, fetchFromSourcehut
-, pkg-config
-, scdoc
-, wayland-scanner
-, wayland
-, wayland-protocols
-, libxkbcommon
+{
+  lib,
+  stdenv,
+  fetchFromSourcehut,
+  pkg-config,
+  scdoc,
+  wayland-scanner,
+  wayland,
+  wayland-protocols,
+  libxkbcommon,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "wev";
-  version = "1.0.0";
+  version = "1.1.0";
 
   src = fetchFromSourcehut {
     owner = "~sircmpwn";
-    repo = pname;
-    rev = version;
-    sha256 = "0l71v3fzgiiv6xkk365q1l08qvaymxd4kpaya6r2g8yzkr7i2hms";
+    repo = "wev";
+    rev = finalAttrs.version;
+    hash = "sha256-0ZA44dMDuVYfplfutOfI2EdPNakE9KnOuRfk+CEDCRk=";
   };
 
   strictDeps = true;
@@ -25,21 +26,29 @@ stdenv.mkDerivation rec {
   depsBuildBuild = [
     pkg-config
   ];
-  nativeBuildInputs = [ pkg-config scdoc wayland-scanner ];
-  buildInputs = [ wayland wayland-protocols libxkbcommon ];
+  nativeBuildInputs = [
+    pkg-config
+    scdoc
+    wayland-scanner
+  ];
+  buildInputs = [
+    wayland
+    wayland-protocols
+    libxkbcommon
+  ];
 
   installFlags = [ "PREFIX=$(out)" ];
 
-  meta = with lib; {
+  meta = {
     homepage = "https://git.sr.ht/~sircmpwn/wev";
     description = "Wayland event viewer";
     longDescription = ''
       This is a tool for debugging events on a Wayland window, analogous to the
       X11 tool xev.
     '';
-    license = licenses.mit;
-    maintainers = with maintainers; [ primeos ];
-    platforms = platforms.linux;
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ wineee ];
+    platforms = lib.platforms.linux;
     mainProgram = "wev";
   };
-}
+})

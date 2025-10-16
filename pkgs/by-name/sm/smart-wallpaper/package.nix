@@ -1,17 +1,18 @@
-{ stdenvNoCC
-, lib
-, fetchFromGitHub
-, makeWrapper
-, xdpyinfo
-, killall
-, xwinwrap
-, swaybg
-, redshift
+{
+  stdenvNoCC,
+  lib,
+  fetchFromGitHub,
+  makeWrapper,
+  xdpyinfo,
+  killall,
+  xwinwrap,
+  swaybg,
+  redshift,
 }:
 
 stdenvNoCC.mkDerivation {
   pname = "smart-wallpaper";
-  version = "unstable-2022-09-15";
+  version = "0-unstable-2022-09-15";
 
   src = fetchFromGitHub {
     owner = "Baitinq";
@@ -25,7 +26,15 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     install -Dm755 -t $out/bin smart-wallpaper
     wrapProgram $out/bin/smart-wallpaper \
-      --prefix PATH : ${lib.makeBinPath [ xdpyinfo killall xwinwrap swaybg redshift ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          xdpyinfo
+          killall
+          xwinwrap
+          swaybg
+          redshift
+        ]
+      }
   '';
 
   meta = with lib; {

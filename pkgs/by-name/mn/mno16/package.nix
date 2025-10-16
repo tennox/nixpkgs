@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchzip }:
+{
+  lib,
+  stdenvNoCC,
+  fetchzip,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "mno16";
@@ -16,7 +20,7 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "minimalist monospaced font";
+    description = "Minimalist monospaced font";
     homepage = "https://sev.dev/fonts/mno16";
     license = licenses.cc0;
   };

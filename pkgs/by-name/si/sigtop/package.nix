@@ -1,17 +1,26 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  pkg-config,
+  libsecret,
+}:
 
 buildGoModule rec {
   name = "sigtop";
-  version = "0.12.0";
+  version = "0.22.0";
 
   src = fetchFromGitHub {
     owner = "tbvdm";
     repo = "sigtop";
     rev = "v${version}";
-    sha256 = "sha256-qNcfnXQmccEnUFtaR3y79yFRZ5xHeOUQ6hEY9LZxm7w=";
+    sha256 = "sha256-EvdO7fGnNdu1/f61c4k2dpeMUqKaq9xKGgevAQ+f3q0=";
   };
 
-  vendorHash = "sha256-IFF7zTrHHoEmPoHGOkTHrb7o+9D5PC8Q+MWHSR2EXog=";
+  vendorHash = "sha256-EAMnuDm3Lmw2i4sumgCTE58JCtMq9QeT6pjtmC/PKMA=";
+
+  nativeBuildInputs = [ pkg-config ];
+  buildInputs = [ libsecret ];
 
   makeFlags = [
     "PREFIX=\${out}"

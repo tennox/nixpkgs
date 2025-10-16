@@ -1,26 +1,29 @@
-{ lib, stdenv
-, fetchFromGitHub
-, aws-c-auth
-, aws-c-cal
-, aws-c-common
-, aws-c-compression
-, aws-c-http
-, aws-c-io
-, aws-checksums
-, cmake
-, nix
-, s2n-tls
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  aws-c-auth,
+  aws-c-cal,
+  aws-c-common,
+  aws-c-compression,
+  aws-c-http,
+  aws-c-io,
+  aws-checksums,
+  cmake,
+  nix,
+  s2n-tls,
 }:
 
 stdenv.mkDerivation rec {
   pname = "aws-c-s3";
-  version = "0.6.0";
+  # nixpkgs-update: no auto update
+  version = "0.8.7";
 
   src = fetchFromGitHub {
     owner = "awslabs";
     repo = "aws-c-s3";
     rev = "v${version}";
-    hash = "sha256-qPVITirqhExIeayh6AWEyAXPlkUtk7gkIcmT/IpNisw=";
+    hash = "sha256-8yUwgiZ50BiItapeg0zIc5vr0+OFHvzIRrwWH4lQFBM=";
   };
 
   nativeBuildInputs = [

@@ -1,17 +1,22 @@
-{ lib, buildGoModule, fetchFromGitHub, nixosTests }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  nixosTests,
+}:
 
 buildGoModule rec {
   pname = "consul-template";
-  version = "0.39.1";
+  version = "0.41.2";
 
   src = fetchFromGitHub {
     owner = "hashicorp";
     repo = "consul-template";
     rev = "v${version}";
-    hash = "sha256-VaNAy6bB59QRf29Sgprv7HtVfjvCNic7r31gU2e6prQ=";
+    hash = "sha256-ExgE1Gw+hlOC+AYDgq15nD90QGa/+rOT1gi3XWY1jj8=";
   };
 
-  vendorHash = "sha256-OTpon/UIDbH5zbcIyAWqKgTTMNGxytgcMlgaiHOBmeo=";
+  vendorHash = "sha256-Tz80n37NBqKX+h3OE6RBufPQ7OteWpZaa5br2WFIvOs=";
 
   # consul-template tests depend on vault and consul services running to
   # execute tests so we skip them here
@@ -26,7 +31,9 @@ buildGoModule rec {
     description = "Generic template rendering and notifications with Consul";
     platforms = platforms.linux ++ platforms.darwin;
     license = licenses.mpl20;
-    maintainers = with maintainers; [ cpcloud pradeepchhetri ];
+    maintainers = with maintainers; [
+      cpcloud
+    ];
     mainProgram = "consul-template";
   };
 }

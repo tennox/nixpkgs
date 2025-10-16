@@ -11,19 +11,19 @@
 
 let
   pname = "tflint";
-  version = "0.54.0";
+  version = "0.58.1";
 in
 buildGoModule {
   inherit pname version;
 
   src = fetchFromGitHub {
     owner = "terraform-linters";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-/eome0jF0l7Hb5c96c2S80I7DQGmyF09IgOEudpXMuE=";
+    repo = "tflint";
+    tag = "v${version}";
+    hash = "sha256-1SuNcqU8JtMypoltbNBZHZZi78jvbbAD+nmj2v8NU5g=";
   };
 
-  vendorHash = "sha256-dYMfZcz4d+XWgnQ/u+BjNN2bFQnRNums7D0tTzYkC+Y=";
+  vendorHash = "sha256-8sHiCEtVs+rUnmJ9NPYJJcr4sDlFaEWklE3JaoXEu9w=";
 
   doCheck = false;
 
@@ -43,9 +43,10 @@ buildGoModule {
         paths = [ actualPlugins ];
       };
     in
-    runCommand "tflint-with-plugins"
+    runCommand "tflint-with-plugins-${version}"
       {
         nativeBuildInputs = [ makeWrapper ];
+        inherit version;
       }
       ''
         makeWrapper ${tflint}/bin/tflint $out/bin/tflint \

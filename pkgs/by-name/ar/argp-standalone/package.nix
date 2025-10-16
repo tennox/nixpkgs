@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, meson, ninja }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  meson,
+  ninja,
+}:
 
 stdenv.mkDerivation rec {
   pname = "argp-standalone";
@@ -7,11 +13,14 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "argp-standalone";
     repo = "argp-standalone";
-    rev = version;
+    tag = version;
     sha256 = "jWnoWVnUVDQlsC9ru7oB9PdtZuyCCNqGnMqF/f2m0ZY=";
   };
 
-  nativeBuildInputs = [ meson ninja ];
+  nativeBuildInputs = [
+    meson
+    ninja
+  ];
 
   doCheck = true;
 

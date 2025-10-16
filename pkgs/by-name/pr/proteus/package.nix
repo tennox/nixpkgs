@@ -1,6 +1,19 @@
-{ lib, stdenv, fetchFromGitHub, autoPatchelfHook, cmake, pkg-config
-, alsa-lib, freetype, libjack2
-, libX11, libXext, libXcursor, libXinerama, libXrandr, libXrender
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoPatchelfHook,
+  cmake,
+  pkg-config,
+  alsa-lib,
+  freetype,
+  libjack2,
+  libX11,
+  libXext,
+  libXcursor,
+  libXinerama,
+  libXrandr,
+  libXrender,
 }:
 
 stdenv.mkDerivation rec {
@@ -10,15 +23,26 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "GuitarML";
     repo = "Proteus";
-    rev = "v${version}";
+    tag = "v${version}";
     fetchSubmodules = true;
     hash = "sha256-WhJh+Sx64JYxQQ1LXpDUwXeodFU1EZ0TmMhn+6w0hQg=";
   };
 
-  nativeBuildInputs = [ autoPatchelfHook cmake pkg-config ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+    cmake
+    pkg-config
+  ];
   buildInputs = [
-    alsa-lib freetype libjack2
-    libX11 libXext libXcursor libXinerama libXrandr libXrender
+    alsa-lib
+    freetype
+    libjack2
+    libX11
+    libXext
+    libXcursor
+    libXinerama
+    libXrandr
+    libXrender
   ];
   # JUCE loads most dependencies at runtime:
   runtimeDependencies = map lib.getLib buildInputs;

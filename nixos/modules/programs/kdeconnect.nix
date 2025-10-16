@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   options.programs.kdeconnect = {
     enable = lib.mkEnableOption ''
@@ -10,7 +15,7 @@
       `gnomeExtensions.gsconnect` as an alternative
       implementation if you use Gnome
     '';
-    package = lib.mkPackageOption pkgs [ "plasma5Packages" "kdeconnect-kde" ] {
+    package = lib.mkPackageOption pkgs [ "kdePackages" "kdeconnect-kde" ] {
       example = "gnomeExtensions.gsconnect";
     };
   };
@@ -18,13 +23,18 @@
     let
       cfg = config.programs.kdeconnect;
     in
-      lib.mkIf cfg.enable {
-        environment.systemPackages = [
-          cfg.package
+    lib.mkIf cfg.enable {
+      environment.systemPackages = [
+        cfg.package
+      ];
+      networking.firewall = rec {
+        allowedTCPPortRanges = [
+          {
+            from = 1714;
+            to = 1764;
+          }
         ];
-        networking.firewall = rec {
-          allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
-          allowedUDPPortRanges = allowedTCPPortRanges;
-        };
+        allowedUDPPortRanges = allowedTCPPortRanges;
       };
+    };
 }

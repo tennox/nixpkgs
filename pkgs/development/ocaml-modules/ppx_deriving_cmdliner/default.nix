@@ -1,13 +1,14 @@
-{ lib
-, buildDunePackage
-, fetchFromGitHub
-, fetchpatch
-, alcotest
-, cmdliner
-, ppx_deriving
-, ppxlib
-, result
-, gitUpdater
+{
+  lib,
+  buildDunePackage,
+  fetchFromGitHub,
+  fetchpatch,
+  alcotest,
+  cmdliner,
+  ppx_deriving,
+  ppxlib,
+  result,
+  gitUpdater,
 }:
 
 buildDunePackage rec {
@@ -51,5 +52,6 @@ buildDunePackage rec {
     homepage = "https://github.com/hammerlab/ppx_deriving_cmdliner";
     license = licenses.asl20;
     maintainers = [ maintainers.romildo ];
+    broken = lib.versionAtLeast ppxlib.version "0.36";
   };
 }

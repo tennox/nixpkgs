@@ -1,42 +1,42 @@
-{ lib
-, gcc12Stdenv
-, fetchFromGitHub
-, fetchurl
-, cudaSupport ? opencv.cudaSupport or false
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  fetchurl,
+  cudaSupport ? opencv.cudaSupport or false,
 
-# build
-, scons
-, addDriverRunpath
-, autoPatchelfHook
-, cmake
-, git
-, libarchive
-, patchelf
-, pkg-config
-, python3Packages
-, shellcheck
+  # build
+  scons,
+  addDriverRunpath,
+  autoPatchelfHook,
+  cmake,
+  git,
+  libarchive,
+  patchelf,
+  pkg-config,
+  python3Packages,
+  shellcheck,
 
-# runtime
-, flatbuffers
-, gflags
-, level-zero
-, libusb1
-, libxml2
-, ocl-icd
-, opencv
-, protobuf
-, pugixml
-, snappy
-, tbb_2021_5
-, cudaPackages
+  # runtime
+  flatbuffers,
+  gflags,
+  level-zero,
+  libusb1,
+  libxml2,
+  ocl-icd,
+  opencv,
+  protobuf,
+  pugixml,
+  snappy,
+  onetbb,
+  cudaPackages,
 }:
 
 let
   inherit (lib)
     cmakeBool
-  ;
-
-  stdenv = gcc12Stdenv;
+    ;
 
   # prevent scons from leaking in the default python version
   scons' = scons.override { inherit python3Packages; };
@@ -47,28 +47,38 @@ let
     hash = "sha256-Tr8wJGUweV8Gb7lhbmcHxrF756ZdKdNRi1eKdp3VTuo=";
   };
 
-  python = python3Packages.python.withPackages (ps: with ps; [
-    cython
-    distutils
-    pybind11
-    setuptools
-    sphinx
-    wheel
-  ]);
+  python = python3Packages.python.withPackages (
+    ps: with ps; [
+      cython
+      distutils
+      pybind11
+      setuptools
+      sphinx
+      wheel
+    ]
+  );
 
 in
 
 stdenv.mkDerivation rec {
   pname = "openvino";
-  version = "2024.4.1";
+  version = "2025.2.0";
 
   src = fetchFromGitHub {
     owner = "openvinotoolkit";
     repo = "openvino";
-    rev = "refs/tags/${version}";
+    tag = version;
     fetchSubmodules = true;
-    hash = "sha256-v0PPGFUHCGNWdlTff40Ol2NvaYglb/+L/zZAQujk6lk=";
+    hash = "sha256-EtXHMOIk4hGcLiaoC0ZWYF6XZCD2qNtt1HeJoJIuuTA=";
   };
+
+  patches = [
+    (fetchpatch {
+      name = "cmake4-compat.patch";
+      url = "https://github.com/openvinotoolkit/openvino/commit/677716c2471cadf1bf1268eca6343498a886a229.patch?full_index=1";
+      hash = "sha256-iaifJBdl7+tQZq1d8SiczUaXz+AdfMrLtwzfTmSG+XA=";
+    })
+  ];
 
   outputs = [
     "out"
@@ -86,7 +96,8 @@ stdenv.mkDerivation rec {
     python
     scons'
     shellcheck
-  ] ++ lib.optionals cudaSupport [
+  ]
+  ++ lib.optionals cudaSupport [
     cudaPackages.cuda_nvcc
   ];
 
@@ -106,7 +117,7 @@ stdenv.mkDerivation rec {
     "-Wno-dev"
     "-DCMAKE_MODULE_PATH:PATH=${placeholder "out"}/lib/cmake"
     "-DCMAKE_PREFIX_PATH:PATH=${placeholder "out"}"
-    "-DOpenCV_DIR=${opencv}/lib/cmake/opencv4/"
+    "-DOpenCV_DIR=${lib.getLib opencv}/lib/cmake/opencv4/"
     "-DProtobuf_LIBRARIES=${protobuf}/lib/libprotobuf${stdenv.hostPlatform.extensions.sharedLibrary}"
     "-DPython_EXECUTABLE=${python.interpreter}"
 
@@ -119,11 +130,13 @@ stdenv.mkDerivation rec {
 
     # features
     (cmakeBool "ENABLE_INTEL_CPU" stdenv.hostPlatform.isx86_64)
-    (cmakeBool "ENABLE_INTEL_NPU" false) # undefined reference to `std::ios_base_library_init()@GLIBCXX_3.4.32'
+    (cmakeBool "ENABLE_INTEL_GPU" true)
+    (cmakeBool "ENABLE_INTEL_NPU" stdenv.hostPlatform.isx86_64)
     (cmakeBool "ENABLE_JS" false)
     (cmakeBool "ENABLE_LTO" true)
     (cmakeBool "ENABLE_ONEDNN_FOR_GPU" false)
     (cmakeBool "ENABLE_OPENCV" true)
+    (cmakeBool "ENABLE_OV_JAX_FRONTEND" false) # auto-patchelf could not satisfy dependency libopenvino_jax_frontend.so.2450
     (cmakeBool "ENABLE_PYTHON" true)
 
     # system libs
@@ -139,6 +152,9 @@ stdenv.mkDerivation rec {
     "libngraph_backend.so"
   ];
 
+  # src/graph/src/plugins/intel_gpu/src/graph/include/reorder_inst.h:24:8: error: type 'struct typed_program_node' violates the C++ One Definition Rule [-Werror=odr]
+  env.NIX_CFLAGS_COMPILE = "-Wno-odr";
+
   buildInputs = [
     flatbuffers
     gflags
@@ -146,11 +162,12 @@ stdenv.mkDerivation rec {
     libusb1
     libxml2
     ocl-icd
-    opencv.cxxdev
+    opencv
     pugixml
     snappy
-    tbb_2021_5
-  ] ++ lib.optionals cudaSupport [
+    onetbb
+  ]
+  ++ lib.optionals cudaSupport [
     cudaPackages.cuda_cudart
   ];
 
@@ -170,7 +187,8 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "OpenVINO™ Toolkit repository";
+    changelog = "https://github.com/openvinotoolkit/openvino/releases/tag/${src.tag}";
+    description = "Open-source toolkit for optimizing and deploying AI inference";
     longDescription = ''
       This toolkit allows developers to deploy pre-trained deep learning models through a high-level C++ Inference Engine API integrated with application logic.
 
@@ -182,6 +200,5 @@ stdenv.mkDerivation rec {
     license = with licenses; [ asl20 ];
     platforms = platforms.all;
     broken = stdenv.hostPlatform.isDarwin; # Cannot find macos sdk
-    maintainers = with maintainers; [ tfmoraes ];
   };
 }

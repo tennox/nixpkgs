@@ -1,4 +1,8 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "NoiseTorch";
@@ -7,7 +11,7 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "noisetorch";
     repo = "NoiseTorch";
-    rev = "v${version}";
+    tag = "v${version}";
     fetchSubmodules = true;
     hash = "sha256-gOPSMPH99Upi/30OnAdwSb7SaMV0i/uHB051cclfz6A=";
   };
@@ -16,7 +20,12 @@ buildGoModule rec {
 
   doCheck = false;
 
-  ldflags = [ "-s" "-w" "-X main.version=${version}" "-X main.distribution=nixpkgs" ];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X main.version=${version}"
+    "-X main.distribution=nixpkgs"
+  ];
 
   subPackages = [ "." ];
 
@@ -36,7 +45,10 @@ buildGoModule rec {
     homepage = "https://github.com/noisetorch/NoiseTorch";
     license = licenses.gpl3Plus;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ panaeon lom ];
+    maintainers = with maintainers; [
+      panaeon
+      lom
+    ];
     mainProgram = "noisetorch";
   };
 }

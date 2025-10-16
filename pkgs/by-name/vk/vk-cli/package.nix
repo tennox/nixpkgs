@@ -1,11 +1,12 @@
-{ stdenv
-, lib
-, fetchurl
-, curl
-, p7zip
-, glibc
-, ncurses
-, openssl
+{
+  stdenv,
+  lib,
+  fetchurl,
+  curl,
+  p7zip,
+  glibc,
+  ncurses,
+  openssl,
 }:
 
 stdenv.mkDerivation rec {
@@ -41,7 +42,12 @@ stdenv.mkDerivation rec {
   postFixup = ''
     patchelf $out/bin/vk-cli \
       --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
-      --set-rpath "${lib.makeLibraryPath [ curl glibc ]}"
+      --set-rpath "${
+        lib.makeLibraryPath [
+          curl
+          glibc
+        ]
+      }"
   '';
 
   meta = with lib; {
@@ -50,7 +56,7 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/vk-cli/vk";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.asl20;
-    maintainers = with maintainers; [ dan4ik605743 ];
+    maintainers = [ ];
     platforms = [ "x86_64-linux" ];
   };
 }

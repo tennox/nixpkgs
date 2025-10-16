@@ -2,21 +2,23 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  fetchurl,
+  fetchzip,
   fuse,
   stdenv,
   installShellFiles,
   versionCheckHook,
+  callPackage,
 }:
 buildGoModule rec {
   pname = "alist";
-  version = "3.39.2";
+  version = "3.45.0";
+  webVersion = "3.45.0";
 
   src = fetchFromGitHub {
     owner = "AlistGo";
     repo = "alist";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-ayIbmoemaDKZu+jYJ33GXq5XORNn6rJ3yOpDgFeXA/4=";
+    tag = "v${version}";
+    hash = "sha256-h8oWeTX3z3xye5O4+s7LA7Wm36JOrsU+UdKGZXaDKXk=";
     # populate values that require us to use git. By doing this in postFetch we
     # can delete .git afterwards and maintain better reproducibility of the src.
     leaveDotGit = true;
@@ -28,13 +30,13 @@ buildGoModule rec {
       find "$out" -name .git -print0 | xargs -0 rm -rf
     '';
   };
-  web = fetchurl {
-    url = "https://github.com/AlistGo/alist-web/releases/download/${version}/dist.tar.gz";
-    hash = "sha256-2ZgxWv9VROfXJIIU0Co7BKkjZr8KxQ+0eRsjgz6LVDo=";
+  web = fetchzip {
+    url = "https://github.com/AlistGo/alist-web/releases/download/${webVersion}/dist.tar.gz";
+    hash = "sha256-rNVa+dr/SX2aYHBzeV8QdD5XYCFyelhbqkTpvhF+S2g=";
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-S8TPu+pOljrA8GAeCzxgv09pb5rauSYvRm8gt8oMPTs=";
+  vendorHash = "sha256-IMoLVAgOaVM1xIFDe8BGOpzyBnDMfD9Q6VogFfOWFzU=";
 
   buildInputs = [ fuse ];
 
@@ -45,14 +47,12 @@ buildGoModule rec {
     "-w"
     "-X \"github.com/alist-org/alist/v3/internal/conf.GitAuthor=Xhofe <i@nn.ci>\""
     "-X github.com/alist-org/alist/v3/internal/conf.Version=${version}"
-    "-X github.com/alist-org/alist/v3/internal/conf.WebVersion=${version}"
+    "-X github.com/alist-org/alist/v3/internal/conf.WebVersion=${webVersion}"
   ];
 
   preConfigure = ''
-    # use matched web files
     rm -rf public/dist
-    tar -xzf ${web}
-    mv -f dist public
+    cp -r ${web} public/dist
   '';
 
   preBuild = ''
@@ -68,6 +68,7 @@ buildGoModule rec {
         "TestHTTPAll"
         "TestWebsocketAll"
         "TestWebsocketCaller"
+        "TestDownloadOrder"
       ];
     in
     [ "-skip=^${builtins.concatStringsSep "$|^" skippedTests}$" ];
@@ -89,6 +90,10 @@ buildGoModule rec {
     versionCheckHook
   ];
 
+  passthru = {
+    updateScript = lib.getExe (callPackage ./update.nix { });
+  };
+
   meta = {
     description = "File list/WebDAV program that supports multiple storages";
     homepage = "https://github.com/alist-org/alist";
@@ -97,6 +102,10 @@ buildGoModule rec {
       agpl3Only
       # alist-web
       mit
+    ];
+    knownVulnerabilities = [
+      "Alist was acquired by Bugotech, a company distrusted by the community"
+      "Uses a questionable API server alist.nn.ci for account creation for certain drivers"
     ];
     maintainers = with lib.maintainers; [ moraxyc ];
     sourceProvenance = with lib.sourceTypes; [

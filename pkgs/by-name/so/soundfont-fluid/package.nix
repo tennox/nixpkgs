@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation {
   pname = "Fluid";
@@ -20,6 +24,6 @@ stdenv.mkDerivation {
     homepage = "http://www.hammersound.net/";
     license = licenses.mit;
     platforms = platforms.all;
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
   };
 }

@@ -1,10 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitHub
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
 
-, boca
-, smooth
-, systemd
+  boca,
+  smooth,
+  systemd,
+  wrapGAppsHook3,
 }:
 
 stdenv.mkDerivation rec {
@@ -22,6 +24,7 @@ stdenv.mkDerivation rec {
     boca
     smooth
     systemd
+    wrapGAppsHook3
   ];
 
   makeFlags = [

@@ -1,34 +1,31 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, substituteAll
-, cmake
-, pkg-config
-, gtkmm3
-, gtk3
-, procps
-, spdlog
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  gtkmm3,
+  gtk3,
+  spdlog,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "wsysmon";
   version = "0.1.0";
 
   src = fetchFromGitHub {
     owner = "slyfabi";
     repo = "wsysmon";
-    rev = version;
-    sha256 = "sha256-5kfZT+hm064qXoAzi0RdmUqXi8VaXamlbm+FJOrGh3A=";
+    tag = finalAttrs.version;
+    hash = "sha256-5kfZT+hm064qXoAzi0RdmUqXi8VaXamlbm+FJOrGh3A=";
   };
 
   patches = [
-    # Prevent CMake from trying to fetch libraries from GitHub
-    (substituteAll {
-      src = ./dependencies.patch;
-      spdlog_src = spdlog.src;
-    })
-    # Add an installPhase
-    ./install.patch
+    # - Dynamically link spdlog
+    # - Remove dependency on procps (had a newer version than this package expected)
+    #   - See https://github.com/SlyFabi/WSysMon/issues/4 for the issue about procps and why it could be removed
+    # - Add an installPhase
+    ./fix-deps-and-add-install.patch
   ];
 
   nativeBuildInputs = [
@@ -39,16 +36,15 @@ stdenv.mkDerivation rec {
   buildInputs = [
     gtkmm3
     gtk3
-    procps
     spdlog
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Windows task manager clone for Linux";
     homepage = "https://github.com/SlyFabi/WSysMon";
-    license = [ licenses.mit ];
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ totoroot ];
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [ totoroot ];
     mainProgram = "WSysMon";
   };
-}
+})

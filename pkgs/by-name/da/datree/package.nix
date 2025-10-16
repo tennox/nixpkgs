@@ -1,9 +1,11 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, testers
-, datree
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  datree,
 }:
 
 buildGoModule rec {
@@ -13,7 +15,7 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "datreeio";
     repo = "datree";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-W1eX7eUMdPGbHA/f08xkG2EUeZmaunEAQn7/LRBe2nk=";
   };
 
@@ -29,7 +31,7 @@ buildGoModule rec {
 
   tags = [ "main" ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion \
       --cmd datree \
       --bash <($out/bin/datree completion bash) \
@@ -42,7 +44,7 @@ buildGoModule rec {
     command = "datree version";
   };
 
-  meta = with lib; {
+  meta = {
     description = "CLI tool to ensure K8s manifests and Helm charts follow best practices";
     mainProgram = "datree";
     longDescription = ''
@@ -53,7 +55,10 @@ buildGoModule rec {
     '';
     homepage = "https://datree.io/";
     changelog = "https://github.com/datreeio/datree/releases/tag/${version}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ azahi jceb ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
+      azahi
+      jceb
+    ];
   };
 }

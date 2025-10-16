@@ -1,5 +1,14 @@
-{ stdenv, lib, fetchFromGitHub, cmake, pkg-config, obs-studio, libGL
-, qtbase, flatbuffers }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  obs-studio,
+  libGL,
+  qtbase,
+  flatbuffers,
+}:
 
 stdenv.mkDerivation rec {
   pname = "obs-hyperion";
@@ -12,8 +21,17 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-UAfjafoZhhhHRSo+eUBLhHaCmn2GYFcYyRb9wHIp/9I=";
   };
 
-  nativeBuildInputs = [ cmake flatbuffers pkg-config ];
-  buildInputs = [ obs-studio flatbuffers libGL qtbase ];
+  nativeBuildInputs = [
+    cmake
+    flatbuffers
+    pkg-config
+  ];
+  buildInputs = [
+    obs-studio
+    flatbuffers
+    libGL
+    qtbase
+  ];
 
   dontWrapQtApps = true;
 
@@ -25,6 +43,8 @@ stdenv.mkDerivation rec {
     "-DUSE_SYSTEM_FLATBUFFERS_LIBS=ON"
   ];
 
+  NIX_CFLAGS_COMPILE = [ "-Wno-error" ];
+
   preConfigure = ''
     rm -rf external/flatbuffers
   '';
@@ -34,6 +54,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/hyperion-project/hyperion-obs-plugin";
     license = licenses.mit;
     maintainers = with maintainers; [ algram ];
-    platforms = [ "x86_64-linux" ];
+    inherit (obs-studio.meta) platforms;
   };
 }

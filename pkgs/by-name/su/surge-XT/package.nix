@@ -1,17 +1,18 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, pkg-config
-, alsa-lib
-, freetype
-, libjack2
-, lv2
-, libX11
-, libXcursor
-, libXext
-, libXinerama
-, libXrandr
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  alsa-lib,
+  freetype,
+  libjack2,
+  lv2,
+  libX11,
+  libXcursor,
+  libXext,
+  libXinerama,
+  libXrandr,
 }:
 
 stdenv.mkDerivation rec {
@@ -21,7 +22,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "surge-synthesizer";
     repo = "surge";
-    rev = "release_xt_${version}";
+    tag = "release_xt_${version}";
     fetchSubmodules = true;
     hash = "sha256-4b0H3ZioiXFc4KCeQReobwQZJBl6Ep2/8JlRIwvq/hQ=";
   };
@@ -55,13 +56,15 @@ stdenv.mkDerivation rec {
   ];
 
   # JUCE dlopen's these at runtime, crashes without them
-  NIX_LDFLAGS = (toString [
-    "-lX11"
-    "-lXext"
-    "-lXcursor"
-    "-lXinerama"
-    "-lXrandr"
-  ]);
+  NIX_LDFLAGS = (
+    toString [
+      "-lX11"
+      "-lXext"
+      "-lXcursor"
+      "-lXinerama"
+      "-lXrandr"
+    ]
+  );
 
   # see https://github.com/NixOS/nixpkgs/pull/149487#issuecomment-991747333
   postPatch = ''
@@ -73,6 +76,9 @@ stdenv.mkDerivation rec {
     homepage = "https://surge-synthesizer.github.io";
     license = licenses.gpl3;
     platforms = [ "x86_64-linux" ];
-    maintainers = with maintainers; [ magnetophon orivej ];
+    maintainers = with maintainers; [
+      magnetophon
+      orivej
+    ];
   };
 }

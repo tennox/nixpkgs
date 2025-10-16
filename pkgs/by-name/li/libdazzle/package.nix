@@ -1,28 +1,33 @@
-{ lib
-, stdenv
-, fetchurl
-, ninja
-, meson
-, mesonEmulatorHook
-, pkg-config
-, vala
-, gobject-introspection
-, libxml2
-, gtk-doc
-, docbook_xsl
-, docbook_xml_dtd_43
-, dbus
-, xvfb-run
-, glib
-, gtk3
-, gnome
+{
+  lib,
+  stdenv,
+  fetchurl,
+  ninja,
+  meson,
+  mesonEmulatorHook,
+  pkg-config,
+  vala,
+  gobject-introspection,
+  libxml2,
+  gtk-doc,
+  docbook_xsl,
+  docbook_xml_dtd_43,
+  dbus,
+  xvfb-run,
+  glib,
+  gtk3,
+  gnome,
 }:
 
 stdenv.mkDerivation rec {
   pname = "libdazzle";
   version = "3.44.0";
 
-  outputs = [ "out" "dev" "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+    "devdoc"
+  ];
   outputBin = "dev";
 
   src = fetchurl {
@@ -42,9 +47,11 @@ stdenv.mkDerivation rec {
     docbook_xml_dtd_43
     dbus
     glib
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     xvfb-run
-  ] ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+  ]
+  ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
     mesonEmulatorHook
   ];
 
@@ -83,7 +90,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://gitlab.gnome.org/GNOME/libdazzle";
     license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.unix;
   };
 }

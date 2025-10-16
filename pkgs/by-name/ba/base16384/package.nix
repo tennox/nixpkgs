@@ -1,18 +1,19 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation rec {
   pname = "base16384";
-  version = "2.3.1";
+  version = "2.3.2";
 
   src = fetchFromGitHub {
     owner = "fumiama";
-    repo = pname;
+    repo = "base16384";
     rev = "v${version}";
-    hash = "sha256-2HZeom+8eEH4CrphCoOV+wJbqhYKVUcAQrYLyEVACkQ=";
+    hash = "sha256-Xkub0sWT+1oJlznDnnV1mDgQNiMQj8gsWemrCOAYYgE=";
   };
 
   nativeBuildInputs = [ cmake ];

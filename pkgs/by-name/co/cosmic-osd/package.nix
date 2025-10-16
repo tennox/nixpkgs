@@ -1,38 +1,69 @@
-{ lib
-, fetchFromGitHub
-, rustPlatform
-, pkg-config
-, libxkbcommon
-, pulseaudio
-, udev
-, wayland
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  libcosmicAppHook,
+  pulseaudio,
+  pipewire,
+  libinput,
+  udev,
+  nix-update-script,
+  nixosTests,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cosmic-osd";
-  version = "1.0.0-alpha.2";
+  version = "1.0.0-beta.1.1";
 
+  # nixpkgs-update: no auto update
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-osd";
-    rev = "epoch-${version}";
-    hash = "sha256-JDdVFNTJI9O88lLKB1esJE4sk7ZZnTMilQRZSAgnTqs=";
+    tag = "epoch-${finalAttrs.version}";
+    hash = "sha256-tsP4dlHmzuf5QgByDWbuigMrpgnJAjuNsYwWDSutCoI=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-Db1a1FusUdO7rQb0jfznaFNaJjdS9XSDGCMuzV1D79A=";
+  cargoHash = "sha256-YcNvvK+Zf8nSS5YjS5iaoipogstiyBdNY7LhWPsz9xQ=";
 
-  nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ libxkbcommon pulseaudio wayland udev ];
+  nativeBuildInputs = [
+    libcosmicAppHook
+    rustPlatform.bindgenHook
+  ];
+
+  buildInputs = [
+    pulseaudio
+    udev
+    libinput
+    pipewire
+  ];
 
   env.POLKIT_AGENT_HELPER_1 = "/run/wrappers/bin/polkit-agent-helper-1";
 
-  meta = with lib; {
+  passthru = {
+    tests = {
+      inherit (nixosTests)
+        cosmic
+        cosmic-autologin
+        cosmic-noxwayland
+        cosmic-autologin-noxwayland
+        ;
+    };
+    updateScript = nix-update-script {
+      extraArgs = [
+        "--version"
+        "unstable"
+        "--version-regex"
+        "epoch-(.*)"
+      ];
+    };
+  };
+
+  meta = {
     homepage = "https://github.com/pop-os/cosmic-osd";
     description = "OSD for the COSMIC Desktop Environment";
     mainProgram = "cosmic-osd";
-    license = licenses.gpl3Only;
-    maintainers = with maintainers; [ nyabinary ];
-    platforms = platforms.linux;
+    license = lib.licenses.gpl3Only;
+    teams = [ lib.teams.cosmic ];
+    platforms = lib.platforms.linux;
   };
-}
+})

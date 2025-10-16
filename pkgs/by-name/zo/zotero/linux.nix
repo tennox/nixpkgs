@@ -7,7 +7,6 @@
   fetchurl,
   wrapGAppsHook3,
   makeDesktopItem,
-  alsa-lib,
   atk,
   cairo,
   dbus-glib,
@@ -17,9 +16,17 @@
   libGL,
   libva,
   xorg,
-  mesa,
+  libgbm,
   pango,
   pciutils,
+  alsaSupport ? true,
+  alsa-lib,
+  jackSupport ? true,
+  libjack2,
+  pulseSupport ? true,
+  libpulseaudio,
+  sndioSupport ? true,
+  sndio,
 }:
 
 stdenv.mkDerivation rec {
@@ -27,39 +34,44 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://download.zotero.org/client/release/${version}/Zotero-${version}_linux-x86_64.tar.bz2";
-    hash = "sha256-utiqS4/PvlkQesqTOyEvj8uwW1sDxlqjnhv6GFfY5uk=";
+    hash = "sha256-L2Mvi11X4YBU4ezHDJosl7qHClmzUwmghvXG8TChA8c=";
   };
 
   dontPatchELF = true;
   nativeBuildInputs = [ wrapGAppsHook3 ];
 
   libPath =
-    lib.makeLibraryPath [
-      alsa-lib
-      atk
-      cairo
-      dbus-glib
-      gdk-pixbuf
-      glib
-      gtk3
-      libGL
-      libva
-      xorg.libX11
-      xorg.libXcomposite
-      xorg.libXcursor
-      xorg.libXdamage
-      xorg.libXext
-      xorg.libXfixes
-      xorg.libXi
-      xorg.libXrandr
-      xorg.libXtst
-      xorg.libxcb
-      mesa
-      pango
-      pciutils
-    ]
+    lib.makeLibraryPath (
+      [
+        atk
+        cairo
+        dbus-glib
+        gdk-pixbuf
+        glib
+        gtk3
+        libGL
+        libva
+        xorg.libX11
+        xorg.libXcomposite
+        xorg.libXcursor
+        xorg.libXdamage
+        xorg.libXext
+        xorg.libXfixes
+        xorg.libXi
+        xorg.libXrandr
+        xorg.libXtst
+        xorg.libxcb
+        libgbm
+        pango
+        pciutils
+      ]
+      ++ lib.optional alsaSupport alsa-lib
+      ++ lib.optional jackSupport libjack2
+      ++ lib.optional pulseSupport libpulseaudio
+      ++ lib.optional sndioSupport sndio
+    )
     + ":"
-    + lib.makeSearchPathOutput "lib" "lib64" [ stdenv.cc.cc ];
+    + lib.makeSearchPathOutput "lib" "lib" [ stdenv.cc.cc ];
 
   desktopItem = makeDesktopItem {
     name = "zotero";

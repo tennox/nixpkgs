@@ -1,29 +1,31 @@
-{ lib, stdenv
-, fetchurl
-, meson
-, ninja
-, pkg-config
-, vala
-, gettext
-, libxml2
-, gobject-introspection
-, wrapGAppsHook3
-, python3
-, glib
-, gssdp
-, gupnp
-, gupnp-av
-, gupnp-dlna
-, gst_all_1
-, libgee
-, libsoup
-, gtk3
-, libmediaart
-, sqlite
-, systemd
-, tinysparql
-, shared-mime-info
-, gnome
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  vala,
+  gettext,
+  libxml2,
+  gobject-introspection,
+  wrapGAppsHook3,
+  python3,
+  glib,
+  gssdp,
+  gupnp,
+  gupnp-av,
+  gupnp-dlna,
+  gst_all_1,
+  libgee,
+  libsoup_2_4,
+  gtk3,
+  libmediaart,
+  sqlite,
+  systemd,
+  tinysparql,
+  shared-mime-info,
+  gnome,
 }:
 
 stdenv.mkDerivation rec {
@@ -31,7 +33,10 @@ stdenv.mkDerivation rec {
   version = "0.40.4";
 
   # TODO: split out lib
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/${pname}/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
@@ -61,14 +66,15 @@ stdenv.mkDerivation rec {
     gupnp-av
     gupnp-dlna
     libgee
-    libsoup
+    libsoup_2_4
     gtk3
     libmediaart
     sqlite
     systemd
     tinysparql
     shared-mime-info
-  ] ++ (with gst_all_1; [
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-editing-services
     gst-plugins-base
@@ -102,7 +108,7 @@ stdenv.mkDerivation rec {
     description = "Home media solution (UPnP AV MediaServer) that allows you to easily share audio, video and pictures to other devices";
     homepage = "https://gitlab.gnome.org/GNOME/rygel";
     license = licenses.lgpl21Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.linux;
   };
 }

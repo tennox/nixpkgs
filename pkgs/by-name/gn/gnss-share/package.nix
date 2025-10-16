@@ -1,4 +1,8 @@
-{ buildGoModule, fetchFromGitLab, lib }:
+{
+  buildGoModule,
+  fetchFromGitLab,
+  lib,
+}:
 buildGoModule rec {
   pname = "gnss-share";
   version = "0.8.1";
@@ -10,7 +14,7 @@ buildGoModule rec {
   };
   vendorHash = "sha256-dmE6hfKUqEr7BMNi/HMUOk4jDB0dPXEMkWQyWj6XpY4=";
   meta = with lib; {
-    description = "share GNSS data between multiple clients";
+    description = "Share GNSS data between multiple clients";
     longDescription = ''
       gnss-share is an app that facilitates sharing GNSS location data with multiple
       clients, while providing a way to perform device-specific setup beforehand. For

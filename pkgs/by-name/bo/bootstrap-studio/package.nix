@@ -1,11 +1,15 @@
-{ lib, fetchurl, appimageTools }:
+{
+  lib,
+  fetchurl,
+  appimageTools,
+}:
 
 let
   pname = "bootstrap-studio";
-  version = "6.7.3";
+  version = "7.1.2";
   src = fetchurl {
     url = "https://releases.bootstrapstudio.io/${version}/Bootstrap%20Studio.AppImage";
-    sha256 = "sha256-Wcqhn4h5UZIYDkC5OcfWLc0hQ3liMD8tcppAva8t62A=";
+    sha256 = "sha256-tn5MkRSS2SLqVU5SQOH0WYN15wll7nREFA9rkXTPAtQ=";
   };
   appimageContents = appimageTools.extractType2 { inherit pname version src; };
 in

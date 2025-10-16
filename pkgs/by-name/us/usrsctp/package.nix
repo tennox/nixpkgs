@@ -1,4 +1,10 @@
-{ stdenv, lib, fetchFromGitHub, fetchpatch, cmake }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "usrsctp";
@@ -21,6 +27,12 @@ stdenv.mkDerivation rec {
       name = "freebsd-14.patch";
       url = "https://github.com/sctplab/usrsctp/commit/ac559d2a95277e5e0827e9ee5a1d3b1b50e0822a.patch";
       hash = "sha256-QBlzH37Xwwnn1y8pM941Zesz18p2EazfeD0lCU8n6nI=";
+    })
+
+    (fetchpatch {
+      name = "usrsctp-fix-cmake-4.patch";
+      url = "https://github.com/sctplab/usrsctp/commit/7569d2ce1e8658534369ad9726ca62139211db84.patch";
+      hash = "sha256-Hxp1SGwmpm6UK//KFLQoOmmI0a1QpSNaTaEEUbC8jbg=";
     })
   ];
 

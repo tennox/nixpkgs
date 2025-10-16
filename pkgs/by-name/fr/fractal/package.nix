@@ -1,49 +1,62 @@
-{ stdenv
-, lib
-, fetchFromGitLab
-, nix-update-script
-, cargo
-, meson
-, ninja
-, rustPlatform
-, rustc
-, pkg-config
-, glib
-, gtk4
-, gtksourceview5
-, libadwaita
-, gst_all_1
-, desktop-file-utils
-, appstream-glib
-, openssl
-, pipewire
-, libshumate
-, wrapGAppsHook4
-, sqlite
-, xdg-desktop-portal
-, libseccomp
-, glycin-loaders
+{
+  stdenv,
+  lib,
+  fetchFromGitLab,
+  nix-update-script,
+  cargo,
+  meson,
+  ninja,
+  rustPlatform,
+  rustc,
+  pkg-config,
+  glib,
+  grass-sass,
+  gtk4,
+  gtksourceview5,
+  lcms2,
+  libadwaita,
+  gst_all_1,
+  desktop-file-utils,
+  appstream-glib,
+  openssl,
+  pipewire,
+  libshumate,
+  wrapGAppsHook4,
+  sqlite,
+  xdg-desktop-portal,
+  libseccomp,
+  glycin-loaders,
+  libwebp,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "fractal";
-  version = "9";
+  version = "12.1";
 
   src = fetchFromGitLab {
     domain = "gitlab.gnome.org";
     owner = "World";
     repo = "fractal";
-    rev = "refs/tags/${version}";
-    hash = "sha256-3UI727LUYw7wUKbGRCtgpkF9NNw4XuZ3tl3KV3Ku9r4=";
+    tag = finalAttrs.version;
+    hash = "sha256-xeB6N4ljXGzysy5RnDRK1wPiIRUSDcl+5BIdp6NO5ZA=";
   };
 
-  cargoDeps = rustPlatform.importCargoLock {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "matrix-sdk-0.7.1" = "sha256-AmODDuNLpI6gXuu+oPl3MqcOnywqR8lqJ0bVOIiz02E=";
-      "ruma-0.10.1" = "sha256-6U2LKMYyY7SLOh2jJcVuDBsfcidNoia1XU+JsmhMHGY=";
-    };
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit (finalAttrs) src;
+    hash = "sha256-CHduzW++BYzasFv/x0Q1T7EaTlo1EqYY2gxQJv+ek0A=";
   };
+
+  patches = [
+    # Disable debug symbols in release builds
+    # The debug symbols are stripped afterwards anyways, and building with them requires extra memory
+    ./disable-debug.patch
+  ];
+
+  postPatch = ''
+    substituteInPlace src/meson.build --replace-fail \
+      "'src' / rust_target / meson.project_name()" \
+      "'src' / '${stdenv.hostPlatform.rust.cargoShortTarget}' / rust_target / meson.project_name()"
+  '';
 
   # Dirty approach to add patches after cargoSetupPostUnpackHook
   # We should eventually use a cargo vendor patch hook instead
@@ -55,6 +68,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     glib
+    grass-sass
     gtk4
     meson
     ninja
@@ -72,6 +86,7 @@ stdenv.mkDerivation rec {
     glib
     gtk4
     gtksourceview5
+    lcms2
     libadwaita
     openssl
     pipewire
@@ -79,11 +94,14 @@ stdenv.mkDerivation rec {
     sqlite
     xdg-desktop-portal
     libseccomp
-  ] ++ (with gst_all_1; [
+    libwebp
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-plugins-base
     gst-plugins-bad
     gst-plugins-good
+    gst-plugins-rs
   ]);
 
   preFixup = ''
@@ -92,17 +110,19 @@ stdenv.mkDerivation rec {
     )
   '';
 
+  env.CARGO_BUILD_TARGET = stdenv.hostPlatform.rust.rustcTargetSpec;
+
   passthru = {
     updateScript = nix-update-script { };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Matrix group messaging app";
-    homepage = "https://gitlab.gnome.org/GNOME/fractal";
-    changelog = "https://gitlab.gnome.org/World/fractal/-/releases/${version}";
-    license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members;
-    platforms = platforms.linux;
+    homepage = "https://gitlab.gnome.org/World/fractal";
+    changelog = "https://gitlab.gnome.org/World/fractal/-/releases/${finalAttrs.version}";
+    license = lib.licenses.gpl3Plus;
+    teams = [ lib.teams.gnome ];
+    platforms = lib.platforms.linux;
     mainProgram = "fractal";
   };
-}
+})

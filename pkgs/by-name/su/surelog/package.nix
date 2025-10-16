@@ -1,40 +1,42 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, python3
-, pkg-config
-, libuuid
-, openjdk
-, gperftools
-, gtest
-, uhdm
-, antlr4
-, capnproto
-, nlohmann_json
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  python3,
+  pkg-config,
+  libuuid,
+  openjdk,
+  gperftools,
+  gtest,
+  uhdm,
+  antlr4,
+  capnproto,
+  nlohmann_json,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "surelog";
-  version = "1.84-unstable-2024-11-09";
+  version = "1.86";
 
   src = fetchFromGitHub {
     owner = "chipsalliance";
     repo = "surelog";
-    # Once we're back on a stable tag, use "v$(finalAttrs.version}" below.
-    rev = "da88163a02dbc16f1af3514f281b93941d371ad9";
-    hash = "sha256-TIwXIMcDImZjCIiXwvT2MhukArgrWCgOf2AOvkG/55g=";
-    fetchSubmodules = false;  # we use all dependencies from nix
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
+    fetchSubmodules = false; # we use all dependencies from nix
   };
 
   nativeBuildInputs = [
     cmake
     pkg-config
     openjdk
-    (python3.withPackages (p: with p; [
-      psutil
-      orderedmultidict
-    ]))
+    (python3.withPackages (
+      p: with p; [
+        psutil
+        orderedmultidict
+      ]
+    ))
     gtest
     antlr4
   ];
@@ -70,7 +72,10 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/chipsalliance/Surelog";
     license = lib.licenses.asl20;
     mainProgram = "surelog";
-    maintainers = with lib.maintainers; [ matthuszagh hzeller ];
+    maintainers = with lib.maintainers; [
+      matthuszagh
+      hzeller
+    ];
     platforms = lib.platforms.all;
   };
 })

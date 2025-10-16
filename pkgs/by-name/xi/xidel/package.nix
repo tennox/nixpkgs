@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fpc, openssl }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fpc,
+  openssl,
+}:
 
 let
   flreSrc = fetchFromGitHub {
@@ -31,13 +37,14 @@ let
     rev = "1696f0a2b822fef26c8992f96620f1be129cfa99";
     hash = "sha256-x0AjOTa1g7gJOR2iBO76yBt1kzcRNujHRUsq5QOlfP0=";
   };
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation {
   pname = "xidel";
   version = "unstable-2022-11-01";
 
   src = fetchFromGitHub {
     owner = "benibela";
-    repo = pname;
+    repo = "xidel";
     rev = "6d5655c1d73b88ddeb32d2450a35ee36e4762bb8";
     hash = "sha256-9x2d5AKRBjocRawRHdeI4heIM5nb00/F/EIj+/to7ac=";
   };
@@ -59,7 +66,7 @@ in stdenv.mkDerivation rec {
       tests/zorbajsoniq/download.sh
   '';
 
-  preBuildPhase = ''
+  preBuild = ''
     mkdir -p import/{flre,synapse,pasdblstrutils} rcmdline internettools
     cp -R ${flreSrc}/. import/flre
     cp -R ${pasdblstrutilsSrc}/. import/pasdblstrutils
@@ -73,9 +80,9 @@ in stdenv.mkDerivation rec {
   '';
 
   buildPhase = ''
-    runHook preBuildPhase
+    runHook preBuild
     ./build.sh
-    runHook postBuildPhase
+    runHook postBuild
   '';
 
   installPhase = ''

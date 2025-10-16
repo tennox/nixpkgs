@@ -1,15 +1,19 @@
-{ lib, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, hidapi
-, SDL2
-, libGL
-, glew
-, withExamples ? true
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  hidapi,
+  SDL2,
+  libGL,
+  glew,
+  withExamples ? true,
 }:
 
-let examplesOnOff = if withExamples then "ON" else "OFF"; in
+let
+  examplesOnOff = if withExamples then "ON" else "OFF";
+in
 
 stdenv.mkDerivation rec {
   pname = "openhmd";
@@ -22,11 +26,22 @@ stdenv.mkDerivation rec {
     sha256 = "1hkpdl4zgycag5k8njvqpx01apxmm8m8pvhlsxgxpqiqy9a38ccg";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  # substitute for CMake 4 compat
+  # "OpenHMD is currently NOT ACTIVELY MAINTAINED" in upstream README
+  postPatch = ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail "cmake_minimum_required(VERSION 3.1)" "cmake_minimum_required(VERSION 3.10)"
+  '';
+
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
   buildInputs = [
     hidapi
-  ] ++ lib.optionals withExamples [
+  ]
+  ++ lib.optionals withExamples [
     SDL2
     glew
     libGL

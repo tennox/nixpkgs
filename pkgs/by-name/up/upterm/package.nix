@@ -1,24 +1,28 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, nixosTests
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  nixosTests,
 }:
 
 buildGoModule rec {
   pname = "upterm";
-  version = "0.14.3";
+  version = "0.15.3";
 
   src = fetchFromGitHub {
     owner = "owenthereal";
     repo = "upterm";
     rev = "v${version}";
-    hash = "sha256-koZRKxp6Q52jvpmQqQAGvPHoiiU2LaEuNeRY/rru+XM=";
+    hash = "sha256-9h4Poz0hUg5/7CrF0ZzT4KrVaFlhvcorIgZbleMpV6w=";
   };
 
-  vendorHash = "sha256-PUcfE7LQQh2ftiOiOoucSfxYnTI4zRNmmSqqmvvvs7g=";
+  vendorHash = "sha256-i92RshW5dsRE88X8bXyrj13va66cc0Yu/btpR0pvoSM=";
 
-  subPackages = [ "cmd/upterm" "cmd/uptermd" ];
+  subPackages = [
+    "cmd/upterm"
+    "cmd/uptermd"
+  ];
 
   nativeBuildInputs = [ installShellFiles ];
 

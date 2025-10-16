@@ -1,8 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, curl }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  curl,
+}:
 
 stdenv.mkDerivation {
   pname = "metar";
-  version = "unstable-2017-02-17";
+  version = "0-unstable-2017-02-17";
 
   src = fetchFromGitHub {
     owner = "keesL";

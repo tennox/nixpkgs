@@ -1,22 +1,38 @@
-{ lib, stdenv, fetchFromGitHub, zlib, curl, expat, fuse, openssl
-, autoreconfHook, python3, libiconv
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  zlib,
+  curl,
+  expat,
+  fuse,
+  fuse3,
+  openssl,
+  autoreconfHook,
+  python3,
 }:
 
-stdenv.mkDerivation rec {
-  version = "3.7.20";
+stdenv.mkDerivation (finalAttrs: {
+  version = "3.7.22";
   pname = "afflib";
 
   src = fetchFromGitHub {
     owner = "sshock";
     repo = "AFFLIBv3";
-    rev = "v${version}";
-    sha256 = "sha256-xkqBfTftzn+rgeuoaKfHP7vQmy4VZuaCq8VFlfZTUE4=";
+    tag = "v${finalAttrs.version}";
+    sha256 = "sha256-pGInhJQBhFJhft/KfB3J3S9/BVp9D8TZ+uw2CUNVC+Q=";
   };
 
   nativeBuildInputs = [ autoreconfHook ];
-  buildInputs = [ zlib curl expat openssl python3 ]
-    ++ lib.optionals (with stdenv; isLinux || isDarwin) [ fuse ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
+  buildInputs = [
+    zlib
+    curl
+    expat
+    openssl
+    python3
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ fuse3 ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ fuse ];
 
   meta = {
     homepage = "http://afflib.sourceforge.net/";
@@ -26,4 +42,4 @@ stdenv.mkDerivation rec {
     maintainers = [ lib.maintainers.raskin ];
     downloadPage = "https://github.com/sshock/AFFLIBv3/tags";
   };
-}
+})

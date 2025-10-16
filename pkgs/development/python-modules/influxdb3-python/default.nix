@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "influxdb3-python";
-  version = "0.9.0";
+  version = "0.16.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -23,8 +23,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "InfluxCommunity";
     repo = "influxdb3-python";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-4P+bQEldyBNh4qsIkoZLXnUOrQ5wVGbr55xbS0oQMMM=";
+    tag = "v${version}";
+    hash = "sha256-o4w1+srucPlRq/NqICvdRNxmghxEBoXH05m3m0GQJFM=";
   };
 
   postPatch = ''
@@ -65,7 +65,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python module that provides a simple and convenient way to interact with InfluxDB 3.0";
     homepage = "https://github.com/InfluxCommunity/influxdb3-python";
-    changelog = "https://github.com/InfluxCommunity/influxdb3-python/releases/tag/v${version}";
+    changelog = "https://github.com/InfluxCommunity/influxdb3-python/releases/tag/${src.tag}";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
   };

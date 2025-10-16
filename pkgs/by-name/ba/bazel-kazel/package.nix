@@ -1,4 +1,8 @@
-{ buildGoModule, fetchFromGitHub, lib }:
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+}:
 
 buildGoModule rec {
   pname = "bazel-kazel";
@@ -18,7 +22,7 @@ buildGoModule rec {
   subPackages = [ "cmd/kazel" ];
 
   meta = with lib; {
-    description = "kazel - a BUILD file generator for go and bazel";
+    description = "BUILD file generator for go and bazel";
     homepage = "https://github.com/kubernetes/repo-infra";
     license = licenses.asl20;
     maintainers = with maintainers; [ kalbasit ];

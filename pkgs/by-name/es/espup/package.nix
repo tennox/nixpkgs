@@ -1,30 +1,31 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, installShellFiles
-, bzip2
-, openssl
-, xz
-, zstd
-, stdenv
-, darwin
-, testers
-, espup
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  installShellFiles,
+  bzip2,
+  openssl,
+  xz,
+  zstd,
+  stdenv,
+  testers,
+  writableTmpDirAsHomeHook,
+  nix-update-script,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "espup";
-  version = "0.13.0";
+  version = "0.16.0";
 
   src = fetchFromGitHub {
     owner = "esp-rs";
     repo = "espup";
-    rev = "v${version}";
-    hash = "sha256-okB8K0ly3MvnkVve41eT0SNr5dPn5E5QXewqLHGL/Tc=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-blEjUFBzkwplwZgTAtI84MCHvxujNF1WsPJJezRNjxQ=";
   };
 
-  cargoHash = "sha256-n2tLG3logtc73Ut/R1UGuLSm7MpZ4Bxp/08SOhGL+80=";
+  cargoHash = "sha256-Y6Y+62lJ3k6GMkU82CDkTt1Prd3UrtBKqA5Spctochw=";
 
   nativeBuildInputs = [
     pkg-config
@@ -36,10 +37,6 @@ rustPlatform.buildRustPackage rec {
     openssl
     xz
     zstd
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreFoundation
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
   env = {
@@ -47,9 +44,7 @@ rustPlatform.buildRustPackage rec {
     ZSTD_SYS_USE_PKG_CONFIG = true;
   };
 
-  preCheck = ''
-    export HOME=$(mktemp -d)
-  '';
+  nativeCheckInputs = [ writableTmpDirAsHomeHook ];
 
   checkFlags = [
     # makes network calls
@@ -63,15 +58,24 @@ rustPlatform.buildRustPackage rec {
       --zsh <($out/bin/espup completions zsh)
   '';
 
-  passthru.tests.version = testers.testVersion {
-    package = espup;
+  passthru = {
+    updateScript = nix-update-script { };
+    tests.version = testers.testVersion {
+      package = finalAttrs.finalPackage;
+    };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Tool for installing and maintaining Espressif Rust ecosystem";
     homepage = "https://github.com/esp-rs/espup/";
-    license = with licenses; [ mit asl20 ];
-    maintainers = with maintainers; [ knightpp beeb ];
+    license = with lib.licenses; [
+      mit
+      asl20
+    ];
+    maintainers = with lib.maintainers; [
+      knightpp
+      beeb
+    ];
     mainProgram = "espup";
   };
-}
+})

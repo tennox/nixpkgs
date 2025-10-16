@@ -31,7 +31,9 @@ rustPlatform.buildRustPackage {
 
   buildFeatures = [
     "dynamic-linking"
-  ] ++ lib.optional enableS3 "s3" ++ lib.optional enableAzure "azure";
+  ]
+  ++ lib.optional enableS3 "s3"
+  ++ lib.optional enableAzure "azure";
 
   buildInputs = [
     openssl

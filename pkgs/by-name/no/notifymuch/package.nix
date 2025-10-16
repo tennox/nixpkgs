@@ -1,13 +1,14 @@
-{ lib
-, fetchFromGitHub
-, gobject-introspection
-, libnotify
-, wrapGAppsHook3
-, gtk3
-, python3
+{
+  lib,
+  fetchFromGitHub,
+  gobject-introspection,
+  libnotify,
+  wrapGAppsHook3,
+  gtk3,
+  python3,
 }:
 
-python3.pkgs.buildPythonApplication rec {
+python3.pkgs.buildPythonApplication {
   pname = "notifymuch";
   version = "0.1";
   format = "setuptools";
@@ -23,7 +24,8 @@ python3.pkgs.buildPythonApplication rec {
   propagatedBuildInputs = [
     libnotify
     gtk3
-  ] ++ (with python3.pkgs; [
+  ]
+  ++ (with python3.pkgs; [
     notmuch
     pygobject3
   ]);

@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchurl
-, enableShared ? !stdenv.hostPlatform.isStatic
-, windows
+{
+  lib,
+  stdenv,
+  fetchurl,
+  enableShared ? !stdenv.hostPlatform.isStatic,
+  windows,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -35,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
   env.NIX_CFLAGS_COMPILE = "-Wno-error";
   env.CONFIG_PFMLIB_SHARED = if enableShared then "y" else "n";
 
-  buildInputs = lib.optional stdenv.hostPlatform.isWindows windows.libgnurx;
+  buildInputs = lib.optional stdenv.hostPlatform.isMinGW windows.libgnurx;
 
   meta = with lib; {
     description = "Helper library to program the performance monitoring events";
@@ -46,7 +47,10 @@ stdenv.mkDerivation (finalAttrs: {
       (PMU) of modern processors.
     '';
     license = licenses.gpl2;
-    maintainers = with maintainers; [ pierron t4ccer ];
+    maintainers = with maintainers; [
+      pierron
+      t4ccer
+    ];
     platforms = platforms.linux ++ platforms.windows;
   };
 })

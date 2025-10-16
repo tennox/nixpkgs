@@ -1,20 +1,21 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, makeWrapper
-, pandoc
-, installShellFiles
-, perl
-, xorg
-, libGLX
-, coreutils
-, unixtools
-, runtimeShell
-, targetPackages
-, gnugrep
-, gawk
-, withGL? true
-, withX11perf? true
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  pandoc,
+  installShellFiles,
+  perl,
+  xorg,
+  libGLX,
+  coreutils,
+  unixtools,
+  runtimeShell,
+  targetPackages,
+  gnugrep,
+  gawk,
+  withGL ? true,
+  withX11perf ? true,
 }:
 
 stdenv.mkDerivation rec {
@@ -47,7 +48,10 @@ stdenv.mkDerivation rec {
     installShellFiles
   ];
 
-  buildInputs = [ perl ] ++ lib.optionals withGL [
+  buildInputs = [
+    perl
+  ]
+  ++ lib.optionals withGL [
     xorg.libX11
     xorg.libXext
     libGLX
@@ -55,18 +59,20 @@ stdenv.mkDerivation rec {
 
   runtimeDependencies = [
     coreutils
-    unixtools.nettools
+    unixtools.net-tools
     unixtools.locale
     targetPackages.stdenv.cc
     gnugrep
     gawk
-  ] ++ lib.optionals withX11perf [
+  ]
+  ++ lib.optionals withX11perf [
     xorg.x11perf
   ];
 
   makeFlags = [
     "CC=${stdenv.cc.targetPrefix}cc"
-  ] ++ lib.optionals withGL [
+  ]
+  ++ lib.optionals withGL [
     "GRAPHIC_TESTS=defined"
   ];
 

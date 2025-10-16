@@ -1,39 +1,49 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, libpcap
-, libxkbcommon
-, openssl
-, stdenv
-, alsa-lib
-, expat
-, fontconfig
-, vulkan-loader
-, wayland
-, xorg
-, darwin
+{
+  lib,
+  stdenv,
+  rustPlatform,
+  fetchFromGitHub,
+
+  # nativeBuildInputs
+  pkg-config,
+
+  # buildInputs
+  libpcap,
+  openssl,
+  alsa-lib,
+  expat,
+  fontconfig,
+  vulkan-loader,
+  xorg,
+
+  # wrapper
+  libxkbcommon,
+  wayland,
+
+  # tests
+  versionCheckHook,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "sniffnet";
-  version = "1.3.1";
+  version = "1.4.1";
 
   src = fetchFromGitHub {
     owner = "gyulyvgc";
     repo = "sniffnet";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-wepy56LOhliU6t0ZRPviEbZtsWNqrtUnpUXsEdkRDqI=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-EgnFDF+K8qGjunWB20VA8bXLzNvyGzcIaim+smhW5fU=";
   };
 
-  cargoHash = "sha256-cV3WhidnH2CBlmHa3IVHTQfTuPdSHwwY0XhgNPyLDN4=";
+  cargoHash = "sha256-22P1EeZ2FqwIHjr23oJCKvg3ggT1Me93goELwZ/B9S4=";
 
   nativeBuildInputs = [ pkg-config ];
 
   buildInputs = [
     libpcap
     openssl
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
     expat
     fontconfig
@@ -42,14 +52,15 @@ rustPlatform.buildRustPackage rec {
     xorg.libXcursor
     xorg.libXi
     xorg.libXrandr
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.AppKit
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     rustPlatform.bindgenHook
   ];
 
   # requires internet access
   checkFlags = [
     "--skip=secondary_threads::check_updates::tests::fetch_latest_release_from_github"
+    "--skip=utils::check_updates::tests::fetch_latest_release_from_github"
   ];
 
   postInstall = ''
@@ -64,15 +75,32 @@ rustPlatform.buildRustPackage rec {
 
   postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     patchelf $out/bin/sniffnet \
-      --add-rpath ${lib.makeLibraryPath [ vulkan-loader xorg.libX11 libxkbcommon wayland ]}
+      --add-rpath ${
+        lib.makeLibraryPath [
+          vulkan-loader
+          xorg.libX11
+          libxkbcommon
+          wayland
+        ]
+      }
   '';
 
-  meta = with lib; {
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = "--version";
+  doInstallCheck = true;
+
+  meta = {
     description = "Cross-platform application to monitor your network traffic with ease";
     homepage = "https://github.com/gyulyvgc/sniffnet";
-    changelog = "https://github.com/gyulyvgc/sniffnet/blob/v${version}/CHANGELOG.md";
-    license = with licenses; [ mit /* or */ asl20 ];
-    maintainers = with maintainers; [ figsoda ];
+    changelog = "https://github.com/gyulyvgc/sniffnet/blob/v${finalAttrs.version}/CHANGELOG.md";
+    license = with lib.licenses; [
+      mit # or
+      asl20
+    ];
+    maintainers = with lib.maintainers; [ figsoda ];
+    teams = [ lib.teams.ngi ];
     mainProgram = "sniffnet";
   };
-}
+})

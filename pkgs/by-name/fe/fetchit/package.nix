@@ -1,27 +1,32 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, lvm2
-, pkg-config
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  lvm2,
+  pkg-config,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "fetchit";
   version = "0.0.1";
 
   src = fetchFromGitHub {
     owner = "containers";
     repo = "fetchit";
-    rev = "v${version}";
-    sha256 = "sha256-hxS/+/fbYOpMJ5VfvvG5l7wWKBUUR22rYn9X79DzUUk=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-hxS/+/fbYOpMJ5VfvvG5l7wWKBUUR22rYn9X79DzUUk=";
   };
 
   vendorHash = "sha256-SyPd8P9s8R2YbGEPqFeztF98W1QyGSBumtirSdpm8VI=";
 
   subPackages = [ "cmd/fetchit" ];
 
-  nativeBuildInputs = [ pkg-config installShellFiles ];
+  nativeBuildInputs = [
+    pkg-config
+    installShellFiles
+  ];
   buildInputs = [ lvm2 ];
 
   # Flags are derived from
@@ -54,14 +59,14 @@ buildGoModule rec {
   # There are no tests for cmd/fetchit.
   doCheck = false;
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     for i in bash fish zsh; do
       installShellCompletion --cmd fetchit \
         --$i <($out/bin/fetchit completion $i)
     done
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Tool to manage the life cycle and configuration of Podman containers";
     mainProgram = "fetchit";
     longDescription = ''
@@ -74,9 +79,9 @@ buildGoModule rec {
       the containers running on the host.
     '';
     homepage = "https://fetchit.readthedocs.io";
-    changelog = "https://github.com/containers/fetchit/releases/tag/${src.rev}";
-    license = licenses.agpl3Plus;
-    maintainers = with maintainers; [ azahi ];
-    platforms = platforms.linux;
+    changelog = "https://github.com/containers/fetchit/releases/tag/v${finalAttrs.version}";
+    license = lib.licenses.agpl3Plus;
+    maintainers = with lib.maintainers; [ guylamar2006 ];
+    platforms = lib.platforms.linux;
   };
-}
+})

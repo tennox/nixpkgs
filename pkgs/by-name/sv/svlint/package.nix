@@ -1,27 +1,31 @@
-{ lib
-, rustPlatform
-, fetchCrate
+{
+  lib,
+  rustPlatform,
+  fetchCrate,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "svlint";
-  version = "0.9.3";
+  version = "0.9.4";
 
   src = fetchCrate {
     inherit pname version;
-    hash = "sha256-u61gmkO7eij7r1A1RPk0ro+pml7ZmMsg0ukJLCFNaD0=";
+    hash = "sha256-YtBI2AnwSyeirHAXRavRKayfAmgXyyCMNhfEbUMXPgk=";
   };
 
-  cargoHash = "sha256-HBfCTOETQ1hHzLFDw12W58omRmliiWDFGSrmr3PELD8=";
+  cargoHash = "sha256-78v28MEW06AIMZa2lNmql3/3t6bI+HCW48vKzRTDjFQ=";
 
-  cargoBuildFlags = [ "--bin" "svlint" ];
+  cargoBuildFlags = [
+    "--bin"
+    "svlint"
+  ];
 
-  meta = with lib; {
+  meta = {
     description = "SystemVerilog linter";
     mainProgram = "svlint";
     homepage = "https://github.com/dalance/svlint";
     changelog = "https://github.com/dalance/svlint/blob/v${version}/CHANGELOG.md";
-    license = licenses.mit;
-    maintainers = with maintainers; [ trepetti ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ trepetti ];
   };
 }

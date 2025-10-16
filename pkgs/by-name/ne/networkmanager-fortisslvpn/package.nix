@@ -1,22 +1,23 @@
-{ stdenv
-, lib
-, fetchurl
-, substituteAll
-, openfortivpn
-, autoreconfHook
-, gettext
-, pkg-config
-, file
-, glib
-, gtk3
-, gtk4
-, networkmanager
-, ppp
-, libsecret
-, withGnome ? true
-, gnome
-, libnma
-, libnma-gtk4
+{
+  stdenv,
+  lib,
+  fetchurl,
+  replaceVars,
+  openfortivpn,
+  autoreconfHook,
+  gettext,
+  pkg-config,
+  file,
+  glib,
+  gtk3,
+  gtk4,
+  networkmanager,
+  ppp,
+  libsecret,
+  withGnome ? true,
+  gnome,
+  libnma,
+  libnma-gtk4,
 }:
 
 stdenv.mkDerivation rec {
@@ -30,18 +31,21 @@ stdenv.mkDerivation rec {
   };
 
   patches = [
-    (substituteAll {
-      src = ./fix-paths.patch;
+    (replaceVars ./fix-paths.patch {
       inherit openfortivpn;
     })
     ./support-ppp-2.5.0.patch
+    ./pppd-accept-remote.patch
   ];
+
+  strictDeps = true;
 
   nativeBuildInputs = [
     autoreconfHook
     gettext
     pkg-config
     file
+    glib
   ];
 
   buildInputs = [
@@ -49,7 +53,8 @@ stdenv.mkDerivation rec {
     networkmanager
     ppp
     glib
-  ] ++ lib.optionals withGnome [
+  ]
+  ++ lib.optionals withGnome [
     gtk3
     gtk4
     libsecret
@@ -77,11 +82,14 @@ stdenv.mkDerivation rec {
       versionPolicy = "odd-unstable";
     };
     networkManagerPlugin = "VPN/nm-fortisslvpn-service.name";
+    networkManagerTmpfilesRules = [
+      "d /var/lib/NetworkManager-fortisslvpn 0700 root root -"
+    ];
   };
 
   meta = with lib; {
     description = "NetworkManager’s FortiSSL plugin";
-    inherit (networkmanager.meta) maintainers platforms;
+    inherit (networkmanager.meta) maintainers teams platforms;
     license = licenses.gpl2Plus;
   };
 }

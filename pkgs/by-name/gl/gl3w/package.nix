@@ -1,21 +1,36 @@
-{ lib, stdenv, fetchFromGitHub, python3, cmake, libglvnd, libGLU, unstableGitUpdater }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  python3,
+  cmake,
+  libglvnd,
+  libGLU,
+  unstableGitUpdater,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "gl3w";
-  version = "0-unstable-2023-10-10";
+  version = "0-unstable-2025-09-23";
 
   src = fetchFromGitHub {
     owner = "skaslev";
-    repo = pname;
-    rev = "3a33275633ce4be433332dc776e6a5b3bdea6506";
-    hash = "sha256-kEm5QItpasSFJQ32YBHPpc+itz/nQ8bQMCavbOTGT/w=";
+    repo = "gl3w";
+    rev = "97a85e153d7f43c8d2de8b776a33721e238ddb96";
+    hash = "sha256-cpB/8qo9dDyKPxD6mRriKGZf7N7ei1oL5JtM4jgXsAw=";
   };
 
-  nativeBuildInputs = [ python3 cmake ];
+  nativeBuildInputs = [
+    python3
+    cmake
+  ];
   # gl3w installs a CMake config that when included expects to be able to
   # build and link against both of these libraries
   # (the gl3w generated C file gets compiled into the downstream target)
-  propagatedBuildInputs = [ libglvnd libGLU ];
+  propagatedBuildInputs = [
+    libglvnd
+    libGLU
+  ];
 
   dontUseCmakeBuildDir = true;
 

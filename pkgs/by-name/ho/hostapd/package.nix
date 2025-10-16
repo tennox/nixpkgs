@@ -19,7 +19,11 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ libnl openssl sqlite ];
+  buildInputs = [
+    libnl
+    openssl
+    sqlite
+  ];
 
   patches = [
     (fetchurl {
@@ -30,7 +34,10 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  outputs = [ "out" "man" ];
+  outputs = [
+    "out"
+    "man"
+  ];
 
   # Based on hostapd's defconfig. Only differences are tracked.
   extraConfig = ''
@@ -90,7 +97,8 @@ stdenv.mkDerivation rec {
     CONFIG_IEEE80211AC=y
     CONFIG_IEEE80211AX=y
     CONFIG_IEEE80211BE=y
-  '' + lib.optionalString (sqlite != null) ''
+  ''
+  + lib.optionalString (sqlite != null) ''
     CONFIG_SQLITE=y
   '';
 

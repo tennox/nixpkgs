@@ -1,5 +1,15 @@
-{ lib, mkDerivation, fetchFromGitHub, pkg-config, qmake
-, SDL2, fluidsynth, libsndfile, libvorbis, mpg123, qtbase
+{
+  lib,
+  mkDerivation,
+  fetchFromGitHub,
+  pkg-config,
+  qmake,
+  SDL2,
+  fluidsynth,
+  libsndfile,
+  libvorbis,
+  mpg123,
+  qtbase,
 }:
 
 mkDerivation rec {
@@ -8,14 +18,24 @@ mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "realnc";
-    repo = pname;
+    repo = "qtads";
     rev = "v${version}";
     sha256 = "sha256-KIqufpvl7zeUtDBXUOAZxBIbfv+s51DoSaZr3jol+bw=";
   };
 
-  nativeBuildInputs = [ pkg-config qmake ];
+  nativeBuildInputs = [
+    pkg-config
+    qmake
+  ];
 
-  buildInputs = [ SDL2 fluidsynth libsndfile libvorbis mpg123 qtbase ];
+  buildInputs = [
+    SDL2
+    fluidsynth
+    libsndfile
+    libvorbis
+    mpg123
+    qtbase
+  ];
 
   meta = with lib; {
     homepage = "https://realnc.github.io/qtads/";

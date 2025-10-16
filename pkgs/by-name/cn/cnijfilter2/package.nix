@@ -1,5 +1,16 @@
-{ stdenv, lib, fetchzip, autoconf, automake, cups, glib, libxml2, libusb1, libtool
-, withDebug ? false }:
+{
+  stdenv,
+  lib,
+  fetchzip,
+  autoconf,
+  automake,
+  cups,
+  glib,
+  libxml2,
+  libusb1,
+  libtool,
+  withDebug ? false,
+}:
 
 stdenv.mkDerivation {
   pname = "cnijfilter2";
@@ -11,16 +22,24 @@ stdenv.mkDerivation {
     sha256 = "3RoG83jLOsdTEmvUkkxb7wa8oBrJA4v1mGtxTGwSowU=";
   };
 
-  nativeBuildInputs = [ automake autoconf ];
+  nativeBuildInputs = [
+    automake
+    autoconf
+  ];
   buildInputs = [
-    cups glib libxml2 libusb1 libtool
+    cups
+    glib
+    libxml2
+    libusb1
+    libtool
   ];
 
   patches = [
     ./patches/get_protocol.patch
+    ./patches/add_missing_import.patch
   ];
 
-  # lgmon3's --enable-libdir flag is used soley for specifying in which
+  # lgmon3's --enable-libdir flag is used solely for specifying in which
   # directory the cnnnet.ini cache file should reside.
   # NixOS uses /var/cache/cups, and given the name, it seems like a reasonable
   # place to put the cnnet.ini file, and thus we do so.
@@ -34,9 +53,11 @@ stdenv.mkDerivation {
     ln -s $out/lib/libcnbpcnclapicom2.so $out/lib/cups/filter
 
     export NIX_LDFLAGS="$NIX_LDFLAGS -L$out/lib"
-  '' + lib.optionalString withDebug ''
+  ''
+  + lib.optionalString withDebug ''
     export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -D__DEBUG__ -DDEBUG_LOG"
-  '' + ''
+  ''
+  + ''
 
     (
       cd lgmon3
@@ -144,7 +165,10 @@ stdenv.mkDerivation {
     '';
     homepage = "https://hk.canon/en/support/0101048401/1";
     license = licenses.unfree;
-    platforms = [ "i686-linux" "x86_64-linux" ];
+    platforms = [
+      "i686-linux"
+      "x86_64-linux"
+    ];
     maintainers = [ ];
   };
 }

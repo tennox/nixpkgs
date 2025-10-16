@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libccd";
@@ -6,7 +12,7 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "danfis";
-    repo = pname;
+    repo = "libccd";
     rev = "v${version}";
     sha256 = "0sfmn5pd7k5kyhbxnd689xmsa5v843r7sska96dlysqpljd691jc";
   };
@@ -19,6 +25,14 @@ stdenv.mkDerivation rec {
       sha256 = "02wj21c185kwf8bn4qi4cnna0ypzqm481xw9rr8jy1i0cb1r9idg";
     })
   ];
+
+  # fix for CMake v4
+  # ref https://github.com/danfis/libccd/pull/82, not merged yet
+  postPatch = ''
+    substituteInPlace CMakeLists.txt --replace-fail \
+      "cmake_minimum_required(VERSION 2.8.11)" \
+      "cmake_minimum_required(VERSION 3.12)"
+  '';
 
   nativeBuildInputs = [ cmake ];
 

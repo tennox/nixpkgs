@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 stdenv.mkDerivation rec {
   pname = "caps";
   version = "0.9.26";
@@ -8,7 +12,11 @@ stdenv.mkDerivation rec {
   };
 
   configurePhase = ''
+    runHook preConfigure
+
     echo "PREFIX = $out" > defines.make
+
+    runHook postConfigure
   '';
 
   meta = {
@@ -24,7 +32,6 @@ stdenv.mkDerivation rec {
     '';
     homepage = "http://www.quitte.de/dsp/caps.html";
     license = lib.licenses.gpl3;
-    maintainers = [ lib.maintainers.astsmtl ];
     platforms = lib.platforms.linux;
   };
 }

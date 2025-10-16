@@ -1,22 +1,23 @@
-{ lib
-, pkg-config
-, stdenv
-, fetchFromGitHub
-, autoPatchelfHook
-, alsa-lib
-, cmake
-, freetype
-, libGL
-, libX11
-, libXcursor
-, libXext
-, libXinerama
-, libXrandr
-, libjack2
-, libopus
-, curl
-, gtk3
-, webkitgtk_4_0
+{
+  lib,
+  pkg-config,
+  stdenv,
+  fetchFromGitHub,
+  autoPatchelfHook,
+  alsa-lib,
+  cmake,
+  freetype,
+  libGL,
+  libX11,
+  libXcursor,
+  libXext,
+  libXinerama,
+  libXrandr,
+  libjack2,
+  libopus,
+  curl,
+  gtk3,
+  webkitgtk_4_0,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -26,7 +27,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "sonosaurus";
     repo = "sonobus";
-    rev = finalAttrs.version;
+    tag = finalAttrs.version;
     hash = "sha256-NOdmHFKrV7lb8XbeG5GdLKYZ0c/vcz3fcqYj9JvE+/Q=";
     fetchSubmodules = true;
   };

@@ -1,22 +1,25 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, testers
-, zig_0_10
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  testers,
+  zig_0_15,
 }:
-
+let
+  zig = zig_0_15;
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "findup";
-  version = "1.1.1";
+  version = "2.0.0";
 
   src = fetchFromGitHub {
     owner = "booniepepper";
     repo = "findup";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-Tpyiy5oJQ04lqVEOFshFC0+90VoNILQ+N6Dd7lbuH/Q=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-6/rQ4xNfzJQwJgrpvFRuirqlx6fVn7sLXfVRFsG3fUw=";
   };
 
-  nativeBuildInputs = [ zig_0_10.hook ];
+  nativeBuildInputs = [ zig.hook ];
 
   passthru.tests.version = testers.testVersion { package = finalAttrs.finalPackage; };
 

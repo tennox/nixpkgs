@@ -1,20 +1,24 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation rec {
   pname = "plog";
-  version = "1.1.10";
+  version = "1.1.11";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "SergiusTheBest";
-    repo = pname;
+    repo = "plog";
     rev = version;
-    hash = "sha256-NZphrg9OB1FTY2ifu76AXeCyGwW2a2BkxMGjZPf4uM8=";
+    hash = "sha256-/H7qNL6aPjmFYk0X1sx4CCSZWrAMQgPo8I9X/P50ln0=";
   };
 
   strictDeps = true;
@@ -31,6 +35,9 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/SergiusTheBest/plog";
     license = licenses.mit;
     platforms = platforms.linux ++ platforms.darwin;
-    maintainers = with maintainers; [ raphaelr erdnaxe ];
+    maintainers = with maintainers; [
+      raphaelr
+      erdnaxe
+    ];
   };
 }

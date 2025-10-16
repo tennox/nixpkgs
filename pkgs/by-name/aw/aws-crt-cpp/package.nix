@@ -1,41 +1,43 @@
-{ lib, stdenv
-, fetchFromGitHub
-, aws-c-auth
-, aws-c-cal
-, aws-c-common
-, aws-c-compression
-, aws-c-event-stream
-, aws-c-http
-, aws-c-io
-, aws-c-mqtt
-, aws-c-s3
-, aws-checksums
-, cmake
-, s2n-tls
-, nix
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  aws-c-auth,
+  aws-c-cal,
+  aws-c-common,
+  aws-c-compression,
+  aws-c-event-stream,
+  aws-c-http,
+  aws-c-io,
+  aws-c-mqtt,
+  aws-c-s3,
+  aws-checksums,
+  cmake,
+  s2n-tls,
+  nix,
 }:
 
 stdenv.mkDerivation rec {
   pname = "aws-crt-cpp";
-  version = "0.26.12";
+  # nixpkgs-update: no auto update
+  version = "0.34.3";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "awslabs";
     repo = "aws-crt-cpp";
     rev = "v${version}";
-    sha256 = "sha256-mVihmcl24gFLnF3A/qLSvr2npOotMlBH7TqU5vOwI9g=";
+    sha256 = "sha256-jKmIsWAzxnfsNgHavR6crhIQXVJq/PbQgaj4KVGrMP0=";
   };
 
-  patches = [
-    # Correct include path for split outputs.
-    # https://github.com/awslabs/aws-crt-cpp/pull/325
-    ./0001-build-Make-includedir-properly-overrideable.patch
-  ];
-
   postPatch = ''
-    substituteInPlace CMakeLists.txt --replace '-Werror' ""
+    substituteInPlace CMakeLists.txt \
+      --replace-fail "$<INSTALL_INTERFACE:include>" "$<INSTALL_INTERFACE:$dev/include>" \
+      --replace-fail '-Werror' ""
   '';
 
   nativeBuildInputs = [

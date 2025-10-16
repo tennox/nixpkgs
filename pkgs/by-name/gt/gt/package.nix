@@ -1,10 +1,17 @@
-{ stdenv, lib, fetchFromGitHub, cmake, bash-completion, pkg-config, libconfig
-, asciidoc
-, libusbgx
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  bash-completion,
+  pkg-config,
+  libconfig,
+  asciidoc,
+  libusbgx,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "gt";
-  version = "unstable-2022-05-08";
+  version = "0-unstable-2022-05-08";
 
   src = fetchFromGitHub {
     owner = "linux-usb-gadgets";
@@ -19,9 +26,17 @@ stdenv.mkDerivation (finalAttrs: {
     cmakeFlagsArray+=("-DBASH_COMPLETION_COMPLETIONSDIR=$out/share/bash-completions/completions")
   '';
 
-  nativeBuildInputs = [ cmake pkg-config asciidoc ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    asciidoc
+  ];
 
-  buildInputs = [ bash-completion libconfig libusbgx];
+  buildInputs = [
+    bash-completion
+    libconfig
+    libusbgx
+  ];
 
   meta = {
     description = "Linux command line tool for setting up USB gadgets using configfs";

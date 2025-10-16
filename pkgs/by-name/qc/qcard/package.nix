@@ -1,17 +1,18 @@
-{ lib
-, buildGoModule
-, fetchFromSourcehut
+{
+  lib,
+  buildGoModule,
+  fetchFromSourcehut,
 }:
 
 buildGoModule rec {
   pname = "qcard";
-  version = "0.7.1";
+  version = "0.7.2";
 
   src = fetchFromSourcehut {
     owner = "~psic4t";
     repo = "qcard";
     rev = version;
-    hash = "sha256-OwmJSeAOZTX7jMhoLHSIJa0jR8zCadISQF/PqFqltRY=";
+    hash = "sha256-9LLinUIPzvNItzz4LZpUg0zIwzwtDC9k19BQb7Ers5Q=";
   };
 
   vendorHash = null;

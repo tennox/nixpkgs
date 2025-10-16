@@ -1,23 +1,27 @@
-{ lib
-, fetchFromGitHub
-, stdenvNoCC
-, mlton
-, lua5_3
+{
+  lib,
+  fetchFromGitHub,
+  stdenvNoCC,
+  mlton,
+  lua5_3,
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
-  version = "0.2.1";
+  version = "0.3.0";
 
   pname = "lunarml";
 
   src = fetchFromGitHub {
     owner = "minoki";
     repo = "LunarML";
-    rev = "refs/tags/v${finalAttrs.version}";
-    hash = "sha256-wNcsvtIR/MbvwAIhybc7zzbS+RgfwndQ1jdDVdte+44=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-ZTX7+Af8+cyTlQvWRCcPWdF2TfKwEf9d/+uo2dhkXZg=";
   };
 
-  outputs = [ "out" "doc" ];
+  outputs = [
+    "out"
+    "doc"
+  ];
 
   nativeBuildInputs = [
     mlton
@@ -49,7 +53,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     mainProgram = "lunarml";
     homepage = "https://github.com/minoki/LunarML";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ toastal ratsclub ];
+    maintainers = with lib.maintainers; [
+      toastal
+      ratsclub
+    ];
     platforms = mlton.meta.platforms;
   };
 })

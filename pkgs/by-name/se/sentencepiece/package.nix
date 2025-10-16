@@ -1,28 +1,33 @@
-{ lib
-, fetchFromGitHub
-, stdenv
-, cmake
-, gperftools
+{
+  lib,
+  fetchFromGitHub,
+  stdenv,
+  cmake,
+  gperftools,
 
-, withGPerfTools ? true
+  withGPerfTools ? true,
 }:
 
 stdenv.mkDerivation rec {
   pname = "sentencepiece";
-  version = "0.2.0";
+  version = "0.2.1";
 
   src = fetchFromGitHub {
     owner = "google";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    sha256 = "sha256-tMt6UBDqpdjAhxAJlVOFFlE3RC36/t8K0gBAzbesnsg=";
+    repo = "sentencepiece";
+    tag = "v${version}";
+    sha256 = "sha256-q0JgMxoD9PLqr6zKmOdrK2A+9RXVDub6xy7NOapS+vs=";
   };
 
   nativeBuildInputs = [ cmake ];
 
   buildInputs = lib.optionals withGPerfTools [ gperftools ];
 
-  outputs = [ "bin" "dev" "out" ];
+  outputs = [
+    "bin"
+    "dev"
+    "out"
+  ];
 
   # https://github.com/google/sentencepiece/issues/754
   postPatch = ''

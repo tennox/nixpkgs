@@ -1,4 +1,8 @@
-{ stdenv, lib, fetchFromGitHub }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation rec {
   pname = "smu";
@@ -19,11 +23,10 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with lib; {
-    description = "simple markup - markdown like syntax";
+    description = "Simple markup - markdown like syntax";
     mainProgram = "smu";
     homepage = "https://github.com/Gottox/smu";
     license = licenses.mit;
     maintainers = with maintainers; [ oxzi ];
   };
 }
-

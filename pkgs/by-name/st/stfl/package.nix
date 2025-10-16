@@ -1,11 +1,16 @@
-{ lib, stdenv, fetchFromGitHub, ncurses }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  ncurses,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "stfl";
   version = "0.24-unstable-2021-11-29";
 
   src = fetchFromGitHub {
-    owner ="newsboat";
+    owner = "newsboat";
     repo = "stfl";
     rev = "c2c10b8a50fef613c0aacdc5d06a0fa610bf79e9";
     hash = "sha256-os1yQ6o4m7yBiEZQIPP64diRleIr7FtuQucUbWs4A6k=";
@@ -17,19 +22,22 @@ stdenv.mkDerivation rec {
 
   # Silence warnings related to use of implicitly declared library functions and implicit ints.
   # TODO: Remove and/or fix with patches the next time this package is updated.
-  env = lib.optionalAttrs stdenv.cc.isClang {
-    NIX_CFLAGS_COMPILE = toString [
-      "-Wno-error=implicit-function-declaration"
-      "-Wno-error=implicit-int"
-    ];
-  } // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
-    NIX_LDFLAGS = "-liconv";
-  };
+  env =
+    lib.optionalAttrs stdenv.cc.isClang {
+      NIX_CFLAGS_COMPILE = toString [
+        "-Wno-error=implicit-function-declaration"
+        "-Wno-error=implicit-int"
+      ];
+    }
+    // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+      NIX_LDFLAGS = "-liconv";
+    };
 
   preBuild = ''
     sed -i s/gcc/cc/g Makefile
     sed -i s%ncursesw/ncurses.h%ncurses.h% stfl_internals.h
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     sed -i s/-soname/-install_name/ Makefile
   ''
   # upstream builds shared library unconditionally. Also, it has no
@@ -40,7 +48,7 @@ stdenv.mkDerivation rec {
     sed -i 's/\tranlib /\t${stdenv.cc.targetPrefix}ranlib /' Makefile
     sed -i '/install -m 644 libstfl.so./d' Makefile
     sed -i '/ln -fs libstfl.so./d' Makefile
-  '' ;
+  '';
 
   installPhase = ''
     DESTDIR=$out prefix=\"\" make install

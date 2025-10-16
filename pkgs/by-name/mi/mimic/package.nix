@@ -1,7 +1,20 @@
-{ config, lib, stdenv, autoreconfHook, fetchFromGitHub, fetchpatch
-, pkg-config, makeWrapper
-, alsa-lib, alsa-plugins, libtool, icu, pcre2
-, pulseaudioSupport ? config.pulseaudio or false, libpulseaudio }:
+{
+  config,
+  lib,
+  stdenv,
+  autoreconfHook,
+  fetchFromGitHub,
+  fetchpatch,
+  pkg-config,
+  makeWrapper,
+  alsa-lib,
+  alsa-plugins,
+  libtool,
+  icu,
+  pcre2,
+  pulseaudioSupport ? config.pulseaudio or false,
+  libpulseaudio,
+}:
 
 stdenv.mkDerivation rec {
   pname = "mimic";
@@ -36,7 +49,8 @@ stdenv.mkDerivation rec {
     libtool
     icu
     pcre2
-  ] ++ lib.optional pulseaudioSupport libpulseaudio;
+  ]
+  ++ lib.optional pulseaudioSupport libpulseaudio;
 
   env.NIX_CFLAGS_COMPILE = toString [
     # Needed with GCC 12

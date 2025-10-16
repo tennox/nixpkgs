@@ -1,54 +1,54 @@
-{ python3
-, fetchFromGitHub
-, nixosTests
-, lib
+{
+  python3,
+  fetchFromGitHub,
+  nixosTests,
+  lib,
 
-, plugins ? ps: []
+  plugins ? ps: [ ],
 }:
 
 python3.pkgs.buildPythonApplication rec {
   pname = "peering-manager";
-  version = "1.8.3";
+  version = "1.9.7";
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    sha256 = "sha256-UV1zSX9C9y5faOBUQ7bfj2DT6ffhMW28MIT7SaYjMgw=";
+    owner = "peering-manager";
+    repo = "peering-manager";
+    tag = "v${version}";
+    sha256 = "sha256-lxelWtiMO6w8Tt7zK/NDdmc3PaKlGibKjSfhD+tGrCU=";
   };
 
   format = "other";
 
-  patches = [
-    # Fix compatibility with pyixapi 0.2.3
-    # https://github.com/peering-manager/peering-manager/commit/ee558ff66e467412942559a8a92252e3fc009920
-    ./fix-pyixapi-0.2.3-compatibility.patch
-  ];
-
-  propagatedBuildInputs = with python3.pkgs; [
-    django
-    djangorestframework
-    django-redis
-    django-debug-toolbar
-    django-filter
-    django-postgresql-netfields
-    django-prometheus
-    django-rq
-    django-tables2
-    django-taggit
-    drf-spectacular
-    drf-spectacular-sidecar
-    jinja2
-    markdown
-    napalm
-    packaging
-    psycopg2
-    pyixapi
-    pynetbox
-    pyyaml
-    requests
-    tzdata
-  ] ++ plugins python3.pkgs;
+  propagatedBuildInputs =
+    with python3.pkgs;
+    [
+      django
+      django-debug-toolbar
+      django-filter
+      django-postgresql-netfields
+      django-prometheus
+      django-redis
+      django-rq
+      django-tables2
+      django-taggit
+      djangorestframework
+      drf-spectacular
+      drf-spectacular-sidecar
+      dulwich
+      jinja2
+      markdown
+      napalm
+      packaging
+      psycopg2
+      pyixapi
+      pynetbox
+      pyyaml
+      requests
+      social-auth-app-django
+      tzdata
+    ]
+    ++ plugins python3.pkgs;
 
   buildPhase = ''
     runHook preBuild
@@ -83,7 +83,7 @@ python3.pkgs.buildPythonApplication rec {
     license = licenses.asl20;
     description = "BGP sessions management tool";
     mainProgram = "peering-manager";
-    maintainers = teams.wdz.members;
+    teams = [ teams.wdz ];
     platforms = platforms.linux;
   };
 }

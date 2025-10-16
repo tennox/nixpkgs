@@ -1,8 +1,9 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, ncurses
-, autoreconfHook
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  ncurses,
+  autoreconfHook,
 }:
 
 stdenv.mkDerivation rec {
@@ -12,7 +13,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "majorkingleo";
     repo = "xstow";
-    rev = version;
+    tag = version;
     fetchSubmodules = true;
     hash = "sha256-c89+thw5N3Cgl1Ww+W7c3YsyhNJMLlreedvdWJFY3WY=";
   };

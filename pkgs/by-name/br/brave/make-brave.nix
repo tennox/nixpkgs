@@ -37,7 +37,7 @@
   libuuid,
   libxkbcommon,
   libxshmfence,
-  mesa,
+  libgbm,
   nspr,
   nss,
   pango,
@@ -125,7 +125,7 @@ let
     libxshmfence
     libXtst
     libuuid
-    mesa
+    libgbm
     nspr
     nss
     pango
@@ -137,7 +137,9 @@ let
     snappy
     libkrb5
     qt6.qtbase
-  ] ++ optional pulseSupport libpulseaudio ++ optional libvaSupport libva;
+  ]
+  ++ optional pulseSupport libpulseaudio
+  ++ optional libvaSupport libva;
 
   rpath = makeLibraryPath deps + ":" + makeSearchPathOutput "lib" "lib64" deps;
   binpath = makeBinPath deps;
@@ -149,10 +151,11 @@ let
     ]
     ++ optional enableVulkan "Vulkan";
 
-  disableFeatures =
-    [ "OutdatedBuildDetector" ] # disable automatic updates
-    # The feature disable is needed for VAAPI to work correctly: https://github.com/brave/brave-browser/issues/20935
-    ++ optionals enableVideoAcceleration [ "UseChromeOSDirectVideoDecoder" ];
+  disableFeatures = [
+    "OutdatedBuildDetector"
+  ] # disable automatic updates
+  # The feature disable is needed for VAAPI to work correctly: https://github.com/brave/brave-browser/issues/20935
+  ++ optionals enableVideoAcceleration [ "UseChromeOSDirectVideoDecoder" ];
 in
 stdenv.mkDerivation {
   inherit pname version;
@@ -189,12 +192,6 @@ stdenv.mkDerivation {
     adwaita-icon-theme
   ];
 
-  unpackPhase =
-    if stdenv.hostPlatform.isLinux then
-      "dpkg-deb --fsys-tarfile $src | tar -x --no-same-permissions --no-same-owner"
-    else
-      "unzip $src";
-
   installPhase =
     lib.optionalString stdenv.hostPlatform.isLinux ''
       runHook preInstall
@@ -208,7 +205,8 @@ stdenv.mkDerivation {
 
       # Fix path to bash in $BINARYWRAPPER
       substituteInPlace $BINARYWRAPPER \
-          --replace /bin/bash ${stdenv.shell}
+          --replace-fail /bin/bash ${stdenv.shell} \
+          --replace-fail 'CHROME_WRAPPER' 'WRAPPER'
 
       ln -sf $BINARYWRAPPER $out/bin/brave
 
@@ -219,14 +217,12 @@ stdenv.mkDerivation {
       done
 
       # Fix paths
-      substituteInPlace $out/share/applications/brave-browser.desktop \
-          --replace /usr/bin/brave-browser-stable $out/bin/brave
+      substituteInPlace $out/share/applications/{brave-browser,com.brave.Browser}.desktop \
+          --replace-fail /usr/bin/brave-browser-stable $out/bin/brave
       substituteInPlace $out/share/gnome-control-center/default-apps/brave-browser.xml \
-          --replace /opt/brave.com $out/opt/brave.com
-      substituteInPlace $out/share/menu/brave-browser.menu \
-          --replace /opt/brave.com $out/opt/brave.com
+          --replace-fail /opt/brave.com $out/opt/brave.com
       substituteInPlace $out/opt/brave.com/brave/default-app-block \
-          --replace /opt/brave.com $out/opt/brave.com
+          --replace-fail /opt/brave.com $out/opt/brave.com
 
       # Correct icons location
       icon_sizes=("16" "24" "32" "48" "64" "128" "256")
@@ -248,7 +244,7 @@ stdenv.mkDerivation {
 
       mkdir -p $out/{Applications,bin}
 
-      cp -r "Brave Browser.app" $out/Applications/
+      cp -r . "$out/Applications/Brave Browser.app"
 
       makeWrapper "$out/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" $out/bin/brave
 
@@ -266,16 +262,13 @@ stdenv.mkDerivation {
           coreutils
         ]
       }
-      ${
-        optionalString (enableFeatures != [ ]) ''
-          --add-flags "--enable-features=${strings.concatStringsSep "," enableFeatures}\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+,WaylandWindowDecorations}}"
-        ''
-      }
-      ${
-        optionalString (disableFeatures != [ ]) ''
-          --add-flags "--disable-features=${strings.concatStringsSep "," disableFeatures}"
-        ''
-      }
+      --set CHROME_WRAPPER ${pname}
+      ${optionalString (enableFeatures != [ ]) ''
+        --add-flags "--enable-features=${strings.concatStringsSep "," enableFeatures}\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+,WaylandWindowDecorations --enable-wayland-ime=true}}"
+      ''}
+      ${optionalString (disableFeatures != [ ]) ''
+        --add-flags "--disable-features=${strings.concatStringsSep "," disableFeatures}"
+      ''}
       --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto}}"
       ${optionalString vulkanSupport ''
         --prefix XDG_DATA_DIRS  : "${addDriverRunpath.driverLink}/share"

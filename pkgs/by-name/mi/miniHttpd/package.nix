@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchurl, boost }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  boost,
+}:
 
 stdenv.mkDerivation rec {
   pname = "mini-httpd";
@@ -17,7 +22,7 @@ stdenv.mkDerivation rec {
 
   meta = {
     homepage = "http://mini-httpd.nongnu.org/";
-    description = "minimalistic high-performance web server";
+    description = "Minimalistic high-performance web server";
     mainProgram = "httpd";
     license = lib.licenses.gpl3;
     platforms = lib.platforms.linux;

@@ -1,26 +1,28 @@
-{ lib, stdenv
-, fetchurl
-, meson
-, ninja
-, gettext
-, pkg-config
-, networkmanager
-, gnome
-, adwaita-icon-theme
-, libsecret
-, polkit
-, modemmanager
-, libnma
-, glib-networking
-, gsettings-desktop-schemas
-, libgudev
-, jansson
-, wrapGAppsHook3
-, gobject-introspection
-, python3
-, gtk3
-, libayatana-appindicator
-, glib
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  gettext,
+  pkg-config,
+  networkmanager,
+  gnome,
+  adwaita-icon-theme,
+  libsecret,
+  polkit,
+  modemmanager,
+  libnma,
+  glib-networking,
+  gsettings-desktop-schemas,
+  libgudev,
+  jansson,
+  wrapGAppsHook3,
+  gobject-introspection,
+  python3,
+  gtk3,
+  libayatana-appindicator,
+  glib,
 }:
 
 stdenv.mkDerivation rec {
@@ -37,7 +39,10 @@ stdenv.mkDerivation rec {
     "-Dappindicator=yes"
   ];
 
-  outputs = [ "out" "man" ];
+  outputs = [
+    "out"
+    "man"
+  ];
 
   buildInputs = [
     libnma
@@ -68,6 +73,10 @@ stdenv.mkDerivation rec {
   postPatch = ''
     chmod +x meson_post_install.py # patchShebangs requires executable file
     patchShebangs meson_post_install.py
+
+    # Prevent applet from autostarting in COSMIC, which has its own built-in network applet
+    substituteInPlace nm-applet.desktop.in \
+      --replace-fail "NotShowIn=KDE;GNOME;" "NotShowIn=KDE;GNOME;COSMIC;"
   '';
 
   passthru = {

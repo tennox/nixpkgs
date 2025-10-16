@@ -1,9 +1,10 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, xorg
-, installShellFiles
-, pandoc
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  xorg,
+  installShellFiles,
+  pandoc,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -12,15 +13,18 @@ rustPlatform.buildRustPackage rec {
 
   src = fetchFromGitHub {
     owner = "EmperorPenguin18";
-    repo = pname;
+    repo = "gobble";
     rev = version;
     hash = "sha256-g4154Axvjp9jbE0lvMeNGM+v2UxkAsZqt9kPv5bhVK8=";
   };
 
-  cargoHash = "sha256-5xsMLOYTKQc1bHHQsk9L4rHMVNBFOzIMxD+1qaMaNbQ=";
+  cargoHash = "sha256-DnIZTeRyxhmVK2uB21ScPiEyL4k9kAWfVoLNIAM9P68=";
 
   buildInputs = [ xorg.libxcb ];
-  nativeBuildInputs = [ pandoc installShellFiles ];
+  nativeBuildInputs = [
+    pandoc
+    installShellFiles
+  ];
 
   postInstall = ''
     pandoc gobble.1.md -s -t man -o gobble.1
@@ -28,7 +32,7 @@ rustPlatform.buildRustPackage rec {
   '';
 
   meta = {
-    description = "gobbles your terminal";
+    description = "Rust rewrite of Devour";
     homepage = "https://github.com/EmperorPenguin18/gobble";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ vuimuich ];

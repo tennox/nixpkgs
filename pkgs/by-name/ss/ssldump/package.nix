@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, json_c
-, libnet
-, libpcap
-, openssl
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  json_c,
+  libnet,
+  libpcap,
+  openssl,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "ssldump";
   version = "1.8-unstable-2024-10-16";
 
@@ -33,7 +34,10 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "SSLv3/TLS network protocol analyzer";
     homepage = "https://ssldump.sourceforge.net";
-    license = "BSD-style";
+    license = with lib.licenses; [
+      bsdOriginal
+      bsdOriginalShortened
+    ];
     maintainers = with maintainers; [ aycanirican ];
     platforms = platforms.unix;
     mainProgram = "ssldump";

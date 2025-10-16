@@ -1,11 +1,12 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, lapack
-, which
-, gfortran
-, blas
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  lapack,
+  which,
+  gfortran,
+  blas,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -19,24 +20,36 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-dHxLPrN00wwozagY2JyfZkD3sKUD2+BcnbjNgZepzFg=";
   };
 
-  cmakeFlags = assert (blas.isILP64 == lapack.isILP64); [
-    "-DCMAKE_Fortran_FLAGS=${toString ([
-      "-std=legacy"
-    ] ++ lib.optionals blas.isILP64 [
-      # If another application intends to use qrupdate compiled with blas with
-      # 64 bit support, it should add this to it's FFLAGS as well. See (e.g):
-      # https://savannah.gnu.org/bugs/?50339
-      "-fdefault-integer-8"
-    ])}"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    # prevent cmake from using Accelerate, which causes all tests to segfault
-    "-DBLA_VENDOR=Generic"
-  ];
+  cmakeFlags =
+    assert (blas.isILP64 == lapack.isILP64);
+    [
+      "-DCMAKE_Fortran_FLAGS=${
+        toString (
+          [
+            "-std=legacy"
+          ]
+          ++ lib.optionals blas.isILP64 [
+            # If another application intends to use qrupdate compiled with blas with
+            # 64 bit support, it should add this to it's FFLAGS as well. See (e.g):
+            # https://savannah.gnu.org/bugs/?50339
+            "-fdefault-integer-8"
+          ]
+        )
+      }"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # prevent cmake from using Accelerate, which causes all tests to segfault
+      "-DBLA_VENDOR=Generic"
+    ];
 
   # https://github.com/mpimd-csc/qrupdate-ng/issues/4
   patches = lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) [
     ./disable-zch1dn-test.patch
   ];
+
+  postPatch = ''
+    sed '/^cmake_minimum_required/Is/VERSION [0-9]\.[0-9]/VERSION 3.5/' -i ./CMakeLists.txt
+  '';
 
   doCheck = true;
 

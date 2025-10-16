@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "ripmime";
@@ -15,7 +19,8 @@ stdenv.mkDerivation rec {
 
   env = {
     NIX_CFLAGS_COMPILE = " -Wno-error ";
-  } // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+  }
+  // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
     NIX_LDFLAGS = "-liconv";
   };
 

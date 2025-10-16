@@ -1,40 +1,41 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, desktop-file-utils
-, meson
-, ninja
-, pkg-config
-, vala
-, wrapGAppsHook4
-, evolution-data-server-gtk4
-, glib
-, glib-networking
-, gst_all_1
-, gtk4
-, gtksourceview5
-, gxml
-, json-glib
-, libadwaita
-, libgee
-, libical
-, libportal-gtk4
-, libsecret
-, libsoup_3
-, pantheon
-, sqlite
-, webkitgtk_6_0
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  desktop-file-utils,
+  meson,
+  ninja,
+  pkg-config,
+  vala,
+  wrapGAppsHook4,
+  evolution-data-server-gtk4,
+  glib,
+  glib-networking,
+  gst_all_1,
+  gtk4,
+  gtksourceview5,
+  gxml,
+  json-glib,
+  libadwaita,
+  libgee,
+  libical,
+  libportal-gtk4,
+  libsecret,
+  libsoup_3,
+  libspelling,
+  sqlite,
+  webkitgtk_6_0,
 }:
 
 stdenv.mkDerivation rec {
   pname = "planify";
-  version = "4.11.6";
+  version = "4.15.1";
 
   src = fetchFromGitHub {
     owner = "alainm23";
     repo = "planify";
-    rev = version;
-    hash = "sha256-tHn3677bfJgAZnOfDjBJ87DUzr+e9I2lnCke/cN4olE=";
+    tag = "v${version}";
+    hash = "sha256-b0I6UXdE0EqRP9FrqRyf1CscYSlYjFPcmIgkMjCLWMc=";
   };
 
   nativeBuildInputs = [
@@ -63,20 +64,16 @@ stdenv.mkDerivation rec {
     libportal-gtk4
     libsecret
     libsoup_3
-    pantheon.granite7
+    libspelling
     sqlite
     webkitgtk_6_0
-  ];
-
-  mesonFlags = [
-    "-Dprofile=default"
   ];
 
   meta = with lib; {
     description = "Task manager with Todoist support designed for GNU/Linux";
     homepage = "https://github.com/alainm23/planify";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ ] ++ teams.pantheon.members;
+    teams = [ teams.pantheon ];
     platforms = platforms.linux;
     mainProgram = "io.github.alainm23.planify";
   };

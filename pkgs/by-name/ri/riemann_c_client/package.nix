@@ -1,7 +1,18 @@
-{ lib, stdenv, fetchFromGitea, autoreconfHook, check, pkg-config, file, protobufc
-,withWolfSSL ? false, wolfssl
-,withGnuTLS ? false, gnutls
-,withJSON ? true, json_c
+{
+  lib,
+  stdenv,
+  fetchFromGitea,
+  autoreconfHook,
+  check,
+  pkg-config,
+  file,
+  protobufc,
+  withWolfSSL ? false,
+  wolfssl,
+  withGnuTLS ? false,
+  gnutls,
+  withJSON ? true,
+  json_c,
 }:
 
 stdenv.mkDerivation rec {
@@ -16,19 +27,30 @@ stdenv.mkDerivation rec {
     hash = "sha256-l9iUDhagODi58FDT9vEb90tsiIcrcMmGYCmH3ML3RCM=";
   };
 
-  outputs = [ "bin" "dev" "out" ];
+  outputs = [
+    "bin"
+    "dev"
+    "out"
+  ];
 
-  nativeBuildInputs = [ autoreconfHook check pkg-config ];
-  buildInputs = [ file protobufc ]
-    ++ lib.optional withWolfSSL wolfssl
-    ++ lib.optional withGnuTLS gnutls
-    ++ lib.optional withJSON json_c
-  ;
+  strictDeps = true;
 
-  configureFlags = []
-    ++ lib.optional withWolfSSL "--with-tls=wolfssl"
-    ++ lib.optional withGnuTLS "--with-tls=gnutls"
-  ;
+  nativeBuildInputs = [
+    autoreconfHook
+    check
+    pkg-config
+    protobufc
+  ];
+  buildInputs = [
+    file
+    protobufc
+  ]
+  ++ lib.optional withWolfSSL wolfssl
+  ++ lib.optional withGnuTLS gnutls
+  ++ lib.optional withJSON json_c;
+
+  configureFlags =
+    [ ] ++ lib.optional withWolfSSL "--with-tls=wolfssl" ++ lib.optional withGnuTLS "--with-tls=gnutls";
 
   doCheck = true;
   enableParallelBuilding = true;
@@ -37,8 +59,7 @@ stdenv.mkDerivation rec {
     homepage = "https://git.madhouse-project.org/algernon/riemann-c-client";
     description = "C client library for the Riemann monitoring system";
     mainProgram = "riemann-client";
-    license = licenses.lgpl3Plus;
-    maintainers = with maintainers; [ pradeepchhetri ];
+    license = licenses.eupl12;
     platforms = platforms.linux;
   };
 }

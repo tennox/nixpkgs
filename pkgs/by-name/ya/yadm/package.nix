@@ -1,43 +1,44 @@
-{ lib
-, stdenv
-, resholve
-, fetchFromGitHub
-, git
-, bash
-, openssl
-, gawk
-/*
-TODO: yadm can use git-crypt and transcrypt
-but it does so in a way that resholve 0.6.0
-can't yet do anything smart about. It looks
-like these are for interactive use, so the
-main impact should just be that users still
-need both of these packages in their profile
-to support their use in yadm.
-*/
-# , git-crypt
-# , transcrypt
-, j2cli
-, esh
-, gnupg
-, coreutils
-, gnutar
-, installShellFiles
-, runCommand
-, yadm
+{
+  lib,
+  stdenv,
+  resholve,
+  fetchFromGitHub,
+  git,
+  bash,
+  openssl,
+  gawk,
+  /*
+    TODO: yadm can use git-crypt and transcrypt
+    but it does so in a way that resholve 0.6.0
+    can't yet do anything smart about. It looks
+    like these are for interactive use, so the
+    main impact should just be that users still
+    need both of these packages in their profile
+    to support their use in yadm.
+  */
+  # git-crypt,
+  # transcrypt,
+  j2cli,
+  esh,
+  gnupg,
+  coreutils,
+  gnutar,
+  installShellFiles,
+  runCommand,
+  yadm,
 }:
 
 resholve.mkDerivation rec {
   pname = "yadm";
-  version = "3.2.2";
+  version = "3.5.0";
 
   nativeBuildInputs = [ installShellFiles ];
 
   src = fetchFromGitHub {
-    owner  = "TheLocehiliosan";
-    repo   = "yadm";
-    rev    = version;
-    hash   = "sha256-GcuqMlE8oef9+LIqKoCotktU7GcgPBE9CTVrZ8bKhv4=";
+    owner = "yadm-dev";
+    repo = "yadm";
+    rev = version;
+    hash = "sha256-hDo6zs70apNhKmuvR+eD51FzuTLj3SL/wHQXqLMD9QE=";
   };
 
   dontConfigure = true;
@@ -93,7 +94,8 @@ resholve.mkDerivation rec {
       };
       keep = {
         "$YADM_COMMAND" = true; # internal cmds
-        "$template_cmd" = true; # dynamic, template-engine
+        "$processor" = true; # dynamic, template-engine
+        "$log" = true; # dynamic level-specific loggers
         "$SHELL" = true; # probably user env? unsure
         "$hook_command" = true; # ~git hooks?
         "exec" = [ "$YADM_BOOTSTRAP" ]; # yadm bootstrap script
@@ -103,8 +105,8 @@ resholve.mkDerivation rec {
         "$LSB_RELEASE_PROGRAM" = true;
       };
       /*
-      TODO: these should be dropped as fast as they can be dealt
-            with properly in binlore and/or resholve.
+        TODO: these should be dropped as fast as they can be dealt
+              with properly in binlore and/or resholve.
       */
       execer = [
         "cannot:${j2cli}/bin/j2"
@@ -116,14 +118,14 @@ resholve.mkDerivation rec {
   };
 
   passthru.tests = {
-    minimal = runCommand "${pname}-test" {} ''
+    minimal = runCommand "${pname}-test" { } ''
       export HOME=$out
       ${yadm}/bin/yadm init
     '';
   };
 
   meta = {
-    homepage = "https://github.com/TheLocehiliosan/yadm";
+    homepage = "https://github.com/yadm-dev/yadm";
     description = "Yet Another Dotfiles Manager";
     longDescription = ''
       yadm is a dotfile management tool with 3 main features:
@@ -131,7 +133,7 @@ resholve.mkDerivation rec {
       * Provides a way to use alternate files on a specific OS or host.
       * Supplies a method of encrypting confidential data so it can safely be stored in your repository.
     '';
-    changelog = "https://github.com/TheLocehiliosan/yadm/blob/${version}/CHANGES";
+    changelog = "https://github.com/yadm-dev/yadm/blob/${version}/CHANGES";
     license = lib.licenses.gpl3Plus;
     maintainers = with lib.maintainers; [ abathur ];
     platforms = lib.platforms.unix;

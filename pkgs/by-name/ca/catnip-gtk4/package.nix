@@ -1,16 +1,17 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, pkg-config
-, wrapGAppsHook4
-, gobject-introspection
-, gtk4
-, libadwaita
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  pkg-config,
+  wrapGAppsHook4,
+  gobject-introspection,
+  gtk4,
+  libadwaita,
 }:
 
 buildGoModule {
   pname = "catnip-gtk4";
-  version = "unstable-2023-06-17";
+  version = "0-unstable-2023-06-17";
 
   src = fetchFromGitHub {
     owner = "diamondburned";
@@ -32,7 +33,10 @@ buildGoModule {
     libadwaita
   ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   enableParallelBuilding = true;
 

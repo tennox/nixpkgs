@@ -1,8 +1,13 @@
-{lib, stdenv, fetchFromGitHub, zfs }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  zfs,
+}:
 
 stdenv.mkDerivation {
   pname = "easysnap";
-  version = "unstable-2022-06-03";
+  version = "0-unstable-2022-06-03";
 
   src = fetchFromGitHub {
     owner = "sjau";
@@ -22,9 +27,9 @@ stdenv.mkDerivation {
   '';
 
   meta = with lib; {
-    homepage    = "https://github.com/sjau/easysnap";
+    homepage = "https://github.com/sjau/easysnap";
     description = "Customizable ZFS Snapshotting tool with zfs send/recv pulling";
-    license     = licenses.gpl3;
+    license = licenses.gpl3;
     maintainers = with maintainers; [ sjau ];
   };
 

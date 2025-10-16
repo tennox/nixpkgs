@@ -1,17 +1,23 @@
-{ lib, buildGoModule, fetchFromGitHub, testers, vals }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  testers,
+  vals,
+}:
 
 buildGoModule rec {
   pname = "vals";
-  version = "0.37.7";
+  version = "0.42.2";
 
   src = fetchFromGitHub {
     rev = "v${version}";
     owner = "helmfile";
-    repo = pname;
-    sha256 = "sha256-iRXBT3VpEVHna3GkMxVSVRqQ2HTK7gCd6LkthwrBMx4=";
+    repo = "vals";
+    sha256 = "sha256-NdK7toICK9NJ6H8trCYJCEFE0weYH1Ban7dSlG1SM/c=";
   };
 
-  vendorHash = "sha256-1iyJ56YKu/WVb7dPP7YE07kdbJte2/Sww8cQu+epFNc=";
+  vendorHash = "sha256-FjTxef9LHQopxiJYJFcAWcGJk5byVcEBlQFUssbfYwY=";
 
   proxyVendor = true;
 
@@ -29,12 +35,12 @@ buildGoModule rec {
     command = "vals version";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Helm-like configuration values loader with support for various sources";
     mainProgram = "vals";
-    license = licenses.asl20;
+    license = lib.licenses.asl20;
     homepage = "https://github.com/helmfile/vals";
     changelog = "https://github.com/helmfile/vals/releases/v${version}";
-    maintainers = with maintainers; [ stehessel ];
+    maintainers = with lib.maintainers; [ stehessel ];
   };
 }

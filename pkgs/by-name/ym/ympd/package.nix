@@ -1,10 +1,11 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, libmpdclient
-, openssl
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  libmpdclient,
+  openssl,
 }:
 
 stdenv.mkDerivation rec {
@@ -18,6 +19,11 @@ stdenv.mkDerivation rec {
     sha256 = "1nvb19jd556v2h2bi7w4dcl507p3p8xvjkqfzrcsy7ccy3502brq";
   };
 
+  patches = [
+    # https://github.com/notandy/ympd/pull/199.patch
+    ./bump-cmake-version.patch
+  ];
+
   # Workaround build failure on -fno-common toolchains like upstream
   # gcc-10. Otherwise build fails as:
   #   ld: CMakeFiles/ympd.dir/src/mpd_client.c.o:(.bss+0x0): multiple definition of `mpd';
@@ -25,8 +31,14 @@ stdenv.mkDerivation rec {
   # Should be fixed by pending https://github.com/notandy/ympd/pull/191 (does not apply as is).
   env.NIX_CFLAGS_COMPILE = "-fcommon";
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ libmpdclient openssl ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    libmpdclient
+    openssl
+  ];
 
   meta = with lib; {
     homepage = "https://github.com/notandy/ympd";

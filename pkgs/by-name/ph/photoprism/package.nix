@@ -1,24 +1,37 @@
-{ lib, stdenv, fetchFromGitHub, fetchzip, darktable, rawtherapee, ffmpeg, libheif, exiftool, imagemagick, makeWrapper, testers
-, callPackage
-, nixosTests
-, librsvg }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchzip,
+  darktable,
+  rawtherapee,
+  ffmpeg,
+  libheif,
+  exiftool,
+  imagemagick,
+  makeWrapper,
+  testers,
+  callPackage,
+  nixosTests,
+  librsvg,
+}:
 
 let
-  version = "240711-2197af848";
+  version = "250426-27ec7a128";
   pname = "photoprism";
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "photoprism";
+    repo = "photoprism";
     rev = version;
-    hash = "sha256-ihDv5c5RUjDbFcAHJjzp/8qCwKfA+rlFXPziaYarzs8=";
+    hash = "sha256-wsSWCTFfKQ+8aE8GKvXpA49LbBLMTE1lsJMYFLvquBM=";
   };
 
-  libtensorflow = callPackage ./libtensorflow.nix { };
-  backend = callPackage ./backend.nix { inherit libtensorflow src version; };
+  backend = callPackage ./backend.nix { inherit src version; };
   frontend = callPackage ./frontend.nix { inherit src version; };
 
-  fetchModel = { name, hash }:
+  fetchModel =
+    { name, hash }:
     fetchzip {
       inherit hash;
       url = "https://dl.photoprism.org/tensorflow/${name}.zip";
@@ -40,7 +53,7 @@ let
     hash = "sha256-zy/HcmgaHOY7FfJUY6I/yjjsMPHR2Ote9ppwqemBlfg=";
   };
 
-  assets_path = "$out/share/${pname}";
+  assets_path = "$out/share/photoprism";
 in
 stdenv.mkDerivation (finalAttrs: {
   inherit pname version;
@@ -85,7 +98,6 @@ stdenv.mkDerivation (finalAttrs: {
   meta = with lib; {
     homepage = "https://photoprism.app";
     description = "Personal Photo Management powered by Go and Google TensorFlow";
-    inherit (libtensorflow.meta) platforms;
     license = licenses.agpl3Only;
     maintainers = with maintainers; [ benesim ];
     mainProgram = "photoprism";

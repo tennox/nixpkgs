@@ -1,21 +1,25 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pcre2
-, doxygen
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pcre2,
+  doxygen,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "editorconfig-core-c";
   version = "0.12.9";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "editorconfig";
     repo = "editorconfig-core-c";
-    rev = "v${finalAttrs.version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-myJNJxKwgmgm+P2MqnYmW8OC0oYcInL+Suyf/xwX9xo=";
     fetchSubmodules = true;
   };
@@ -45,7 +49,10 @@ stdenv.mkDerivation (finalAttrs: {
       editors, see the EditorConfig website.
     '';
     downloadPage = "https://github.com/editorconfig/editorconfig-core-c";
-    license = with licenses; [ bsd2 bsd3 ];
+    license = with licenses; [
+      bsd2
+      bsd3
+    ];
     maintainers = with maintainers; [ dochang ];
     platforms = platforms.unix;
     mainProgram = "editorconfig";

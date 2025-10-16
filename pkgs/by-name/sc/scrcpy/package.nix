@@ -1,27 +1,28 @@
-{ lib
-, stdenv
-, fetchurl
-, fetchFromGitHub
-, makeWrapper
-, meson
-, ninja
-, pkg-config
-, runtimeShell
-, installShellFiles
+{
+  lib,
+  stdenv,
+  fetchurl,
+  fetchFromGitHub,
+  makeWrapper,
+  meson,
+  ninja,
+  pkg-config,
+  runtimeShell,
+  installShellFiles,
 
-, android-tools
-, ffmpeg
-, libusb1
-, SDL2
+  android-tools,
+  ffmpeg,
+  libusb1,
+  SDL2,
 }:
 
 let
-  version = "2.7";
+  version = "3.3.2";
   prebuilt_server = fetchurl {
     name = "scrcpy-server";
     inherit version;
     url = "https://github.com/Genymobile/scrcpy/releases/download/v${version}/scrcpy-server-v${version}";
-    hash = "sha256-ojxWWfNsJg8QXAItJ7yz6v/6JgcOe6qe2mbQE3ehrbo=";
+    hash = "sha256-LuXKCGPvRA9bfHWFa7R1xSg9CoNZyzcLHBYTFP0p39k=";
   };
 in
 stdenv.mkDerivation rec {
@@ -31,8 +32,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "Genymobile";
     repo = "scrcpy";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-OBMm/GkiIdZaJd9X62vY4M6FVKiHTBwqRtH220bYej4=";
+    tag = "v${version}";
+    hash = "sha256-rwEsJlYlOIdgQfniAXdE2sg0WdI1ZxWxZV6MTFQoueg=";
   };
 
   #   display.c: When run without a hardware accelerator, this allows the command to continue working rather than failing unexpectedly.
@@ -43,9 +44,19 @@ stdenv.mkDerivation rec {
       --replace "SDL_RENDERER_ACCELERATED" "SDL_RENDERER_ACCELERATED || SDL_RENDERER_SOFTWARE"
   '';
 
-  nativeBuildInputs = [ makeWrapper meson ninja pkg-config installShellFiles ];
+  nativeBuildInputs = [
+    makeWrapper
+    meson
+    ninja
+    pkg-config
+    installShellFiles
+  ];
 
-  buildInputs = [ ffmpeg SDL2 libusb1 ];
+  buildInputs = [
+    ffmpeg
+    SDL2
+    libusb1
+  ];
 
   # Manually install the server jar to prevent Meson from "fixing" it
   preConfigure = ''
@@ -58,7 +69,8 @@ stdenv.mkDerivation rec {
 
     # runtime dep on `adb` to push the server
     wrapProgram "$out/bin/scrcpy" --prefix PATH : "${android-tools}/bin"
-  '' + lib.optionalString stdenv.hostPlatform.isLinux ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isLinux ''
     substituteInPlace $out/share/applications/scrcpy-console.desktop \
       --replace "/bin/bash" "${runtimeShell}"
   '';
@@ -73,7 +85,10 @@ stdenv.mkDerivation rec {
     ];
     license = lib.licenses.asl20;
     platforms = lib.platforms.unix;
-    maintainers = with lib.maintainers; [ deltaevo ryand56 ];
+    maintainers = with lib.maintainers; [
+      deltaevo
+      ryand56
+    ];
     mainProgram = "scrcpy";
   };
 }

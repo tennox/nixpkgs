@@ -1,6 +1,7 @@
-{ lib
-, fetchFromGitHub
-, stdenvNoCC
+{
+  lib,
+  fetchFromGitHub,
+  stdenvNoCC,
 }:
 
 stdenvNoCC.mkDerivation rec {
@@ -9,8 +10,8 @@ stdenvNoCC.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "cykerway";
-    repo = pname;
-    rev = version;
+    repo = "complete-alias";
+    tag = version;
     sha256 = "18lmdb3inphxyjv08ing5wckqnjq0m5zfl0f15mqzlvf2ypar63x";
   };
 

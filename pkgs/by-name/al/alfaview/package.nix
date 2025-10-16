@@ -1,15 +1,37 @@
-{ stdenv, lib, fetchurl, dpkg, autoPatchelfHook, makeWrapper, wrapGAppsHook3
-, alsa-lib, dbus, fontconfig, freetype, glib, gst_all_1, libGL
-, libinput, libpulseaudio, libsecret, libtiff, libxkbcommon
-, mesa, openssl, systemd, xorg }:
+{
+  stdenv,
+  lib,
+  fetchurl,
+  dpkg,
+  autoPatchelfHook,
+  makeWrapper,
+  wrapGAppsHook3,
+  alsa-lib,
+  dbus,
+  fontconfig,
+  freetype,
+  glib,
+  gst_all_1,
+  libGL,
+  libinput,
+  libpulseaudio,
+  libsecret,
+  libtiff,
+  libxkbcommon,
+  libgbm,
+  openssl,
+  systemd,
+  xcb-util-cursor,
+  xorg,
+}:
 
 stdenv.mkDerivation rec {
   pname = "alfaview";
-  version = "9.17.0";
+  version = "9.23.2";
 
   src = fetchurl {
     url = "https://assets.alfaview.com/stable/linux/deb/${pname}_${version}.deb";
-    hash = "sha256-Rq/5QByaqGd5Cfr4r+Ojv8OC8PvFQ4a+TT8CgeevF28=";
+    hash = "sha256-0EGjm/EYozGXDM/IvmopN04kzJfPM+6wjMpJesyW55U=";
   };
 
   nativeBuildInputs = [
@@ -34,10 +56,11 @@ stdenv.mkDerivation rec {
     libsecret
     libtiff
     libxkbcommon
-    mesa
+    libgbm
     openssl
     stdenv.cc.cc
     systemd
+    xcb-util-cursor
     xorg.libX11
     xorg.xcbutilwm
     xorg.xcbutilimage
@@ -49,10 +72,6 @@ stdenv.mkDerivation rec {
 
   dontBuild = true;
   dontConfigure = true;
-
-  unpackPhase = ''
-    dpkg-deb -x ${src} ./
-  '';
 
   installPhase = ''
     runHook preInstall

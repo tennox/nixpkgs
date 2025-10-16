@@ -1,12 +1,20 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, libpcap, withTcl ? true, tcl }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  libpcap,
+  withTcl ? true,
+  tcl,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "hping";
   version = "2014-12-26";
 
   src = fetchFromGitHub {
     owner = "antirez";
-    repo = pname;
+    repo = "hping";
     rev = "3547c7691742c6eaa31f8402e0ccbb81387c1b99"; # there are no tags/releases
     sha256 = "0y0n1ybij3yg9lfgzcwfmjz1sjg913zcqrv391xx83dm0j80sdpb";
   };
@@ -25,15 +33,19 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace Makefile.in --replace "gcc" "$CC"
     substituteInPlace version.c --replace "RELEASE_DATE" "\"$version\""
-  '' + lib.optionalString stdenv.hostPlatform.isLinux ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isLinux ''
     sed -i -e 's|#include <net/bpf.h>|#include <pcap/bpf.h>|' \
       libpcap_stuff.c script.c
-  '' + lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
+  ''
+  + lib.optionalString (stdenv.buildPlatform != stdenv.hostPlatform) ''
     substituteInPlace configure --replace 'BYTEORDER=`./byteorder -m`' BYTEORDER=${
       {
         littleEndian = "__LITTLE_ENDIAN_BITFIELD";
         bigEndian = "__BIG_ENDIAN_BITFIELD";
-      }.${stdenv.hostPlatform.parsed.cpu.significantByte.name}}
+      }
+      .${stdenv.hostPlatform.parsed.cpu.significantByte.name}
+    }
     substituteInPlace Makefile.in --replace './hping3 -v' ""
   '';
 
@@ -50,7 +62,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Command-line oriented TCP/IP packet assembler/analyzer";
-    homepage = "http://www.hping.org/";
+    homepage = "https://github.com/antirez/hping";
     license = licenses.gpl2Only;
     platforms = platforms.unix;
   };

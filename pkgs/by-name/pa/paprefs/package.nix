@@ -1,14 +1,15 @@
-{ fetchurl
-, lib
-, stdenv
-, meson
-, ninja
-, gettext
-, pkg-config
-, pulseaudioFull
-, glibmm
-, gtkmm3
-, wrapGAppsHook3
+{
+  fetchurl,
+  lib,
+  stdenv,
+  meson,
+  ninja,
+  gettext,
+  pkg-config,
+  pulseaudioFull,
+  glibmm,
+  gtkmm3,
+  wrapGAppsHook3,
 }:
 
 stdenv.mkDerivation rec {
@@ -47,7 +48,7 @@ stdenv.mkDerivation rec {
 
     license = licenses.gpl2Plus;
 
-    maintainers = [ maintainers.abbradar ];
+    maintainers = [ ];
     platforms = platforms.linux;
   };
 }

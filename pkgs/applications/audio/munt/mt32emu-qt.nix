@@ -1,16 +1,18 @@
-{ lib
-, stdenv
-, mkDerivation
-, fetchFromGitHub
-, alsa-lib
-, cmake
-, libpulseaudio
-, libmt32emu
-, pkg-config
-, portaudio
-, qtbase
-, qtmultimedia
-, withJack ? stdenv.hostPlatform.isUnix, libjack2
+{
+  lib,
+  stdenv,
+  mkDerivation,
+  fetchFromGitHub,
+  alsa-lib,
+  cmake,
+  libpulseaudio,
+  libmt32emu,
+  pkg-config,
+  portaudio,
+  qtbase,
+  qtmultimedia,
+  withJack ? stdenv.hostPlatform.isUnix,
+  libjack2,
 }:
 
 let
@@ -47,8 +49,6 @@ mkDerivation rec {
     libpulseaudio
   ]
   ++ lib.optional withJack libjack2;
-
-  dontFixCmake = true;
 
   cmakeFlags = [
     "-Dmt32emu-qt_USE_PULSEAUDIO_DYNAMIC_LOADING=OFF"

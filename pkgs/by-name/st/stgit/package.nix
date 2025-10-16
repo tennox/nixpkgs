@@ -1,43 +1,54 @@
-{ stdenv
-, lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, installShellFiles
-, makeWrapper
-, asciidoc
-, docbook_xsl
-, docbook_xml_dtd_45
-, xmlto
-, curl
-, git
-, perl
-, darwin
-, libiconv
+{
+  stdenv,
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  installShellFiles,
+  makeWrapper,
+  asciidoc,
+  docbook_xsl,
+  docbook_xml_dtd_45,
+  xmlto,
+  curl,
+  git,
+  perl,
+  darwin,
+  libiconv,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "stgit";
-  version = "2.4.12";
+  version = "2.5.4";
 
   src = fetchFromGitHub {
     owner = "stacked-git";
     repo = "stgit";
     rev = "v${version}";
-    hash = "sha256-fNQLdW5KFpYUBBmaUYYOmDym7OweXsDfD+uFl688zcY=";
+    hash = "sha256-Tsh2VKnJUwxsrsSOKxJwcFIY8UZ9F7Ebi9lwe03fJZs=";
   };
-  cargoHash = "sha256-s3PFNc1rn01X6tauRXp5B4cg3AIVSishqDFy0lP/8g8=";
+
+  cargoHash = "sha256-RiPLBK7CiotCduaYYbS3vkb9ezNwfbbx+QC4DGd3diU=";
 
   nativeBuildInputs = [
-    pkg-config installShellFiles makeWrapper asciidoc xmlto docbook_xsl
-    docbook_xml_dtd_45 perl
+    pkg-config
+    installShellFiles
+    makeWrapper
+    asciidoc
+    xmlto
+    docbook_xsl
+    docbook_xml_dtd_45
+    perl
   ];
   buildInputs = [ curl ];
 
   nativeCheckInputs = [
-    git perl
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.system_cmds libiconv
+    git
+    perl
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.system_cmds
+    libiconv
   ];
 
   postPatch = ''
@@ -67,7 +78,11 @@ rustPlatform.buildRustPackage rec {
   checkTarget = "test";
 
   dontCargoInstall = true;
-  installTargets = [ "install" "install-man" "install-html" ];
+  installTargets = [
+    "install"
+    "install-man"
+    "install-html"
+  ];
 
   postInstall = ''
     wrapProgram $out/bin/stg --prefix PATH : ${lib.makeBinPath [ git ]}

@@ -1,4 +1,13 @@
-{ pkgs, lib, fetchurl, fetchpatch, perlPackages, rsync, which, installShellFiles, ... }:
+{
+  pkgs,
+  lib,
+  fetchurl,
+  fetchpatch,
+  perlPackages,
+  rsync,
+  which,
+  installShellFiles,
+}:
 perlPackages.buildPerlPackage rec {
   pname = "Rex";
   version = "1.14.3";
@@ -47,7 +56,10 @@ perlPackages.buildPerlPackage rec {
     })
   ];
 
-  nativeBuildInputs = with perlPackages; [ installShellFiles ParallelForkManager ];
+  nativeBuildInputs = with perlPackages; [
+    installShellFiles
+    ParallelForkManager
+  ];
 
   propagatedBuildInputs = with perlPackages; [
     AWSSignature4
@@ -57,7 +69,7 @@ perlPackages.buildPerlPackage rec {
     FileLibMagic
     HashMerge
     HTTPMessage
-    IOPty
+    IOTty
     IOString
     JSONMaybeXS
     LWP

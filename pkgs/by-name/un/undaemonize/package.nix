@@ -1,8 +1,12 @@
-{ lib, stdenv, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "undaemonize";
-  version = "unstable-2017-07-11";
+  version = "0-unstable-2017-07-11";
 
   src = fetchFromGitHub {
     repo = "undaemonize";
@@ -22,4 +26,3 @@ stdenv.mkDerivation {
     mainProgram = "undaemonize";
   };
 }
-

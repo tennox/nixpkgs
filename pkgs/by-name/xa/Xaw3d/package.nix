@@ -1,17 +1,16 @@
-{ lib
-, stdenv
-, fetchurl
-, imake
-, gccmakedep
-, bison
-, flex
-, pkg-config
-, libXext
-, libXmu
-, libXpm
-, libXp
-, libXt
-, xorgproto
+{
+  lib,
+  stdenv,
+  fetchurl,
+  bison,
+  flex,
+  pkg-config,
+  libXext,
+  libXmu,
+  libXpm,
+  libXp,
+  libXt,
+  xorgproto,
 }:
 
 stdenv.mkDerivation rec {
@@ -22,10 +21,21 @@ stdenv.mkDerivation rec {
     url = "https://www.x.org/releases/individual/lib/libXaw3d-${version}.tar.xz";
     sha256 = "sha256-pBw+NxNa1hax8ou95wACr788tZow3zQUH4KdMurchkY=";
   };
-  dontUseImakeConfigure = true;
-  nativeBuildInputs = [ pkg-config bison flex imake gccmakedep ];
-  buildInputs = [ libXext libXpm libXp ];
-  propagatedBuildInputs = [ libXmu libXt xorgproto ];
+  nativeBuildInputs = [
+    pkg-config
+    bison
+    flex
+  ];
+  buildInputs = [
+    libXext
+    libXpm
+    libXp
+  ];
+  propagatedBuildInputs = [
+    libXmu
+    libXt
+    xorgproto
+  ];
 
   meta = with lib; {
     description = "3D widget set based on the Athena Widget set";

@@ -1,4 +1,12 @@
-{ lib, stdenv, fetchFromGitHub, libxcb, xcbutil, xcbutilwm, git }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libxcb,
+  xcbutil,
+  xcbutilwm,
+  git,
+}:
 
 stdenv.mkDerivation rec {
   pname = "xtitle";
@@ -15,13 +23,18 @@ stdenv.mkDerivation rec {
     sed -i "s|/usr/local|$out|" Makefile
   '';
 
-  buildInputs = [ libxcb git xcbutil xcbutilwm ];
+  buildInputs = [
+    libxcb
+    git
+    xcbutil
+    xcbutilwm
+  ];
 
   meta = with lib; {
     description = "Outputs X window titles";
     homepage = "https://github.com/baskerville/xtitle";
     maintainers = with maintainers; [ meisternu ];
-    license = "Custom";
+    license = lib.licenses.unlicense;
     platforms = platforms.linux;
     mainProgram = "xtitle";
   };

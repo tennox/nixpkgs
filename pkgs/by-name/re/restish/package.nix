@@ -1,30 +1,27 @@
-{ lib
-, stdenv
-, buildGoModule
-, darwin
-, fetchFromGitHub
-, restish
-, testers
-, xorg
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  restish,
+  testers,
+  xorg,
 }:
 
 buildGoModule rec {
   pname = "restish";
-  version = "0.20.0";
+  version = "0.21.0";
 
   src = fetchFromGitHub {
     owner = "danielgtaylor";
     repo = "restish";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-a0ObgFgWEsLYjGmCCi/py2PADAWJ0By+AZ4wh+Yeam4=";
+    tag = "v${version}";
+    hash = "sha256-eLbeH6i+QbW59DMOHf83olrO8R7Ji975KkJKs621Xi0=";
   };
 
-  vendorHash = "sha256-qeArar0WnMACUnKBlC+PcFeJPzofwbK440A4M/rQ04U=";
+  vendorHash = "sha256-bO0z+LCiF/Dp0hKNulBmCgk16NzCCoY32P2/Ieq8y+c=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Cocoa
-    darwin.apple_sdk.frameworks.Kernel
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     xorg.libX11
     xorg.libXcursor
     xorg.libXi
@@ -44,14 +41,15 @@ buildGoModule rec {
 
   passthru.tests.version = testers.testVersion {
     package = restish;
+    command = "HOME=$(mktemp -d) restish --version";
   };
 
-  meta = with lib; {
+  meta = {
     description = "CLI tool for interacting with REST-ish HTTP APIs";
     homepage = "https://rest.sh/";
     changelog = "https://github.com/danielgtaylor/restish/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ fab ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ fab ];
     mainProgram = "restish";
   };
 }

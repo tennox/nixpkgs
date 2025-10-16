@@ -3,7 +3,8 @@
   asyncssh,
   buildPythonPackage,
   fetchFromGitHub,
-  pytest-asyncio,
+  pytest-cov-stub,
+  pytest-asyncio_0,
   pytest-mock,
   pytestCheckHook,
   pythonOlder,
@@ -20,22 +21,17 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "kennedyshead";
     repo = "aioasuswrt";
-    rev = "refs/tags/V${version}";
+    tag = "V${version}";
     hash = "sha256-RQxIgAU9KsTbcTKc/Zl+aP77lbDSeiYzR48MtIVwacc=";
   };
-
-  postPatch = ''
-    substituteInPlace setup.cfg \
-      --replace-fail "--cov-report html" "" \
-      --replace-fail "--cov-report term-missing" ""
-  '';
 
   build-system = [ setuptools ];
 
   dependencies = [ asyncssh ];
 
   nativeCheckInputs = [
-    pytest-asyncio
+    pytest-asyncio_0
+    pytest-cov-stub
     pytest-mock
     pytestCheckHook
   ];

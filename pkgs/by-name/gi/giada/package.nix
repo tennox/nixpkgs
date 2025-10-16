@@ -1,35 +1,42 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, fltk
-, fmt
-, rtmidi
-, libsamplerate
-, libmpg123
-, libsndfile
-, jack2
-, alsa-lib
-, libpulseaudio
-, libXpm
-, libXrandr
-, flac
-, libogg
-, libvorbis
-, libopus
-, nlohmann_json
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  fltk,
+  fontconfig,
+  fmt,
+  rtmidi,
+  libsamplerate,
+  libmpg123,
+  libsndfile,
+  jack2,
+  alsa-lib,
+  libpulseaudio,
+  libXpm,
+  libXrandr,
+  flac,
+  libogg,
+  libvorbis,
+  libopus,
+  nlohmann_json,
+  expat,
+  libGL,
+  curl,
+  webkitgtk_4_1,
+  gtk3,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "giada";
-  version = "1.0.0";
+  version = "1.3.0";
 
   src = fetchFromGitHub {
     owner = "monocasual";
     repo = "giada";
-    rev = finalAttrs.version;
-    hash = "sha256-vTOUS9mI4B3yRNnM2dNCH7jgMuD3ztdhe1FMgXUIt58=";
+    tag = finalAttrs.version;
+    hash = "sha256-f7Rtp/z7Z9P5TSI0UQbSuU4ukVrePKtSdihc1f3AAfo=";
     fetchSubmodules = true;
   };
 
@@ -48,22 +55,30 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
-    rtmidi
+    alsa-lib
+    curl
+    expat
+    flac
     fltk
     fmt
-    libmpg123
-    libsndfile
-    libsamplerate
-    nlohmann_json
-    alsa-lib
-    libXpm
-    libpulseaudio
+    gtk3
     jack2
-    flac
-    libogg
-    libvorbis
-    libopus
+    libGL
+    libXpm
     libXrandr
+    libogg
+    libopus
+    libpulseaudio
+    libsamplerate
+    libsndfile
+    libvorbis
+    libmpg123
+    nlohmann_json
+    rtmidi
+    webkitgtk_4_1
+  ]
+  ++ lib.optionals (stdenv.hostPlatform.isLinux || stdenv.hostPlatform.isFreeBSD) [
+    fontconfig
   ];
 
   meta = {

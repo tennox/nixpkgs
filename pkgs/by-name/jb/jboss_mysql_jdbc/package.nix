@@ -1,4 +1,8 @@
-{ lib, stdenv, mysql_jdbc }:
+{
+  lib,
+  stdenv,
+  mysql_jdbc,
+}:
 
 stdenv.mkDerivation {
   pname = "jboss-mysql-jdbc";
@@ -15,8 +19,13 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  meta = with lib; {
-    inherit (mysql_jdbc.meta) description license platforms homepage;
+  meta = {
+    inherit (mysql_jdbc.meta)
+      description
+      license
+      platforms
+      homepage
+      ;
     maintainers = [ ];
   };
 }

@@ -1,16 +1,18 @@
-{ stdenv
-, lib
-, fetchurl
-, copyDesktopItems
-, makeDesktopItem
-, makeWrapper
-, jre
-, libGL
-, libpulseaudio
-, libXxf86vm
+{
+  stdenv,
+  lib,
+  fetchurl,
+  copyDesktopItems,
+  makeDesktopItem,
+  makeWrapper,
+  jre,
+  libGL,
+  libpulseaudio,
+  libXxf86vm,
+  nix-update-script,
 }:
 let
-  version = "4.14.5-patch1";
+  version = "4.18.4";
 
   desktopItem = makeDesktopItem {
     name = "unciv";
@@ -26,12 +28,13 @@ let
     hash = "sha256-Zuz+HGfxjGviGBKTiHdIFXF8UMRLEIfM8f+LIB/xonk=";
   };
 
-  envLibPath = lib.makeLibraryPath (lib.optionals stdenv.hostPlatform.isLinux [
-    libGL
-    libpulseaudio
-    libXxf86vm
-  ]);
-
+  envLibPath = lib.makeLibraryPath (
+    lib.optionals stdenv.hostPlatform.isLinux [
+      libGL
+      libpulseaudio
+      libXxf86vm
+    ]
+  );
 in
 stdenv.mkDerivation rec {
   pname = "unciv";
@@ -39,12 +42,15 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://github.com/yairm210/Unciv/releases/download/${version}/Unciv.jar";
-    hash = "sha256-NJFv6gdNms+qcouqR/NILnT+l6z0+vOU4bGT6FqaIUw=";
+    hash = "sha256-xF9Y6pil7UZzrN0k/2qZ/FKSj7WudRwF3u167Sz3RyA=";
   };
 
   dontUnpack = true;
 
-  nativeBuildInputs = [ copyDesktopItems makeWrapper ];
+  nativeBuildInputs = [
+    copyDesktopItems
+    makeWrapper
+  ];
 
   installPhase = ''
     runHook preInstall
@@ -61,11 +67,13 @@ stdenv.mkDerivation rec {
 
   desktopItems = [ desktopItem ];
 
+  passthru.updateScript = nix-update-script { };
+
   meta = with lib; {
     description = "Open-source Android/Desktop remake of Civ V";
     mainProgram = "unciv";
     homepage = "https://github.com/yairm210/Unciv";
-    maintainers = with maintainers; [ tex ];
+    maintainers = [ ];
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
     license = licenses.mpl20;
     platforms = platforms.all;

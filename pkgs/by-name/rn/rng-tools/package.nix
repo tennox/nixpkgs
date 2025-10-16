@@ -1,20 +1,28 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, autoreconfHook
-, libtool
-, pkg-config
-, psmisc
-, argp-standalone
-, openssl
-, libcap
-, jitterentropy, withJitterEntropy ? true
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  libtool,
+  pkg-config,
+  psmisc,
+  argp-standalone,
+  openssl,
+  libcap,
+  jitterentropy,
+  withJitterEntropy ? true,
   # WARNING: DO NOT USE BEACON GENERATED VALUES AS SECRET CRYPTOGRAPHIC KEYS
   # https://www.nist.gov/programs-projects/nist-randomness-beacon
-, curl, jansson, libxml2, withNistBeacon ? false
-, libp11, opensc, withPkcs11 ? true
-, rtl-sdr, withRtlsdr ? true
-, withQrypt ? false
+  curl,
+  jansson,
+  libxml2,
+  withNistBeacon ? false,
+  libp11,
+  opensc,
+  withPkcs11 ? true,
+  rtl-sdr,
+  withRtlsdr ? true,
+  withQrypt ? false,
 }:
 
 stdenv.mkDerivation rec {
@@ -23,34 +31,52 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "nhorman";
-    repo = pname;
+    repo = "rng-tools";
     rev = "v${version}";
     hash = "sha256-wqJvLvxmNG2nb5P525w25Y8byUUJi24QIHNJomCKeG8=";
   };
 
-  nativeBuildInputs = [ autoreconfHook libtool pkg-config ];
-
-  configureFlags = [
-    (lib.enableFeature (withJitterEntropy) "jitterentropy")
-    (lib.withFeature   (withNistBeacon)    "nistbeacon")
-    (lib.withFeature   (withPkcs11)        "pkcs11")
-    (lib.withFeature   (withRtlsdr)        "rtlsdr")
-    (lib.withFeature   (withQrypt)         "qrypt")
+  nativeBuildInputs = [
+    autoreconfHook
+    libtool
+    pkg-config
   ];
 
-  buildInputs = [ openssl libcap ]
-    ++ lib.optionals stdenv.hostPlatform.isMusl [ argp-standalone ]
-    ++ lib.optionals withJitterEntropy [ jitterentropy ]
-    ++ lib.optionals withNistBeacon    [ curl jansson libxml2 ]
-    ++ lib.optionals withPkcs11        [ libp11 libp11.passthru.openssl ]
-    ++ lib.optionals withRtlsdr        [ rtl-sdr ]
-    ++ lib.optionals withQrypt         [ curl jansson ];
+  configureFlags = [
+    (lib.enableFeature withJitterEntropy "jitterentropy")
+    (lib.withFeature withNistBeacon "nistbeacon")
+    (lib.withFeature withPkcs11 "pkcs11")
+    (lib.withFeature withRtlsdr "rtlsdr")
+    (lib.withFeature withQrypt "qrypt")
+  ];
+
+  buildInputs = [
+    openssl
+    libcap
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isMusl [ argp-standalone ]
+  ++ lib.optionals withJitterEntropy [ jitterentropy ]
+  ++ lib.optionals withNistBeacon [
+    curl
+    jansson
+    libxml2
+  ]
+  ++ lib.optionals withPkcs11 [
+    libp11
+    libp11.passthru.openssl
+  ]
+  ++ lib.optionals withRtlsdr [ rtl-sdr ]
+  ++ lib.optionals withQrypt [
+    curl
+    jansson
+  ];
 
   enableParallelBuilding = true;
 
   makeFlags = [
     "AR:=$(AR)" # For cross-compilation
-  ] ++ lib.optionals withPkcs11 [
+  ]
+  ++ lib.optionals withPkcs11 [
     "PKCS11_ENGINE=${opensc}/lib/opensc-pkcs11.so" # Overrides configure script paths
   ];
 
@@ -76,12 +102,15 @@ stdenv.mkDerivation rec {
     runHook postInstallCheck
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Random number generator daemon";
     homepage = "https://github.com/nhorman/rng-tools";
     changelog = "https://github.com/nhorman/rng-tools/releases/tag/v${version}";
-    license = licenses.gpl2Plus;
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ johnazoidberg c0bw3b ];
+    license = lib.licenses.gpl2Plus;
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [
+      johnazoidberg
+      c0bw3b
+    ];
   };
 }

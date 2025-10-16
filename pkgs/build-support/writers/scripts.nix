@@ -330,9 +330,9 @@ rec {
   writeBash =
     name: argsOrScript:
     if lib.isAttrs argsOrScript && !lib.isDerivation argsOrScript then
-      makeScriptWriter (argsOrScript // { interpreter = "${lib.getExe pkgs.bash}"; }) name
+      makeScriptWriter (argsOrScript // { interpreter = "${lib.getExe pkgs.bashNonInteractive}"; }) name
     else
-      makeScriptWriter { interpreter = "${lib.getExe pkgs.bash}"; } name argsOrScript;
+      makeScriptWriter { interpreter = "${lib.getExe pkgs.bashNonInteractive}"; } name argsOrScript;
 
   /**
     Like writeScriptBin but the first line is a shebang to bash
@@ -599,7 +599,7 @@ rec {
       ...
     }@args:
     makeScriptWriter (
-      (builtins.removeAttrs args [
+      (removeAttrs args [
         "babashka"
       ])
       // {
@@ -612,6 +612,135 @@ rec {
     (like writeScriptBin)
   */
   writeBabashkaBin = name: writeBabashka "/bin/${name}";
+
+  /**
+    `writeGuile` returns a derivation that creates an executable Guile script.
+
+    # Inputs
+
+    `nameOrPath` (String)
+    : Name of or path to the script. The semantics is the same as that of
+     `makeScriptWriter`.
+
+    `config` (AttrSet)
+    : `guile` (Optional, Derivation, Default: `pkgs.guile`)
+      : Guile package used for the script.
+    : `libraries` (Optional, [ Derivation ], Default: [])
+      : Extra Guile libraries exposed to the script.
+    : `r6rs` and `r7rs` (Optional, Boolean, Default: false)
+      : Whether to adapt Guile’s initial environment to better support R6RS/
+        R7RS. See the [Guile Reference Manual](https://www.gnu.org/software/guile/manual/html_node/index.html)
+        for details.
+    : `srfi` (Optional, [ Int ], Default: [])
+      : SRFI module to be loaded into the interpreter before evaluating a
+        script file or starting the REPL. See the Guile Reference Manual to
+        know which SRFI are supported.
+    : Other attributes are directly passed to `makeScriptWriter`.
+
+    `content` (String)
+    : Content of the script.
+
+    # Examples
+
+    :::{.example}
+    ## `pkgs.writers.writeGuile` with default config
+
+    ```nix
+    writeGuile "guile-script" { }
+    ''
+      (display "Hello, world!")
+    ''
+    ```
+    :::
+
+    :::{.example}
+    ## `pkgs.writers.writeGuile` with SRFI-1 enabled and extra libraries
+
+    ```nix
+    writeGuile "guile-script" {
+      libraries = [ pkgs.guile-semver ];
+      srfi = [ 1 ];
+    }
+    ''
+      (use-modules (semver))
+      (make-semver 1 (third '(2 3 4)) 5) ; => #<semver 1.4.5>
+    ''
+    ```
+    :::
+  */
+  writeGuile =
+    nameOrPath:
+    {
+      guile ? pkgs.guile,
+      libraries ? [ ],
+      r6rs ? false,
+      r7rs ? false,
+      srfi ? [ ],
+      ...
+    }@config:
+    content:
+    assert builtins.all builtins.isInt srfi;
+    let
+      finalGuile = pkgs.buildEnv {
+        name = "guile-env";
+        paths = [ guile ] ++ libraries;
+        passthru = {
+          inherit (guile) siteDir siteCcacheDir;
+        };
+        meta.mainProgram = guile.meta.mainProgram or "guile";
+      };
+    in
+    makeScriptWriter
+      (
+        (removeAttrs config [
+          "guile"
+          "libraries"
+          "r6rs"
+          "r7rs"
+          "srfi"
+        ])
+        // {
+          interpreter = "${lib.getExe finalGuile} \\";
+          makeWrapperArgs = [
+            "--set"
+            "GUILE_LOAD_PATH"
+            "${finalGuile}/${finalGuile.siteDir}:${finalGuile}/lib/scheme-libs"
+            "--set"
+            "GUILE_LOAD_COMPILED_PATH"
+            "${finalGuile}/${finalGuile.siteCcacheDir}:${finalGuile}/lib/libobj"
+            "--set"
+            "LD_LIBRARY_PATH"
+            "${finalGuile}/lib/ffi"
+            "--set"
+            "DYLD_LIBRARY_PATH"
+            "${finalGuile}/lib/ffi"
+          ];
+        }
+      )
+      nameOrPath
+      /*
+        Spaces, newlines and tabs are significant for the "meta switch" of Guile, so
+        certain complication must be made to ensure correctness.
+      */
+      (
+        lib.concatStringsSep "\n" [
+          (lib.concatStringsSep " " (
+            [ "--no-auto-compile" ]
+            ++ lib.optional r6rs "--r6rs"
+            ++ lib.optional r7rs "--r7rs"
+            ++ lib.optional (srfi != [ ]) ("--use-srfi=" + concatMapStringsSep "," toString srfi)
+            ++ [ "-s" ]
+          ))
+          "!#"
+          content
+        ]
+      );
+
+  /**
+    writeGuileBin takes the same arguments as writeGuile but outputs a directory
+    (like writeScriptBin)
+  */
+  writeGuileBin = name: writeGuile "/bin/${name}";
 
   /**
     writeHaskell takes a name, an attrset with libraries and haskell version (both optional)
@@ -792,7 +921,7 @@ rec {
       ...
     }@args:
     makeScriptWriter (
-      (builtins.removeAttrs args [ "libraries" ])
+      (removeAttrs args [ "libraries" ])
       // {
         interpreter =
           if libraries == [ ] then "${ruby}/bin/ruby" else "${(ruby.withPackages (ps: libraries))}/bin/ruby";
@@ -834,7 +963,7 @@ rec {
       ...
     }@args:
     makeScriptWriter (
-      (builtins.removeAttrs args [ "libraries" ])
+      (removeAttrs args [ "libraries" ])
       // {
         interpreter = lua.interpreter;
         # if libraries == []
@@ -978,7 +1107,7 @@ rec {
       ''
         # nginx-config-formatter has an error - https://github.com/1connect/nginx-config-formatter/issues/16
         awk -f ${awkFormatNginx} "$textPath" | sed '/^\s*$/d' > $out
-        gixy $out
+        gixy $out || (echo "\n\nThis can be caused by combining multiple incompatible services on the same hostname.\n\nFull merged config:\n\n"; cat $out; exit 1)
       '';
 
   /**
@@ -1005,7 +1134,7 @@ rec {
       ...
     }@args:
     makeScriptWriter (
-      (builtins.removeAttrs args [ "libraries" ])
+      (removeAttrs args [ "libraries" ])
       // {
         interpreter = "${lib.getExe (pkgs.perl.withPackages (p: libraries))}";
       }
@@ -1057,7 +1186,7 @@ rec {
           "--ignore ${concatMapStringsSep "," escapeShellArg flakeIgnore}";
     in
     makeScriptWriter (
-      (builtins.removeAttrs args [
+      (removeAttrs args [
         "libraries"
         "flakeIgnore"
         "doCheck"
@@ -1065,7 +1194,12 @@ rec {
       // {
         interpreter =
           if pythonPackages != pkgs.pypy2Packages || pythonPackages != pkgs.pypy3Packages then
-            if libraries == [ ] then python.interpreter else (python.withPackages (ps: libraries)).interpreter
+            if libraries == [ ] then
+              python.interpreter
+            else if (lib.isFunction libraries) then
+              (python.withPackages libraries).interpreter
+            else
+              (python.withPackages (ps: libraries)).interpreter
           else
             python.interpreter;
         check = optionalString (python.isPy3k && doCheck) (
@@ -1199,7 +1333,7 @@ rec {
     content:
     makeScriptWriter
       (
-        (builtins.removeAttrs args [
+        (removeAttrs args [
           "dotnet-sdk"
           "fsi-flags"
           "libraries"

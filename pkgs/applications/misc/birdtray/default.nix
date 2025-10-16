@@ -1,12 +1,13 @@
-{ mkDerivation
-  , lib
-  , fetchFromGitHub
+{
+  mkDerivation,
+  lib,
+  fetchFromGitHub,
 
-  , cmake
-  , pkg-config
-  , qtbase
-  , qttools
-  , qtx11extras
+  cmake,
+  pkg-config,
+  qtbase,
+  qttools,
+  qtx11extras,
 }:
 
 mkDerivation rec {
@@ -15,14 +16,25 @@ mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "gyunaev";
-    repo = pname;
+    repo = "birdtray";
     rev = "v${version}";
     sha256 = "sha256-rj8tPzZzgW0hXmq8c1LiunIX1tO/tGAaqDGJgCQda5M=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
   buildInputs = [
-    qtbase qttools qtx11extras
+    qtbase
+    qttools
+    qtx11extras
+  ];
+
+  cmakeFlags = [
+    # CMake 4 dropped support of versions lower than 3.5,
+    # versions lower than 3.10 are deprecated.
+    (lib.cmakeFeature "CMAKE_POLICY_VERSION_MINIMUM" "3.10")
   ];
 
   # Wayland support is broken.

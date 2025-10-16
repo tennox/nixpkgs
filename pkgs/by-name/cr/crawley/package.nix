@@ -1,25 +1,29 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 }:
 
 buildGoModule rec {
   pname = "crawley";
-  version = "1.7.8";
+  version = "1.7.13";
 
   src = fetchFromGitHub {
     owner = "s0rg";
     repo = "crawley";
     rev = "v${version}";
-    hash = "sha256-Sw9FZVVar8aG0+RO64cYzJ2OZb80cgHw2we+e+BV9QY=";
+    hash = "sha256-36pdesO1jfCMue4Equ+qFpkjN2tXbOpQ32P9a/c+7aA=";
   };
 
   nativeBuildInputs = [ installShellFiles ];
 
-  vendorHash = "sha256-w/TLGJvHVbuv+wrOI+RQnZl3I62QYbqd9W1hcUbz2b0=";
+  vendorHash = "sha256-IyrySlg2zj+vqrFR821zdysVguh4UZG1bxnC+GVoLr4=";
 
-  ldflags = [ "-w" "-s" ];
+  ldflags = [
+    "-w"
+    "-s"
+  ];
 
   postInstall = ''
     installShellCompletion --cmd crawley \

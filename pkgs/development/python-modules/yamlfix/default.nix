@@ -5,26 +5,25 @@
   fetchFromGitHub,
   maison,
   pdm-backend,
+  pydantic,
   pytest-freezegun,
   pytest-xdist,
   pytestCheckHook,
-  pythonOlder,
   ruyaml,
   setuptools,
+  writableTmpDirAsHomeHook,
 }:
 
 buildPythonPackage rec {
   pname = "yamlfix";
-  version = "1.16.0";
+  version = "1.18.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "lyz-code";
     repo = "yamlfix";
-    rev = "refs/tags/${version}";
-    hash = "sha256-nadyBIzXHbWm0QvympRaYU38tuPJ3TPJg8EbvVv+4L0=";
+    tag = version;
+    hash = "sha256-g2X9fBUS5wbQJbP29V5pWwrQ1+P/Y8euK4Rv7C6r3WM=";
   };
 
   build-system = [
@@ -35,6 +34,7 @@ buildPythonPackage rec {
   dependencies = [
     click
     maison
+    pydantic
     ruyaml
   ];
 
@@ -42,24 +42,22 @@ buildPythonPackage rec {
     pytest-freezegun
     pytest-xdist
     pytestCheckHook
+    writableTmpDirAsHomeHook
   ];
-
-  preCheck = ''
-    export HOME=$(mktemp -d)
-  '';
 
   pythonImportsCheck = [ "yamlfix" ];
 
-  pytestFlagsArray = [
-    "-W"
-    "ignore::DeprecationWarning"
+  pytestFlags = [
+    "-Wignore::DeprecationWarning"
+    "-Wignore::ResourceWarning"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Python YAML formatter that keeps your comments";
     homepage = "https://github.com/lyz-code/yamlfix";
-    changelog = "https://github.com/lyz-code/yamlfix/blob/${version}/CHANGELOG.md";
-    license = licenses.gpl3Only;
-    maintainers = with maintainers; [ koozz ];
+    changelog = "https://github.com/lyz-code/yamlfix/blob/${src.tag}/CHANGELOG.md";
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [ koozz ];
+    mainProgram = "yamlfix";
   };
 }

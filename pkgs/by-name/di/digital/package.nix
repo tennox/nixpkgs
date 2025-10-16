@@ -1,10 +1,16 @@
-{ lib, fetchFromGitHub, makeDesktopItem, copyDesktopItems, makeWrapper
-, jre, maven
+{
+  lib,
+  fetchFromGitHub,
+  makeDesktopItem,
+  copyDesktopItems,
+  makeWrapper,
+  jre,
+  maven,
 }:
 
 let
   pname = "digital";
-  pkgDescription = "A digital logic designer and circuit simulator.";
+  pkgDescription = "Digital logic designer and circuit simulator";
   version = "0.31";
   buildDate = "2024-09-03T14:02:31+02:00"; # v0.31 commit date
 
@@ -15,10 +21,17 @@ let
     comment = "Easy-to-use digital logic designer and circuit simulator";
     exec = pname;
     icon = pname;
-    categories = [ "Education" "Electronics" ];
+    categories = [
+      "Education"
+      "Electronics"
+    ];
     mimeTypes = [ "text/x-digital" ];
     terminal = false;
-    keywords = [ "simulator" "digital" "circuits" ];
+    keywords = [
+      "simulator"
+      "digital"
+      "circuits"
+    ];
   };
 
   # Use the "no-git-rev" maven profile, which deactivates the plugin that
@@ -41,7 +54,10 @@ maven.buildMavenPackage rec {
   inherit mvnParameters;
   mvnHash = "sha256-wm/axWJucoW9P98dKqHI4bjrUnmBTfosCOdJg9VBJ+4=";
 
-  nativeBuildInputs = [ copyDesktopItems makeWrapper ];
+  nativeBuildInputs = [
+    copyDesktopItems
+    makeWrapper
+  ];
 
   installPhase = ''
     runHook preInstall

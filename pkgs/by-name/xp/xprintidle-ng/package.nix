@@ -1,28 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, libX11
-, libXScrnSaver
-, libXext
-, gnulib
-, autoconf
-, automake
-, libtool
-, gettext
-, pkg-config
-, git
-, perl
-, texinfo
-, help2man
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libX11,
+  libXScrnSaver,
+  libXext,
+  gnulib,
+  autoconf,
+  automake,
+  libtool,
+  gettext,
+  pkg-config,
+  git,
+  perl,
+  texinfo,
+  help2man,
 }:
 
 stdenv.mkDerivation rec {
   pname = "xprintidle-ng";
-  version = "unstable-2015-09-01";
+  version = "0-unstable-2015-09-01";
 
   src = fetchFromGitHub {
     owner = "taktoa";
-    repo = pname;
+    repo = "xprintidle-ng";
     rev = "9083ba284d9222541ce7da8dc87d5a27ef5cc592";
     sha256 = "0a5024vimpfrpj6w60j1ad8qvjkrmxiy8w1yijxfwk917ag9rkpq";
   };
@@ -50,8 +51,12 @@ stdenv.mkDerivation rec {
   ];
 
   configurePhase = ''
+    runHook preConfigure
+
     ./bootstrap --gnulib-srcdir=${gnulib}
     ./configure --prefix="$out"
+
+    runHook postConfigure
   '';
 
   buildInputs = [

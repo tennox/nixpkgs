@@ -7,21 +7,21 @@
   libsForQt5,
   scrcpy,
   android-tools,
-  ffmpeg_4,
+  ffmpeg,
   makeDesktopItem,
   copyDesktopItems,
 }:
 
 stdenv.mkDerivation rec {
   pname = "qtscrcpy";
-  version = "2.2.1";
+  version = "3.3.1";
 
   src =
     (fetchFromGitHub {
       owner = "barry-ran";
       repo = "QtScrcpy";
-      rev = "refs/tags/v${version}";
-      hash = "sha256-PL/UvRNqvLaFuvSHbkJsaJ2nqRp5+ERM+rmlKVtbShk=";
+      tag = "v${version}";
+      hash = "sha256-kDeMgSIEIQxaTDR/QAcIaEmPjkmUKBsGyF8fISRzu1M=";
       fetchSubmodules = true;
     }).overrideAttrs
       (_: {
@@ -37,13 +37,18 @@ stdenv.mkDerivation rec {
     # remove predefined adb and scrcpy-server path
     # we later set them in wrapper
     ./remove_predefined_paths.patch
+
+    # remove avcodec_close which is deprecated in ffmpeg_7
+    # This doesn't affect functionality because
+    # it's followed by avcodec_free_context
+    ./remove_deprecated_avcodec_free_context.patch
   ];
 
   postPatch = ''
     substituteInPlace QtScrcpy/QtScrcpyCore/{include/QtScrcpyCoreDef.h,src/device/server/server.h} \
-      --replace-fail 'serverVersion = "2.1.1"' 'serverVersion = "${scrcpy.version}"'
+      --replace-fail 'serverVersion = "3.3.1"' 'serverVersion = "${scrcpy.version}"'
     substituteInPlace QtScrcpy/util/config.cpp \
-      --replace-fail 'COMMON_SERVER_VERSION_DEF "2.1.1"' 'COMMON_SERVER_VERSION_DEF "${scrcpy.version}"'
+      --replace-fail 'COMMON_SERVER_VERSION_DEF "3.3.1"' 'COMMON_SERVER_VERSION_DEF "${scrcpy.version}"'
     substituteInPlace QtScrcpy/audio/audiooutput.cpp \
       --replace-fail 'sndcpy.sh' "$out/share/qtscrcpy/sndcpy.sh"
     substituteInPlace QtScrcpy/sndcpy/sndcpy.sh \
@@ -58,16 +63,16 @@ stdenv.mkDerivation rec {
     copyDesktopItems
   ];
 
-  buildInputs =
-    [
-      scrcpy
-      ffmpeg_4
-    ]
-    ++ (with libsForQt5; [
-      qtbase
-      qtmultimedia
-      qtx11extras
-    ]);
+  buildInputs = [
+    scrcpy
+    # Upstream vendors ffmpeg_4
+    ffmpeg
+  ]
+  ++ (with libsForQt5; [
+    qtbase
+    qtmultimedia
+    qtx11extras
+  ]);
 
   env.NIX_CFLAGS_COMPILE = toString [
     "-Wno-error=sign-compare"

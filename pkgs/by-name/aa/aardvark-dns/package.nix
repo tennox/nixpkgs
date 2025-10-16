@@ -1,31 +1,32 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, nixosTests
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  nixosTests,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "aardvark-dns";
-  version = "1.13.0";
+  version = "1.16.0";
 
   src = fetchFromGitHub {
     owner = "containers";
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-1I0YcnHGxblfSWlx5bbR4v3UXxKPnYQ90AKnUny2vDg=";
+    repo = "aardvark-dns";
+    tag = "v${version}";
+    hash = "sha256-mC+PP5sXt2O0CgxxyzS2WjtQe0RjuKNCamrjRY7qBP8=";
   };
 
-  cargoHash = "sha256-vZHFZL3dwFVyLfifpUq4uaqaUac7Itimf2pJGZ4qWMM=";
+  cargoHash = "sha256-e/VxQgpTOS4snM78BewvloWap9cU+Vzlahlr00BWmVY=";
 
   passthru.tests = { inherit (nixosTests) podman; };
 
-  meta = with lib; {
+  meta = {
     changelog = "https://github.com/containers/aardvark-dns/releases/tag/${src.rev}";
     description = "Authoritative dns server for A/AAAA container records";
     homepage = "https://github.com/containers/aardvark-dns";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ ] ++ teams.podman.members;
-    platforms = platforms.linux;
+    license = lib.licenses.asl20;
+    teams = with lib.teams; [ podman ];
+    platforms = lib.platforms.linux;
     mainProgram = "aardvark-dns";
   };
 }

@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchurl, cmake, ninja, unzip }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  cmake,
+  ninja,
+  unzip,
+}:
 
 stdenv.mkDerivation rec {
   version = "6.4.2";
@@ -10,7 +17,16 @@ stdenv.mkDerivation rec {
 
   sourceRoot = "cpp";
 
-  nativeBuildInputs = [ cmake ninja unzip ];
+  postPatch = ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail "CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)" "CMAKE_MINIMUM_REQUIRED(VERSION 3.10.0)"
+  '';
+
+  nativeBuildInputs = [
+    cmake
+    ninja
+    unzip
+  ];
 
   meta = with lib; {
     description = "Polygon and line clipping and offsetting library (C++, C#, Delphi)";

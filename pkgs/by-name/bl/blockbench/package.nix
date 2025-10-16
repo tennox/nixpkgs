@@ -12,23 +12,24 @@
 
 buildNpmPackage rec {
   pname = "blockbench";
-  version = "4.11.2";
+  version = "4.12.6";
 
   src = fetchFromGitHub {
     owner = "JannisX11";
     repo = "blockbench";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-rUMzn+3j+RL8DY8euS6a4MmdoIAVLXxXu9wvKNmK/TU=";
+    tag = "v${version}";
+    hash = "sha256-iV8qpUsUnL1n6hKADegNTmrW/AUWNiiNLxrTU4WPR30=";
   };
 
-  nativeBuildInputs =
-    [ makeWrapper ]
-    ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
-      imagemagick # for icon resizing
-      copyDesktopItems
-    ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
+    imagemagick # for icon resizing
+    copyDesktopItems
+  ];
 
-  npmDepsHash = "sha256-0hS+AjfYvkdxyM6CtXYgvjt49GmcCvyAdEFWfK8uaHc=";
+  npmDepsHash = "sha256-ZLFmcK91SrUM+ouBENzc+MdNvQCRDh0ej4tf2TneUtQ=";
 
   env.ELECTRON_SKIP_BINARY_DOWNLOAD = 1;
 
@@ -66,12 +67,12 @@ buildNpmPackage rec {
 
       for size in 16 32 48 64 128 256 512; do
         mkdir -p $out/share/icons/hicolor/"$size"x"$size"/apps
-        magick convert -resize "$size"x"$size" icon.png $out/share/icons/hicolor/"$size"x"$size"/apps/blockbench.png
+        magick icon.png -resize "$size"x"$size" $out/share/icons/hicolor/"$size"x"$size"/apps/blockbench.png
       done
 
       makeWrapper ${lib.getExe electron} $out/bin/blockbench \
           --add-flags $out/share/blockbench/resources/app.asar \
-          --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}" \
+          --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
           --inherit-argv0
     ''}
 

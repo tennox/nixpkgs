@@ -1,40 +1,37 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, zip
-, gettext
-, perl
-, wxGTK32
-, libXext
-, libXi
-, libXt
-, libXtst
-, xercesc
-, qrencode
-, libuuid
-, libyubikey
-, yubikey-personalization
-, curl
-, openssl
-, file
-, darwin
-, gitUpdater
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  zip,
+  gettext,
+  perl,
+  wxGTK32,
+  libXext,
+  libXi,
+  libXt,
+  libXtst,
+  xercesc,
+  qrencode,
+  libuuid,
+  libyubikey,
+  yubikey-personalization,
+  curl,
+  openssl,
+  file,
+  gitUpdater,
 }:
 
-let
-  inherit (darwin.apple_sdk.frameworks) Cocoa;
-in
 stdenv.mkDerivation rec {
   pname = "pwsafe";
-  version = "1.18.0"; # do NOT update to 3.x Windows releases
+  version = "1.22.0fp"; # do NOT update to 3.x Windows releases
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "pwsafe";
+    repo = "pwsafe";
     rev = version;
-    hash = "sha256-2n3JJ/DPhJpNOyviYpqQQl83IAZnmnH5w7b/pOGU8K8=";
+    hash = "sha256-oVhpdJPpGNMqL1y67Kv3osa1Cx5YM8SyaNuRWeMfd9g=";
   };
 
   strictDeps = true;
@@ -55,7 +52,8 @@ stdenv.mkDerivation rec {
     openssl
     xercesc
     file
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     libXext
     libXi
     libXt
@@ -63,14 +61,13 @@ stdenv.mkDerivation rec {
     libuuid
     libyubikey
     yubikey-personalization
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    Cocoa
   ];
 
   cmakeFlags = [
     "-DNO_GTEST=ON"
     "-DCMAKE_CXX_FLAGS=-I${yubikey-personalization}/include/ykpers-1"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "-DNO_YUBI=ON"
   ];
 
@@ -91,7 +88,8 @@ stdenv.mkDerivation rec {
     for f in $(grep -Rl /usr/bin/ .) ; do
       substituteInPlace $f --replace /usr/bin/ ""
     done
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace src/ui/cli/CMakeLists.txt --replace "uuid" ""
   '';
 
@@ -112,7 +110,10 @@ stdenv.mkDerivation rec {
       username/password combinations that you use.
     '';
     homepage = "https://pwsafe.org/";
-    maintainers = with maintainers; [ c0bw3b pjones ];
+    maintainers = with maintainers; [
+      c0bw3b
+      pjones
+    ];
     platforms = platforms.unix;
     license = licenses.artistic2;
   };

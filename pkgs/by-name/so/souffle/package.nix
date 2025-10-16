@@ -1,37 +1,81 @@
-{ lib, stdenv, fetchFromGitHub
-, bash-completion, perl, ncurses, zlib, sqlite, libffi
-, mcpp, cmake, bison, flex, doxygen, graphviz
-, makeWrapper, python3, callPackage
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  bash-completion,
+  perl,
+  ncurses,
+  zlib,
+  sqlite,
+  libffi,
+  mcpp,
+  cmake,
+  bison,
+  flex,
+  doxygen,
+  graphviz,
+  makeWrapper,
+  python3,
+  callPackage,
+  fetchpatch,
 }:
 
-
 let
-  toolsPath = lib.makeBinPath [ mcpp python3 ];
+  toolsPath = lib.makeBinPath [
+    mcpp
+    python3
+  ];
 in
 stdenv.mkDerivation rec {
   pname = "souffle";
-  version = "2.4.1";
+  version = "2.5";
 
   src = fetchFromGitHub {
-    owner  = "souffle-lang";
-    repo   = "souffle";
-    rev    = version;
-    sha256 = "sha256-U3/1iNOLFzuXiBsVDAc5AXnK4F982Uifp18jjFNUv2o=";
+    owner = "souffle-lang";
+    repo = "souffle";
+    rev = version;
+    sha256 = "sha256-Umfeb1pGAeK5K3QDRD/labC6IJLsPPJ73ycsAV4yPNM=";
   };
 
   patches = [
     ./threads.patch
     ./includes.patch
+    (fetchpatch {
+      name = "replace-copy-assignment.patch";
+      url = "https://github.com/souffle-lang/souffle/commit/73ebe789ec21772a0c5558639606354bfc3bcbd1.patch";
+      hash = "sha256-L9SK3Dh2cRwxKfEckUSiGGTDsWIZ5B8hoYYcslJpZl4=";
+    })
   ];
 
   hardeningDisable = lib.optionals stdenv.hostPlatform.isDarwin [ "strictoverflow" ];
 
-  nativeBuildInputs = [ bison cmake flex mcpp doxygen graphviz makeWrapper perl ];
-  buildInputs = [ bash-completion ncurses zlib sqlite libffi python3 ];
+  nativeBuildInputs = [
+    bison
+    cmake
+    flex
+    mcpp
+    doxygen
+    graphviz
+    makeWrapper
+    perl
+  ];
+  buildInputs = [
+    bash-completion
+    ncurses
+    zlib
+    sqlite
+    libffi
+    python3
+  ];
   # these propagated inputs are needed for the compiled Souffle mode to work,
   # since generated compiler code uses them. TODO: maybe write a g++ wrapper
   # that adds these so we can keep the propagated inputs clean?
-  propagatedBuildInputs = [ ncurses zlib sqlite libffi ];
+  propagatedBuildInputs = [
+    ncurses
+    zlib
+    sqlite
+    libffi
+  ];
 
   cmakeFlags = [ "-DSOUFFLE_GIT=OFF" ];
 
@@ -55,9 +99,13 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Translator of declarative Datalog programs into the C++ language";
-    homepage    = "https://souffle-lang.github.io/";
-    platforms   = platforms.unix;
-    maintainers = with maintainers; [ thoughtpolice copumpkin wchresta markusscherer ];
-    license     = licenses.upl;
+    homepage = "https://souffle-lang.github.io/";
+    platforms = platforms.unix;
+    maintainers = with maintainers; [
+      thoughtpolice
+      wchresta
+      markusscherer
+    ];
+    license = licenses.upl;
   };
 }

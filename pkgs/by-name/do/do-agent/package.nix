@@ -1,14 +1,18 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "do-agent";
-  version = "3.16.11";
+  version = "3.18.4";
 
   src = fetchFromGitHub {
     owner = "digitalocean";
     repo = "do-agent";
     rev = version;
-    sha256 = "sha256-BQFL/h9bXtbS7YeImrXjLExakfecza6wJsppgmwkRGg=";
+    sha256 = "sha256-Pn53zNp3D0NcEQqfiv4ZceLT2Pgvz7oZYZAhk2D1SCc=";
   };
 
   ldflags = [
@@ -33,7 +37,7 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/digitalocean/do-agent";
     license = licenses.asl20;
-    maintainers = with maintainers; [ yvt ];
+    maintainers = [ ];
     platforms = platforms.linux;
   };
 }

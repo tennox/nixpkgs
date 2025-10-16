@@ -1,21 +1,23 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, nasm
-, alsa-lib
-, ffmpeg_6
-, glew
-, glib
-, gtk2
-, libmad
-, libogg
-, libpng
-, libpulseaudio
-, libvorbis
-, udev
-, xorg
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  nasm,
+  alsa-lib,
+  ffmpeg_6,
+  glew,
+  glib,
+  gtk2,
+  libmad,
+  libogg,
+  libpng,
+  libpulseaudio,
+  libvorbis,
+  udev,
+  xorg,
+  zlib,
 }:
 
 stdenv.mkDerivation {
@@ -24,8 +26,8 @@ stdenv.mkDerivation {
 
   src = fetchFromGitHub {
     owner = "stepmania";
-    repo  = "stepmania";
-    rev   = "d55acb1ba26f1c5b5e3048d6d6c0bd116625216f";
+    repo = "stepmania";
+    rev = "d55acb1ba26f1c5b5e3048d6d6c0bd116625216f";
     hash = "sha256-49H2Q61R4l/G0fWsjCjiAUXeWwG3lcsDpV5XvR3l3QE=";
   };
 
@@ -40,9 +42,15 @@ stdenv.mkDerivation {
 
   postPatch = ''
     sed '1i#include <ctime>' -i src/arch/ArchHooks/ArchHooks.h # gcc12
+
+    substituteInPlace CMakeLists.txt \
+      --replace-fail 'cmake_minimum_required(VERSION 2.8.12)' 'cmake_minimum_required(VERSION 3.10)'
   '';
 
-  nativeBuildInputs = [ cmake nasm ];
+  nativeBuildInputs = [
+    cmake
+    nasm
+  ];
 
   buildInputs = [
     alsa-lib
@@ -57,11 +65,13 @@ stdenv.mkDerivation {
     libvorbis
     udev
     xorg.libXtst
+    zlib
   ];
 
   cmakeFlags = [
     "-DWITH_SYSTEM_FFMPEG=1"
     "-DWITH_SYSTEM_PNG=on"
+    "-DWITH_SYSTEM_ZLIB=on"
     "-DGTK2_GDKCONFIG_INCLUDE_DIR=${gtk2.out}/lib/gtk-2.0/include"
     "-DGTK2_GLIBCONFIG_INCLUDE_DIR=${glib.out}/lib/glib-2.0/include"
   ];

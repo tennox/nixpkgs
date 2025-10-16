@@ -1,4 +1,11 @@
-{ stdenv, lib, fetchFromGitHub, coreutils, ubootOdroidXU3, runtimeShell }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  coreutils,
+  ubootOdroidXU3,
+  runtimeShell,
+}:
 
 stdenv.mkDerivation {
   pname = "odroid-xu3-bootloader";
@@ -30,6 +37,6 @@ stdenv.mkDerivation {
     platforms = platforms.linux;
     license = licenses.unfreeRedistributableFirmware;
     description = "Secure boot enabled boot loader for ODROID-XU{3,4}";
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
   };
 }

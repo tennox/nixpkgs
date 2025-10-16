@@ -1,8 +1,15 @@
-{ lib, stdenv, fetchFromGitHub, libevent, glew, glfw }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libevent,
+  glew,
+  glfw,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "pixelnuke";
-  version = "unstable-2019-05-19";
+  version = "0-unstable-2019-05-19";
 
   src = fetchFromGitHub {
     owner = "defnull";
@@ -13,7 +20,11 @@ stdenv.mkDerivation (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/pixelnuke";
 
-  buildInputs = [ libevent glew glfw ];
+  buildInputs = [
+    libevent
+    glew
+    glfw
+  ];
 
   installPhase = ''
     install -Dm755 ./pixelnuke $out/bin/pixelnuke

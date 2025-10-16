@@ -1,25 +1,27 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, flac
-, libpulseaudio
-, qtbase
-, qtgraphicaleffects
-, qtquickcontrols2
-, wrapQtAppsHook
-, makeWrapper
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  flac,
+  libpulseaudio,
+  qtbase,
+  qtgraphicaleffects,
+  qtquickcontrols2,
+  qtwayland,
+  wrapQtAppsHook,
+  makeWrapper,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "noson";
-  version = "5.6.8";
+  version = "5.6.13";
 
   src = fetchFromGitHub {
     owner = "janbar";
     repo = "noson-app";
     rev = finalAttrs.version;
-    hash = "sha256-hCVGi+++6CcTRMXeRKH8xRncm/Gl83GgU3aAIPI/yGU=";
+    hash = "sha256-XJBkPhyDPeyVrcY5Q5W9LtESuVxcbcQ8JoyOzKg+0NU=";
   };
 
   nativeBuildInputs = [
@@ -34,6 +36,9 @@ stdenv.mkDerivation (finalAttrs: {
     qtbase
     qtgraphicaleffects
     qtquickcontrols2
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    qtwayland
   ];
 
   # wrapQtAppsHook doesn't automatically find noson-gui

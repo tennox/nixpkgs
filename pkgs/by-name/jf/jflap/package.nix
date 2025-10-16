@@ -1,10 +1,11 @@
-{ lib
-, stdenvNoCC
-, fetchurl
-, jre8
-, makeWrapper
-, makeDesktopItem
-, copyDesktopItems
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+  jre8,
+  makeWrapper,
+  makeDesktopItem,
+  copyDesktopItems,
 }:
 
 stdenvNoCC.mkDerivation rec {
@@ -54,7 +55,7 @@ stdenvNoCC.mkDerivation rec {
     mkdir -p $out/share/java
     cp -s $src $out/share/java/jflap.jar
     makeWrapper ${jre8}/bin/java $out/bin/jflap \
-      --prefix _JAVA_OPTIONS : "-Dawt.useSystemAAFontSettings=on" \
+      --prefix _JAVA_OPTIONS " " "-Dawt.useSystemAAFontSettings=gasp" \
       --add-flags "-jar $out/share/java/jflap.jar"
     runHook postInstall
   '';
@@ -64,7 +65,9 @@ stdenvNoCC.mkDerivation rec {
     homepage = "https://www.jflap.org/";
     license = licenses.unfree;
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
-    maintainers = with maintainers; [ grnnja yuu ];
+    maintainers = with maintainers; [
+      grnnja
+    ];
     platforms = jre8.meta.platforms;
   };
 }

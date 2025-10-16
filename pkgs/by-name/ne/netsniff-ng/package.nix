@@ -1,33 +1,33 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, makeWrapper
-, bison
-, flex
-, geoip
-, geolite-legacy
-, libcli
-, libnet
-, libnetfilter_conntrack
-, libnl
-, libpcap
-, libsodium
-, liburcu
-, ncurses
-, pkg-config
-, gnumake42
-, zlib
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  makeWrapper,
+  bison,
+  flex,
+  geoip,
+  geolite-legacy,
+  libcli,
+  libnet,
+  libnetfilter_conntrack,
+  libnl,
+  libpcap,
+  libsodium,
+  liburcu,
+  ncurses,
+  pkg-config,
+  zlib,
 }:
 
 stdenv.mkDerivation rec {
   pname = "netsniff-ng";
-  version = "0.6.8";
+  version = "0.6.9";
 
   src = fetchFromGitHub {
-    repo = pname;
-    owner = pname;
+    repo = "netsniff-ng";
+    owner = "netsniff-ng";
     rev = "v${version}";
-    sha256 = "10ih8amaqspy0zwg7hqvypa1v7ixpjl0n608cyfgyfzffp73lbqf";
+    hash = "sha256-P1xZqhZ/HJV3fAvh4xhhApZ0+FLDFqvYrZlbvb+FV7I=";
   };
 
   nativeBuildInputs = [
@@ -35,7 +35,6 @@ stdenv.mkDerivation rec {
     flex
     makeWrapper
     pkg-config
-    gnumake42 # fails with make 4.4
   ];
 
   buildInputs = [
@@ -54,15 +53,22 @@ stdenv.mkDerivation rec {
 
   # ./configure is not autoGNU but some home-brewn magic
   configurePhase = ''
+    runHook preConfigure
+
     patchShebangs configure
     substituteInPlace configure --replace "which" "command -v"
     NACL_INC_DIR=${libsodium.dev}/include/sodium NACL_LIB=sodium ./configure
+
+    runHook postConfigure
   '';
 
   enableParallelBuilding = true;
 
   # All files installed to /etc are just static data that can go in the store
-  makeFlags = [ "PREFIX=$(out)" "ETCDIR=$(out)/etc" ];
+  makeFlags = [
+    "PREFIX=$(out)"
+    "ETCDIR=$(out)/etc"
+  ];
 
   postInstall = ''
     # trafgen and bpfc can call out to cpp to process config files.

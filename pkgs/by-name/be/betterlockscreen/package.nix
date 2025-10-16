@@ -1,27 +1,40 @@
-{ fetchFromGitHub
-, lib
-, makeWrapper
-, stdenv
+{
+  fetchFromGitHub,
+  lib,
+  makeWrapper,
+  stdenv,
 
   # Dependencies (@see https://github.com/pavanjadhaw/betterlockscreen/blob/master/shell.nix)
-, bc
-, coreutils
-, dbus
-, withDunst ? true
-, dunst
-, i3lock-color
-, gawk
-, gnugrep
-, gnused
-, imagemagick
-, procps
-, xorg
+  bc,
+  coreutils,
+  dbus,
+  withDunst ? true,
+  dunst,
+  i3lock-color,
+  gawk,
+  gnugrep,
+  gnused,
+  imagemagick,
+  procps,
+  xorg,
 }:
 
 let
-  runtimeDeps =
-    [ bc coreutils dbus i3lock-color gawk gnugrep gnused imagemagick procps xorg.xdpyinfo xorg.xrandr xorg.xset ]
-    ++ lib.optionals withDunst [ dunst ];
+  runtimeDeps = [
+    bc
+    coreutils
+    dbus
+    i3lock-color
+    gawk
+    gnugrep
+    gnused
+    imagemagick
+    procps
+    xorg.xdpyinfo
+    xorg.xrandr
+    xorg.xset
+  ]
+  ++ lib.optionals withDunst [ dunst ];
 in
 
 stdenv.mkDerivation rec {
@@ -49,11 +62,14 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "Fast and sweet looking lockscreen for linux systems with effects!";
+    description = "Fast and sweet looking lockscreen for linux systems with effects";
     homepage = "https://github.com/betterlockscreen/betterlockscreen";
     mainProgram = "betterlockscreen";
     license = licenses.mit;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ eyjhb sebtm ];
+    maintainers = with maintainers; [
+      eyjhb
+      sebtm
+    ];
   };
 }

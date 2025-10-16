@@ -1,11 +1,12 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
 buildGoModule {
   pname = "typer";
-  version = "unstable-2023-02-08";
+  version = "0-unstable-2023-02-08";
 
   src = fetchFromGitHub {
     owner = "maaslalani";
@@ -16,7 +17,10 @@ buildGoModule {
 
   vendorHash = "sha256-t4zim6WhqGAf1zHmmbJbpVvQcE/aoNL7ZLdjU7f3rp8=";
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   meta = with lib; {
     description = "Typing test in your terminal";

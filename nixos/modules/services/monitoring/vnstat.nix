@@ -1,20 +1,23 @@
-{ config, lib, pkgs, ... }:
-
-with lib;
-
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.services.vnstat;
-in {
+in
+{
   options.services.vnstat = {
-    enable = mkEnableOption "update of network usage statistics via vnstatd";
+    enable = lib.mkEnableOption "update of network usage statistics via vnstatd";
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
 
     environment.systemPackages = [ pkgs.vnstat ];
 
     users = {
-      groups.vnstatd = {};
+      groups.vnstatd = { };
 
       users.vnstatd = {
         isSystemUser = true;
@@ -55,6 +58,4 @@ in {
       };
     };
   };
-
-  meta.maintainers = [ maintainers.evils ];
 }

@@ -1,4 +1,9 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   cfg = config.services.nixseparatedebuginfod;
   url = "127.0.0.1:${toString cfg.port}";
@@ -30,10 +35,12 @@ in
     };
   };
   config = lib.mkIf cfg.enable {
-    assertions = [ {
-      assertion = cfg.allowOldNix || (lib.versionAtLeast cfg.nixPackage.version "2.18");
-      message = "nixseparatedebuginfod works better when `services.nixseparatedebuginfod.nixPackage` is set to nix >= 2.18 (instead of ${cfg.nixPackage.name}). Set `services.nixseparatedebuginfod.allowOldNix` to bypass.";
-    } ];
+    assertions = [
+      {
+        assertion = cfg.allowOldNix || (lib.versionAtLeast cfg.nixPackage.version "2.18");
+        message = "nixseparatedebuginfod works better when `services.nixseparatedebuginfod.nixPackage` is set to nix >= 2.18 (instead of ${cfg.nixPackage.name}). Set `services.nixseparatedebuginfod.allowOldNix` to bypass.";
+      }
+    ];
 
     systemd.services.nixseparatedebuginfod = {
       wantedBy = [ "multi-user.target" ];
@@ -94,14 +101,6 @@ in
       extra-allowed-users = [ "nixseparatedebuginfod" ];
     };
 
-    environment.variables.DEBUGINFOD_URLS = "http://${url}";
-
-    environment.systemPackages = [
-      # valgrind support requires debuginfod-find on PATH
-      (lib.getBin pkgs.elfutils)
-    ];
-
-    environment.etc."gdb/gdbinit.d/nixseparatedebuginfod.gdb".text = "set debuginfod enabled on";
-
+    environment.debuginfodServers = [ "http://${url}" ];
   };
 }

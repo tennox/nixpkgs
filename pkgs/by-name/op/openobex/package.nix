@@ -1,4 +1,13 @@
-{ lib, stdenv, fetchurl, pkg-config, bluez, libusb-compat-0_1, cmake }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  pkg-config,
+  bluez,
+  libusb-compat-0_1,
+  cmake,
+  udevCheckHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "openobex";
@@ -9,19 +18,31 @@ stdenv.mkDerivation rec {
     sha256 = "1z6l7pbwgs5pjx3861cyd3r6vq5av984bdp4r3hgrw2jxam6120m";
   };
 
-  nativeBuildInputs = [ pkg-config cmake ];
-  buildInputs = [ bluez libusb-compat-0_1 ];
+  nativeBuildInputs = [
+    pkg-config
+    cmake
+    udevCheckHook
+  ];
+  buildInputs = [
+    bluez
+    libusb-compat-0_1
+  ];
 
-  configureFlags = [ "--enable-apps" ];
+  doInstallCheck = true;
 
   patchPhase = ''
     sed -i "s!/lib/udev!$out/lib/udev!" udev/CMakeLists.txt
     sed -i "/if ( PKGCONFIG_UDEV_FOUND )/,/endif ( PKGCONFIG_UDEV_FOUND )/d" udev/CMakeLists.txt
+
+    # cmake 4 compatibility, upstream is dead
+    substituteInPlace CMakeLists.txt \
+      --replace-fail "cmake_minimum_required ( VERSION 3.1 FATAL_ERROR )" "cmake_minimum_required ( VERSION 3.10 FATAL_ERROR )"
+
     # https://sourceforge.net/p/openobex/bugs/66/
     substituteInPlace CMakeLists.txt \
-      --replace '\$'{prefix}/'$'{CMAKE_INSTALL_LIBDIR} '$'{CMAKE_INSTALL_FULL_LIBDIR} \
-      --replace '\$'{prefix}/'$'{CMAKE_INSTALL_INCLUDEDIR} '$'{CMAKE_INSTALL_FULL_INCLUDEDIR}
-    '';
+      --replace-fail '\$'{prefix}/'$'{CMAKE_INSTALL_LIBDIR} '$'{CMAKE_INSTALL_FULL_LIBDIR} \
+      --replace-fail '\$'{prefix}/'$'{CMAKE_INSTALL_INCLUDEDIR} '$'{CMAKE_INSTALL_FULL_INCLUDEDIR}
+  '';
 
   meta = with lib; {
     homepage = "http://dev.zuckschwerdt.org/openobex/";

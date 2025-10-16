@@ -1,10 +1,11 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchPypi
-, sphinx
-, setuptools
-, unittestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchPypi,
+  sphinx,
+  setuptools,
+  unittestCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -22,12 +23,11 @@ buildPythonPackage rec {
 
   build-system = [ setuptools ];
   dependencies = [ sphinx ];
-  nativeCheckInputs = [ unittestCheckHook ];
 
   pythonImportsCheck = [ "sphinx_multiversion" ];
 
   meta = with lib; {
-    description = "Sphinx extension for building self-hosted versioned docs.";
+    description = "Sphinx extension for building self-hosted versioned docs";
     homepage = "https://sphinx-contrib.github.io/multiversion";
     changelog = "https://github.com/sphinx-contrib/multiversion/releases/tag/v${version}";
     license = licenses.bsd2;

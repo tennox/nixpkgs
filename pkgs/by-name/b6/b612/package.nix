@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchFromGitHub }:
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "b612";
@@ -7,7 +11,7 @@ stdenvNoCC.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "polarsys";
     repo = "b612";
-    rev = version;
+    tag = version;
     hash = "sha256-uyBC8UNOwztCHXhR9XZuWDwrty0eClbo0E+gI1PmjEg=";
   };
 
@@ -37,7 +41,11 @@ stdenvNoCC.mkDerivation rec {
       imaginary asteroid of the aviator Saint‑Exupéry, benefited from a complete
       hinting on all the characters.
     '';
-    license = with licenses; [ ofl epl10 bsd3 ];
+    license = with licenses; [
+      ofl
+      epl10
+      bsd3
+    ];
     maintainers = with maintainers; [ leenaars ];
     platforms = platforms.all;
   };

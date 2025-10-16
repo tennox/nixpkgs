@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fftw, installShellFiles }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fftw,
+  installShellFiles,
+}:
 
 stdenv.mkDerivation {
   pname = "sonic-unstable";
@@ -11,7 +17,16 @@ stdenv.mkDerivation {
     sha256 = "0ah54nizb6iwcx277w104wsfnx05vrp4sh56d2pfxhf8xghg54m6";
   };
 
-  makeFlags = [ "PREFIX=${placeholder "out"}" "CC=${stdenv.cc.targetPrefix}cc" ];
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+    "CC=${stdenv.cc.targetPrefix}cc"
+  ];
+
+  env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+    # Ensure that there is enough space for the `install_names_tool` to update
+    # the install name of the output library.
+    NIX_LDFLAGS = "-headerpad_max_install_names";
+  };
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -19,7 +34,8 @@ stdenv.mkDerivation {
 
   postInstall = ''
     installManPage sonic.1
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     install_name_tool -id $out/lib/libsonic.so.0.3.0 $out/lib/libsonic.so.0.3.0
   '';
 

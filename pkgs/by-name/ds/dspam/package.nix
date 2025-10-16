@@ -1,23 +1,43 @@
-{ stdenv, lib, fetchurl, makeWrapper
-, gawk, gnused, gnugrep, coreutils, which
-, perlPackages
-, withMySQL ? false, zlib, mariadb-connector-c
-, withPgSQL ? false, postgresql
-, withSQLite ? false, sqlite
-, withDB ? false, db
+{
+  stdenv,
+  lib,
+  fetchurl,
+  makeWrapper,
+  gawk,
+  gnused,
+  gnugrep,
+  coreutils,
+  which,
+  perlPackages,
+  withMySQL ? false,
+  zlib,
+  mariadb-connector-c,
+  withPgSQL ? false,
+  libpq,
+  withSQLite ? false,
+  sqlite,
+  withDB ? false,
+  db,
 }:
 
 let
-  drivers = lib.concatStringsSep ","
-            ([ "hash_drv" ]
-             ++ lib.optional withMySQL "mysql_drv"
-             ++ lib.optional withPgSQL "pgsql_drv"
-             ++ lib.optional withSQLite "sqlite3_drv"
-             ++ lib.optional withDB "libdb4_drv"
-            );
-  maintenancePath = lib.makeBinPath [ gawk gnused gnugrep coreutils which ];
+  drivers = lib.concatStringsSep "," (
+    [ "hash_drv" ]
+    ++ lib.optional withMySQL "mysql_drv"
+    ++ lib.optional withPgSQL "pgsql_drv"
+    ++ lib.optional withSQLite "sqlite3_drv"
+    ++ lib.optional withDB "libdb4_drv"
+  );
+  maintenancePath = lib.makeBinPath [
+    gawk
+    gnused
+    gnugrep
+    coreutils
+    which
+  ];
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   pname = "dspam";
   version = "3.10.2";
 
@@ -30,12 +50,20 @@ in stdenv.mkDerivation rec {
     ./mariadb.patch
   ];
 
-  buildInputs = [ perlPackages.perl ]
-                ++ lib.optionals withMySQL [ zlib mariadb-connector-c.out ]
-                ++ lib.optional withPgSQL postgresql
-                ++ lib.optional withSQLite sqlite
-                ++ lib.optional withDB db;
-  nativeBuildInputs = [ makeWrapper ];
+  buildInputs = [
+    perlPackages.perl
+  ]
+  ++ lib.optionals withMySQL [
+    zlib
+    mariadb-connector-c.out
+  ]
+  ++ lib.optional withPgSQL libpq
+  ++ lib.optional withSQLite sqlite
+  ++ lib.optional withDB db;
+  nativeBuildInputs = [
+    libpq.pg_config
+    makeWrapper
+  ];
   # patch out libmysql >= 5 check, since mariadb-connector is at 3.x
   postPatch = ''
     sed -i 's/atoi(m) >= 5/1/g' configure m4/mysql_drv.m4
@@ -58,11 +86,11 @@ in stdenv.mkDerivation rec {
     "--enable-preferences-extension"
     "--enable-long-usernames"
     "--enable-external-lookup"
-  ] ++ lib.optionals withMySQL [
+  ]
+  ++ lib.optionals withMySQL [
     "--with-mysql-includes=${mariadb-connector-c.dev}/include/mysql"
     "--with-mysql-libraries=${mariadb-connector-c.out}/lib/mysql"
-  ]
-    ++ lib.optional withPgSQL "--with-pgsql-libraries=${postgresql.lib}/lib";
+  ];
 
   # Workaround build failure on -fno-common toolchains like upstream
   # gcc-10. Otherwise build fails as:
@@ -121,6 +149,6 @@ in stdenv.mkDerivation rec {
     description = "Community Driven Antispam Filter";
     license = licenses.agpl3Plus;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
   };
 }

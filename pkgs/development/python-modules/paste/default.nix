@@ -18,7 +18,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pasteorg";
     repo = "paste";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-NY/h6hbpluEu1XAv3o4mqoG+l0LXfM1dw7+G0Rm1E4o=";
   };
 
@@ -39,6 +39,11 @@ buildPythonPackage rec {
     # needs to be modified after Sat, 1 Jan 2005 12:00:00 GMT
     touch tests/urlparser_data/secured.txt
   '';
+
+  disabledTests = [
+    # pkg_resources deprecation warning
+    "test_form"
+  ];
 
   pythonNamespaces = [ "paste" ];
 

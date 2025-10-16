@@ -1,8 +1,12 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
-buildGoModule rec {
+buildGoModule {
   pname = "autospotting";
-  version = "unstable-2023-07-03";
+  version = "0-unstable-2023-07-03";
 
   src = fetchFromGitHub {
     owner = "LeanerCloud";
@@ -15,7 +19,10 @@ buildGoModule rec {
 
   excludedPackages = [ "scripts" ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   meta = with lib; {
     description = "Automatically convert your existing AutoScaling groups to up to 90% cheaper spot instances with minimal configuration changes";

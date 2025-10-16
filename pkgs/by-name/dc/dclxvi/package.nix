@@ -1,8 +1,12 @@
-{ lib, stdenv, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "dclxvi";
-  version = "unstable-2013-01-27";
+  version = "0-unstable-2013-01-27";
 
   src = fetchFromGitHub {
     owner = "agl";
@@ -16,7 +20,8 @@ stdenv.mkDerivation {
   patchPhase = ''
     substituteInPlace Makefile \
       --replace "gcc" "cc"
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace Makefile \
       --replace "-soname=libdclxvipairing.so" "-install_name,libdclxvipairing.so"
   '';

@@ -1,8 +1,16 @@
-{ lib, stdenv, fetchFromGitHub, libgtop, xmessage, which, pkg-config }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libgtop,
+  xmessage,
+  which,
+  pkg-config,
+}:
 
 stdenv.mkDerivation {
   pname = "das_watchdog";
-  version = "unstable-2015-09-12";
+  version = "0-unstable-2015-09-12";
 
   src = fetchFromGitHub {
     owner = "kmatheussen";
@@ -12,7 +20,11 @@ stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ libgtop xmessage which ];
+  buildInputs = [
+    libgtop
+    xmessage
+    which
+  ];
 
   installPhase = ''
     mkdir -p $out/bin/

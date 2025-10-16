@@ -1,26 +1,49 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config, SDL2, SDL2_mixer, alsa-lib, libpng
-, pcre, makeDesktopItem }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  SDL2,
+  SDL2_mixer,
+  alsa-lib,
+  libpng,
+  pcre,
+  makeDesktopItem,
+}:
 
 stdenv.mkDerivation rec {
-
   pname = "ivan";
-  version = "059";
+  version = "059-unstable-2025-02-20";
 
   src = fetchFromGitHub {
     owner = "Attnam";
     repo = "ivan";
-    rev = "v${version}";
-    sha256 = "sha256-5Ijy28LLx1TGnZE6ZNQXPYfvW2KprF+91fKx2MzLEms=";
+    rev = "0000b8621bb767b594802e663686d3a1da2c5060";
+    hash = "sha256-vqrQozsNrqW4oqoJ4V5E15AsMEuHq+pyZz7EtiA5euE=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  patches = [
+    ./cmake.patch
+  ];
 
-  buildInputs = [ SDL2 SDL2_mixer alsa-lib libpng pcre ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
-  hardeningDisable = ["all"];
+  buildInputs = [
+    SDL2
+    SDL2_mixer
+    alsa-lib
+    libpng
+    pcre
+  ];
+
+  hardeningDisable = [ "all" ];
 
   # Enable wizard mode
-  cmakeFlags = ["-DCMAKE_CXX_FLAGS=-DWIZARD"];
+  cmakeFlags = [ "-DCMAKE_CXX_FLAGS=-DWIZARD" ];
 
   # Help CMake find SDL_mixer.h
   env.NIX_CFLAGS_COMPILE = "-I${lib.getDev SDL2_mixer}/include/SDL2";
@@ -32,7 +55,11 @@ stdenv.mkDerivation rec {
     icon = "ivan.png";
     desktopName = "IVAN";
     genericName = pname;
-    categories = [ "Game" "AdventureGame" "RolePlaying" ];
+    categories = [
+      "Game"
+      "AdventureGame"
+      "RolePlaying"
+    ];
     comment = meta.description;
   };
 

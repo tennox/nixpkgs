@@ -1,13 +1,14 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, yuicompressor
-, zopfli
-, stdenv
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  yuicompressor,
+  zopfli,
+  stdenv,
 }:
 buildGoModule {
   pname = "dcs";
-  version = "unstable-2021-04-07";
+  version = "0-unstable-2021-04-07";
 
   src = fetchFromGitHub {
     owner = "Debian";
@@ -41,7 +42,6 @@ buildGoModule {
     homepage = "https://github.com/Debian/dcs";
     license = licenses.bsd3;
     maintainers = [ ];
-    broken = stdenv.hostPlatform.isAarch64
-      || stdenv.hostPlatform.isDarwin; # never built on Hydra https://hydra.nixos.org/job/nixpkgs/staging-next/dcs.x86_64-darwin
+    broken = stdenv.hostPlatform.isAarch64 || stdenv.hostPlatform.isDarwin; # never built on Hydra https://hydra.nixos.org/job/nixpkgs/staging-next/dcs.x86_64-darwin
   };
 }

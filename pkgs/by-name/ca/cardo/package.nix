@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchzip }:
+{
+  lib,
+  stdenvNoCC,
+  fetchzip,
+}:
 
 stdenvNoCC.mkDerivation {
   pname = "cardo";
@@ -20,7 +24,7 @@ stdenvNoCC.mkDerivation {
   '';
 
   meta = with lib; {
-    description = "Cardo is a large Unicode font specifically designed for the needs of classicists, Biblical scholars, medievalists, and linguists";
+    description = "Large Unicode font specifically designed for the needs of classicists, Biblical scholars, medievalists, and linguists";
     longDescription = ''
       Cardo is a large Unicode font specifically designed for the needs of
       classicists, Biblical scholars, medievalists, and linguists. It also

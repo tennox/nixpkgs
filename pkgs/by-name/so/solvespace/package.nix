@@ -1,32 +1,35 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, wrapGAppsHook3
-, at-spi2-core
-, cairo
-, dbus
-, eigen
-, freetype
-, fontconfig
-, glew
-, gtkmm3
-, json_c
-, libdatrie
-, libepoxy
-, libGLU
-, libpng
-, libselinux
-, libsepol
-, libspnav
-, libthai
-, libxkbcommon
-, pangomm
-, pcre
-, util-linuxMinimal # provides libmount
-, xorg
-, zlib
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  pkg-config,
+  wrapGAppsHook3,
+  at-spi2-core,
+  cairo,
+  dbus,
+  eigen,
+  freetype,
+  fontconfig,
+  glew,
+  gtkmm3,
+  json_c,
+  libdatrie,
+  libepoxy,
+  libGLU,
+  libpng,
+  libselinux,
+  libsepol,
+  libspnav,
+  libthai,
+  libxkbcommon,
+  mimalloc,
+  pangomm,
+  pcre,
+  util-linuxMinimal, # provides libmount
+  xorg,
+  zlib,
 }:
 
 stdenv.mkDerivation rec {
@@ -34,12 +37,19 @@ stdenv.mkDerivation rec {
   version = "3.1";
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "solvespace";
+    repo = "solvespace";
     rev = "v${version}";
     hash = "sha256-sSDht8pBrOG1YpsWfC/CLTTWh2cI5pn2PXGH900Z0yA=";
     fetchSubmodules = true;
   };
+
+  patches = [
+    (fetchpatch {
+      url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-gfx/solvespace/files/solvespace-3.1-use-system-mimalloc.patch";
+      hash = "sha256-XEeh6vb4fYsTmAro1ZR/8NyFl+Y+S+m/Lx+tA7o2omM=";
+    })
+  ];
 
   nativeBuildInputs = [
     cmake
@@ -66,6 +76,7 @@ stdenv.mkDerivation rec {
     libspnav
     libthai
     libxkbcommon
+    mimalloc
     pangomm
     pcre
     util-linuxMinimal
@@ -89,13 +100,17 @@ stdenv.mkDerivation rec {
     EOF
   '';
 
-  cmakeFlags = [ "-DENABLE_OPENMP=ON" ];
+  cmakeFlags = [
+    "-DENABLE_OPENMP=ON"
+    # CMake 4 needs a minimum version
+    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+  ];
 
-  meta = with lib; {
+  meta = {
     description = "Parametric 3d CAD program";
-    license = licenses.gpl3Plus;
-    maintainers = [ maintainers.edef ];
-    platforms = platforms.linux;
+    license = lib.licenses.gpl3Plus;
+    maintainers = [ lib.maintainers.edef ];
+    platforms = lib.platforms.linux;
     homepage = "https://solvespace.com";
     changelog = "https://github.com/solvespace/solvespace/raw/v${version}/CHANGELOG.md";
   };

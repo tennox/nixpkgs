@@ -9,7 +9,6 @@
   wayland-scanner,
   wayland,
   xorg,
-  darwin,
   nix-update-script,
   alsa-lib,
   openssl,
@@ -17,13 +16,13 @@
 
 stdenv.mkDerivation rec {
   pname = "clipboard-jh";
-  version = "0.9.1";
+  version = "0.10.0";
 
   src = fetchFromGitHub {
     owner = "Slackadays";
     repo = "clipboard";
     rev = version;
-    hash = "sha256-1vGM9OUE7b4XVTm4Gf20CO80hjYAooeVt0REkY3xu3U=";
+    hash = "sha256-3SloqijgbX3XIwdO2VBOd61or7tnByi7w45dCBKTkm8=";
   };
 
   postPatch = ''
@@ -36,18 +35,16 @@ stdenv.mkDerivation rec {
     wayland-scanner
   ];
 
-  buildInputs =
-    [ openssl ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      libffi
-      wayland-protocols
-      wayland
-      xorg.libX11
-      alsa-lib
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      darwin.apple_sdk.frameworks.AppKit
-    ];
+  buildInputs = [
+    openssl
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    libffi
+    wayland-protocols
+    wayland
+    xorg.libX11
+    alsa-lib
+  ];
 
   cmakeBuildType = "MinSizeRel";
 

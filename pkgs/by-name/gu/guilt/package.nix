@@ -1,16 +1,17 @@
-{ asciidoc
-, docbook_xml_dtd_45
-, docbook_xsl
-, fetchFromGitHub
-, gawk
-, git
-, gnused
-, lib
-, makeWrapper
-, openssl
-, perl
-, stdenv
-, xmlto
+{
+  asciidoc,
+  docbook_xml_dtd_45,
+  docbook_xsl,
+  fetchFromGitHub,
+  gawk,
+  git,
+  gnused,
+  lib,
+  makeWrapper,
+  openssl,
+  perl,
+  stdenv,
+  xmlto,
 }:
 
 stdenv.mkDerivation rec {
@@ -42,7 +43,8 @@ stdenv.mkDerivation rec {
     gawk
     git
     gnused
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ openssl ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ openssl ];
   makeFlags = [
     "PREFIX=$(out)"
   ];

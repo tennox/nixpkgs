@@ -1,5 +1,12 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config
-, faad2, fftwFloat, zlib
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  faad2,
+  fftwFloat,
+  zlib,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -15,14 +22,26 @@ stdenv.mkDerivation (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/library";
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ faad2 fftwFloat zlib ];
+  cmakeFlags = [ (lib.cmakeFeature "CMAKE_POLICY_VERSION_MINIMUM" "3.10") ];
+
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    faad2
+    fftwFloat
+    zlib
+  ];
 
   meta = with lib; {
     description = "DAB/DAB+ decoding library";
     homepage = "https://github.com/JvanKatwijk/dab-cmdline";
     license = licenses.gpl2;
-    maintainers = with maintainers; [ alexwinter ];
+    maintainers = with maintainers; [
+      aciceri
+      alexwinter
+    ];
     platforms = platforms.unix;
   };
 })

@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitLab, windows }:
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  windows,
+}:
 
 stdenv.mkDerivation rec {
   pname = "lmdb";
@@ -14,7 +19,10 @@ stdenv.mkDerivation rec {
 
   postUnpack = "sourceRoot=\${sourceRoot}/libraries/liblmdb";
 
-  patches = [ ./hardcoded-compiler.patch ./bin-ext.patch ];
+  patches = [
+    ./hardcoded-compiler.patch
+    ./bin-ext.patch
+  ];
   patchFlags = [ "-p3" ];
 
   # Don't attempt the .so if static, as it would fail.
@@ -22,7 +30,11 @@ stdenv.mkDerivation rec {
     sed 's/^ILIBS\>.*/ILIBS = liblmdb.a/' -i Makefile
   '';
 
-  outputs = [ "bin" "out" "dev" ];
+  outputs = [
+    "bin"
+    "out"
+    "dev"
+  ];
 
   buildInputs = lib.optional stdenv.hostPlatform.isWindows windows.pthreads;
 
@@ -31,8 +43,11 @@ stdenv.mkDerivation rec {
     "CC=${stdenv.cc.targetPrefix}cc"
     "AR=${stdenv.cc.targetPrefix}ar"
   ]
-    ++ lib.optional stdenv.hostPlatform.isDarwin "LDFLAGS=-Wl,-install_name,$(out)/lib/liblmdb.so"
-    ++ lib.optionals stdenv.hostPlatform.isWindows [ "SOEXT=.dll" "BINEXT=.exe" ];
+  ++ lib.optional stdenv.hostPlatform.isDarwin "LDFLAGS=-Wl,-install_name,$(out)/lib/liblmdb.so"
+  ++ lib.optionals stdenv.hostPlatform.isWindows [
+    "SOEXT=.dll"
+    "BINEXT=.exe"
+  ];
 
   doCheck = true;
   checkTarget = "test";
@@ -40,8 +55,8 @@ stdenv.mkDerivation rec {
   postInstall = ''
     moveToOutput bin "$bin"
   ''
-    # add lmdb.pc (dynamic only)
-    + ''
+  # add lmdb.pc (dynamic only)
+  + ''
     mkdir -p "$dev/lib/pkgconfig"
     cat > "$dev/lib/pkgconfig/lmdb.pc" <<EOF
     Name: lmdb
@@ -56,7 +71,7 @@ stdenv.mkDerivation rec {
     ln -s lmdb.pc "$dev/lib/pkgconfig/liblmdb.pc"
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Lightning memory-mapped database";
     longDescription = ''
       LMDB is an ultra-fast, ultra-compact key-value embedded data store
@@ -67,8 +82,11 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://symas.com/lmdb/";
     changelog = "https://git.openldap.org/openldap/openldap/-/blob/LMDB_${version}/libraries/liblmdb/CHANGES";
-    maintainers = with maintainers; [ jb55 vcunat ];
-    license = licenses.openldap;
-    platforms = platforms.all;
+    maintainers = with lib.maintainers; [
+      jb55
+      vcunat
+    ];
+    license = lib.licenses.openldap;
+    platforms = lib.platforms.all;
   };
 }

@@ -1,27 +1,28 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, nixosTests
-, file
-, libmnl
-, libnftnl
-, libnl
-, net-snmp
-, openssl
-, pkg-config
-, autoreconfHook
-, withNetSnmp ? stdenv.buildPlatform.canExecute stdenv.hostPlatform
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  nixosTests,
+  file,
+  libmnl,
+  libnftnl,
+  libnl,
+  net-snmp,
+  openssl,
+  pkg-config,
+  autoreconfHook,
+  withNetSnmp ? stdenv.buildPlatform.canExecute stdenv.hostPlatform,
 }:
 
 stdenv.mkDerivation rec {
   pname = "keepalived";
-  version = "2.3.1";
+  version = "2.3.4";
 
   src = fetchFromGitHub {
     owner = "acassen";
     repo = "keepalived";
     rev = "v${version}";
-    sha256 = "sha256-/fO1Lx+QRW42dJ+tkaRNd7y/91YM+1PO/aKC/lXpt1c=";
+    sha256 = "sha256-Xv/UGIeZhRHQO5lxkaWgHDUW+3qBi3wFU4+Us1A2uE0=";
   };
 
   buildInputs = [
@@ -30,7 +31,8 @@ stdenv.mkDerivation rec {
     libnftnl
     libnl
     openssl
-  ] ++ lib.optionals withNetSnmp [
+  ]
+  ++ lib.optionals withNetSnmp [
     net-snmp
   ];
 
@@ -38,11 +40,15 @@ stdenv.mkDerivation rec {
 
   passthru.tests.keepalived = nixosTests.keepalived;
 
-  nativeBuildInputs = [ pkg-config autoreconfHook ];
+  nativeBuildInputs = [
+    pkg-config
+    autoreconfHook
+  ];
 
   configureFlags = [
     "--enable-sha1"
-  ] ++ lib.optionals withNetSnmp [
+  ]
+  ++ lib.optionals withNetSnmp [
     "--enable-snmp"
   ];
 
@@ -52,5 +58,6 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     platforms = platforms.linux;
     maintainers = [ maintainers.raitobezarius ];
+    mainProgram = "keepalived";
   };
 }

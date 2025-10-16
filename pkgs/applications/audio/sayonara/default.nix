@@ -1,24 +1,27 @@
-{ mkDerivation
-, cmake
-, fetchFromGitLab
-, nix-update-script
-, gst_all_1
-, lib
-, libpulseaudio
-, ninja
-, pcre
-, pkg-config
-, qtbase
-, qttools
-, taglib
-, zlib
-, python3
+{
+  mkDerivation,
+  cmake,
+  fetchFromGitLab,
+  nix-update-script,
+  gst_all_1,
+  lib,
+  libpulseaudio,
+  ninja,
+  pcre,
+  pkg-config,
+  qtbase,
+  qttools,
+  taglib,
+  zlib,
+  python3,
 }:
 
 let
-  py = python3.withPackages (ps: with ps; [
-    pydbus
-  ]);
+  py = python3.withPackages (
+    ps: with ps; [
+      pydbus
+    ]
+  );
 in
 mkDerivation rec {
   pname = "sayonara";
@@ -37,7 +40,12 @@ mkDerivation rec {
       --replace-fail "std::max" "std::max<MilliSeconds>"
   '';
 
-  nativeBuildInputs = [ cmake ninja pkg-config qttools ];
+  nativeBuildInputs = [
+    cmake
+    ninja
+    pkg-config
+    qttools
+  ];
 
   buildInputs = [
     libpulseaudio

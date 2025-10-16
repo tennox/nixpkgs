@@ -1,45 +1,48 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, arpack
-, bison
-, blas
-, cmake
-, flex
-, fop
-, glpk
-, gmp
-, lapack
-, libxml2
-, libxslt
-, llvmPackages
-, pkg-config
-, plfit
-, python3
-, sourceHighlight
-, xmlto
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  arpack,
+  bison,
+  blas,
+  cmake,
+  flex,
+  fop,
+  glpk,
+  gmp,
+  lapack,
+  libxml2,
+  libxslt,
+  llvmPackages,
+  pkg-config,
+  plfit,
+  python3,
+  sourceHighlight,
+  xmlto,
 }:
 
-assert (blas.isILP64 == lapack.isILP64 &&
-        blas.isILP64 == arpack.isILP64 &&
-        !blas.isILP64);
+assert (blas.isILP64 == lapack.isILP64 && blas.isILP64 == arpack.isILP64 && !blas.isILP64);
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "igraph";
-  version = "0.10.15";
+  version = "0.10.17";
 
   src = fetchFromGitHub {
     owner = "igraph";
     repo = "igraph";
     rev = finalAttrs.version;
-    hash = "sha256-TSAVRLeOWh3IQ9X0Zr4CQS+h1vTeUZnzMp/IYujGMn0=";
+    hash = "sha256-NzLn2GXpMgwE8fY1vp5SU0Y7EfyVpQfphGdqU6sQGW4=";
   };
 
   postPatch = ''
     echo "${finalAttrs.version}" > IGRAPH_VERSION
   '';
 
-  outputs = [ "out" "dev" "doc" ];
+  outputs = [
+    "out"
+    "dev"
+    "doc"
+  ];
 
   nativeBuildInputs = [
     bison
@@ -62,7 +65,8 @@ stdenv.mkDerivation (finalAttrs: {
     lapack
     libxml2
     plfit
-  ] ++ lib.optionals stdenv.cc.isClang [
+  ]
+  ++ lib.optionals stdenv.cc.isClang [
     llvmPackages.openmp
   ];
 
@@ -91,7 +95,8 @@ stdenv.mkDerivation (finalAttrs: {
   postFixup = ''
     substituteInPlace $dev/lib/cmake/igraph/igraph-targets.cmake \
       --replace-fail "_IMPORT_PREFIX \"$out\"" "_IMPORT_PREFIX \"$dev\""
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     install_name_tool -change libblas.dylib ${blas}/lib/libblas.dylib $out/lib/libigraph.dylib
   '';
 
@@ -105,6 +110,9 @@ stdenv.mkDerivation (finalAttrs: {
     changelog = "https://github.com/igraph/igraph/blob/${finalAttrs.src.rev}/CHANGELOG.md";
     license = licenses.gpl2Plus;
     platforms = platforms.all;
-    maintainers = with maintainers; [ MostAwesomeDude dotlambda ];
+    maintainers = with maintainers; [
+      MostAwesomeDude
+      dotlambda
+    ];
   };
 })

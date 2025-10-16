@@ -1,23 +1,24 @@
-{ lib
-, stdenv
-, fetchurl
-, cmake
-, pkg-config
-, boost
-, curl
-, SDL2
-, SDL2_image
-, libSM
-, libXext
-, libpng
-, freetype
-, libGLU
-, libGL
-, glew
-, glm
-, openal
-, libogg
-, libvorbis
+{
+  lib,
+  stdenv,
+  fetchurl,
+  cmake,
+  pkg-config,
+  boost,
+  curl,
+  SDL2,
+  SDL2_image,
+  libSM,
+  libXext,
+  libpng,
+  freetype,
+  libGLU,
+  libGL,
+  glew,
+  glm,
+  openal,
+  libogg,
+  libvorbis,
 }:
 
 stdenv.mkDerivation rec {
@@ -31,9 +32,35 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     sed '1i#include <memory>' -i external/partio_zip/zip_manager.hpp # gcc12
+    # Fix build with cmake 4. Remove for version >= 0.6.4.
+    # See <https://github.com/SuperTux/supertux/pull/3093>
+    substituteInPlace CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 3.1)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/physfs/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 2.8.12)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/sexp-cpp/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 3.0)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/squirrel/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 2.8)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/tinygettext/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 2.4)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/SDL_ttf/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 3.0)' \
+      'cmake_minimum_required(VERSION 4.0)'
+    substituteInPlace external/discord-sdk/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required (VERSION 3.2.0)' \
+      'cmake_minimum_required (VERSION 4.0)'
   '';
 
-  nativeBuildInputs = [ pkg-config cmake ];
+  nativeBuildInputs = [
+    pkg-config
+    cmake
+  ];
 
   buildInputs = [
     boost

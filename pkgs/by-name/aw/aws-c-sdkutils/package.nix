@@ -1,19 +1,22 @@
-{ lib, stdenv
-, fetchFromGitHub
-, aws-c-common
-, cmake
-, nix
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  aws-c-common,
+  cmake,
+  nix,
 }:
 
 stdenv.mkDerivation rec {
   pname = "aws-c-sdkutils";
-  version = "0.1.16";
+  # nixpkgs-update: no auto update
+  version = "0.2.4";
 
   src = fetchFromGitHub {
     owner = "awslabs";
     repo = "aws-c-sdkutils";
     rev = "v${version}";
-    hash = "sha256-ih7U2uP5FrBx6or1Rp/k+HWDE6evEZyNM//wsPxH9Qo=";
+    hash = "sha256-zc8E5ESZxXBJ6WA/V5i2Us61UcNf9wXa2k63NWqGRtI=";
   };
 
   nativeBuildInputs = [

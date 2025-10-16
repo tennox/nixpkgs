@@ -4,7 +4,7 @@
   buildPythonPackage,
   fetchFromGitHub,
   isPyPy,
-  substituteAll,
+  fetchpatch,
 
   # build-system
   setuptools,
@@ -25,28 +25,52 @@
   tifffile,
 
   # tests
-  pytestCheckHook,
   fsspec,
+  gitMinimal,
+  pytestCheckHook,
+  writableTmpDirAsHomeHook,
 }:
+
+let
+  test_images = fetchFromGitHub {
+    owner = "imageio";
+    repo = "test_images";
+    rev = "f676c96b1af7e04bb1eed1e4551e058eb2f14acd";
+    leaveDotGit = true;
+    hash = "sha256-Kh8DowuhcCT5C04bE5yJa2C+efilLxP0AM31XjnHRf4=";
+  };
+  libgl = "${libGL.out}/lib/libGL${stdenv.hostPlatform.extensions.sharedLibrary}";
+in
 
 buildPythonPackage rec {
   pname = "imageio";
-  version = "2.36.0";
+  version = "2.37.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "imageio";
     repo = "imageio";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-dQrAVPXtDdibaxxfqW29qY7j5LyegvmI0Y7/btXmsyY=";
+    tag = "v${version}";
+    hash = "sha256-/nxJxZrTYX7F2grafIWwx9SyfR47ZXyaUwPHMEOdKkI=";
   };
 
-  patches = lib.optionals (!stdenv.hostPlatform.isDarwin) [
-    (substituteAll {
-      src = ./libgl-path.patch;
-      libgl = "${libGL.out}/lib/libGL${stdenv.hostPlatform.extensions.sharedLibrary}";
+  patches = [
+    (fetchpatch {
+      # https://github.com/imageio/imageio/issues/1139
+      # https://github.com/imageio/imageio/pull/1144
+      name = "fix-pyav-13-1-compat";
+      url = "https://github.com/imageio/imageio/commit/eadfc5906f5c2c3731f56a582536dbc763c3a7a9.patch";
+      excludes = [
+        "setup.py"
+      ];
+      hash = "sha256-ycsW1YXtiO3ZecIF1crYaX6vg/nRW4bF4So5uWCVzME=";
     })
   ];
+
+  postPatch = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
+    substituteInPlace tests/test_core.py \
+      --replace-fail 'ctypes.util.find_library("GL")' '"${libgl}"'
+  '';
 
   build-system = [ setuptools ];
 
@@ -78,45 +102,37 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [
     fsspec
+    gitMinimal
     psutil
     pytestCheckHook
-  ] ++ fsspec.optional-dependencies.github ++ lib.flatten (builtins.attrValues optional-dependencies);
+    writableTmpDirAsHomeHook
+  ]
+  ++ fsspec.optional-dependencies.github
+  ++ lib.flatten (builtins.attrValues optional-dependencies);
 
-  pytestFlagsArray = [ "-m 'not needs_internet'" ];
+  pytestFlags = [ "--test-images=file://${test_images}" ];
 
-  preCheck = ''
-    export IMAGEIO_USERDIR="$TMP"
-    export HOME=$TMPDIR
-  '';
-
-  disabledTestPaths = [
-    # tries to fetch fixtures over the network
-    "tests/test_freeimage.py"
-    "tests/test_pillow.py"
-    "tests/test_spe.py"
-    "tests/test_swf.py"
+  disabledTests = [
+    # These should have had `needs_internet` mark applied but don't so far.
+    # See https://github.com/imageio/imageio/pull/1142
+    "test_read_stream"
+    "test_uri_reading"
+    "test_trim_filter"
   ];
 
-  disabledTests =
-    [
-      # Pillow 11.0.0 compat
-      # https://github.com/imageio/imageio/issues/1104
-      "test_gif"
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # Segmentation fault
-      "test_bayer_write"
-      # RuntimeError: No valid H.264 encoder was found with the ffmpeg installation
-      "test_writer_file_properly_closed"
-      "test_writer_pixelformat_size_verbose"
-      "test_writer_ffmpeg_params"
-      "test_reverse_read"
-    ];
+  disabledTestMarks = [ "needs_internet" ];
+
+  # These tests require the old and vulnerable freeimage binaries; skip.
+  disabledTestPaths = [ "tests/test_freeimage.py" ];
+
+  preCheck = ''
+    export IMAGEIO_USERDIR=$(mktemp -d)
+  '';
 
   meta = {
     description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats";
     homepage = "https://imageio.readthedocs.io";
-    changelog = "https://github.com/imageio/imageio/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/imageio/imageio/blob/${src.tag}/CHANGELOG.md";
     license = lib.licenses.bsd2;
     maintainers = with lib.maintainers; [ Luflosi ];
   };

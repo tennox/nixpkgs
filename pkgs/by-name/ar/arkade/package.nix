@@ -1,21 +1,23 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 }:
 
 buildGoModule rec {
   pname = "arkade";
-  version = "0.11.29";
+  version = "0.11.50";
 
   src = fetchFromGitHub {
     owner = "alexellis";
     repo = "arkade";
-    rev = version;
-    hash = "sha256-B5MgBX8GPjBsfOCa1OoZRhQAUQxKH7GXYKMaH6TsUV4=";
+    tag = version;
+    hash = "sha256-EM4bd++oDQBqcMIcjobvoNzzsQKgkCC0yekY1s/AoNM=";
   };
 
-  CGO_ENABLED = 0;
+  env.CGO_ENABLED = 0;
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -35,12 +37,13 @@ buildGoModule rec {
   ];
 
   ldflags = [
-    "-s" "-w"
+    "-s"
+    "-w"
     "-X github.com/alexellis/arkade/pkg.GitCommit=ref/tags/${version}"
     "-X github.com/alexellis/arkade/pkg.Version=${version}"
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd arkade \
       --bash <($out/bin/arkade completion bash) \
       --zsh <($out/bin/arkade completion zsh) \
@@ -52,6 +55,10 @@ buildGoModule rec {
     description = "Open Source Kubernetes Marketplace";
     mainProgram = "arkade";
     license = licenses.mit;
-    maintainers = with maintainers; [ welteki techknowlogick qjoly ];
+    maintainers = with maintainers; [
+      welteki
+      techknowlogick
+      qjoly
+    ];
   };
 }

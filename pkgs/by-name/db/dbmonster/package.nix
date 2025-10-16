@@ -1,16 +1,17 @@
-{ lib
-, aircrack-ng
-, fetchFromGitHub
-, iproute2
-, networkmanager
-, python3
-, tshark
-, wirelesstools
+{
+  lib,
+  aircrack-ng,
+  fetchFromGitHub,
+  iproute2,
+  networkmanager,
+  python3,
+  tshark,
+  wirelesstools,
 }:
 
-python3.pkgs.buildPythonApplication rec {
+python3.pkgs.buildPythonApplication {
   pname = "dbmonster";
-  version = "unstable-2022-09-17";
+  version = "0-unstable-2022-09-17";
   format = "other";
 
   src = fetchFromGitHub {
@@ -26,7 +27,8 @@ python3.pkgs.buildPythonApplication rec {
     networkmanager
     tshark
     wirelesstools
-  ] ++ (with python3.pkgs; [
+  ]
+  ++ (with python3.pkgs; [
     matplotlib
   ]);
 

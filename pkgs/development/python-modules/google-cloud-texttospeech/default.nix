@@ -14,7 +14,7 @@
 
 buildPythonPackage rec {
   pname = "google-cloud-texttospeech";
-  version = "2.21.1";
+  version = "2.31.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -22,7 +22,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "google_cloud_texttospeech";
     inherit version;
-    hash = "sha256-nfDiywBfleDpHZ8Av2GhIuS0xyyNiG8PJ7a3/ZEVx+w=";
+    hash = "sha256-HwwMZEjxdeHi9j2W+xOvXZq+5pcLuyLB5ANvUxNqVYg=";
   };
 
   build-system = [ setuptools ];
@@ -31,7 +31,8 @@ buildPythonPackage rec {
     google-api-core
     proto-plus
     protobuf
-  ] ++ google-api-core.optional-dependencies.grpc;
+  ]
+  ++ google-api-core.optional-dependencies.grpc;
 
   nativeCheckInputs = [
     mock

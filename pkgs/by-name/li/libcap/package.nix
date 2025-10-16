@@ -1,35 +1,56 @@
-{ stdenv, lib, buildPackages, fetchurl, runtimeShell
-, usePam ? !isStatic, pam ? null
-, isStatic ? stdenv.hostPlatform.isStatic
+{
+  stdenv,
+  lib,
+  buildPackages,
+  fetchurl,
+  runtimeShell,
+  pkgsBuildHost,
+  usePam ? !isStatic,
+  pam ? null,
+  isStatic ? stdenv.hostPlatform.isStatic,
+  go,
+  withGo ? lib.meta.availableOn stdenv.buildPlatform go && stdenv.hostPlatform.go.GOARCH != null,
 
-# passthru.tests
-, bind
-, chrony
-, htop
-, libgcrypt
-, libvirt
-, ntp
-, qemu
-, squid
-, tor
-, uwsgi
+  # passthru.tests
+  bind,
+  chrony,
+  htop,
+  libgcrypt,
+  libvirt,
+  ntp,
+  qemu,
+  squid,
+  tor,
+  uwsgi,
 }:
 
 assert usePam -> pam != null;
 
 stdenv.mkDerivation rec {
   pname = "libcap";
-  version = "2.70";
+  version = "2.76";
 
   src = fetchurl {
     url = "mirror://kernel/linux/libs/security/linux-privs/libcap2/${pname}-${version}.tar.xz";
-    sha256 = "sha256-I6bviq2vHj6HX2M7stEWz++JUtunvHxWmxNFjhlSsw8=";
+    hash = "sha256-Yp2kqymQDQ9/zDYicHN0MRmSX9cRyZoWibv1ybQMjm8=";
   };
 
-  outputs = [ "out" "dev" "lib" "man" "doc" ]
-    ++ lib.optional usePam "pam";
+  outputs = [
+    "out"
+    "dev"
+    "lib"
+    "man"
+    "doc"
+  ]
+  ++ lib.optional usePam "pam";
 
-  depsBuildBuild = [ buildPackages.stdenv.cc ];
+  depsBuildBuild = [
+    buildPackages.stdenv.cc
+  ];
+
+  nativeBuildInputs = lib.optionals withGo [
+    go
+  ];
 
   buildInputs = lib.optional usePam pam;
 
@@ -39,7 +60,18 @@ stdenv.mkDerivation rec {
     "BUILD_CC=$(CC_FOR_BUILD)"
     "CC:=$(CC)"
     "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
-  ] ++ lib.optionals isStatic [ "SHARED=no" "LIBCSTATIC=yes" ];
+  ]
+  ++ lib.optionals withGo [
+    "GOLANG=yes"
+    ''GOCACHE=''${TMPDIR}/go-cache''
+    "GOFLAGS=-trimpath"
+    "GOARCH=${pkgsBuildHost.go.GOARCH}"
+    "GOOS=${pkgsBuildHost.go.GOOS}"
+  ]
+  ++ lib.optionals isStatic [
+    "SHARED=no"
+    "LIBCSTATIC=yes"
+  ];
 
   postPatch = ''
     patchShebangs ./progs/mkcapshdoc.sh
@@ -54,6 +86,11 @@ stdenv.mkDerivation rec {
       --replace 'lib_prefix=$(exec_prefix)' "lib_prefix=$lib" \
       --replace 'inc_prefix=$(prefix)' "inc_prefix=$dev" \
       --replace 'man_prefix=$(prefix)' "man_prefix=$doc"
+  ''
+  + lib.optionalString withGo ''
+    # disable cross compilation for artifacts which are run as part of the build
+    substituteInPlace go/Makefile \
+      --replace-fail '$(GO) run' 'GOOS= GOARCH= $(GO) run'
   '';
 
   installFlags = [ "RAISE_SETFCAP=no" ];
@@ -62,10 +99,17 @@ stdenv.mkDerivation rec {
     ${lib.optionalString (!isStatic) ''rm "$lib"/lib/*.a''}
     mkdir -p "$doc/share/doc/${pname}-${version}"
     cp License "$doc/share/doc/${pname}-${version}/"
-  '' + lib.optionalString usePam ''
+  ''
+  + lib.optionalString usePam ''
     mkdir -p "$pam/lib/security"
     mv "$lib"/lib/security "$pam/lib"
   '';
+
+  strictDeps = true;
+
+  disallowedReferences = lib.optionals withGo [
+    pkgsBuildHost.go
+  ];
 
   passthru.tests = {
     inherit
@@ -78,7 +122,8 @@ stdenv.mkDerivation rec {
       qemu
       squid
       tor
-      uwsgi;
+      uwsgi
+      ;
   };
 
   meta = {

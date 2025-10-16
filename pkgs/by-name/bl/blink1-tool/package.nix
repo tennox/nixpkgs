@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, pkg-config
-, libusb1
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  libusb1,
 }:
 
 stdenv.mkDerivation rec {
@@ -12,7 +13,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "todbot";
     repo = "blink1-tool";
-    rev = "v${version}";
+    tag = "v${version}";
     fetchSubmodules = true;
     hash = "sha256-xuCjPSQUQ/KOcdsie/ndecUiEt+t46m4eI33PXJoAAY=";
   };

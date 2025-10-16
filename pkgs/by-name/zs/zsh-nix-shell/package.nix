@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, bash }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  bash,
+}:
 
 # To make use of this derivation, use
 # `programs.zsh.interactiveShellInit = "source ${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh";`
@@ -22,7 +27,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "zsh plugin that lets you use zsh in nix-shell shell";
+    description = "Zsh plugin that lets you use zsh in nix-shell shell";
     homepage = src.meta.homepage;
     license = licenses.bsd3;
     platforms = platforms.unix;

@@ -1,4 +1,12 @@
-{ buildGoModule, fetchFromGitHub, lib, libGL, nssmdns, pkg-config, xorg }:
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  libGL,
+  nssmdns,
+  pkg-config,
+  xorg,
+}:
 
 buildGoModule rec {
   pname = "keylight-controller-mschneider82";
@@ -20,7 +28,8 @@ buildGoModule rec {
   buildInputs = [
     libGL
     nssmdns
-  ] ++ (with xorg; [
+  ]
+  ++ (with xorg; [
     libX11
     libX11.dev
     libXcursor

@@ -1,15 +1,24 @@
-{ lib, stdenv, fetchurl, tcl, tk }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  tcl,
+  tk,
+}:
 
 stdenv.mkDerivation rec {
   pname = "tkrev";
-  version = "9.4.1";
+  version = "9.6.1";
 
   src = fetchurl {
     url = "mirror://sourceforge/tkcvs/tkrev_${version}.tar.gz";
-    sha256 = "sha256-WHDZPShEB9Q+Bjbb37mogJLUZk2GuWoO8bz+Zydc7i4=";
+    sha256 = "sha256-hWGxxL7ArWPi1uCeigJIccke5vYTLn2OWHR7t8TIrZc=";
   };
 
-  buildInputs = [ tcl tk ];
+  buildInputs = [
+    tcl
+    tk
+  ];
 
   patchPhase = ''
     for file in tkrev/tkrev.tcl tkdiff/tkdiff; do

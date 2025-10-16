@@ -1,17 +1,18 @@
-{ stdenvNoCC
-, fetchFromGitHub
-, lib
-, python3
-, xclip
-, libnotify
-, dmenu
-, rofi
-, emojipick-use-rofi ? false
-, emojipick-copy-to-clipboard ? true
-, emojipick-show-notifications ? true
-, emojipick-print-emoji ? true
-, emojipick-font-family ? "Noto Color Emoji"
-, emojipick-font-size ? "18"
+{
+  stdenvNoCC,
+  fetchFromGitHub,
+  lib,
+  python3,
+  xclip,
+  libnotify,
+  dmenu,
+  rofi,
+  emojipick-use-rofi ? false,
+  emojipick-copy-to-clipboard ? true,
+  emojipick-show-notifications ? true,
+  emojipick-print-emoji ? true,
+  emojipick-font-family ? "Noto Color Emoji",
+  emojipick-font-size ? "18",
 }:
 
 let
@@ -24,7 +25,7 @@ stdenvNoCC.mkDerivation {
   src = fetchFromGitHub {
     owner = "thingsiplay";
     repo = "emojipick";
-    rev = "20210127";
+    tag = "20210127";
     sha256 = "1kib3cyx6z9v9qw6yrfx5sklanpk5jbxjc317wi7i7ljrg0vdazp";
   };
 
@@ -49,7 +50,8 @@ stdenvNoCC.mkDerivation {
     python3
     xclip
     libnotify
-  ] ++ (if emojipick-use-rofi then [rofi] else [dmenu]);
+  ]
+  ++ (if emojipick-use-rofi then [ rofi ] else [ dmenu ]);
 
   installPhase = ''
     runHook preInstall

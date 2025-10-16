@@ -1,18 +1,19 @@
-{ lib
-, buildNpmPackage
-, fetchFromGitHub
-, jq
+{
+  lib,
+  buildNpmPackage,
+  fetchFromGitHub,
+  jq,
 }:
 
 buildNpmPackage rec {
   pname = "matrix-alertmanager";
-  version = "0.7.2";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "jaywink";
-    repo = pname;
+    repo = "matrix-alertmanager";
     rev = "v${version}";
-    hash = "sha256-7rsY/nUiuSVkM8fbPPa9DB3c+Uhs+Si/j1Jzls6d2qc=";
+    hash = "sha256-t5e9UfRtt1OzxEXuMkPLW352BbAVSLEt26fo5YppQQc=";
   };
 
   postPatch = ''
@@ -20,7 +21,7 @@ buildNpmPackage rec {
     mv package.json.tmp package.json
   '';
 
-  npmDepsHash = "sha256-OI/zlz03YQwUnpOiHAVQfk8PWKsurldpp0PbF1K9zbM=";
+  npmDepsHash = "sha256-4UYX9ndqecr06/gZeouzrDss6568jBXY1ypcVX7DEVk=";
 
   dontNpmBuild = true;
 
@@ -30,6 +31,6 @@ buildNpmPackage rec {
     mainProgram = "matrix-alertmanager";
     homepage = "https://github.com/jaywink/matrix-alertmanager";
     license = licenses.mit;
-    maintainers = [ ];
+    maintainers = with maintainers; [ erethon ];
   };
 }

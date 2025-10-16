@@ -1,4 +1,9 @@
-{lib, stdenv, fetchurl, gettext }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  gettext,
+}:
 
 stdenv.mkDerivation rec {
   pname = "checkinstall";
@@ -41,12 +46,13 @@ stdenv.mkDerivation rec {
     })
   ]
 
-  ++ lib.optional (stdenv.hostPlatform.system == "x86_64-linux")
-    # Force use of old memcpy so that installwatch works on Glibc <
-    # 2.14.
-    ./use-old-memcpy.patch;
+  ++
+    lib.optional (stdenv.hostPlatform.system == "x86_64-linux")
+      # Force use of old memcpy so that installwatch works on Glibc <
+      # 2.14.
+      ./use-old-memcpy.patch;
 
-  buildInputs = [gettext];
+  buildInputs = [ gettext ];
 
   hardeningDisable = [ "fortify" ];
 
@@ -65,12 +71,12 @@ stdenv.mkDerivation rec {
     # as an LD_PRELOADed library on applications that load against a
     # different Glibc.
     ''
-       patchelf --set-rpath "" $out/lib/installwatch.so
+      patchelf --set-rpath "" $out/lib/installwatch.so
     '';
 
   meta = {
-    homepage = "http://checkinstall.izto.org/";
-    description = "Tool for automatically generating Slackware, RPM or Debian packages when doing `make install'";
+    homepage = "https://checkinstall.izto.org/";
+    description = "Tool for automatically generating Slackware, RPM or Debian packages when doing `make install`";
     maintainers = [ ];
     platforms = lib.platforms.linux;
     license = lib.licenses.gpl2Plus;

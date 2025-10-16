@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  fetchpatch2,
 
   # build-system
   setuptools,
@@ -22,20 +23,25 @@
 
 buildPythonPackage rec {
   pname = "pymc";
-  version = "5.18.2";
+  version = "5.25.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pymc-devs";
     repo = "pymc";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-JA5xBoqNC6F97Obs+0ig/ALw1rkUVX7A0bStKHS+uv4=";
+    tag = "v${version}";
+    hash = "sha256-zh6FsCEviuyqapguTrUDsWKq70ef0IKRhnn2dkgQ/KA=";
   };
 
-  postPatch = ''
-    substituteInPlace setup.py \
-      --replace-fail ', "pytest-cov"' ""
-  '';
+  patches = [
+    # TODO: remove at next release
+    # https://github.com/pymc-devs/pytensor/pull/1471
+    (fetchpatch2 {
+      name = "pytensor-2-32-compat";
+      url = "https://github.com/pymc-devs/pymc/commit/59176b6adda88971e546a0cf93ca04424af5197f.patch";
+      hash = "sha256-jkDwlKwxbn9DwpkxEbSXk/kbGjT/Xu8bsZHFBWYpMgA=";
+    })
+  ];
 
   build-system = [
     setuptools

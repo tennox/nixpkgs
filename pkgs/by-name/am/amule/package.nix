@@ -1,30 +1,32 @@
-{ monolithic ? true # build monolithic amule
-, enableDaemon ? false # build amule daemon
-, httpServer ? false # build web interface for the daemon
-, client ? false # build amule remote gui
-, fetchFromGitHub
-, fetchpatch
-, stdenv
-, lib
-, cmake
-, zlib
-, wxGTK32
-, perl
-, cryptopp
-, libupnp
-, boost # Not using boost leads to crashes with gtk3
-, gettext
-, libpng
-, pkg-config
-, makeWrapper
-, libX11
+{
+  monolithic ? true, # build monolithic amule
+  enableDaemon ? false, # build amule daemon
+  httpServer ? false, # build web interface for the daemon
+  client ? false, # build amule remote gui
+  fetchFromGitHub,
+  fetchpatch,
+  stdenv,
+  lib,
+  cmake,
+  zlib,
+  wxGTK32,
+  perl,
+  cryptopp,
+  libupnp,
+  boost186, # Not using boost leads to crashes with gtk3
+  gettext,
+  libpng,
+  pkg-config,
+  makeWrapper,
+  libX11,
 }:
 
 # daemon and client are not build monolithic
 assert monolithic || (!monolithic && (enableDaemon || client || httpServer));
 
 stdenv.mkDerivation rec {
-  pname = "amule"
+  pname =
+    "amule"
     + lib.optionalString httpServer "-web"
     + lib.optionalString enableDaemon "-daemon"
     + lib.optionalString client "-gui";
@@ -33,7 +35,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "amule-project";
     repo = "amule";
-    rev = version;
+    tag = version;
     sha256 = "1nm4vxgmisn1b6l3drmz0q04x067j2i8lw5rnf0acaapwlp8qwvi";
   };
 
@@ -44,7 +46,12 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  nativeBuildInputs = [ cmake gettext makeWrapper pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    gettext
+    makeWrapper
+    pkg-config
+  ];
 
   buildInputs = [
     zlib
@@ -52,8 +59,9 @@ stdenv.mkDerivation rec {
     perl
     cryptopp.dev
     libupnp
-    boost
-  ] ++ lib.optional httpServer libpng
+    boost186
+  ]
+  ++ lib.optional httpServer libpng
   ++ lib.optional client libX11;
 
   cmakeFlags = [

@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchurl, gawk, cmake }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  gawk,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   name = "ilbc-rfc3951";
@@ -17,7 +23,12 @@ stdenv.mkDerivation rec {
     cd ${name}
     ${gawk}/bin/gawk -f ${script} ${rfc3951}
     cp -v ${./CMakeLists.txt} CMakeLists.txt
-    '';
+  '';
+
+  # Fixes the build with CMake 4
+  cmakeFlags = [
+    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+  ];
 
   meta = {
     platforms = lib.platforms.unix;

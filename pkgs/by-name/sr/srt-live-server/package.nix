@@ -1,8 +1,9 @@
-{ lib
-, fetchFromGitHub
-, stdenv
-, srt
-, zlib
+{
+  lib,
+  fetchFromGitHub,
+  stdenv,
+  srt,
+  zlib,
 }:
 
 stdenv.mkDerivation rec {
@@ -24,14 +25,17 @@ stdenv.mkDerivation rec {
     ./add-ctime-include.patch
   ];
 
-  buildInputs = [ srt zlib ];
+  buildInputs = [
+    srt
+    zlib
+  ];
 
   makeFlags = [
     "PREFIX=$(out)"
   ];
 
   meta = with lib; {
-    description = "srt live server for low latency";
+    description = "Open-source low latency livestreaming server, based on Secure Reliable Tranport (SRT)";
     license = licenses.mit;
     homepage = "https://github.com/Edward-Wu/srt-live-server";
     maintainers = with maintainers; [ shamilton ];

@@ -1,15 +1,16 @@
-{ lib
-, fetchFromGitHub
-, python3
-, asciidoc
-, cacert
-, docbook_xsl
-, installShellFiles
-, libxml2
-, libxslt
-, testers
-, offlineimap
-, fetchpatch
+{
+  lib,
+  fetchFromGitHub,
+  python3,
+  asciidoc,
+  cacert,
+  docbook_xsl,
+  installShellFiles,
+  libxml2,
+  libxslt,
+  testers,
+  offlineimap,
+  fetchpatch,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -35,13 +36,13 @@ python3.pkgs.buildPythonApplication rec {
       name = "python312-comaptibility.patch";
       url = "https://github.com/OfflineIMAP/offlineimap3/commit/a1951559299b297492b8454850fcfe6eb9822a38.patch";
       hash = "sha256-CBGMHi+ZzOBJt3TxBf6elrTRMIQ+8wr3JgptL2etkoA=";
-     })
+    })
     (fetchpatch {
       # https://github.com/OfflineIMAP/offlineimap3/pull/161
       name = "python312-compatibility.patch";
       url = "https://github.com/OfflineIMAP/offlineimap3/commit/3dd8ebc931e3f3716a90072bd34e50ac1df629fa.patch";
       hash = "sha256-2IJ0yzESt+zk+r+Z+9js3oKhFF0+xok0xK8Jd3G/gYY=";
-     })
+    })
   ];
 
   postPatch = ''
@@ -86,11 +87,11 @@ python3.pkgs.buildPythonApplication rec {
 
   passthru.tests.version = testers.testVersion { package = offlineimap; };
 
-  meta = with lib; {
+  meta = {
     description = "Synchronize emails between two repositories, so that you can read the same mailbox from multiple computers";
     homepage = "http://offlineimap.org";
-    license = licenses.gpl2Plus;
-    maintainers = [ ];
+    license = lib.licenses.gpl2Plus;
+    maintainers = with lib.maintainers; [ stephen-huan ];
     mainProgram = "offlineimap";
   };
 }

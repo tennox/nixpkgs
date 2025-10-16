@@ -1,8 +1,12 @@
-{ lib, stdenv, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "colort";
-  version = "unstable-2017-03-12";
+  version = "0-unstable-2017-03-12";
 
   src = fetchFromGitHub {
     owner = "neeasade";

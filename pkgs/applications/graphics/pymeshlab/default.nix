@@ -1,32 +1,33 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, libGLU
-, qtbase
-, qtscript
-, qtxmlpatterns
-, lib3ds
-, bzip2
-, muparser
-, eigen
-, glew
-, gmp
-, levmar
-, qhull
-, cmake
-, cgal
-, boost
-, mpfr
-, xercesc
-, tbb
-, embree
-, vcg
-, libigl
-, corto
-, openctm
-, structuresynth
-, wrapQtAppsHook
-, python3Packages
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  libGLU,
+  qtbase,
+  qtscript,
+  qtxmlpatterns,
+  lib3ds,
+  bzip2,
+  muparser,
+  eigen,
+  glew,
+  gmp,
+  levmar,
+  qhull,
+  cmake,
+  cgal,
+  boost,
+  mpfr,
+  xercesc,
+  onetbb,
+  embree,
+  vcg,
+  libigl,
+  corto,
+  openctm,
+  structuresynth,
+  wrapQtAppsHook,
+  python3Packages,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -58,7 +59,7 @@ stdenv.mkDerivation (finalAttrs: {
     boost
     mpfr
     xercesc
-    tbb
+    onetbb
     embree
     vcg
     libigl

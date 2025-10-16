@@ -5,6 +5,7 @@
   fetchFromGitHub,
   pkg-config,
   hyprland-protocols,
+  hyprlang,
   hyprutils,
   hyprwayland-scanner,
   wayland,
@@ -14,14 +15,19 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "hyprsunset";
-  version = "0.1.0";
+  version = "0.3.3";
 
   src = fetchFromGitHub {
     owner = "hyprwm";
     repo = "hyprsunset";
-    rev = "refs/tags/v${finalAttrs.version}";
-    hash = "sha256-SVkcePzX9PAlWsPSGBaxiNFCouiQmGOezhMo0+zhDIQ=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-Yk6nDzCXrOehX3At8qdZ0cLr1kPySqACsihMYuP6T8w=";
   };
+
+  postPatch = ''
+    # hyprwayland-scanner is not required at runtime
+    substituteInPlace CMakeLists.txt --replace-fail "hyprwayland-scanner>=0.4.0" ""
+  '';
 
   nativeBuildInputs = [
     cmake
@@ -31,11 +37,14 @@ stdenv.mkDerivation (finalAttrs: {
 
   buildInputs = [
     hyprland-protocols
+    hyprlang
     hyprutils
     wayland
     wayland-protocols
     wayland-scanner
   ];
+
+  strictDeps = true;
 
   passthru = {
     updateScript = nix-update-script { };
@@ -46,10 +55,8 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Application to enable a blue-light filter on Hyprland";
     license = lib.licenses.bsd3;
     platforms = lib.platforms.linux;
-    maintainers = with lib.maintainers; [
-      fufexan
-      johnrtitor
-    ];
+    teams = [ lib.teams.hyprland ];
+    maintainers = with lib.maintainers; [ logger ];
     mainProgram = "hyprsunset";
   };
 })

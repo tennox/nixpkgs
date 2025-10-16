@@ -1,5 +1,10 @@
-{ fetchurl, lib, stdenv, ncurses
-, emacsSupport ? true, emacs
+{
+  fetchurl,
+  lib,
+  stdenv,
+  ncurses,
+  emacsSupport ? true,
+  emacs,
 }:
 
 stdenv.mkDerivation rec {
@@ -43,7 +48,7 @@ stdenv.mkDerivation rec {
       used to manage projects involving 20 million lines of code!
     '';
 
-    license = "BSD-style";
+    license = lib.licenses.bsd3;
 
     homepage = "https://cscope.sourceforge.net/";
 

@@ -7,7 +7,6 @@
   SDL2_mixer,
   libpng,
   darwin,
-  apple-sdk_11,
   libicns,
   imagemagick,
 }:
@@ -25,19 +24,20 @@ stdenv.mkDerivation rec {
 
   patches = [ ./darwin-fixes.patch ];
 
-  nativeBuildInputs =
-    [ cmake ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      darwin.sigtool
-      libicns
-      imagemagick
-    ];
+  nativeBuildInputs = [
+    cmake
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.sigtool
+    libicns
+    imagemagick
+  ];
 
   buildInputs = [
     SDL2
     SDL2_mixer
     libpng
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ];
+  ];
 
   installPhase = lib.optionalString stdenv.hostPlatform.isDarwin ''
     runHook preInstall

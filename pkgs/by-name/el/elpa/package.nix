@@ -1,31 +1,40 @@
-{ lib, stdenv, fetchurl, autoreconfHook, mpiCheckPhaseHook
-, perl, mpi, blas, lapack, scalapack
-# CPU optimizations
-, avxSupport ? stdenv.hostPlatform.avxSupport
-, avx2Support ? stdenv.hostPlatform.avx2Support
-, avx512Support ? stdenv.hostPlatform.avx512Support
-, config
-# Enable NIVIA GPU support
-# Note, that this needs to be built on a system with a GPU
-# present for the tests to succeed.
-, enableCuda ? config.cudaSupport
-# type of GPU architecture
-, nvidiaArch ? "sm_60"
-, cudaPackages
-} :
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoreconfHook,
+  mpiCheckPhaseHook,
+  perl,
+  mpi,
+  blas,
+  lapack,
+  scalapack,
+  # CPU optimizations
+  avxSupport ? stdenv.hostPlatform.avxSupport,
+  avx2Support ? stdenv.hostPlatform.avx2Support,
+  avx512Support ? stdenv.hostPlatform.avx512Support,
+  config,
+  # Enable NIVIA GPU support
+  # Note, that this needs to be built on a system with a GPU
+  # present for the tests to succeed.
+  enableCuda ? config.cudaSupport,
+  # type of GPU architecture
+  nvidiaArch ? "sm_60",
+  cudaPackages,
+}:
 
 assert blas.isILP64 == lapack.isILP64;
 assert blas.isILP64 == scalapack.isILP64;
 
 stdenv.mkDerivation rec {
   pname = "elpa";
-  version = "2024.05.001";
+  version = "2025.06.001";
 
   passthru = { inherit (blas) isILP64; };
 
   src = fetchurl {
     url = "https://elpa.mpcdf.mpg.de/software/tarball-archive/Releases/${version}/elpa-${version}.tar.gz";
-    sha256 = "sha256-nK9Bo+YA4vb0zhkxvVQYUXna3pwXFVbQybQbvGlA8vY=";
+    sha256 = "sha256-/usf6hq0qGcLjTJAdl7wragoBi737JtzXuy6KEhRXJQ=";
   };
 
   patches = [
@@ -41,16 +50,29 @@ stdenv.mkDerivation rec {
     substituteInPlace Makefile.am --replace '#!/bin/bash' '#!${stdenv.shell}'
   '';
 
-  outputs = [ "out" "doc" "man" "dev" ];
+  outputs = [
+    "out"
+    "doc"
+    "man"
+    "dev"
+  ];
 
-  nativeBuildInputs = [ autoreconfHook perl ]
-    ++ lib.optionals enableCuda [ cudaPackages.cuda_nvcc ];
+  nativeBuildInputs = [
+    autoreconfHook
+    perl
+  ]
+  ++ lib.optionals enableCuda [ cudaPackages.cuda_nvcc ];
 
-  buildInputs = [ mpi blas lapack scalapack ]
-    ++ lib.optionals enableCuda [
-      cudaPackages.cuda_cudart
-      cudaPackages.libcublas
-    ];
+  buildInputs = [
+    mpi
+    blas
+    lapack
+    scalapack
+  ]
+  ++ lib.optionals enableCuda [
+    cudaPackages.cuda_cudart
+    cudaPackages.libcublas
+  ];
 
   preConfigure = ''
     export FC="mpifort"
@@ -59,10 +81,12 @@ stdenv.mkDerivation rec {
     export CPP="cpp"
 
     # These need to be set for configure to succeed
-    export FCFLAGS="${lib.optionalString stdenv.hostPlatform.isx86_64 "-msse3 "
+    export FCFLAGS="${
+      lib.optionalString stdenv.hostPlatform.isx86_64 "-msse3 "
       + lib.optionalString avxSupport "-mavx "
       + lib.optionalString avx2Support "-mavx2 -mfma "
-      + lib.optionalString avx512Support "-mavx512"}"
+      + lib.optionalString avx512Support "-mavx512"
+    }"
 
     export CFLAGS=$FCFLAGS
   '';
@@ -71,14 +95,18 @@ stdenv.mkDerivation rec {
     "--with-mpi"
     "--enable-openmp"
     "--without-threading-support-check-during-build"
-  ] ++ lib.optional blas.isILP64 "--enable-64bit-integer-math-support"
-    ++ lib.optional (!avxSupport) "--disable-avx"
-    ++ lib.optional (!avx2Support) "--disable-avx2"
-    ++ lib.optional (!avx512Support) "--disable-avx512"
-    ++ lib.optional (!stdenv.hostPlatform.isx86_64) "--disable-sse"
-    ++ lib.optional (!stdenv.hostPlatform.isx86_64) "--disable-sse-assembly"
-    ++ lib.optional stdenv.hostPlatform.isx86_64 "--enable-sse-assembly"
-    ++ lib.optionals enableCuda [  "--enable-nvidia-gpu" "--with-NVIDIA-GPU-compute-capability=${nvidiaArch}" ];
+  ]
+  ++ lib.optional blas.isILP64 "--enable-64bit-integer-math-support"
+  ++ lib.optional (!avxSupport) "--disable-avx"
+  ++ lib.optional (!avx2Support) "--disable-avx2"
+  ++ lib.optional (!avx512Support) "--disable-avx512"
+  ++ lib.optional (!stdenv.hostPlatform.isx86_64) "--disable-sse"
+  ++ lib.optional (!stdenv.hostPlatform.isx86_64) "--disable-sse-assembly"
+  ++ lib.optional stdenv.hostPlatform.isx86_64 "--enable-sse-assembly"
+  ++ lib.optionals enableCuda [
+    "--enable-nvidia-gpu"
+    "--with-NVIDIA-GPU-compute-capability=${nvidiaArch}"
+  ];
 
   enableParallelBuilding = true;
 

@@ -1,12 +1,14 @@
-{ lib, stdenv
-, cmake
-, fetchFromGitHub
-, i3
-, jsoncpp
-, libsigcxx
-, libX11
-, libxkbfile
-, pkg-config
+{
+  lib,
+  stdenv,
+  cmake,
+  fetchFromGitHub,
+  i3,
+  jsoncpp,
+  libsigcxx,
+  libX11,
+  libxkbfile,
+  pkg-config,
 }:
 
 stdenv.mkDerivation rec {
@@ -16,13 +18,22 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "Zebradil";
     repo = "xkb-switch-i3";
-    rev = version;
+    tag = version;
     hash = "sha256-5d1DdRtz0QCWISSsWQt9xgTOekYUCkhfMsjG+/kyQK4=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ i3 jsoncpp libsigcxx libX11 libxkbfile ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    i3
+    jsoncpp
+    libsigcxx
+    libX11
+    libxkbfile
+  ];
 
   meta = with lib; {
     description = "Switch your X keyboard layouts from the command line(i3 edition)";

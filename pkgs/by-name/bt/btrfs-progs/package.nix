@@ -1,32 +1,58 @@
-{ lib, stdenv, fetchurl
-, buildPackages
-, pkg-config
-, zstd
-, acl, attr, e2fsprogs, libuuid, lzo, udev, zlib
-, runCommand, btrfs-progs
-, gitUpdater
-, udevSupport ? true
+{
+  lib,
+  stdenv,
+  fetchurl,
+  buildPackages,
+  pkg-config,
+  zstd,
+  acl,
+  attr,
+  e2fsprogs,
+  libuuid,
+  lzo,
+  udev,
+  zlib,
+  runCommand,
+  btrfs-progs,
+  gitUpdater,
+  udevSupport ? true,
+  udevCheckHook,
 }:
 
 stdenv.mkDerivation rec {
   pname = "btrfs-progs";
-  version = "6.11";
+  version = "6.16";
 
   src = fetchurl {
     url = "mirror://kernel/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v${version}.tar.xz";
-    hash = "sha256-/5rpFSEwOpDYfhxL4jDwEh85xE3b5Swq6uJjxv7PoJk=";
+    hash = "sha256-Makw+HN8JhioJK1L0f3YP1QQPg6qFaqtxIT/rjNGb8U=";
   };
 
   nativeBuildInputs = [
     pkg-config
-  ] ++ [
-    (buildPackages.python3.withPackages (ps: with ps; [
-      sphinx
-      sphinx-rtd-theme
-    ]))
+  ]
+  ++ lib.optionals udevSupport [
+    udevCheckHook
+  ]
+  ++ [
+    (buildPackages.python3.withPackages (
+      ps: with ps; [
+        sphinx
+        sphinx-rtd-theme
+      ]
+    ))
   ];
 
-  buildInputs = [ acl attr e2fsprogs libuuid lzo udev zlib zstd ];
+  buildInputs = [
+    acl
+    attr
+    e2fsprogs
+    libuuid
+    lzo
+    udev
+    zlib
+    zstd
+  ];
 
   # gcc bug with -O1 on ARM with gcc 4.8
   # This should be fine on all platforms so apply universally
@@ -39,18 +65,26 @@ stdenv.mkDerivation rec {
   configureFlags = [
     # Built separately, see python3Packages.btrfsutil
     "--disable-python"
-  ] ++ lib.optionals stdenv.hostPlatform.isMusl [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isMusl [
     "--disable-backtrace"
-  ] ++ lib.optionals (!udevSupport) [
+  ]
+  ++ lib.optionals (!udevSupport) [
     "--disable-libudev"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+    "ac_cv_func_malloc_0_nonnull=yes"
+    "ac_cv_func_realloc_0_nonnull=yes"
   ];
 
   makeFlags = [ "udevruledir=$(out)/lib/udev/rules.d" ];
 
   enableParallelBuilding = true;
 
+  doInstallCheck = true;
+
   passthru.tests = {
-    simple-filesystem = runCommand "btrfs-progs-create-fs" {} ''
+    simple-filesystem = runCommand "btrfs-progs-create-fs" { } ''
       mkdir -p $out
       truncate -s110M $out/disc
       ${btrfs-progs}/bin/mkfs.btrfs $out/disc | tee $out/success
@@ -65,12 +99,13 @@ stdenv.mkDerivation rec {
     rev-prefix = "v";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Utilities for the btrfs filesystem";
     homepage = "https://btrfs.readthedocs.io/en/latest/";
     changelog = "https://github.com/kdave/btrfs-progs/raw/v${version}/CHANGES";
-    license = licenses.gpl2Only;
-    maintainers = with maintainers; [ raskin ];
-    platforms = platforms.linux;
+    license = lib.licenses.gpl2Only;
+    mainProgram = "btrfs";
+    maintainers = with lib.maintainers; [ raskin ];
+    platforms = lib.platforms.linux;
   };
 }

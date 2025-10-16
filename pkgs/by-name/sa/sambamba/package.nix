@@ -1,11 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, python3
-, which
-, ldc
-, zlib
-, lz4
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  python3,
+  which,
+  ldc,
+  zlib,
+  lz4,
 }:
 
 stdenv.mkDerivation rec {
@@ -15,13 +16,20 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "biod";
     repo = "sambamba";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-3O9bHGpMuCgdR2Wm7Dv1VUjMT1QTn8K1hdwgjvwhFDw=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ which python3 ldc ];
-  buildInputs = [ zlib lz4 ];
+  nativeBuildInputs = [
+    which
+    python3
+    ldc
+  ];
+  buildInputs = [
+    zlib
+    lz4
+  ];
 
   buildFlags = [
     "CC=${stdenv.cc.targetPrefix}cc"

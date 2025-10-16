@@ -8,16 +8,16 @@
 
 buildGoModule rec {
   pname = "steampipe-plugin-azure";
-  version = "1.0.0";
+  version = "1.8.0";
 
   src = fetchFromGitHub {
     owner = "turbot";
     repo = "steampipe-plugin-azure";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-tIAVYZ+gZnvUJPDYP1WqZb7kAZ1f0YXJ4VWy2Cw2QMo=";
+    tag = "v${version}";
+    hash = "sha256-LMX+2aNX+0vYcAKVakMrdyHavaFlUoSVQ7DIg1kXqGU=";
   };
 
-  vendorHash = "sha256-M97SnuWVB7Xw2xXRLBiGCWgATZCYh0BoV4bzhF57x5o=";
+  vendorHash = "sha256-yBOja0QmpVBaXbXQ2AVsO4uYLalzYyghSwyEh9s2ZGA=";
 
   ldflags = [
     "-s"
@@ -45,7 +45,7 @@ buildGoModule rec {
     homepage = "https://github.com/turbot/steampipe-plugin-azure";
     license = lib.licenses.apsl20;
     longDescription = "Use SQL to instantly query Azure resources across regions and subscriptions.";
-    maintainers = with lib.maintainers; [ petee ];
+    maintainers = [ ];
     platforms = steampipe.meta.platforms;
   };
 }

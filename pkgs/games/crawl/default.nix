@@ -1,40 +1,39 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, which
-, sqlite
-, lua5_1
-, perl
-, python3
-, zlib
-, pkg-config
-, ncurses
-, dejavu_fonts
-, libpng
-, SDL2
-, SDL2_image
-, SDL2_mixer
-, libGLU
-, libGL
-, freetype
-, pngcrush
-, advancecomp
-, tileMode ? false
-, enableSound ? tileMode
-, buildPackages
-  # MacOS / Darwin builds
-, darwin
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  which,
+  sqlite,
+  lua5_1,
+  perl,
+  python3,
+  zlib,
+  pkg-config,
+  ncurses,
+  dejavu_fonts,
+  libpng,
+  SDL2,
+  SDL2_image,
+  SDL2_mixer,
+  libGLU,
+  libGL,
+  freetype,
+  pngcrush,
+  advancecomp,
+  tileMode ? false,
+  enableSound ? tileMode,
+  buildPackages,
 }:
 
 stdenv.mkDerivation rec {
   pname = "crawl${lib.optionalString tileMode "-tiles"}";
-  version = "0.32.1";
+  version = "0.33.1";
 
   src = fetchFromGitHub {
     owner = "crawl";
     repo = "crawl";
     rev = version;
-    hash = "sha256-jhjFC8+A2dQomMwKZPSiEViXeQpty2Dk9alDcNsLvq0=";
+    hash = "sha256-GXrYLGoQ1UwDHs+kLLcaBNpJ2BVMv4NhmpyfNFxPmg8=";
   };
 
   # Patch hard-coded paths and remove force library builds
@@ -45,24 +44,31 @@ stdenv.mkDerivation rec {
       --replace 'SDL_image.h' 'SDL2/SDL_image.h'
   '';
 
-  nativeBuildInputs = [ pkg-config which perl pngcrush advancecomp ];
+  nativeBuildInputs = [
+    pkg-config
+    which
+    perl
+    pngcrush
+    advancecomp
+  ];
 
   # Still unstable with luajit
-  buildInputs = [ lua5_1 zlib sqlite ncurses ]
-    ++ (with python3.pkgs; [ pyyaml ])
-    ++ lib.optionals tileMode [ libpng SDL2 SDL2_image freetype libGLU libGL ]
-    ++ lib.optional enableSound SDL2_mixer
-    ++ (lib.optionals stdenv.hostPlatform.isDarwin (
-    with darwin.apple_sdk.frameworks; [
-      AppKit
-      AudioUnit
-      CoreAudio
-      ForceFeedback
-      Carbon
-      IOKit
-      OpenGL
-    ]
-  ));
+  buildInputs = [
+    lua5_1
+    zlib
+    sqlite
+    ncurses
+  ]
+  ++ (with python3.pkgs; [ pyyaml ])
+  ++ lib.optionals tileMode [
+    libpng
+    SDL2
+    SDL2_image
+    freetype
+    libGLU
+    libGL
+  ]
+  ++ lib.optional enableSound SDL2_mixer;
 
   preBuild = ''
     cd crawl-ref/source
@@ -98,15 +104,13 @@ stdenv.mkDerivation rec {
       install -Dm444 $out/xdg-data/org.develz.Crawl_tiles.desktop -t $out/share/applications
       install -Dm444 $out/xdg-data/org.develz.Crawl_tiles.appdata.xml -t $out/share/metainfo
     ''
-    +
-    lib.optionalString (!tileMode) ''
+    + lib.optionalString (!tileMode) ''
       echo "Exec=crawl" >> $out/xdg-data/org.develz.Crawl_console.desktop
       echo "Icon=crawl" >> $out/xdg-data/org.develz.Crawl_console.desktop
       install -Dm444 $out/xdg-data/org.develz.Crawl_console.desktop -t $out/share/applications
       install -Dm444 $out/xdg-data/org.develz.Crawl_console.appdata.xml -t $out/share/metainfo
     ''
-    + "install -Dm444 dat/tiles/stone_soup_icon-512x512.png $out/share/icons/hicolor/512x512/apps/crawl.png"
-  ;
+    + "install -Dm444 dat/tiles/stone_soup_icon-512x512.png $out/share/icons/hicolor/512x512/apps/crawl.png";
 
   enableParallelBuilding = true;
 
@@ -120,7 +124,14 @@ stdenv.mkDerivation rec {
       mystifyingly fabulous Orb of Zot.
     '';
     platforms = platforms.linux ++ platforms.darwin;
-    license = with licenses; [ gpl2Plus bsd2 bsd3 mit licenses.zlib cc0 ];
-    maintainers = [ maintainers.abbradar ];
+    license = with licenses; [
+      gpl2Plus
+      bsd2
+      bsd3
+      mit
+      licenses.zlib
+      cc0
+    ];
+    maintainers = [ ];
   };
 }

@@ -3,22 +3,24 @@
   clang,
   fetchFromGitHub,
   buildGoModule,
+  versionCheckHook,
   nixosTests,
   nix-update-script,
 }:
-buildGoModule rec {
+
+buildGoModule (finalAttrs: {
   pname = "dae";
-  version = "0.8.0";
+  version = "1.0.0";
 
   src = fetchFromGitHub {
     owner = "daeuniverse";
     repo = "dae";
-    rev = "v${version}";
-    hash = "sha256-Vdh5acE5i/bJ8VXOm+9OqZQbxvqv4TS/t0DDfBs/K5g=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-RpbWZEoGrCq3Py0hu6YDie6ErDTLS3oabqScPzhCtm0=";
     fetchSubmodules = true;
   };
 
-  vendorHash = "sha256-0Q+1cXUu4EH4qkGlK6BIpv4dCdtSKjb1RbLi5Xfjcew=";
+  vendorHash = "sha256-u2DCHmX7vRNWIQ2Ir3UrxPGduggEqoUr1rnkDfwsT0I=";
 
   proxyVendor = true;
 
@@ -33,7 +35,7 @@ buildGoModule rec {
 
     make CFLAGS="-D__REMOVE_BPF_PRINTK -fno-stack-protector -Wno-unused-command-line-argument" \
     NOSTRIP=y \
-    VERSION=${version} \
+    VERSION=${finalAttrs.version} \
     OUTPUT=$out/bin/dae
 
     runHook postBuild
@@ -45,25 +47,32 @@ buildGoModule rec {
   postInstall = ''
     install -Dm444 install/dae.service $out/lib/systemd/system/dae.service
     substituteInPlace $out/lib/systemd/system/dae.service \
-      --replace /usr/bin/dae $out/bin/dae
+      --replace-fail "/usr/bin/dae" "$out/bin/dae"
   '';
 
-  passthru.tests = {
-    inherit (nixosTests) dae;
+  doInstallCheck = true;
+
+  nativeInstallCheckInputs = [ versionCheckHook ];
+
+  versionCheckProgramArg = "--version";
+
+  passthru = {
+    tests = {
+      inherit (nixosTests) dae;
+    };
+    updateScript = nix-update-script { };
   };
 
-  passthru.updateScript = nix-update-script { };
-
-  meta = with lib; {
+  meta = {
     description = "Linux high-performance transparent proxy solution based on eBPF";
     homepage = "https://github.com/daeuniverse/dae";
-    license = licenses.agpl3Only;
-    maintainers = with maintainers; [
+    license = lib.licenses.agpl3Only;
+    maintainers = with lib.maintainers; [
       oluceps
       pokon548
       luochen1990
     ];
-    platforms = platforms.linux;
+    platforms = lib.platforms.linux;
     mainProgram = "dae";
   };
-}
+})

@@ -1,43 +1,46 @@
-{ stdenv
-, cmake
-, curl
-, fetchFromGitHub
-, gss
-, hwloc
-, lib
-, libsodium
-, libuv
-, nix-update-script
-, openssl
-, pkg-config
-, zeromq
-, darwin
+{
+  stdenv,
+  cmake,
+  curl,
+  fetchFromGitHub,
+  gss,
+  hwloc,
+  lib,
+  libsodium,
+  libuv,
+  nix-update-script,
+  openssl,
+  pkg-config,
+  zeromq,
 }:
 
-let
-  inherit (darwin.apple_sdk.frameworks) Foundation;
-in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "p2pool";
-  version = "4.1.1";
+  version = "4.11";
 
   src = fetchFromGitHub {
     owner = "SChernykh";
     repo = "p2pool";
-    rev = "v${version}";
-    hash = "sha256-rxsKbrgDdVtGEv63SHi3FbFpqU2j6ESksq0SDm78j+0=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-qoz7wMI6hheF+Pecfq3pPZRc2H3nkrxKRMWR2qmJdsI=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ libuv zeromq libsodium gss hwloc openssl curl ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ Foundation ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    libuv
+    zeromq
+    libsodium
+    gss
+    hwloc
+    openssl
+    curl
+  ];
 
-  cmakeFlags = ["-DWITH_LTO=OFF"];
-
-  env.NIX_CFLAGS_COMPILE = toString (lib.optionals (stdenv.hostPlatform.isDarwin && lib.versionOlder stdenv.hostPlatform.darwinMinVersion "10.13") [
-    "-faligned-allocation"
-  ]);
+  cmakeFlags = [ "-DWITH_LTO=OFF" ];
 
   installPhase = ''
     runHook preInstall
@@ -51,12 +54,17 @@ stdenv.mkDerivation rec {
     updateScript = nix-update-script { };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Decentralized pool for Monero mining";
     homepage = "https://github.com/SChernykh/p2pool";
-    license = licenses.gpl3Only;
-    maintainers = with maintainers; [ ratsclub ];
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [
+      ratsclub
+      JacoMalan1
+      jk
+    ];
     mainProgram = "p2pool";
-    platforms = platforms.all;
+    platforms = lib.platforms.all;
+    broken = stdenv.hostPlatform.isDarwin;
   };
-}
+})

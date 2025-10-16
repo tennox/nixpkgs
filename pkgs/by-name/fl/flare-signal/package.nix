@@ -1,49 +1,75 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, cargo
-, meson
-, ninja
-, pkg-config
-, gst_all_1
-, protobuf
-, libspelling
-, libsecret
-, libadwaita
-, gtksourceview5
-, rustPlatform
-, rustc
-, appstream-glib
-, blueprint-compiler
-, desktop-file-utils
-, wrapGAppsHook4
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchFromGitLab,
+  runCommand,
+  cargo,
+  meson,
+  ninja,
+  pkg-config,
+  gst_all_1,
+  protobuf,
+  libspelling,
+  libsecret,
+  libadwaita,
+  gtksourceview5,
+  rustPlatform,
+  rustc,
+  yq,
+  appstream,
+  blueprint-compiler,
+  desktop-file-utils,
+  wrapGAppsHook4,
 }:
 
-stdenv.mkDerivation rec {
+let
+  presage = fetchFromGitHub {
+    owner = "whisperfish";
+    repo = "presage";
+    # match with commit from Cargo.toml
+    rev = "31a418d0a35ad746590165520b652d6adb7a0384";
+    hash = "sha256-Mf8RvwfrVpbsUj+mA9L7IjnbMKoZDjZKYor2iqFWSx4=";
+  };
+in
+
+stdenv.mkDerivation (finalAttrs: {
   pname = "flare";
-  version = "0.15.2";
+  # NOTE: also update presage commit
+  version = "0.17.1";
 
   src = fetchFromGitLab {
     domain = "gitlab.com";
     owner = "schmiddi-on-mobile";
     repo = "flare";
-    rev = version;
-    hash = "sha256-w8H6EYnVYJ6gDhdeZwyxRquem4ayZ4cgLaJMKqcetuI=";
+    tag = finalAttrs.version;
+    hash = "sha256-3SYsVF3aUJYSr3pM/BGXYExQwbwckExYwEcF3cZ/94g=";
   };
 
-  cargoDeps = rustPlatform.importCargoLock {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "blurhash-0.2.3" = "sha256-s1777+2O0D/VyKwlPUA53gho5sOP8pN610KqxEjugz0=";
-      "curve25519-dalek-4.1.3" = "sha256-bPh7eEgcZnq9C3wmSnnYv0C4aAP+7pnwk9Io29GrI4A=";
-      "libsignal-core-0.1.0" = "sha256-AdN8UHu0khgsog1btE++0J4BmdUC6wMpZzL7HPzhALQ=";
-      "libsignal-service-0.1.0" = "sha256-bnbbbnoBaHUdobBywOAUQojoMYkOlgI2O1RG2DoyvUc=";
-      "presage-0.6.2" = "sha256-AB4ttolC6MPp3foT66DG5RArqX+c1wf2w3lIZ0u0LCM=";
-    };
-  };
+  cargoDeps =
+    let
+      cargoDeps = rustPlatform.fetchCargoVendor {
+        inherit (finalAttrs) pname version src;
+        hash = "sha256-cxhnfdYcsyXxvTpGGXm2rK3cKVsNk66FYif7/c16NhU=";
+      };
+    in
+    # Replace with simpler solution:
+    # https://github.com/NixOS/nixpkgs/pull/432651#discussion_r2312796706
+    # depending on sqlx release and update in flare-signal
+    runCommand "${finalAttrs.pname}-${finalAttrs.version}-vendor-patched" { inherit cargoDeps; }
+      # https://github.com/flathub/de.schmidhuberj.Flare/commit/b1352087beaf299569c798bc69e31660712853db
+      # bash
+      ''
+        mkdir $out
+        find $cargoDeps -maxdepth 1 -exec sh -c "ln -s {} $out/\$(basename {})" \;
+        rm $out/presage-store-sqlite-*
+        cp -r $cargoDeps/presage-store-sqlite-* $out
+        chmod +w $out/presage-store-sqlite-*
+        ln -s ${presage}/.sqlx $out/presage-store-sqlite-*
+      '';
 
   nativeBuildInputs = [
-    appstream-glib # for appstream-util
+    appstream # for appstream-util
     blueprint-compiler
     desktop-file-utils # for update-desktop-database
     meson
@@ -53,7 +79,24 @@ stdenv.mkDerivation rec {
     rustPlatform.cargoSetupHook
     cargo
     rustc
+    # yq contains tomlq
+    yq
   ];
+
+  postPatch = ''
+    cargoPresageRev="$(tomlq -r '.dependencies.presage.rev' Cargo.toml)"
+    actualPresageRev="${presage.rev}"
+    if [ "$cargoPresageRev" != "$actualPresageRev" ]; then
+      echo ""
+      echo "fetchFromGitHub presage revision does not match revision specified in Cargo.toml"
+      echo "consider replacing fetchFromGitHub's revision with revision specified in Cargo.toml"
+      echo ""
+      echo "  fetchFromGitHub = ''${actualPresageRev}"
+      echo "  Cargo.toml = ''${cargoPresageRev}"
+      echo ""
+      exit 1
+    fi
+  '';
 
   buildInputs = [
     gtksourceview5
@@ -70,7 +113,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = {
-    changelog = "https://gitlab.com/schmiddi-on-mobile/flare/-/blob/${src.rev}/CHANGELOG.md";
+    changelog = "https://gitlab.com/schmiddi-on-mobile/flare/-/blob/${finalAttrs.src.tag}/CHANGELOG.md";
     description = "Unofficial Signal GTK client";
     mainProgram = "flare";
     homepage = "https://gitlab.com/schmiddi-on-mobile/flare";
@@ -78,4 +121,4 @@ stdenv.mkDerivation rec {
     maintainers = with lib.maintainers; [ dotlambda ];
     platforms = lib.platforms.linux;
   };
-}
+})

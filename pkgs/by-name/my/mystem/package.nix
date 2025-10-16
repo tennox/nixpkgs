@@ -1,4 +1,8 @@
-{lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "mystem";
@@ -21,7 +25,7 @@ stdenv.mkDerivation rec {
     homepage = "https://yandex.ru/dev/mystem/";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfreeRedistributable;
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
     platforms = [ "x86_64-linux" ];
     mainProgram = "mystem";
   };

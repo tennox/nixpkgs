@@ -1,14 +1,16 @@
-{ lib, stdenvNoCC
-, fetchFromGitHub
-, perl
-, inkscape
-, librsvg
-, targets ? [ "all" ]
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+  perl,
+  inkscape,
+  librsvg,
+  targets ? [ "all" ],
 }:
 
 stdenvNoCC.mkDerivation {
   pname = "iso-flags";
-  version = "unstable-18012020";
+  version = "0-unstable-2020-01-18";
 
   src = fetchFromGitHub {
     owner = "joielechong";
@@ -21,7 +23,12 @@ stdenvNoCC.mkDerivation {
     perl
     inkscape
     librsvg
-    (perl.withPackages(pp: with pp; [ JSON XMLLibXML ]))
+    (perl.withPackages (
+      pp: with pp; [
+        JSON
+        XMLLibXML
+      ]
+    ))
   ];
 
   postPatch = ''

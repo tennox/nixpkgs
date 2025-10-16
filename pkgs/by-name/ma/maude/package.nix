@@ -1,46 +1,80 @@
-{ lib, stdenv, fetchurl, unzip, makeWrapper, flex, bison, ncurses, buddy, tecla
-, libsigsegv, gmpxx, cln, yices
-# passthru.tests
-, tamarin-prover
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  bison,
+  flex,
+  makeWrapper,
+  buddy,
+  cln,
+  cvc4,
+  gmpxx,
+  libsigsegv,
+  tecla,
+  yices,
+  # passthru.tests
+  tamarin-prover,
 }:
 
-let
-  version = "3.4";
-in
-
-stdenv.mkDerivation {
+stdenv.mkDerivation (finalAttrs: {
   pname = "maude";
-  inherit version;
+  version = "3.5.1";
 
-  src = fetchurl {
-    url = "https://github.com/maude-lang/Maude/archive/refs/tags/Maude${version}.tar.gz";
-    sha256 = "IXWEWAmh388NpNSt9wnOpLkzhZ09N+AStO2wn5dRT8o=";
+  src = fetchFromGitHub {
+    owner = "maude-lang";
+    repo = "Maude";
+    tag = "Maude${finalAttrs.version}";
+    hash = "sha256-NluckH48G4Y79exEQM+hB4oMujA2jcHUFgG3qe+9fGw=";
   };
 
-  nativeBuildInputs = [ flex bison unzip makeWrapper ];
-  buildInputs = [
-    ncurses buddy tecla gmpxx libsigsegv cln yices
+  # Always enabled in CVC4 1.8: https://github.com/CVC4/CVC4/pull/4519
+  postPatch = ''
+    sed -i '/rewrite-divk/d' src/Mixfix/cvc4_Bindings.cc
+  '';
+
+  nativeBuildInputs = [
+    autoreconfHook
+    bison
+    flex
+    makeWrapper
   ];
 
-  hardeningDisable = [ "stackprotector" ] ++
-    lib.optionals stdenv.hostPlatform.isi686 [ "pic" "fortify" ];
+  buildInputs = [
+    buddy
+    cln
+    cvc4
+    gmpxx
+    libsigsegv
+    tecla
+    yices
+  ];
 
-  # Fix for glibc-2.34, see
-  # https://gitweb.gentoo.org/repo/gentoo.git/commit/dev-lang/maude/maude-3.1-r1.ebuild?id=f021cc6cfa1e35eb9c59955830f1fd89bfcb26b4
-  configureFlags = [ "--without-libsigsegv" ];
+  hardeningDisable = [
+    "stackprotector"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isi686 [
+    "pic"
+    "fortify"
+  ];
 
-  # Certain tests (in particular, Misc/fileTest) expect us to build in a subdirectory
-  # We'll use the directory Opt/ as suggested in INSTALL
-  preConfigure = ''
-    mkdir Opt; cd Opt
-    configureFlagsArray=(
-      --datadir="$out/share/maude"
-      TECLA_LIBS="-ltecla -lncursesw"
-      LIBS="-lcln"
-      CFLAGS="-O3" CXXFLAGS="-O3"
-    )
-  '';
+  __darwinAllowLocalNetworking = true;
+
   configureScript = "../configure";
+
+  configureFlags = [
+    "--with-cvc4=yes"
+    "--with-yices2=yes"
+    "--prefix=${placeholder "out"}"
+    "--datadir=${placeholder "out"}/share/maude"
+  ];
+
+  makeFlags = [ "CVC4_LIB=-lcvc4 -lcln" ];
+
+  preConfigure = ''
+    mkdir -p build
+    cd build
+  '';
 
   doCheck = true;
 
@@ -56,11 +90,10 @@ stdenv.mkDerivation {
   enableParallelBuilding = true;
 
   meta = {
-    homepage = "http://maude.cs.illinois.edu/";
+    homepage = "https://maude.cs.illinois.edu/";
     description = "High-level specification language";
     mainProgram = "maude";
     license = lib.licenses.gpl2Plus;
-
     longDescription = ''
       Maude is a high-performance reflective language and system
       supporting both equational and rewriting logic specification and
@@ -70,8 +103,7 @@ stdenv.mkDerivation {
       equational specification and programming, Maude also supports
       rewriting logic computation.
     '';
-
     platforms = lib.platforms.unix;
     maintainers = [ lib.maintainers.peti ];
   };
-}
+})

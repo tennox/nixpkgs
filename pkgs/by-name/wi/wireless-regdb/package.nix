@@ -1,12 +1,17 @@
-{ lib, stdenvNoCC, fetchurl, directoryListingUpdater }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+  directoryListingUpdater,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "wireless-regdb";
-  version = "2024.10.07";
+  version = "2025.10.07";
 
   src = fetchurl {
     url = "https://www.kernel.org/pub/software/network/${pname}/${pname}-${version}.tar.xz";
-    hash = "sha256-928r15plPp+d1QVI2Z0DpKTrFX2gVt/ViS9APsKPs9U=";
+    hash = "sha256-1MhypEFUYEyGn1hR99IdgY1JKDXTcK9/WN6IR5c4AcM=";
   };
 
   dontBuild = true;

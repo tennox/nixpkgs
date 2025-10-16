@@ -1,8 +1,12 @@
-{ lib, stdenvNoCC, fetchFromGitHub }:
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+}:
 
 stdenvNoCC.mkDerivation {
   pname = "gelasio";
-  version = "unstable-2022-06-09";
+  version = "0-unstable-2022-06-09";
 
   src = fetchFromGitHub {
     owner = "SorkinType";
@@ -35,4 +39,3 @@ stdenvNoCC.mkDerivation {
     maintainers = with maintainers; [ colemickens ];
   };
 }
-

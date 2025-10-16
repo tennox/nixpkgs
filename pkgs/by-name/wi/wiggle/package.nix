@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, ncurses, groff }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  ncurses,
+  groff,
+}:
 
 stdenv.mkDerivation rec {
   pname = "wiggle";
@@ -11,9 +17,14 @@ stdenv.mkDerivation rec {
     sha256 = "18ilzr9sbal1j8p1d94ilm1j5blac5cngvcvjpdmgmpw6diy2ldf";
   };
 
-  buildInputs = [ ncurses groff ];
+  buildInputs = [
+    ncurses
+    groff
+  ];
 
   configurePhase = ''
+    runHook preConfigure
+
     makeFlagsArray=( CFLAGS="-I. -O3"
                      STRIP="-s"
                      INSTALL="install"
@@ -21,6 +32,8 @@ stdenv.mkDerivation rec {
                      MANDIR="$out/share/man"
                    )
     patchShebangs .
+
+    runHook postConfigure
   '';
 
   meta = with lib; {

@@ -1,4 +1,13 @@
-{ lib, stdenv, fetchurl, pkg-config, openssl, libogg, libopus, fetchpatch }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  pkg-config,
+  openssl,
+  libogg,
+  libopus,
+  fetchpatch,
+}:
 
 stdenv.mkDerivation rec {
   pname = "opusfile";
@@ -9,9 +18,15 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ openssl libogg ];
+  buildInputs = [
+    openssl
+    libogg
+  ];
   propagatedBuildInputs = [ libopus ];
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
   patches = [
     ./include-multistream.patch
     (fetchpatch {
@@ -20,9 +35,9 @@ stdenv.mkDerivation rec {
       sha256 = "sha256-XThI/ys5caB+OncFVfxm5IsvQPy1MbLQKwIlYjPvTJQ=";
     })
   ]
-    # fixes problem with openssl 1.1 dependency
-    # see https://github.com/xiph/opusfile/issues/13
-    ++ lib.optionals stdenv.hostPlatform.isWindows [ ./disable-cert-store.patch ];
+  # fixes problem with openssl 1.1 dependency
+  # see https://github.com/xiph/opusfile/issues/13
+  ++ lib.optionals stdenv.hostPlatform.isWindows [ ./disable-cert-store.patch ];
   configureFlags = [ "--disable-examples" ];
 
   meta = with lib; {

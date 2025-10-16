@@ -1,19 +1,37 @@
-{ lib, stdenv, fetchFromGitHub, gnome-shell, gnome-themes-extra, glib, libxml2, gtk-engine-murrine, gdk-pixbuf, librsvg, bc }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  gnome-shell,
+  glib,
+  libxml2,
+  gtk-engine-murrine,
+  gdk-pixbuf,
+  librsvg,
+  bc,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "equilux-theme";
   version = "20181029";
 
   src = fetchFromGitHub {
     owner = "ddnexus";
     repo = "equilux-theme";
-    rev = "equilux-v${version}";
-    sha256 = "0lv2yyxhnmnkwxp576wnb01id4fp734b5z5n0l67sg5z7vc2h8fc";
+    tag = "equilux-v${finalAttrs.version}";
+    hash = "sha256-zCEo2D6/PH0MBbb8ssg415EWA1iWm1Nu59NWC7v3YlM=";
   };
 
-  nativeBuildInputs = [ glib libxml2 bc ];
+  nativeBuildInputs = [
+    glib
+    libxml2
+    bc
+  ];
 
-  buildInputs = [ gnome-themes-extra gdk-pixbuf librsvg ];
+  buildInputs = [
+    gdk-pixbuf
+    librsvg
+  ];
 
   propagatedUserEnvPkgs = [ gtk-engine-murrine ];
 
@@ -29,11 +47,11 @@ stdenv.mkDerivation rec {
     rm $out/share/themes/*/COPYING
   '';
 
-  meta = with lib; {
-    inherit (src.meta) homepage;
+  meta = {
+    inherit (finalAttrs.src.meta) homepage;
     description = "Material Design theme for GNOME/GTK based desktop environments";
-    license = licenses.gpl2;
-    platforms = platforms.all;
-    maintainers = [ maintainers.fpletz ];
+    license = lib.licenses.gpl2;
+    platforms = lib.platforms.all;
+    maintainers = [ lib.maintainers.fpletz ];
   };
-}
+})

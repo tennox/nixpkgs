@@ -1,26 +1,50 @@
-{ stdenv, lib, fetchFromGitHub, pkg-config, autoreconfHook
-, curl, apacheHttpd, pcre, apr, aprutil, libxml2
-, luaSupport ? false, lua5, perl
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  pkg-config,
+  autoreconfHook,
+  curl,
+  apacheHttpd,
+  pcre,
+  apr,
+  aprutil,
+  libxml2,
+  luaSupport ? false,
+  lua5,
+  perl,
+  versionCheckHook,
 }:
 
-let luaValue = if luaSupport then lua5 else "no";
-    optional = lib.optional;
+let
+  luaValue = if luaSupport then lua5 else "no";
+  optional = lib.optional;
 in
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "modsecurity";
-  version = "2.9.7";
+  version = "2.9.12";
 
   src = fetchFromGitHub {
     owner = "owasp-modsecurity";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-hJ8wYeC83dl85bkUXGZKHpHzw9QRgtusj1/+Coxsx0k=";
+    repo = "modsecurity";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-scMOiu8oI3+VcXe05gLNQ8ILmnP4iwls8ZZ9r+3ei5Y=";
   };
 
-  nativeBuildInputs = [ pkg-config autoreconfHook ];
-  buildInputs = [  curl apacheHttpd pcre apr aprutil libxml2 ] ++
-    optional luaSupport lua5;
+  nativeBuildInputs = [
+    pkg-config
+    autoreconfHook
+  ];
+  buildInputs = [
+    curl
+    apacheHttpd
+    pcre
+    apr
+    aprutil
+    libxml2
+  ]
+  ++ optional luaSupport lua5;
 
   configureFlags = [
     "--enable-standalone-module"
@@ -34,10 +58,17 @@ stdenv.mkDerivation rec {
     "--with-lua=${luaValue}"
   ];
 
-  outputs = ["out" "nginx"];
-  # by default modsecurity's install script copies compiled output to httpd's modules folder
-  # this patch removes those lines
-  patches = [ ./Makefile.am.patch ];
+  enableParallelBuilding = true;
+
+  outputs = [
+    "out"
+    "nginx"
+  ];
+  patches = [
+    # by default modsecurity's install script copies compiled output to httpd's modules folder
+    # this patch removes those lines
+    ./Makefile.am.patch
+  ];
 
   doCheck = true;
   nativeCheckInputs = [ perl ];
@@ -47,11 +78,18 @@ stdenv.mkDerivation rec {
     cp -R * $nginx
   '';
 
-  meta = with lib; {
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = "-v";
+  versionCheckProgram = "${placeholder "out"}/bin/mlogc";
+
+  meta = {
     description = "Open source, cross-platform web application firewall (WAF)";
-    license = licenses.asl20;
+    license = lib.licenses.asl20;
     homepage = "https://github.com/owasp-modsecurity/ModSecurity";
-    maintainers = with maintainers; [offline];
-    platforms   = lib.platforms.linux ++ lib.platforms.darwin;
+    maintainers = with lib.maintainers; [ offline ];
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
-}
+})

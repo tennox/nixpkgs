@@ -1,11 +1,17 @@
-{buildGoModule, fetchFromGitHub, lib, testers, cf-vault}:
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  testers,
+  cf-vault,
+}:
 buildGoModule rec {
   pname = "cf-vault";
   version = "0.0.18";
 
   src = fetchFromGitHub {
     owner = "jacobbednarz";
-    repo = pname;
+    repo = "cf-vault";
     rev = version;
     sha256 = "sha256-vp9ufjNZabY/ck2lIT+QpD6IgaVj1BkBRTjPxkb6IjQ=";
   };
@@ -24,9 +30,7 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = ''
-      A tool for managing your Cloudflare credentials, securely..
-    '';
+    description = "Tool for managing your Cloudflare credentials, securely";
     homepage = "https://github.com/jacobbednarz/cf-vault/";
     license = licenses.mit;
     maintainers = with maintainers; [ viraptor ];

@@ -1,24 +1,25 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, python3
-, stanc
-, buildPackages
-, runtimeShell
-, runCommandCC
-, cmdstan
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  python3,
+  stanc,
+  buildPackages,
+  runtimeShell,
+  runCommandCC,
+  cmdstan,
 }:
 
 stdenv.mkDerivation rec {
   pname = "cmdstan";
-  version = "2.35.0";
+  version = "2.36.0";
 
   src = fetchFromGitHub {
     owner = "stan-dev";
-    repo = pname;
-    rev = "v${version}";
+    repo = "cmdstan";
+    tag = "v${version}";
     fetchSubmodules = true;
-    hash = "sha256-bmzkXbR4KSnpfXjs2MAx8mbNSbNrIWDP/O8S+JGWrcg=";
+    hash = "sha256-9Dan86C0nxxxkIXaOSKExY0hngAgWTpL4RlI3rTnBZo=";
   };
 
   postPatch = ''
@@ -45,7 +46,8 @@ stdenv.mkDerivation rec {
 
   makeFlags = [
     "build"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "arch=${stdenv.hostPlatform.darwinArch}"
   ];
 

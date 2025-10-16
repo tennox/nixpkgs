@@ -1,27 +1,28 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, gobject-introspection
-, meson
-, ninja
-, python3
-, wrapGAppsHook3
-, xapp
-, glib
-, gspell
-, gtk3
-, gitUpdater
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  gobject-introspection,
+  meson,
+  ninja,
+  python3,
+  wrapGAppsHook3,
+  xapp,
+  glib,
+  gspell,
+  gtk3,
+  gitUpdater,
 }:
 
 stdenv.mkDerivation rec {
   pname = "sticky";
-  version = "1.22";
+  version = "1.27";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
-    repo = pname;
+    repo = "sticky";
     rev = version;
-    hash = "sha256-JrzBME1d4qvGjF2zdiqCX7h+sFadLsRQqZKnQj7elHs=";
+    hash = "sha256-IuYRcvoUyY03aEclkiOmamjb/c/JaYYIoqKdcwDSY8Q=";
   };
 
   postPatch = ''
@@ -67,11 +68,14 @@ stdenv.mkDerivation rec {
   };
 
   meta = with lib; {
-    description = "Sticky notes app for the linux desktop";
+    description = "Sticky notes app for the Linux desktop";
     mainProgram = "sticky";
     homepage = "https://github.com/linuxmint/sticky";
     license = licenses.gpl2Only;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ linsui bobby285271 ];
+    maintainers = with maintainers; [
+      linsui
+      bobby285271
+    ];
   };
 }

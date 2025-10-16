@@ -4,48 +4,77 @@
   rustPlatform,
   protobuf,
   versionCheckHook,
+  cmake,
+  pkg-config,
+  nix-update-script,
 }:
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "clash-rs";
-  version = "0.7.1";
+  version = "0.9.1";
 
   src = fetchFromGitHub {
     owner = "Watfaq";
     repo = "clash-rs";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-H76ErJQ+qKC3mt3IzNCPldAwlj7NnYUcLzUuOYykxnE=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-asD7veAYdIF5biCbSXYvAyW/qBra3tvON9TQYCw6nB8=";
   };
 
-  useFetchCargoVendor = true;
+  cargoHash = "sha256-9zCQKxkjiskkBGxfnq2ANpqWobs+UJ5qCsbME2Z7GY4=";
 
-  cargoHash = "sha256-yU5ioAuCJRuYKNOdd381W07Ua+c2me+wHFOMukTVVqM=";
+  cargoPatches = [ ./Cargo.patch ];
+
+  patches = [
+    ./unbounded-shifts.patch
+  ];
+
+  postPatch = ''
+    substituteInPlace clash-lib/Cargo.toml \
+      --replace-fail ', git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "ac32e64"' ""
+  '';
+
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    rustPlatform.bindgenHook
+  ];
+
+  nativeInstallCheckInputs = [
+    protobuf
+    versionCheckHook
+  ];
 
   env = {
-    PROTOC = "${protobuf}/bin/protoc";
     # requires features: sync_unsafe_cell, unbounded_shifts, let_chains, ip
     RUSTC_BOOTSTRAP = 1;
+    RUSTFLAGS = "--cfg tokio_unstable";
+    NIX_CFLAGS_COMPILE = "-Wno-error";
   };
 
+  buildFeatures = [ "plus" ];
+
+  doCheck = false; # test failed
+
+  postInstall = ''
+    # Align with upstream
+    ln -s "$out/bin/clash-rs" "$out/bin/clash"
+  '';
+
   doInstallCheck = true;
-
-  dontCargoCheck = true; # test failed
-
   versionCheckProgramArg = "--version";
 
-  nativeInstallCheckInputs = [ versionCheckHook ];
-
-  buildFeatures = [
-    "shadowsocks"
-    "tuic"
-    "onion"
-  ];
+  passthru.updateScript = nix-update-script {
+    extraArgs = [
+      "--version-regex"
+      "^v([0-9.]+)$"
+    ];
+  };
 
   meta = {
     description = "Custom protocol, rule based network proxy software";
     homepage = "https://github.com/Watfaq/clash-rs";
-    mainProgram = "clash-rs";
+    mainProgram = "clash";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ aucub ];
-    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [ aaronjheng ];
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
-}
+})

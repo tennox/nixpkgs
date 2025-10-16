@@ -1,8 +1,14 @@
-{ stdenv, lib, fetchFromGitHub, libsoundio, lame }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  libsoundio,
+  lame,
+}:
 
 stdenv.mkDerivation {
   pname = "castty";
-  version = "unstable-2020-11-10";
+  version = "0-unstable-2020-11-10";
 
   src = fetchFromGitHub {
     owner = "dhobsd";
@@ -11,7 +17,10 @@ stdenv.mkDerivation {
     sha256 = "0p84ivwsp8ds4drn0hx2ax04gp0xyq6blj1iqfsmrs4slrajdmqs";
   };
 
-  buildInputs = [ libsoundio lame ];
+  buildInputs = [
+    libsoundio
+    lame
+  ];
 
   makeFlags = [
     "CC=${stdenv.cc.targetPrefix}cc"

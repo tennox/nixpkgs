@@ -1,8 +1,12 @@
-{ lib, stdenvNoCC, fetchFromGitHub }:
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+}:
 
 stdenvNoCC.mkDerivation {
   pname = "vimv";
-  version = "unstable-2019-10-31";
+  version = "0-unstable-2019-10-31";
 
   src = fetchFromGitHub {
     owner = "thameera";

@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, autoreconfHook
-, libpcap
-, lua5_1
-, json_c
-, testers
-, tracebox
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  libpcap,
+  lua5_1,
+  json_c,
+  testers,
+  tracebox,
 }:
 stdenv.mkDerivation rec {
   pname = "tracebox";
@@ -15,7 +16,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "tracebox";
     repo = "tracebox";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-1KBJ4uXa1XpzEw23IjndZg+aGJXk3PVw8LYKAvxbxCA=";
     fetchSubmodules = true;
   };

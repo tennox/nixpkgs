@@ -2,23 +2,27 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
+  versionCheckHook,
 }:
 
 buildGoModule rec {
   pname = "nuclei";
-  version = "3.3.5";
+  version = "3.4.10";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
     repo = "nuclei";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-L8HOuPENnyM56ac1dqJRCYzqN9wRnGt4RoF8BZji0Z0=";
+    tag = "v${version}";
+    hash = "sha256-lFyp5VXEX0nK83p2LmWdhNoQKvNtgln1GG3OpZEXaL8=";
   };
 
-  vendorHash = "sha256-ZGFzZ/WpiVChtvMJQH3lR4k2it1KF0QwrMQchQz5XYw=";
+  vendorHash = "sha256-cDK0xP3vHRVBeFK2dKDnaCNge7EBKkMcrYen12XI7G0=";
+
   proxyVendor = true; # hash mismatch between Linux and Darwin
 
   subPackages = [ "cmd/nuclei/" ];
+
+  nativeInstallCheckInputs = [ versionCheckHook ];
 
   ldflags = [
     "-w"
@@ -28,7 +32,11 @@ buildGoModule rec {
   # Test files are not part of the release tarball
   doCheck = false;
 
-  meta = with lib; {
+  doInstallCheck = true;
+
+  versionCheckProgramArg = "-version";
+
+  meta = {
     description = "Tool for configurable targeted scanning";
     longDescription = ''
       Nuclei is used to send requests across targets based on a template
@@ -39,8 +47,8 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/projectdiscovery/nuclei";
     changelog = "https://github.com/projectdiscovery/nuclei/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
       fab
       Misaka13514
     ];

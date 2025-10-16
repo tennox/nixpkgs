@@ -1,11 +1,11 @@
-{ lib
-, installShellFiles
-, python3
-, fetchPypi
-, fetchFromGitHub
-, nix-update-script
-, testers
-, gimme-aws-creds
+{
+  lib,
+  installShellFiles,
+  python3,
+  fetchFromGitHub,
+  nix-update-script,
+  testers,
+  gimme-aws-creds,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -20,7 +20,7 @@ python3.pkgs.buildPythonApplication rec {
     hash = "sha256-fsFYcfbLeYV6tpOGgNrFmYjcUAmdsx5zwUbvcctwFVs=";
   };
 
-  nativeBuildInputs = with python3.pkgs; [
+  nativeBuildInputs = [
     installShellFiles
   ];
 

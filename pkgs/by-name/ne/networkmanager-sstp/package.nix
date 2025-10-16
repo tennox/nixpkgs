@@ -1,21 +1,22 @@
-{ stdenv
-, lib
-, autoreconfHook
-, fetchurl
-, file
-, glib
-, gnome
-, gtk3
-, gtk4
-, gettext
-, libnma
-, libnma-gtk4
-, libsecret
-, networkmanager
-, pkg-config
-, ppp
-, sstp
-, withGnome ? true
+{
+  stdenv,
+  lib,
+  autoreconfHook,
+  fetchurl,
+  file,
+  glib,
+  gnome,
+  gtk3,
+  gtk4,
+  gettext,
+  libnma,
+  libnma-gtk4,
+  libsecret,
+  networkmanager,
+  pkg-config,
+  ppp,
+  sstp,
+  withGnome ? true,
 }:
 
 stdenv.mkDerivation rec {
@@ -32,15 +33,19 @@ stdenv.mkDerivation rec {
     autoreconfHook
     file
     gettext
+    glib # for gdbus-codegen
     pkg-config
+  ]
+  ++ lib.optionals withGnome [
+    gtk4 # for gtk4-builder-tool
   ];
 
   buildInputs = [
     sstp
     networkmanager
-    glib
     ppp
-  ] ++ lib.optionals withGnome [
+  ]
+  ++ lib.optionals withGnome [
     gtk3
     gtk4
     libsecret
@@ -60,6 +65,8 @@ stdenv.mkDerivation rec {
     "--enable-absolute-paths"
   ];
 
+  strictDeps = true;
+
   passthru = {
     updateScript = gnome.updateScript {
       packageName = pname;
@@ -70,7 +77,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "NetworkManager's sstp plugin";
-    inherit (networkmanager.meta) maintainers platforms;
+    inherit (networkmanager.meta) maintainers teams platforms;
     license = licenses.gpl2Plus;
   };
 }

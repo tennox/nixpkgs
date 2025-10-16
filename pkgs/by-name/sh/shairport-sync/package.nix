@@ -1,49 +1,50 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, autoreconfHook
-, pkg-config
-, openssl
-, avahi
-, alsa-lib
-, libplist
-, glib
-, libdaemon
-, libsodium
-, libgcrypt
-, ffmpeg
-, libuuid
-, unixtools
-, popt
-, libconfig
-, libpulseaudio
-, libjack2
-, libsndfile
-, libao
-, libsoundio
-, mosquitto
-, pipewire
-, soxr
-, alac
-, sndio
-, enableAirplay2 ? false
-, enableStdout ? true
-, enableAlsa ? true
-, enableSndio ? true
-, enablePulse ? true
-, enablePipe ? true
-, enablePipewire ? true
-, enableAo ? true
-, enableJack ? true
-, enableSoundio ? true
-, enableMetadata ? true
-, enableMpris ? stdenv.hostPlatform.isLinux
-, enableMqttClient ? true
-, enableDbus ? stdenv.hostPlatform.isLinux
-, enableSoxr ? true
-, enableAlac ? true
-, enableConvolution ? true
-, enableLibdaemon ? false
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  pkg-config,
+  openssl,
+  avahi,
+  alsa-lib,
+  libplist,
+  glib,
+  libdaemon,
+  libsodium,
+  libgcrypt,
+  ffmpeg,
+  libuuid,
+  unixtools,
+  popt,
+  libconfig,
+  libpulseaudio,
+  libjack2,
+  libsndfile,
+  libao,
+  libsoundio,
+  mosquitto,
+  pipewire,
+  soxr,
+  alac,
+  sndio,
+  enableAirplay2 ? false,
+  enableStdout ? true,
+  enableAlsa ? true,
+  enableSndio ? true,
+  enablePulse ? true,
+  enablePipe ? true,
+  enablePipewire ? true,
+  enableAo ? true,
+  enableJack ? true,
+  enableSoundio ? true,
+  enableMetadata ? true,
+  enableMpris ? stdenv.hostPlatform.isLinux,
+  enableMqttClient ? true,
+  enableDbus ? stdenv.hostPlatform.isLinux,
+  enableSoxr ? true,
+  enableAlac ? true,
+  enableConvolution ? true,
+  enableLibdaemon ? false,
 }:
 
 let
@@ -52,13 +53,13 @@ in
 
 stdenv.mkDerivation rec {
   pname = "shairport-sync";
-  version = "4.3.4";
+  version = "4.3.7";
 
   src = fetchFromGitHub {
     repo = "shairport-sync";
     owner = "mikebrady";
-    rev = "refs/tags/${version}";
-    hash = "sha256:1y8dh1gdffq38hgy6x1228l51l6p56iaiqlflw7w1dcbgw15llcd";
+    tag = version;
+    hash = "sha256-bfOgUeUCxQeCmKKBlvIXptM5lJxgZiH4lOhLJSNih8g=";
   };
 
   nativeBuildInputs = [
@@ -70,7 +71,8 @@ stdenv.mkDerivation rec {
     # To achieve this, we coerce the output to a string to prevent
     # mkDerivation's splicing logic from kicking in.
     "${glib.dev}"
-  ] ++ optional enableAirplay2 [
+  ]
+  ++ optional enableAirplay2 [
     unixtools.xxd
   ];
 
@@ -141,7 +143,10 @@ stdenv.mkDerivation rec {
     description = "Airtunes server and emulator with multi-room capabilities";
     license = lib.licenses.mit;
     mainProgram = "shairport-sync";
-    maintainers = with lib.maintainers; [ lnl7 jordanisaacs ];
+    maintainers = with lib.maintainers; [
+      lnl7
+      jordanisaacs
+    ];
     platforms = lib.platforms.unix;
   };
 }

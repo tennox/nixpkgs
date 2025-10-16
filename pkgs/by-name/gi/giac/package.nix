@@ -1,8 +1,37 @@
-{ stdenv, lib, fetchurl, fetchpatch, texliveSmall, bison, flex, lapack, blas
-, autoreconfHook, gmp, mpfr, pari, ntl, gsl, mpfi, ecm, glpk, nauty
-, buildPackages, readline, gettext, libpng, libao, gfortran, perl
-, enableGUI ? false, libGL, libGLU, xorg, fltk
-, enableMicroPy ? false, python3
+{
+  stdenv,
+  lib,
+  fetchurl,
+  fetchpatch,
+  texliveSmall,
+  bison,
+  flex,
+  lapack,
+  blas,
+  autoreconfHook,
+  gmp,
+  mpfr,
+  pari,
+  ntl,
+  gsl,
+  mpfi,
+  ecm,
+  glpk,
+  nauty,
+  buildPackages,
+  readline,
+  gettext,
+  libpng,
+  libao,
+  gfortran,
+  perl,
+  enableGUI ? false,
+  libGL,
+  libGLU,
+  xorg,
+  fltk,
+  enableMicroPy ? false,
+  python3,
 }:
 
 assert (!blas.isILP64) && (!lapack.isILP64);
@@ -49,7 +78,8 @@ stdenv.mkDerivation rec {
       url = "https://salsa.debian.org/science-team/giac/-/raw/c05ae9b9e74d3c6ee6411d391071989426a76201/debian/patches/fix_implicit_declaration.patch";
       sha256 = "sha256-ompUceYJLiL0ftfjBkIMcYvX1YqG2/XA7e1yDyFY0IY=";
     })
-  ] ++ lib.optionals (!enableGUI) [
+  ]
+  ++ lib.optionals (!enableGUI) [
     # when enableGui is false, giac is compiled without fltk. That
     # means some outputs differ in the make check. Patch around this:
     (fetchpatch {
@@ -76,53 +106,89 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [
-    autoreconfHook texliveSmall bison flex
+    autoreconfHook
+    texliveSmall
+    bison
+    flex
   ];
 
   # perl is only needed for patchShebangs fixup.
   buildInputs = [
-    gmp mpfr pari ntl gsl blas mpfi glpk nauty
-    readline gettext libpng libao perl ecm
+    gmp
+    mpfr
+    pari
+    ntl
+    gsl
+    blas
+    mpfi
+    glpk
+    nauty
+    readline
+    gettext
+    libpng
+    libao
+    perl
+    ecm
     # gfortran.cc default output contains static libraries compiled without -fPIC
     # we want libgfortran.so.3 instead
     (lib.getLib gfortran.cc)
-    lapack blas
-  ] ++ lib.optionals enableGUI [
-    libGL libGLU fltk xorg.libX11
-  ] ++ lib.optional enableMicroPy python3;
+    lapack
+    blas
+  ]
+  ++ lib.optionals enableGUI [
+    libGL
+    libGLU
+    fltk
+    xorg.libX11
+  ]
+  ++ lib.optional enableMicroPy python3;
 
   # xcas Phys and Turtle menus are broken with split outputs
   # and interactive use is likely to need docs
   outputs = [ "out" ] ++ lib.optional (!enableGUI) "doc";
 
   doCheck = true;
-  preCheck = lib.optionalString (!enableGUI) ''
-    # even with the nofltk patch, some changes in src/misc.cc (grep
-    # for HAVE_LIBFLTK) made it so that giac behaves differently
-    # when fltk is disabled. disable these tests for now.
-    echo > check/chk_fhan2
-    echo > check/chk_fhan9
-  '' + lib.optionalString (stdenv.hostPlatform.isDarwin) ''
-    # these cover a known regression in giac, likely due to how pari state
-    # is shared between multiple giac instances (see pari.cc.old).
-    # see https://github.com/NixOS/nixpkgs/pull/264126 for more information
-    echo > check/chk_fhan4
-    echo > check/chk_fhan6
-  '';
+  preCheck =
+    lib.optionalString (!enableGUI) ''
+      # even with the nofltk patch, some changes in src/misc.cc (grep
+      # for HAVE_LIBFLTK) made it so that giac behaves differently
+      # when fltk is disabled. disable these tests for now.
+      echo > check/chk_fhan2
+      echo > check/chk_fhan9
+    ''
+    + lib.optionalString (stdenv.hostPlatform.isDarwin) ''
+      # these cover a known regression in giac, likely due to how pari state
+      # is shared between multiple giac instances (see pari.cc.old).
+      # see https://github.com/NixOS/nixpkgs/pull/264126 for more information
+      echo > check/chk_fhan4
+      echo > check/chk_fhan6
+    '';
 
   enableParallelBuilding = true;
 
   configureFlags = [
-    "--enable-gc" "--enable-png" "--enable-gsl" "--enable-lapack"
-    "--enable-pari" "--enable-ntl" "--enable-gmpxx" # "--enable-cocoa"
-    "--enable-ao" "--enable-ecm" "--enable-glpk"
-  ] ++ lib.optionals enableGUI [
-    "--enable-gui" "--with-x"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    "--enable-gc"
+    "--enable-png"
+    "--enable-gsl"
+    "--enable-lapack"
+    "--enable-pari"
+    "--enable-ntl"
+    "--enable-gmpxx" # "--enable-cocoa"
+    "--enable-ao"
+    "--enable-ecm"
+    "--enable-glpk"
+  ]
+  ++ lib.optionals enableGUI [
+    "--enable-gui"
+    "--with-x"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "--disable-nls"
-  ] ++ lib.optionals (!enableGUI) [
+  ]
+  ++ lib.optionals (!enableGUI) [
     "--disable-fltk"
-  ] ++ lib.optionals (!enableMicroPy) [
+  ]
+  ++ lib.optionals (!enableMicroPy) [
     "--disable-micropy"
   ];
 
@@ -139,10 +205,13 @@ stdenv.mkDerivation rec {
 
     if [ -n "$doc" ]; then
       mkdir -p "$doc/share/giac"
+      # $out/share/giac/doc/aide_cas is a symlink to ../aide_cas
       mv "$out/share/giac/doc" "$doc/share/giac"
+      ln -sf "$out/share/giac/aide_cas" "$doc/share/giac/doc/aide_cas"
       mv "$out/share/giac/examples" "$doc/share/giac"
     fi
-  '' + lib.optionalString (!enableGUI) ''
+  ''
+  + lib.optionalString (!enableGUI) ''
     for i in pixmaps application-registry applications icons; do
       rm -r "$out/share/$i";
     done;

@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libdynd";
@@ -15,7 +20,7 @@ stdenv.mkDerivation rec {
     "-DDYND_BUILD_BENCHMARKS=OFF"
   ];
 
-  env.NIX_CFLAGS_COMPILE = builtins.toString [
+  env.NIX_CFLAGS_COMPILE = toString [
     # added to fix build with gcc7+
     "-Wno-error=implicit-fallthrough"
     "-Wno-error=nonnull"
@@ -30,7 +35,10 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
   outputDoc = "dev";
 
   meta = with lib; {

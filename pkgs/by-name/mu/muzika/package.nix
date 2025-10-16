@@ -1,29 +1,30 @@
-{ lib
-, desktop-file-utils
-, fetchFromGitHub
-, fetchYarnDeps
-, fixup-yarn-lock
-, gjs
-, glib-networking
-, gobject-introspection
-, gst_all_1
-, gtk4
-, libadwaita
-, libsoup_3
-, meson
-, ninja
-, pkg-config
-, stdenv
-, wrapGAppsHook4
-, yarn
-, nodejs
-, blueprint-compiler
-, libsecret
+{
+  lib,
+  desktop-file-utils,
+  fetchFromGitHub,
+  fetchYarnDeps,
+  fixup-yarn-lock,
+  gjs,
+  glib-networking,
+  gobject-introspection,
+  gst_all_1,
+  gtk4,
+  libadwaita,
+  libsoup_3,
+  meson,
+  ninja,
+  pkg-config,
+  stdenv,
+  wrapGAppsHook4,
+  yarn,
+  nodejs,
+  blueprint-compiler,
+  libsecret,
 }:
 
 stdenv.mkDerivation rec {
   pname = "muzika";
-  version = "unstable-2023-11-07";
+  version = "0-unstable-2023-11-07";
 
   src = fetchFromGitHub {
     owner = "vixalien";

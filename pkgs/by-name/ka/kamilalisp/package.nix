@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchurl
-, jre
-, makeWrapper
+{
+  lib,
+  stdenv,
+  fetchurl,
+  jre,
+  makeWrapper,
 }:
 
 stdenv.mkDerivation rec {
@@ -23,7 +24,7 @@ stdenv.mkDerivation rec {
     cp ${src} $out/share/java/kamilalisp-${version}.jar
     makeWrapper ${jre}/bin/java $out/bin/kamilalisp \
       --add-flags "-jar $out/share/java/kamilalisp-${version}.jar" \
-      --set _JAVA_OPTIONS '-Dawt.useSystemAAFontSettings=on' \
+      --prefix _JAVA_OPTIONS " " "-Dawt.useSystemAAFontSettings=gasp" \
       --set _JAVA_AWT_WM_NONREPARENTING 1
   '';
 

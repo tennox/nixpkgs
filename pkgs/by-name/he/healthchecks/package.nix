@@ -1,8 +1,9 @@
-{ lib
-, writeText
-, fetchFromGitHub
-, nixosTests
-, python3
+{
+  lib,
+  writeText,
+  fetchFromGitHub,
+  nixosTests,
+  python3,
 }:
 let
   py = python3.override {
@@ -14,14 +15,14 @@ let
 in
 py.pkgs.buildPythonApplication rec {
   pname = "healthchecks";
-  version = "3.6";
+  version = "3.11.2";
   format = "other";
 
   src = fetchFromGitHub {
     owner = "healthchecks";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    sha256 = "sha256-aKt9L3ZgZ8HffcNNJaR+hAI38raWuLp2q/6+rvkl2pM=";
+    repo = "healthchecks";
+    tag = "v${version}";
+    sha256 = "sha256-EHXxb5T5+WFvhBZQ6d6abSzpBEUBz6F1ftqMWECmdpg=";
   };
 
   propagatedBuildInputs = with py.pkgs; [
@@ -37,6 +38,7 @@ py.pkgs.buildPythonApplication rec {
     psycopg2
     pycurl
     pydantic
+    pyjwt
     pyotp
     segno
     statsd
@@ -65,14 +67,14 @@ py.pkgs.buildPythonApplication rec {
 
     STATIC_ROOT = os.getenv("STATIC_ROOT")
 
-    ${lib.concatLines (map
-      (secret: ''
+    ${lib.concatLines (
+      map (secret: ''
         ${secret}_FILE = os.getenv("${secret}_FILE")
         if ${secret}_FILE:
             with open(${secret}_FILE, "r") as file:
                 ${secret} = file.readline()
-      '')
-      secrets)}
+      '') secrets
+    )}
   '';
 
   installPhase = ''
@@ -95,6 +97,6 @@ py.pkgs.buildPythonApplication rec {
     homepage = "https://github.com/healthchecks/healthchecks";
     description = "Cron monitoring tool written in Python & Django";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ phaer ];
+    maintainers = [ ];
   };
 }

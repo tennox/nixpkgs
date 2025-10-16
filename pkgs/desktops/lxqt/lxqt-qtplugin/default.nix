@@ -1,32 +1,28 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, libdbusmenu-lxqt
-, libdbusmenu ? null
-, libfm-qt
-, libqtxdg
-, lxqt-build-tools
-, gitUpdater
-, qtbase
-, qtsvg
-, qttools
-, wrapQtAppsHook
-, version ? "2.1.0"
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  libdbusmenu-lxqt,
+  libfm-qt,
+  libqtxdg,
+  lxqt-build-tools,
+  gitUpdater,
+  qtbase,
+  qtsvg,
+  qttools,
+  wrapQtAppsHook,
 }:
 
 stdenv.mkDerivation rec {
   pname = "lxqt-qtplugin";
-  inherit version;
+  version = "2.2.0";
 
   src = fetchFromGitHub {
     owner = "lxqt";
-    repo = pname;
+    repo = "lxqt-qtplugin";
     rev = version;
-    hash = {
-      "1.4.1" = "sha256-sp/LvQNfodMYQ4kNbBv4PTNfs38XjYLezuxRltZd4kc=";
-      "2.1.0" = "sha256-F171IgAhRXJ9sTt8VVDVO9hrmyHbCElsskdDmFr3HB0=";
-    }."${version}";
+    hash = "sha256-qXadz9JBk4TURAWj6ByP/lGV1u0Z6rNJ/VraBh5zY+Q=";
   };
 
   nativeBuildInputs = [
@@ -37,7 +33,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    (if lib.versionAtLeast version "2.0.0" then libdbusmenu-lxqt else libdbusmenu)
+    libdbusmenu-lxqt
     libfm-qt
     libqtxdg
     qtbase
@@ -56,6 +52,6 @@ stdenv.mkDerivation rec {
     description = "LXQt Qt platform integration plugin";
     license = licenses.lgpl21Plus;
     platforms = platforms.linux;
-    maintainers = teams.lxqt.members;
+    teams = [ teams.lxqt ];
   };
 }

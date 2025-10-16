@@ -1,7 +1,13 @@
 # set VAMP_PATH ?
-# plugins availible on sourceforge and http://www.vamp-plugins.org/download.html (various licenses)
+# plugins available on sourceforge and http://www.vamp-plugins.org/download.html (various licenses)
 
-{ lib, stdenv, fetchFromGitHub, pkg-config, libsndfile }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  libsndfile,
+}:
 
 stdenv.mkDerivation rec {
   pname = "vamp-plugin-sdk";
@@ -22,7 +28,8 @@ stdenv.mkDerivation rec {
   makeFlags = [
     "AR:=$(AR)"
     "RANLIB:=$(RANLIB)"
-  ] ++ lib.optional (stdenv.buildPlatform != stdenv.hostPlatform) "-o test";
+  ]
+  ++ lib.optional (stdenv.buildPlatform != stdenv.hostPlatform) "-o test";
 
   meta = with lib; {
     description = "Audio processing plugin system for plugins that extract descriptive information from audio data";

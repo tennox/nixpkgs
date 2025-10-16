@@ -1,28 +1,32 @@
-{ lib
-, stdenv
-, fetchurl
-, glib
-, zlib
-, ncurses
-, pkg-config
-, findutils
-, systemd
-, python3
-, nixosTests
-# makes the package unfree via pynvml
-, withAtopgpu ? false
+{
+  lib,
+  stdenv,
+  fetchurl,
+  glib,
+  zlib,
+  ncurses,
+  pkg-config,
+  findutils,
+  systemd,
+  python3,
+  nixosTests,
+  # makes the package unfree via pynvml
+  withAtopgpu ? false,
 }:
 
 stdenv.mkDerivation rec {
   pname = "atop";
-  version = "2.11.0";
+  version = "2.12.1";
 
   src = fetchurl {
     url = "https://www.atoptool.nl/download/atop-${version}.tar.gz";
-    hash = "sha256-m5TGZmAu//e/QC7M5wbDR/OMOctjSY+dOWJoYeVkbiA=";
+    hash = "sha256-T9vmfF36+JQFY54YWZ9OrneXgHP/pU88eMNoq1S9EvY=";
   };
 
-  nativeBuildInputs = lib.optionals withAtopgpu [
+  nativeBuildInputs = [
+    pkg-config
+  ]
+  ++ lib.optionals withAtopgpu [
     python3.pkgs.wrapPython
   ];
 
@@ -30,8 +34,8 @@ stdenv.mkDerivation rec {
     glib
     zlib
     ncurses
-    pkg-config
-  ] ++ lib.optionals withAtopgpu [
+  ]
+  ++ lib.optionals withAtopgpu [
     python3
   ];
 
@@ -74,11 +78,17 @@ stdenv.mkDerivation rec {
   postInstall = ''
     # Remove extra files we don't need
     rm -r $out/{var,etc} $out/bin/atop{sar,}-${version}
-  '' + (if withAtopgpu then ''
-    wrapPythonPrograms
-  '' else ''
-    rm $out/lib/systemd/system/atopgpu.service $out/bin/atopgpud $out/share/man/man8/atopgpud.8
-  '');
+  ''
+  + (
+    if withAtopgpu then
+      ''
+        wrapPythonPrograms
+      ''
+    else
+      ''
+        rm $out/lib/systemd/system/atopgpu.service $out/bin/atopgpud $out/share/man/man8/atopgpud.8
+      ''
+  );
 
   passthru.tests = { inherit (nixosTests) atop; };
 

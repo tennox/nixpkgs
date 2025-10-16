@@ -1,22 +1,23 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, installShellFiles
-, stdenv
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  installShellFiles,
+  stdenv,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "snazy";
-  version = "0.54.0";
+  version = "0.58.1";
 
   src = fetchFromGitHub {
     owner = "chmouel";
-    repo = pname;
+    repo = "snazy";
     rev = version;
-    hash = "sha256-1+UbUwvv5HWiQ+u9gPtJ3JwP6cMi4IZOCSMedXzWEoQ=";
+    hash = "sha256-sm3FTQ3+cILoKkMe3qvZg2K+rspvJI3SXpDFD3YPXXk=";
   };
 
-  cargoHash = "sha256-NmnKWVyD+NrP7ReERQB1/K8hyrSFj6qgjQjYwxZc+OY=";
+  cargoHash = "sha256-uRX6qE7tlCvJlWuLtgvuL2DLnqf7+exHLZjAoF0F2PM=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -45,6 +46,9 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://github.com/chmouel/snazy/";
     changelog = "https://github.com/chmouel/snazy/releases/tag/${src.rev}";
     license = licenses.asl20;
-    maintainers = with maintainers; [ figsoda jk ];
+    maintainers = with maintainers; [
+      figsoda
+      jk
+    ];
   };
 }

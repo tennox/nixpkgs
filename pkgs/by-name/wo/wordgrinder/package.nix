@@ -1,5 +1,16 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, makeWrapper
-, lua52Packages, libXft, ncurses, ninja, readline, zlib }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  makeWrapper,
+  lua52Packages,
+  libXft,
+  ncurses,
+  ninja,
+  readline,
+  zlib,
+}:
 
 stdenv.mkDerivation rec {
   pname = "wordgrinder";
@@ -38,7 +49,8 @@ stdenv.mkDerivation rec {
     ncurses
     readline
     zlib
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     libXft
   ];
 
@@ -48,7 +60,8 @@ stdenv.mkDerivation rec {
   # Binaries look for LuaFileSystem library (lfs.so) at runtime
   postInstall = ''
     wrapProgram $out/bin/wordgrinder --set LUA_CPATH "${lua52Packages.luafilesystem}/lib/lua/5.2/lfs.so";
-  '' + lib.optionalString stdenv.hostPlatform.isLinux ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isLinux ''
     wrapProgram $out/bin/xwordgrinder --set LUA_CPATH "${lua52Packages.luafilesystem}/lib/lua/5.2/lfs.so";
   '';
 

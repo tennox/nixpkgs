@@ -1,8 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, libX11 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libX11,
+}:
 
 stdenv.mkDerivation {
   pname = "xrq";
-  version = "unstable-2016-01-15";
+  version = "0-unstable-2016-01-15";
 
   src = fetchFromGitHub {
     owner = "arianon";
@@ -15,7 +20,10 @@ stdenv.mkDerivation {
     make PREFIX=$out install
   '';
 
-  outputs = [ "out" "man" ];
+  outputs = [
+    "out"
+    "man"
+  ];
 
   buildInputs = [ libX11 ];
 

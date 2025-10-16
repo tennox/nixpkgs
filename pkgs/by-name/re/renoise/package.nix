@@ -1,18 +1,19 @@
-{ lib
-, stdenv
-, writeScript
-, alsa-lib
-, fetchurl
-, libjack2
-, libX11
-, libXcursor
-, libXext
-, libXinerama
-, libXrandr
-, libXtst
-, mpg123
-, pipewire
-, releasePath ? null
+{
+  lib,
+  stdenv,
+  writeScript,
+  alsa-lib,
+  fetchurl,
+  libjack2,
+  libX11,
+  libXcursor,
+  libXext,
+  libXinerama,
+  libXrandr,
+  libXtst,
+  mpg123,
+  pipewire,
+  releasePath ? null,
 }:
 
 # To use the full release version:
@@ -24,31 +25,34 @@ let
   platforms = {
     x86_64-linux = {
       archSuffix = "x86_64";
-      hash = "sha256-b+YXBVnxu54HfC/tWapcs/ZYzwBOJswYbEbEU3SVNss=";
+      hash = "sha256-UxhGe22W50cqjNMoAdxHnyFmTmiysYd8EkASRFrpuYs=";
     };
     aarch64-linux = {
       archSuffix = "arm64";
-      hash = "sha256-l54FAtT+Rj4Mv3GuOF0/9WuKdJowgbZDZYo7VCh6Flg=";
+      hash = "sha256-itWnH1JiG+AhYZtNtrJtW9p7LlRF/ab5+npFODiKznY=";
     };
   };
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation rec {
   pname = "renoise";
-  version = "3.4.4";
+  version = "3.5.1";
 
-  src = if releasePath != null then
-    releasePath
-  else
-    let
-      platform = platforms.${stdenv.system} or (throw "unsupported system ${stdenv.hostPlatform.system}");
-      urlVersion = lib.replaceStrings [ "." ] [ "_" ] version;
-    in fetchurl {
-      urls = [
-        "https://files.renoise.com/demo/Renoise_${urlVersion}_Demo_Linux_${platform.archSuffix}.tar.gz"
-        "https://files.renoise.com/demo/archive/Renoise_${urlVersion}_Demo_Linux_${platform.archSuffix}.tar.gz"
-      ];
-      hash = platform.hash;
-    };
+  src =
+    if releasePath != null then
+      releasePath
+    else
+      let
+        platform = platforms.${stdenv.system} or (throw "unsupported system ${stdenv.hostPlatform.system}");
+        urlVersion = lib.replaceStrings [ "." ] [ "_" ] version;
+      in
+      fetchurl {
+        urls = [
+          "https://files.renoise.com/demo/Renoise_${urlVersion}_Demo_Linux_${platform.archSuffix}.tar.gz"
+          "https://files.renoise.com/demo/archive/Renoise_${urlVersion}_Demo_Linux_${platform.archSuffix}.tar.gz"
+        ];
+        hash = platform.hash;
+      };
 
   buildInputs = [
     alsa-lib

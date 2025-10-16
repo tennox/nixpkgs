@@ -1,17 +1,24 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, editorconfig-checker }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  editorconfig-checker,
+}:
 
 buildGoModule rec {
   pname = "editorconfig-checker";
-  version = "3.0.3";
+  version = "3.4.1";
 
   src = fetchFromGitHub {
     owner = "editorconfig-checker";
     repo = "editorconfig-checker";
     rev = "v${version}";
-    hash = "sha256-lU7YGn3W3KGrvOUH/v++jHii4q3hSo9X8BAjDNJ7y3A=";
+    hash = "sha256-qQXIsG7g75Q3Ue7tYsGviNsV+9ljg8Y6adRozdX085A=";
   };
 
-  vendorHash = "sha256-P5lOx9CH37Z7mkDshbwS+XJZQdQiqNKl71wR1iUvpm8=";
+  vendorHash = "sha256-uj+/cAF22dvg0QBjxjqF0WIRlfvQtoW2/kEh/pY8TfE=";
 
   doCheck = false;
 
@@ -33,6 +40,9 @@ buildGoModule rec {
     mainProgram = "editorconfig-checker";
     homepage = "https://editorconfig-checker.github.io/";
     license = licenses.mit;
-    maintainers = with maintainers; [ uri-canva zowoq ];
+    maintainers = with maintainers; [
+      uri-canva
+      zowoq
+    ];
   };
 }

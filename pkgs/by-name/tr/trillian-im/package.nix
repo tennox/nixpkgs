@@ -1,32 +1,32 @@
-{ lib
-, stdenv
-, fetchurl
-, autoPatchelfHook
-, dpkg
-, atkmm
-, cairo
-, cairomm
-, gtk3
-, gtkmm3
-, libnotify
-, libsecret
-, pangomm
-, xorg
-, libpulseaudio
-, librsvg
-, libzip
-, openssl
-, webkitgtk_4_0
-, libappindicator-gtk3
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoPatchelfHook,
+  dpkg,
+  atkmm,
+  cairo,
+  cairomm,
+  gtk3,
+  gtkmm3,
+  libnotify,
+  libsecret,
+  pangomm,
+  xorg,
+  libpulseaudio,
+  librsvg,
+  libzip,
+  openssl,
+  libappindicator-gtk3,
 }:
 
 stdenv.mkDerivation rec {
   pname = "trillian-im";
-  version = "6.3.0.1";
+  version = "6.3.0.2";
 
   src = fetchurl {
     url = "https://www.trillian.im/get/linux/6.3/trillian_${version}_amd64.deb";
-    sha256 = "42e3466ee236ac2644907059f0961eba3a6ed6b6156afb2c57f54ebe6065ac6f";
+    hash = "sha256-5QvvAld9IC+6DAWVsyT6BoyKx+0WUA+UC8q1RBnwjqg=";
   };
 
   nativeBuildInputs = [
@@ -48,7 +48,6 @@ stdenv.mkDerivation rec {
     librsvg
     libzip
     openssl
-    webkitgtk_4_0
     libappindicator-gtk3
   ];
 

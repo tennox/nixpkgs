@@ -1,24 +1,34 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 
-buildGoModule rec {
+  installShellFiles,
+
+  versionCheckHook,
+}:
+
+buildGoModule (finalAttrs: {
   pname = "kube-bench";
-  version = "0.9.0";
+  version = "0.13.0";
+
+  __darwinAllowLocalNetworking = true; # required for tests
 
   src = fetchFromGitHub {
     owner = "aquasecurity";
-    repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-x6xCrxePB/TR7BP1kLiVFjv4pLUJu9JVh5/Y0ebOjvY=";
+    repo = "kube-bench";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-5P8kF8k25E7dezhQ7oKKlu/6y9Ofq3nAeenAI7IOBwE=";
   };
 
-  vendorHash = "sha256-d6GhZBHDSRgMVeglw8rhq5QF7gRH4hQOzTn0DZjvhiA=";
+  vendorHash = "sha256-vueIQbsF34lkmIFpH8DiOSjxEBevxxiJLd0L/sQwJBE=";
 
   nativeBuildInputs = [ installShellFiles ];
 
   ldflags = [
     "-s"
     "-w"
-    "-X github.com/aquasecurity/kube-bench/cmd.KubeBenchVersion=v${version}"
+    "-X github.com/aquasecurity/kube-bench/cmd.KubeBenchVersion=v${finalAttrs.version}"
   ];
 
   postInstall = ''
@@ -31,20 +41,16 @@ buildGoModule rec {
       --zsh <($out/bin/kube-bench completion zsh)
   '';
 
+  nativeInstallCheckInputs = [ versionCheckHook ];
   doInstallCheck = true;
-  installCheckPhase = ''
-    runHook preInstallCheck
-    $out/bin/kube-bench --help
-    $out/bin/kube-bench version | grep "v${version}"
-    runHook postInstallCheck
-  '';
+  versionCheckProgramArg = "version";
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/aquasecurity/kube-bench";
-    changelog = "https://github.com/aquasecurity/kube-bench/releases/tag/v${version}";
+    changelog = "https://github.com/aquasecurity/kube-bench/releases/tag/v${finalAttrs.version}";
     description = "Checks whether Kubernetes is deployed according to security best practices as defined in the CIS Kubernetes Benchmark";
     mainProgram = "kube-bench";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ jk ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ jk ];
   };
-}
+})

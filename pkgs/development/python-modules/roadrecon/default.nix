@@ -18,14 +18,14 @@
 
 buildPythonPackage rec {
   pname = "roadrecon";
-  version = "1.5.0";
+  version = "1.7.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-hDIMDNmvGQAcpPMet31MbuJtOU2JCrbLlpAu19skNVg=";
+    hash = "sha256-JJJPQcgZOdqyAXYgLmCQuNBhSGwg8WIDW8+2jfVyvyc=";
   };
 
   pythonRelaxDeps = [ "flask" ];

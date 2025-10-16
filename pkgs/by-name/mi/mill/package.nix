@@ -1,15 +1,32 @@
-{ lib, stdenv, fetchurl, jre, makeWrapper }:
+{
+  autoPatchelfHook,
+  fetchurl,
+  jre,
+  lib,
+  makeWrapper,
+  sourcesJSON ? ./sources.json,
+  stdenvNoCC,
+  zlib,
+}:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "mill";
-  version = "0.12.2";
+  version = "1.0.4";
 
-  src = fetchurl {
-    url = "https://github.com/com-lihaoyi/mill/releases/download/${finalAttrs.version}/${finalAttrs.version}-assembly";
-    hash = "sha256-F2ZBywZOdrrDPgpBCXkMrelZEzzqceTQuH3ww8IH4Ns=";
-  };
+  src =
+    let
+      source = (lib.importJSON sourcesJSON)."${stdenvNoCC.hostPlatform.system}";
+    in
+    fetchurl {
+      url = "https://repo1.maven.org/maven2/com/lihaoyi/mill-dist-${source.artifact-suffix}/${finalAttrs.version}/mill-dist-${source.artifact-suffix}-${finalAttrs.version}.exe";
+      inherit (source) hash;
+    };
 
-  nativeBuildInputs = [ makeWrapper ];
+  buildInputs = [ zlib ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optional stdenvNoCC.hostPlatform.isLinux autoPatchelfHook;
 
   dontUnpack = true;
   dontConfigure = true;
@@ -20,19 +37,14 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     runHook preInstall
-    install -Dm555 "$src" "$out/bin/.mill-wrapped"
-    # can't use wrapProgram because it sets --argv0
-    makeWrapper "$out/bin/.mill-wrapped" "$out/bin/mill" \
-      --prefix PATH : "${jre}/bin" \
-      --set JAVA_HOME "${jre}"
-    runHook postInstall
-  '';
 
-  doInstallCheck = true;
-  # The default release is a script which will do an impure download
-  # just ensure that the application can run without network
-  installCheckPhase = ''
-    $out/bin/mill --help > /dev/null
+    install -Dm 555 $src $out/bin/.mill-wrapped
+    # can't use wrapProgram because it sets --argv0
+    makeWrapper $out/bin/.mill-wrapped $out/bin/mill \
+      --prefix PATH : "${jre}/bin" \
+      --set-default JAVA_HOME "${jre}"
+
+    runHook postInstall
   '';
 
   meta = with lib; {
@@ -47,7 +59,16 @@ stdenv.mkDerivation (finalAttrs: {
       SBT, but can also be extended to support any other language or platform via
       modules (written in Java or Scala) or through an external subprocesses.
     '';
-    maintainers = with maintainers; [ scalavision zenithal ];
-    platforms = lib.platforms.all;
+    maintainers = with maintainers; [
+      scalavision
+      zenithal
+    ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "aarch64-darwin"
+      "x86_64-darwin"
+    ];
+    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
   };
 })

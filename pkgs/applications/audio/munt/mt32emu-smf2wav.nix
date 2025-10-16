@@ -1,10 +1,11 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, glib
-, libmt32emu
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  glib,
+  libmt32emu,
+  pkg-config,
 }:
 
 let
@@ -24,8 +25,6 @@ stdenv.mkDerivation rec {
   postPatch = ''
     sed -i -e '/add_subdirectory(mt32emu)/d' CMakeLists.txt
   '';
-
-  dontFixCmake = true;
 
   nativeBuildInputs = [
     cmake

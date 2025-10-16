@@ -1,27 +1,25 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, stdenv
-, darwin
-, xorg
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  stdenv,
+  xorg,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "safecloset";
-  version = "1.3.2";
+  version = "1.4.1";
 
   src = fetchFromGitHub {
     owner = "Canop";
     repo = "safecloset";
     rev = "v${version}";
-    hash = "sha256-buIceYP/dZMDw3tyrzj1bY6+sIIPaVJIVj1L//jZnws=";
+    hash = "sha256-pTfslMZmP8YzLzTru3b64qQ9qefkPzo9V8/S6eSQBgM=";
   };
 
-  cargoHash = "sha256-rxNp9dOvy/UTx6Q9pzZGccEKmIiWxzWVYyMxb+h5bqw=";
+  cargoHash = "sha256-b0MD30IJRp06qkYsQsiEI7c4ArY3GCSIh8I16/4eom0=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.AppKit
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     xorg.libxcb
   ];
 

@@ -1,29 +1,30 @@
-{ lib
-, buildPythonApplication
-, fetchFromGitHub
-, clang-tools
-, cmake
-, colordiff
-, flex
-, libclang
-, llvm
-, unifdef
-, chardet
-, pebble
-, psutil
-, pytestCheckHook
+{
+  lib,
+  buildPythonApplication,
+  fetchFromGitHub,
+  clang-tools,
+  cmake,
+  colordiff,
+  flex,
+  libclang,
+  llvm,
+  unifdef,
+  chardet,
+  pebble,
+  psutil,
+  pytestCheckHook,
 }:
 
 buildPythonApplication rec {
   pname = "cvise";
-  version = "2.11.0";
+  version = "2.12.0";
   format = "other";
 
   src = fetchFromGitHub {
     owner = "marxin";
     repo = "cvise";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-xaX3QMnTKXTXPuLzui0e0WgaQNvbz8u1JNRBkfe4QWg=";
+    tag = "v${version}";
+    hash = "sha256-UaWOHjgTiSVvpKKw6VFAeRAYkYp4y0Dnamzr7yhH0vQ=";
   };
 
   patches = [

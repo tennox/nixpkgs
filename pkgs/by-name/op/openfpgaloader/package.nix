@@ -1,25 +1,25 @@
 {
-  cmake
-, fetchFromGitHub
-, hidapi
-, lib
-, libftdi1
-, libusb1
-, pkg-config
-, stdenv
-, udev
-, zlib
+  cmake,
+  fetchFromGitHub,
+  hidapi,
+  lib,
+  libftdi1,
+  libusb1,
+  pkg-config,
+  stdenv,
+  udev,
+  zlib,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "openfpgaloader";
-  version = "0.12.1";
+  version = "1.0.0";
 
   src = fetchFromGitHub {
     owner = "trabucayre";
     repo = "openFPGALoader";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-iJSTiOcW15q3mWmMhe5wmO11cu2xfAI9zCsoB33ujWQ=";
+    hash = "sha256-GPYYvsMSzgZCU4qaANaP3nTa6ooJ7pjJDIzW0H4juQM=";
   };
 
   nativeBuildInputs = [
@@ -32,7 +32,8 @@ stdenv.mkDerivation (finalAttrs: {
     libftdi1
     libusb1
     zlib
-  ] ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform udev) [
+  ]
+  ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform udev) [
     udev
   ];
 

@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, boost
-, tbb
-, makeWrapper
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  boost,
+  onetbb,
+  makeWrapper,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "PotreeConverter";
   version = "unstable-2023-02-27";
 
@@ -20,13 +21,15 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     boost
-    tbb
+    onetbb
   ];
 
   nativeBuildInputs = [
     makeWrapper
     cmake
   ];
+
+  cmakeFlags = [ (lib.strings.cmakeFeature "CMAKE_POLICY_VERSION_MINIMUM" "3.5") ];
 
   postPatch = ''
     runHook prePatch

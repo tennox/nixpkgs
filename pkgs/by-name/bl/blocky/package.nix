@@ -1,27 +1,32 @@
-{ buildGoModule
-, fetchFromGitHub
-, lib
-, nixosTests
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  nixosTests,
 }:
 
 buildGoModule rec {
   pname = "blocky";
-  version = "0.24";
+  version = "0.27.0";
 
   src = fetchFromGitHub {
     owner = "0xERR0R";
-    repo = pname;
+    repo = "blocky";
     rev = "v${version}";
-    hash = "sha256-K+Zdb6l2WUhxVm/gi9U2vVR69bxr2ntLyIrkwTuc0Do=";
+    hash = "sha256-N0zQb30PHTbTsQQgljuIW/We1i9ITLFdonOX4L+vk+o=";
   };
 
   # needs network connection and fails at
   # https://github.com/0xERR0R/blocky/blob/development/resolver/upstream_resolver_test.go
   doCheck = false;
 
-  vendorHash = "sha256-I4UXTynulsRuu9U8tsLbPQO1MMPfUC5dAZE420sW1sU=";
+  vendorHash = "sha256-YwwqGLfMnlQGRkTPfSmRnzUzu8+O5JzOPev6aSxBXbQ=";
 
-  ldflags = [ "-s" "-w" "-X github.com/0xERR0R/blocky/util.Version=${version}" ];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X github.com/0xERR0R/blocky/util.Version=${version}"
+  ];
 
   passthru.tests = { inherit (nixosTests) blocky; };
 

@@ -1,19 +1,20 @@
-{ lib
-, stdenv
-, fetchFromGitHub
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
 
-, asciidoc
-, pkg-config
-, inetutils
-, tcl
+  asciidoc,
+  pkg-config,
+  inetutils,
+  tcl,
 
-, sqlite
-, readline
-, SDL
-, SDL_gfx
-, openssl
+  sqlite,
+  readline,
+  SDL2,
+  SDL2_gfx,
+  openssl,
 
-, SDLSupport ? true
+  SDLSupport ? true,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -37,9 +38,10 @@ stdenv.mkDerivation (finalAttrs: {
     sqlite
     readline
     openssl
-  ] ++ (lib.optionals SDLSupport [
-    SDL
-    SDL_gfx
+  ]
+  ++ (lib.optionals SDLSupport [
+    SDL2
+    SDL2_gfx
   ]);
 
   configureFlags = [
@@ -52,7 +54,8 @@ stdenv.mkDerivation (finalAttrs: {
     "--with-ext=json"
     "--enable-utf8"
     "--ipv6"
-  ] ++ (lib.optional SDLSupport "--with-ext=sdl");
+  ]
+  ++ (lib.optional SDLSupport "--with-ext=sdl");
 
   enableParallelBuilding = true;
 
@@ -75,6 +78,10 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "http://jim.tcl.tk/";
     license = lib.licenses.bsd2;
     platforms = lib.platforms.all;
-    maintainers = with lib.maintainers; [ dbohdan fgaz ];
+    mainProgram = "jimsh";
+    maintainers = with lib.maintainers; [
+      dbohdan
+      fgaz
+    ];
   };
 })

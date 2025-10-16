@@ -9,26 +9,20 @@
   cairo,
   pango,
   stdenv,
-  olm,
 }:
 
 buildNpmPackage rec {
   pname = "cinny-unwrapped";
-  version = "4.2.3";
+  version = "4.10.1";
 
   src = fetchFromGitHub {
     owner = "cinnyapp";
     repo = "cinny";
-    rev = "v${version}";
-    hash = "sha256-BoUQURCfEu5kocMm8T25cVl8hgZGxcxrMzQZOl2fAbY=";
+    tag = "v${version}";
+    hash = "sha256-Hn49a+nGtF5kJ1ZM+rOXWH+dFG1nMSI/rIDF+9qlQk4=";
   };
 
-  npmDepsHash = "sha256-fDoia6evCmXZgeIKL0coRo3yunX1dfud31ROgmop2Sc=";
-
-  # Fix error: no member named 'aligned_alloc' in the global namespace
-  env.NIX_CFLAGS_COMPILE = lib.optionalString (
-    stdenv.hostPlatform.isDarwin && lib.versionOlder stdenv.hostPlatform.darwinSdkVersion "11.0"
-  ) "-D_LIBCPP_HAS_NO_LIBRARY_ALIGNED_ALLOCATION=1";
+  npmDepsHash = "sha256-896W5XbAGUcUa8gxeR72hg9fwTaUOR5a5hex8vS33gU=";
 
   nativeBuildInputs = [
     python3
@@ -39,7 +33,8 @@ buildNpmPackage rec {
     pixman
     cairo
     pango
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ giflib ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ giflib ];
 
   installPhase = ''
     runHook preInstall
@@ -55,6 +50,5 @@ buildNpmPackage rec {
     maintainers = with lib.maintainers; [ abbe ];
     license = lib.licenses.agpl3Only;
     platforms = lib.platforms.all;
-    inherit (olm.meta) knownVulnerabilities;
   };
 }

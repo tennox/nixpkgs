@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "websocket++";
@@ -10,6 +16,13 @@ stdenv.mkDerivation rec {
     rev = version;
     sha256 = "sha256-9fIwouthv2GcmBe/UPvV7Xn9P2o0Kmn2hCI4jCh0hPM=";
   };
+
+  patches = [
+    (fetchpatch {
+      url = "https://github.com/zaphoyd/websocketpp/commit/deb0a334471362608958ce59a6b0bcd3e5b73c24.patch?full_index=1";
+      hash = "sha256-bFCHwtRuCFz9vr4trmmBLziPSlEx6SNjsTcBv9zV8go=";
+    })
+  ];
 
   nativeBuildInputs = [ cmake ];
 

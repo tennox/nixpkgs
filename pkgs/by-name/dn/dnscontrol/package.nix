@@ -1,25 +1,37 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, dnscontrol }:
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  dnscontrol,
+}:
 
 buildGoModule rec {
   pname = "dnscontrol";
-  version = "4.14.3";
+  version = "4.26.0";
 
   src = fetchFromGitHub {
     owner = "StackExchange";
     repo = "dnscontrol";
-    rev = "v${version}";
-    hash = "sha256-FDxNJ6pOigasulxtAAnvHfWHQ3Ji459IQScA4dld9KQ=";
+    tag = "v${version}";
+    hash = "sha256-yDjxAQDqe9LIvzVy255rzKs7r7Xb4RAD1CFuKSrnQS8=";
   };
 
-  vendorHash = "sha256-aqS5esDroGg83NJygX8tW8P0U4YCkll98KmAfya6lKM=";
+  vendorHash = "sha256-Ee4RagjYDngsMbTLjyeVFYv9O5cJuc9J2XRUP0FAe+w=";
 
   nativeBuildInputs = [ installShellFiles ];
 
   subPackages = [ "." ];
 
-  ldflags = [ "-s" "-w" "-X=main.version=${version}" ];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X=github.com/StackExchange/dnscontrol/v${lib.versions.major version}/pkg/version.version=${version}"
+  ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd dnscontrol \
       --bash <($out/bin/dnscontrol shell-completion bash) \
       --zsh <($out/bin/dnscontrol shell-completion zsh)
@@ -37,12 +49,15 @@ buildGoModule rec {
     };
   };
 
-  meta = with lib; {
+  meta = {
     description = "Synchronize your DNS to multiple providers from a simple DSL";
     homepage = "https://dnscontrol.org/";
-    changelog = "https://github.com/StackExchange/dnscontrol/releases/tag/${src.rev}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ SuperSandro2000 ];
+    changelog = "https://github.com/StackExchange/dnscontrol/releases/tag/v${version}";
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      SuperSandro2000
+      zowoq
+    ];
     mainProgram = "dnscontrol";
   };
 }

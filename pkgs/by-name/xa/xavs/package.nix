@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchsvn }:
+{
+  lib,
+  stdenv,
+  fetchsvn,
+}:
 
 stdenv.mkDerivation rec {
   pname = "xavs";
@@ -20,7 +24,8 @@ stdenv.mkDerivation rec {
     patchShebangs tools/patcheck
     patchShebangs tools/regression-test.pl
     patchShebangs tools/xavs-format
-    '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace config.guess --replace 'uname -p' 'uname -m'
     substituteInPlace configure \
       --replace '-O4' '-O3' \
@@ -29,7 +34,7 @@ stdenv.mkDerivation rec {
       --replace '-dynamiclib' ' ' \
       --replace '-falign-loops=16' ' '
     substituteInPlace Makefile --replace '-Wl,-soname,' ' '
-    '';
+  '';
 
   configureFlags = [
     "--enable-pic"
@@ -41,9 +46,9 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "AVS encoder and decoder";
     mainProgram = "xavs";
-    homepage    = "https://xavs.sourceforge.net/";
-    license     = licenses.lgpl2;
-    platforms   = platforms.linux ++ platforms.darwin;
+    homepage = "https://xavs.sourceforge.net/";
+    license = licenses.lgpl2;
+    platforms = platforms.unix;
     maintainers = with maintainers; [ codyopel ];
   };
 }

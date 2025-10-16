@@ -1,22 +1,30 @@
-{ buildGoModule, fetchFromGitHub, stdenv, lib, installShellFiles }:
+{
+  buildGoModule,
+  fetchFromGitHub,
+  stdenv,
+  lib,
+  installShellFiles,
+}:
 
 buildGoModule rec {
   pname = "fly";
-  version = "7.12.0";
+  version = "7.14.2";
 
   src = fetchFromGitHub {
     owner = "concourse";
     repo = "concourse";
     rev = "v${version}";
-    hash = "sha256-lAx9TZVRkPMa5swB74zI0xJ7pbRDApZoens747XcuJk=";
+    hash = "sha256-lm4l+9hYOFKt12KaOs/5R4zymya82Tb4q1k3leyG2UA=";
   };
 
-  vendorHash = "sha256-dXjee2rZn1lVEmL8Cy8rrdpSX1OpS9GHKZo53ur3kew=";
+  vendorHash = "sha256-2busKAFaQYE82XKCAx8BGOMjjs8WzqIxdpz+J45maoc=";
 
   subPackages = [ "fly" ];
 
   ldflags = [
-    "-s" "-w" "-X github.com/concourse/concourse.Version=${version}"
+    "-s"
+    "-w"
+    "-X github.com/concourse/concourse.Version=${version}"
   ];
 
   nativeBuildInputs = [ installShellFiles ];
@@ -35,6 +43,9 @@ buildGoModule rec {
     mainProgram = "fly";
     homepage = "https://concourse-ci.org";
     license = licenses.asl20;
-    maintainers = with maintainers; [ ivanbrennan SuperSandro2000 ];
+    maintainers = with maintainers; [
+      ivanbrennan
+      SuperSandro2000
+    ];
   };
 }

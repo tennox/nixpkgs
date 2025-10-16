@@ -1,24 +1,23 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, openssl
-, stdenv
-, darwin
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  openssl,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "mpd-discord-rpc";
-  version = "1.7.3";
+  version = "1.9.0";
 
   src = fetchFromGitHub {
     owner = "JakeStanger";
     repo = "mpd-discord-rpc";
     rev = "v${version}";
-    hash = "sha256-WiHMXazNKyt5N7WmkftZYEHeQi+l9qoU2yr6jRHfjdE=";
+    hash = "sha256-Aqxh6dVZI59FGFtuyC5KcuaEr2OZL/A4UHSpnthR0Uk=";
   };
 
-  cargoHash = "sha256-DnOv9YJpr777p1GVhe8LS5uAUs6Dr/gRLoJarFx5avw=";
+  cargoHash = "sha256-L4hQ1NAzddiPv6DxY8mcMQ6GlRdhIr+LeY9TtFbx3Mw=";
 
   nativeBuildInputs = [
     pkg-config
@@ -26,9 +25,6 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     openssl
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
   meta = with lib; {

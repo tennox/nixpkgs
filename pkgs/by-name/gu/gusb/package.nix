@@ -1,45 +1,53 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, substituteAll
-, meson
-, ninja
-, pkg-config
-, buildPackages
-, withIntrospection ? lib.meta.availableOn stdenv.hostPlatform gobject-introspection && stdenv.hostPlatform.emulatorAvailable buildPackages
-, gobject-introspection
-, gi-docgen
-, python3
-, glib
-, libusb1
-, json-glib
-, vala
-, hwdata
-, umockdev
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  replaceVars,
+  meson,
+  ninja,
+  pkg-config,
+  buildPackages,
+  withIntrospection ?
+    lib.meta.availableOn stdenv.hostPlatform gobject-introspection
+    && stdenv.hostPlatform.emulatorAvailable buildPackages,
+  gobject-introspection,
+  gi-docgen,
+  python3,
+  glib,
+  libusb1,
+  json-glib,
+  vala,
+  hwdata,
+  umockdev,
 }:
 
 let
-  pythonEnv = python3.pythonOnBuildForHost.withPackages (ps: with ps; [
-    setuptools
-  ]);
+  pythonEnv = python3.pythonOnBuildForHost.withPackages (
+    ps: with ps; [
+      setuptools
+    ]
+  );
 in
 stdenv.mkDerivation rec {
   pname = "gusb";
   version = "0.4.9";
 
-  outputs = [ "bin" "out" "dev" ]
-    ++ lib.optionals withIntrospection [ "devdoc" ];
+  outputs = [
+    "bin"
+    "out"
+    "dev"
+  ]
+  ++ lib.optionals withIntrospection [ "devdoc" ];
 
   src = fetchFromGitHub {
     owner = "hughsie";
     repo = "libgusb";
-    rev = "refs/tags/${version}";
+    tag = version;
     hash = "sha256-piIPNLc3deToyQaajXFvM+CKh9ni8mb0P3kb+2RoJOs=";
   };
 
   patches = [
-    (substituteAll {
-      src = ./fix-python-path.patch;
+    (replaceVars ./fix-python-path.patch {
       python = "${pythonEnv}/bin/python3";
     })
   ];
@@ -54,7 +62,8 @@ stdenv.mkDerivation rec {
     meson
     ninja
     pkg-config
-  ] ++ lib.optionals withIntrospection [
+  ]
+  ++ lib.optionals withIntrospection [
     gobject-introspection
     gi-docgen
     vala

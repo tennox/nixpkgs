@@ -1,33 +1,39 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, meson
-, ninja
-, pkg-config
-, glib
-, python3
-, help2man
-, bash-completion
-, bash
-, buildPackages
-, withIntrospection ? lib.meta.availableOn stdenv.hostPlatform gobject-introspection && stdenv.hostPlatform.emulatorAvailable buildPackages
-, withDocs ? stdenv.hostPlatform == stdenv.buildPlatform
-, gobject-introspection
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  meson,
+  ninja,
+  pkg-config,
+  glib,
+  python3,
+  help2man,
+  bash-completion,
+  bash,
+  buildPackages,
+  withIntrospection ?
+    lib.meta.availableOn stdenv.hostPlatform gobject-introspection
+    && stdenv.hostPlatform.emulatorAvailable buildPackages,
+  withDocs ? stdenv.hostPlatform == stdenv.buildPlatform,
+  gobject-introspection,
 }:
 
 stdenv.mkDerivation rec {
   pname = "libmbim";
-  version = "1.30.0";
+  version = "1.32.0";
 
-  outputs = [ "out" "dev" ]
-    ++ lib.optionals withDocs [ "man" ];
+  outputs = [
+    "out"
+    "dev"
+  ]
+  ++ lib.optionals withDocs [ "man" ];
 
   src = fetchFromGitLab {
     domain = "gitlab.freedesktop.org";
     owner = "mobile-broadband";
     repo = "libmbim";
     rev = version;
-    hash = "sha256-sHTpu9WeMZroT+1I18ObEHWSzcyj/Relyz8UNe+WawI=";
+    hash = "sha256-+4INXuH2kbKs9C6t4bOJye7yyfYH/BLukmgDVvXo+u0=";
   };
 
   mesonFlags = [
@@ -43,9 +49,11 @@ stdenv.mkDerivation rec {
     ninja
     pkg-config
     python3
-  ] ++ lib.optionals withDocs [
+  ]
+  ++ lib.optionals withDocs [
     help2man
-  ] ++ lib.optionals withIntrospection [
+  ]
+  ++ lib.optionals withIntrospection [
     gobject-introspection
   ];
 
@@ -62,12 +70,12 @@ stdenv.mkDerivation rec {
       build-aux/mbim-codegen/mbim-codegen
   '';
 
-  meta = with lib; {
+  meta = {
     homepage = "https://www.freedesktop.org/wiki/Software/libmbim/";
     description = "Library for talking to WWAN modems and devices which speak the Mobile Interface Broadband Model (MBIM) protocol";
     changelog = "https://gitlab.freedesktop.org/mobile-broadband/libmbim/-/raw/${version}/NEWS";
-    maintainers = teams.freedesktop.members;
-    platforms = platforms.linux;
-    license = licenses.gpl2Plus;
+    teams = [ lib.teams.freedesktop ];
+    platforms = lib.platforms.linux;
+    license = lib.licenses.gpl2Plus;
   };
 }

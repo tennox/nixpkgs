@@ -1,20 +1,22 @@
-{ lib
-, autoPatchelfHook
-, fetchFromGitHub
-, python3Packages
-, wget
-, zlib
+{
+  lib,
+  autoPatchelfHook,
+  fetchFromGitHub,
+  python3Packages,
+  wget,
+  zlib,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "eggnog-mapper";
-  version = "2.1.12";
+  version = "2.1.13";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "eggnogdb";
-    repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-+luxXQmtGufYrA/9Ak3yKzbotOj2HM3vhIoOxE+Ty1U=";
+    repo = "eggnog-mapper";
+    tag = version;
+    hash = "sha256-Gu4D8DBvgCPlO+2MjeNZy6+lNqsIlksegWmmYvEZmUU=";
   };
 
   postPatch = ''
@@ -33,7 +35,8 @@ python3Packages.buildPythonApplication rec {
 
   propagatedBuildInputs = [
     wget
-  ] ++ (with python3Packages; [
+  ]
+  ++ (with python3Packages; [
     biopython
     psutil
     xlsxwriter

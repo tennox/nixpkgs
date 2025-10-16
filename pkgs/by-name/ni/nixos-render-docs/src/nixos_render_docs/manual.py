@@ -17,6 +17,7 @@ from .html import HTMLRenderer, UnresolvedXrefError
 from .manual_structure import check_structure, FragmentType, is_include, make_xml_id, TocEntry, TocEntryType, XrefTarget
 from .md import Converter, Renderer
 from .redirects import Redirects
+from .src_error import SrcError
 
 class BaseConverter(Converter[md.TR], Generic[md.TR]):
     # per-converter configuration for ns:arg=value arguments to include blocks, following
@@ -44,14 +45,18 @@ class BaseConverter(Converter[md.TR], Generic[md.TR]):
     def _postprocess(self, infile: Path, outfile: Path, tokens: Sequence[Token]) -> None:
         pass
 
-    def _handle_headings(self, tokens: list[Token], *, on_heading: Callable[[Token,str],None]) -> None:
+    def _handle_headings(self, tokens: list[Token], *, src: str, on_heading: Callable[[Token,str],None]) -> None:
         # Headings in a globally numbered order
         # h1 to h6
         curr_heading_pos: list[int] = []
         for token in tokens:
             if token.type == "heading_open":
                 if token.tag not in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-                    raise RuntimeError(f"Got invalid heading tag {token.tag} in line {token.map[0] + 1 if token.map else 'NOT FOUND'}. Only h1 to h6 headings are allowed.")
+                    raise SrcError(
+                        src=src,
+                        description=f"Got invalid heading tag {token.tag!r}. Only h1 to h6 headings are allowed.",
+                        token=token,
+                    )
 
                 idx = int(token.tag[1:]) - 1
 
@@ -75,10 +80,10 @@ class BaseConverter(Converter[md.TR], Generic[md.TR]):
                 if "id" not in token.attrs:
                     token.attrs["id"] = f"{auto_id_prefix}-{ident}"
 
-            self._handle_headings(tokens, on_heading=set_token_ident)
+            self._handle_headings(tokens, src=src, on_heading=set_token_ident)
 
 
-        check_structure(self._current_type[-1], tokens)
+        check_structure(src, self._current_type[-1], tokens)
         for token in tokens:
             if not is_include(token):
                 continue
@@ -89,35 +94,46 @@ class BaseConverter(Converter[md.TR], Generic[md.TR]):
             typ = directive[0]
             if typ == 'options':
                 token.type = 'included_options'
-                self._process_include_args(token, args, self.INCLUDE_OPTIONS_ALLOWED_ARGS)
-                self._parse_options(token, args)
+                self._process_include_args(src, token, args, self.INCLUDE_OPTIONS_ALLOWED_ARGS)
+                self._parse_options(src, token, args)
             else:
                 fragment_type = typ.removesuffix('s')
                 if fragment_type not in get_args(FragmentType):
-                    raise RuntimeError(f"unsupported structural include type '{typ}'")
+                    raise SrcError(
+                        src=src,
+                        description=f"unsupported structural include type {typ!r}",
+                        token=token,
+                    )
                 self._current_type.append(cast(FragmentType, fragment_type))
                 token.type = 'included_' + typ
-                self._process_include_args(token, args, self.INCLUDE_FRAGMENT_ALLOWED_ARGS)
-                self._parse_included_blocks(token, args)
+                self._process_include_args(src, token, args, self.INCLUDE_FRAGMENT_ALLOWED_ARGS)
+                self._parse_included_blocks(src, token, args)
                 self._current_type.pop()
         return tokens
 
-    def _process_include_args(self, token: Token, args: dict[str, str], allowed: set[str]) -> None:
+    def _process_include_args(self, src: str, token: Token, args: dict[str, str], allowed: set[str]) -> None:
         ns = self.INCLUDE_ARGS_NS + ":"
         args = { k[len(ns):]: v for k, v in args.items() if k.startswith(ns) }
         if unknown := set(args.keys()) - allowed:
-            assert token.map
-            raise RuntimeError(f"unrecognized include argument in line {token.map[0] + 1}", unknown)
+            raise SrcError(
+                src=src,
+                description=f"unrecognized include argument(s): {unknown}",
+                token=token,
+            )
         token.meta['include-args'] = args
 
-    def _parse_included_blocks(self, token: Token, block_args: dict[str, str]) -> None:
+    def _parse_included_blocks(self, src: str, token: Token, block_args: dict[str, str]) -> None:
         assert token.map
         included = token.meta['included'] = []
-        for (lnum, line) in enumerate(token.content.splitlines(), token.map[0] + 2):
+        for (lnum, line) in enumerate(token.content.splitlines(), token.map[0] + 1):
             line = line.strip()
             path = self._base_paths[-1].parent / line
             if path in self._base_paths:
-                raise RuntimeError(f"circular include found in line {lnum}")
+                raise SrcError(
+                    src=src,
+                    description="circular include found",
+                    token=token,
+                )
             try:
                 self._base_paths.append(path)
                 with open(path, 'r') as f:
@@ -130,29 +146,57 @@ class BaseConverter(Converter[md.TR], Generic[md.TR]):
                     included.append((tokens, path))
                 self._base_paths.pop()
             except Exception as e:
-                raise RuntimeError(f"processing included file {path} from line {lnum}") from e
+                raise SrcError(
+                    src=src,
+                    description=f"processing included file {path}",
+                    token=lnum,
+                ) from e
 
-    def _parse_options(self, token: Token, block_args: dict[str, str]) -> None:
+    def _parse_options(self, src: str, token: Token, block_args: dict[str, str]) -> None:
         assert token.map
 
         items = {}
-        for (lnum, line) in enumerate(token.content.splitlines(), token.map[0] + 2):
+        for (lnum, line) in enumerate(token.content.splitlines(), token.map[0] + 1):
             if len(args := line.split(":", 1)) != 2:
-                raise RuntimeError(f"options directive with no argument in line {lnum}")
+                raise SrcError(
+                    src=src,
+                    description=f"options directive with no argument",
+                    tokens={
+                        "Directive": lnum,
+                        "Block": token,
+                    },
+                )
             (k, v) = (args[0].strip(), args[1].strip())
             if k in items:
-                raise RuntimeError(f"duplicate options directive {k} in line {lnum}")
+                raise SrcError(
+                    src=src,
+                    description=f"duplicate options directive {k!r}",
+                    tokens={
+                        "Directive": lnum,
+                        "Block": token,
+                    },
+                )
             items[k] = v
+
         try:
             id_prefix = items.pop('id-prefix')
             varlist_id = items.pop('list-id')
             source = items.pop('source')
         except KeyError as e:
-            raise RuntimeError(f"options directive {e} missing in block at line {token.map[0] + 1}")
+            raise SrcError(
+                src=src,
+                description=f"options directive {e} missing",
+                tokens={
+                    "Block": token,
+                },
+            ) from e
+
         if items.keys():
-            raise RuntimeError(
-                f"unsupported options directives in block at line {token.map[0] + 1}",
-                " ".join(items.keys()))
+            raise SrcError(
+                src=src,
+                description=f"unsupported options directives: {set(items.keys())}",
+                token=token,
+            )
 
         try:
             with open(self._base_paths[-1].parent / source, 'r') as f:
@@ -160,7 +204,11 @@ class BaseConverter(Converter[md.TR], Generic[md.TR]):
                 token.meta['list-id'] = varlist_id
                 token.meta['source'] = json.load(f)
         except Exception as e:
-            raise RuntimeError(f"processing options block in line {token.map[0] + 1}") from e
+            raise SrcError(
+                src=src,
+                description="processing options block",
+                token=token,
+            ) from e
 
 class RendererMixin(Renderer):
     _toplevel_tag: str
@@ -217,11 +265,11 @@ class ManualHTMLRenderer(RendererMixin, HTMLRenderer):
     _base_path: Path
     _in_dir: Path
     _html_params: HTMLParameters
-    _redirects: Redirects
+    _redirects: Redirects | None
 
     def __init__(self, toplevel_tag: str, revision: str, html_params: HTMLParameters,
                  manpage_urls: Mapping[str, str], xref_targets: dict[str, XrefTarget],
-                 redirects: Redirects, in_dir: Path, base_path: Path):
+                 redirects: Redirects | None, in_dir: Path, base_path: Path):
         super().__init__(toplevel_tag, revision, manpage_urls, xref_targets)
         self._in_dir = in_dir
         self._base_path = base_path.absolute()
@@ -310,9 +358,12 @@ class ManualHTMLRenderer(RendererMixin, HTMLRenderer):
                 '  </div>',
             ])
 
-        redirects_path = f'{self._base_path}/{toc.target.path.split('.html')[0]}-redirects.js'
-        with open(redirects_path, 'w') as file:
-            file.write(self._redirects.get_redirect_script(toc.target.path))
+        scripts = self._html_params.scripts
+        if self._redirects:
+            redirects_name = f'{toc.target.path.split('.html')[0]}-redirects.js'
+            with open(self._base_path / redirects_name, 'w') as file:
+                file.write(self._redirects.get_redirect_script(toc.target.path))
+            scripts.append(f'./{redirects_name}')
 
         return "\n".join([
             '<?xml version="1.0" encoding="utf-8" standalone="no"?>',
@@ -325,7 +376,7 @@ class ManualHTMLRenderer(RendererMixin, HTMLRenderer):
             "".join((f'<link rel="stylesheet" type="text/css" href="{html.escape(style, True)}" />'
                      for style in self._html_params.stylesheets)),
             "".join((f'<script src="{html.escape(script, True)}" type="text/javascript"></script>'
-                     for script in [*self._html_params.scripts, redirects_path])),
+                     for script in scripts)),
             f' <meta name="generator" content="{html.escape(self._html_params.generator, True)}" />',
             f' <link rel="home" href="{home.target.href()}" title="{home.target.title}" />' if home.target.href() else "",
             f' {up_link}{prev_link}{next_link}',
@@ -509,7 +560,7 @@ class HTMLConverter(BaseConverter[ManualHTMLRenderer]):
     _revision: str
     _html_params: HTMLParameters
     _manpage_urls: Mapping[str, str]
-    _redirects: Redirects
+    _redirects: Redirects | None
     _xref_targets: dict[str, XrefTarget]
     _redirection_targets: set[str]
     _appendix_count: int = 0
@@ -518,7 +569,7 @@ class HTMLConverter(BaseConverter[ManualHTMLRenderer]):
         self._appendix_count += 1
         return _to_base26(self._appendix_count - 1)
 
-    def __init__(self, revision: str, html_params: HTMLParameters, manpage_urls: Mapping[str, str], redirects: Redirects):
+    def __init__(self, revision: str, html_params: HTMLParameters, manpage_urls: Mapping[str, str], redirects: Redirects | None = None):
         super().__init__()
         self._revision, self._html_params, self._manpage_urls, self._redirects = revision, html_params, manpage_urls, redirects
         self._xref_targets = {}
@@ -539,14 +590,26 @@ class HTMLConverter(BaseConverter[ManualHTMLRenderer]):
                 continue
             assert token.map
             if len(token.meta['included']) == 0:
-                raise RuntimeError(f"redirection target {into} in line {token.map[0] + 1} is empty!")
+                raise SrcError(
+                    src=src,
+                    description=f"redirection target {into!r} is empty!",
+                    token=token,
+                )
             # we use blender-style //path to denote paths relative to the origin file
             # (usually index.html). this makes everything a lot easier and clearer.
             if not into.startswith("//") or '/' in into[2:]:
-                raise RuntimeError("html:into-file must be a relative-to-origin //filename", into)
+                raise SrcError(
+                    src=src,
+                    description=f"html:into-file must be a relative-to-origin //filename: {into}",
+                    token=token,
+                )
             into = token.meta['include-args']['into-file'] = into[2:]
             if into in self._redirection_targets:
-                raise RuntimeError(f"redirection target {into} in line {token.map[0] + 1} is already in use")
+                raise SrcError(
+                    src=src,
+                    description=f"redirection target {into} is already in use",
+                    token=token,
+                )
             self._redirection_targets.add(into)
         return tokens
 
@@ -679,13 +742,14 @@ class HTMLConverter(BaseConverter[ManualHTMLRenderer]):
                 )
 
         TocEntry.collect_and_link(self._xref_targets, tokens)
-        self._redirects.validate(self._xref_targets)
-        server_redirects = self._redirects.get_server_redirects()
-        with open(outfile.parent / '_redirects', 'w') as server_redirects_file:
-            formatted_server_redirects = []
-            for from_path, to_path in server_redirects.items():
-                formatted_server_redirects.append(f"{from_path} {to_path} 301")
-            server_redirects_file.write("\n".join(formatted_server_redirects))
+        if self._redirects:
+            self._redirects.validate(self._xref_targets)
+            server_redirects = self._redirects.get_server_redirects()
+            with open(outfile.parent / '_redirects', 'w') as server_redirects_file:
+                formatted_server_redirects = []
+                for from_path, to_path in server_redirects.items():
+                    formatted_server_redirects.append(f"{from_path} {to_path} 301")
+                server_redirects_file.write("\n".join(formatted_server_redirects))
 
 
 def _build_cli_html(p: argparse.ArgumentParser) -> None:
@@ -704,16 +768,16 @@ def _build_cli_html(p: argparse.ArgumentParser) -> None:
 
 def _run_cli_html(args: argparse.Namespace) -> None:
     with open(args.manpage_urls) as manpage_urls, open(Path(__file__).parent / "redirects.js") as redirects_script:
-        redirects = {}
+        redirects = None
         if args.redirects:
             with open(args.redirects) as raw_redirects:
-                redirects = json.load(raw_redirects)
+                redirects = Redirects(json.load(raw_redirects), redirects_script.read())
 
         md = HTMLConverter(
             args.revision,
             HTMLParameters(args.generator, args.stylesheet, args.script, args.toc_depth,
                            args.chunk_toc_depth, args.section_toc_depth, args.media_dir),
-            json.load(manpage_urls), Redirects(redirects, redirects_script.read()))
+            json.load(manpage_urls), redirects)
         md.convert(args.infile, args.outfile)
 
 def build_cli(p: argparse.ArgumentParser) -> None:

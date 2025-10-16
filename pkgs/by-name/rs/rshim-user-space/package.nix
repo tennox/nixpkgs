@@ -1,34 +1,43 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, autoconf
-, automake
-, makeBinaryWrapper
-, pkg-config
-, pciutils
-, libusb1
-, fuse
-, busybox
-, pv
-, withBfbInstall ? true
+{
+  autoconf,
+  automake,
+  bashNonInteractive,
+  coreutils,
+  fetchFromGitHub,
+  fuse,
+  gawk,
+  gnugrep,
+  gnused,
+  lib,
+  libusb1,
+  makeBinaryWrapper,
+  pciutils,
+  pkg-config,
+  procps,
+  pv,
+  stdenv,
+  which,
+  util-linux,
+  withBfbInstall ? true,
 }:
 
 stdenv.mkDerivation rec {
   pname = "rshim-user-space";
-  version = "2.1.5";
+  version = "2.4.4";
 
   src = fetchFromGitHub {
     owner = "Mellanox";
-    repo = pname;
+    repo = "rshim-user-space";
     rev = "rshim-${version}";
-    hash = "sha256-moU6XxBVSAZiiR/usFfxse2CHk6+003Jb9t62szk1fk=";
+    hash = "sha256-w2+1tUDWYmgDC0ycWGdtVfdbkZCmtvwXm47qK5PCCfg=";
   };
 
   nativeBuildInputs = [
     autoconf
     automake
     pkg-config
-  ] ++ lib.optionals withBfbInstall [ makeBinaryWrapper ];
+  ]
+  ++ lib.optionals withBfbInstall [ makeBinaryWrapper ];
 
   buildInputs = [
     pciutils
@@ -47,17 +56,31 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p "$out"/bin
     cp -a src/rshim "$out"/bin/
-  '' + lib.optionalString withBfbInstall ''
+  ''
+  + lib.optionalString withBfbInstall ''
     cp -a scripts/bfb-install "$out"/bin/
   '';
 
   postFixup = lib.optionalString withBfbInstall ''
     wrapProgram $out/bin/bfb-install \
-      --set PATH ${lib.makeBinPath [ busybox pv ]}
+      --set PATH ${
+        lib.makeBinPath [
+          bashNonInteractive
+          coreutils
+          gawk
+          gnugrep
+          gnused
+          pciutils
+          procps
+          pv
+          util-linux
+          which
+        ]
+      }
   '';
 
   meta = with lib; {
-    description = "user-space rshim driver for the BlueField SoC";
+    description = "User-space rshim driver for the BlueField SoC";
     longDescription = ''
       The rshim driver provides a way to access the rshim resources on the
       BlueField target from external host machine. The current version
@@ -68,6 +91,8 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/Mellanox/rshim-user-space";
     license = licenses.gpl2Only;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ nikstur ];
+    maintainers = with maintainers; [
+      thillux
+    ];
   };
 }

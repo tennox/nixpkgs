@@ -1,5 +1,13 @@
-{ lib, mkDerivation, fetchFromGitHub, cmake, pkg-config, libchewing, qtbase
-, qttools }:
+{
+  lib,
+  mkDerivation,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  libchewing,
+  qtbase,
+  qttools,
+}:
 
 mkDerivation rec {
   pname = "chewing-editor";
@@ -7,15 +15,22 @@ mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "chewing";
-    repo = pname;
+    repo = "chewing-editor";
     rev = version;
     sha256 = "0kc2hjx1gplm3s3p1r5sn0cyxw3k1q4gyv08q9r6rs4sg7xh2w7w";
   };
 
   doCheck = true;
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ libchewing qtbase qttools ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    libchewing
+    qtbase
+    qttools
+  ];
 
   meta = with lib; {
     description = "Cross platform chewing user phrase editor";

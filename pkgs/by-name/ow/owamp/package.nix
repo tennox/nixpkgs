@@ -1,5 +1,11 @@
-{lib, stdenv, fetchFromGitHub
-, autoconf, automake, mandoc }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoconf,
+  automake,
+  mandoc,
+}:
 
 stdenv.mkDerivation rec {
   pname = "owamp";
@@ -8,12 +14,15 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "perfsonar";
     repo = "owamp";
-    rev = "v${version}";
-    sha256= "5o85XSn84nOvNjIzlaZ2R6/TSHpKbWLXTO0FmqWsNMU=";
+    tag = "v${version}";
+    sha256 = "5o85XSn84nOvNjIzlaZ2R6/TSHpKbWLXTO0FmqWsNMU=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ autoconf automake ];
+  nativeBuildInputs = [
+    autoconf
+    automake
+  ];
   buildInputs = [ mandoc ];
 
   preConfigure = ''
@@ -25,7 +34,7 @@ stdenv.mkDerivation rec {
     homepage = "http://software.internet2.edu/owamp/";
     description = "Tool for performing one-way active measurements";
     platforms = platforms.linux;
-    maintainers = [maintainers.teto];
+    maintainers = [ maintainers.teto ];
     license = licenses.asl20;
   };
 }

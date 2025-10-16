@@ -1,12 +1,13 @@
-{ stdenvNoCC
-, lib
-, fetchFromGitHub
-, fzf
-, kubectl
+{
+  stdenvNoCC,
+  lib,
+  fetchFromGitHub,
+  fzf,
+  kubectl,
 }:
 stdenvNoCC.mkDerivation {
   pname = "kns";
-  version = "unstable-2023-04-25";
+  version = "0-unstable-2023-04-25";
 
   src = fetchFromGitHub {
     owner = "blendle";
@@ -17,7 +18,10 @@ stdenvNoCC.mkDerivation {
 
   strictDeps = true;
 
-  buildInputs = [ fzf kubectl ];
+  buildInputs = [
+    fzf
+    kubectl
+  ];
 
   installPhase = ''
     runHook preInstall

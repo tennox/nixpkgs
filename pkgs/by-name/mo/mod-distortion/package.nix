@@ -1,8 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, lv2 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  lv2,
+}:
 
 stdenv.mkDerivation {
   pname = "mod-distortion";
-  version = "unstable-2016-08-19";
+  version = "0-unstable-2016-08-19";
 
   src = fetchFromGitHub {
     owner = "portalmod";

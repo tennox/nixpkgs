@@ -1,18 +1,31 @@
-{ lib, stdenv, fetchFromGitHub, glib, pkg-config, xorg, dbus }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  glib,
+  pkg-config,
+  xorg,
+  dbus,
+}:
 
 stdenv.mkDerivation rec {
   pname = "xssproxy";
-  version = "1.1.0";
+  version = "1.1.2";
 
   src = fetchFromGitHub {
     owner = "vincentbernat";
     repo = "xssproxy";
     rev = "v${version}";
-    sha256 = "sha256-BE/v1CJAwKwxlK3Xg3ezD+IXyT7ZFGz3bQzGxFQfEnU=";
+    sha256 = "sha256-6M82gQZcgjqZBGw4YszAF0DmS+JXgFp6hl2gOF1RWAs=";
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ glib xorg.libX11 xorg.libXScrnSaver dbus ];
+  buildInputs = [
+    glib
+    xorg.libX11
+    xorg.libXScrnSaver
+    dbus
+  ];
 
   makeFlags = [
     "bindir=$(out)/bin"

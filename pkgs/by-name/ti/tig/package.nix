@@ -1,28 +1,59 @@
-{ lib, stdenv, fetchFromGitHub, ncurses, asciidoc, xmlto, docbook_xsl, docbook_xml_dtd_45
-, readline, makeWrapper, git, libiconv, autoreconfHook, findXMLCatalogs, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  ncurses,
+  asciidoc,
+  xmlto,
+  docbook_xsl,
+  docbook_xml_dtd_45,
+  readline,
+  makeWrapper,
+  git,
+  libiconv,
+  autoreconfHook,
+  findXMLCatalogs,
+  pkg-config,
 }:
 
 stdenv.mkDerivation rec {
   pname = "tig";
-  version = "2.5.10";
+  version = "2.6.0";
 
   src = fetchFromGitHub {
     owner = "jonas";
-    repo = pname;
-    rev = "${pname}-${version}";
-    sha256 = "sha256-WTrw7WaSqC2fp76fPvfogWTibev0Hg0LW2x4umc3+1Q=";
+    repo = "tig";
+    rev = "tig-${version}";
+    sha256 = "sha256-LJVK4y4C/TyM7sD/AZeHyavZ66SoeSh1y+hXnAAKMws=";
   };
 
-  nativeBuildInputs = [ makeWrapper autoreconfHook asciidoc xmlto docbook_xsl docbook_xml_dtd_45 findXMLCatalogs pkg-config ];
+  nativeBuildInputs = [
+    makeWrapper
+    autoreconfHook
+    asciidoc
+    xmlto
+    docbook_xsl
+    docbook_xml_dtd_45
+    findXMLCatalogs
+    pkg-config
+  ];
 
-  autoreconfFlags = [ "-I" "tools" "-v" ];
+  autoreconfFlags = [
+    "-I"
+    "tools"
+    "-v"
+  ];
 
-  buildInputs = [ ncurses readline git ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
+  buildInputs = [
+    ncurses
+    readline
+    git
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ libiconv ];
 
   # those files are inherently impure, we'll handle the corresponding dependencies.
   postPatch = ''
-      rm contrib/config.make-*
+    rm contrib/config.make-*
   '';
 
   enableParallelBuilding = true;
@@ -49,7 +80,12 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     homepage = "https://jonas.github.io/tig/";
     description = "Text-mode interface for git";
-    maintainers = with maintainers; [ bjornfor domenkozar qknight globin ma27 ];
+    maintainers = with maintainers; [
+      bjornfor
+      qknight
+      globin
+      ma27
+    ];
     license = licenses.gpl2Plus;
     platforms = platforms.unix;
     mainProgram = "tig";

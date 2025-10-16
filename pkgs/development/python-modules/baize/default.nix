@@ -1,60 +1,48 @@
 {
   buildPythonPackage,
+  fetchFromGitHub,
+  httpx,
   lib,
-  fetchPypi,
+  pdm-backend,
+  pytest-asyncio,
   pytestCheckHook,
-  pdm-pep517,
-  pytest-httpx,
   setuptools,
   starlette,
-  anyio,
-  pytest-asyncio,
-  pytest-tornasync,
-  pytest-trio,
-  pytest-twisted,
-  twisted,
 }:
 
 buildPythonPackage rec {
   pname = "baize";
-  version = "0.22.2";
+  version = "0.23.1";
   pyproject = true;
 
-  src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-J+l8NsSTpCh7Uws+Zp45LXkLEBBurqOsOr8Iik/9smY=";
+  src = fetchFromGitHub {
+    owner = "abersheeran";
+    repo = "baize";
+    tag = "v${version}";
+    hash = "sha256-TclyTLqJ+r9Spg6VgmsqhhVj/Mp/HqFrkXjZy5f2BR0=";
   };
 
   build-system = [
-    pdm-pep517
+    pdm-backend
     setuptools
   ];
 
-  dependencies = [
-    starlette
-  ];
+  pythonImportsCheck = [ "baize" ];
 
   nativeCheckInputs = [
-    pytestCheckHook
-    pytest-httpx
-    anyio
+    httpx
     pytest-asyncio
-    pytest-tornasync
-    pytest-trio
-    pytest-twisted
-    twisted
-  ];
-
-  disabledTests = [
-    # https://github.com/abersheeran/baize/issues/67
-    "test_files"
-    "test_request_response"
+    pytestCheckHook
+    starlette
   ];
 
   meta = {
     description = "Powerful and exquisite WSGI/ASGI framework/toolkit";
-    maintainers = with lib.maintainers; [ bot-wxt1221 ];
-    homepage = "https://baize.aber.sh/";
+    homepage = "https://github.com/abersheeran/baize";
     license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
+      dotlambda
+      bot-wxt1221
+    ];
   };
 }

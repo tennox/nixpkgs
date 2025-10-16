@@ -1,22 +1,26 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, autoreconfHook
-, pkg-config
-, libusb1
-, readline
-, libimobiledevice-glue
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  pkg-config,
+  libusb1,
+  readline,
+  libimobiledevice-glue,
 }:
 
 stdenv.mkDerivation rec {
   pname = "libirecovery";
   version = "1.2.1";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "libimobiledevice";
-    repo = pname;
+    repo = "libirecovery";
     rev = version;
     hash = "sha256-R+oBC7F4op0qoIk3d/WqS4MwzZY3WMAMIqlJfJb188Q=";
   };
@@ -32,6 +36,8 @@ stdenv.mkDerivation rec {
     libimobiledevice-glue
   ];
 
+  doInstallCheck = true;
+
   preAutoreconf = ''
     export RELEASE_VERSION=${version}
   '';
@@ -41,7 +47,7 @@ stdenv.mkDerivation rec {
   # without further configuration).
   configureFlags = [
     "--with-udevrulesdir=${placeholder "out"}/lib/udev/rules.d"
-    ''--with-udevrule="OWNER=\"root\", GROUP=\"myusergroup\", MODE=\"0660\""''
+    ''--with-udevrule=OWNER="root",GROUP="myusergroup",MODE="0660"''
   ];
 
   meta = with lib; {

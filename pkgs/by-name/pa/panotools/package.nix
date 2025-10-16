@@ -1,12 +1,12 @@
-{ lib
-, stdenv
-, fetchurl
-, cmake
-, libjpeg
-, libpng
-, libtiff
-, perl
-, darwin
+{
+  lib,
+  stdenv,
+  fetchurl,
+  cmake,
+  libjpeg,
+  libpng,
+  libtiff,
+  perl,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -17,6 +17,8 @@ stdenv.mkDerivation (finalAttrs: {
     url = "mirror://sourceforge/panotools/libpano13-${finalAttrs.version}.tar.gz";
     hash = "sha256-r/xoMM2+ccKNJzHcv43qKs2m2f/UYJxtvzugxoRAqOM=";
   };
+
+  patches = [ ./cmake4.patch ];
 
   strictDeps = true;
 
@@ -29,8 +31,6 @@ stdenv.mkDerivation (finalAttrs: {
     libjpeg
     libpng
     libtiff
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Carbon
   ];
 
   meta = {

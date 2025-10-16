@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, htslib
-, zlib
-, bzip2
-, xz
-, curl
-, openssl
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  htslib,
+  zlib,
+  bzip2,
+  xz,
+  curl,
+  openssl,
 }:
 
 stdenv.mkDerivation rec {
@@ -18,7 +19,7 @@ stdenv.mkDerivation rec {
     owner = "ANGSD";
     repo = "angsd";
     sha256 = "sha256-Ppxgy54pAnqJUzNX5c12NHjKTQyEEcPSpCEEVOyZ/LA=";
-    rev = version;
+    tag = version;
   };
 
   patches = [
@@ -31,11 +32,21 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  buildInputs = [ htslib zlib bzip2 xz curl openssl ];
+  buildInputs = [
+    htslib
+    zlib
+    bzip2
+    xz
+    curl
+    openssl
+  ];
 
   enableParallelBuilding = true;
 
-  makeFlags = [ "HTSSRC=systemwide" "prefix=$(out)" ];
+  makeFlags = [
+    "HTSSRC=systemwide"
+    "prefix=$(out)"
+  ];
 
   meta = with lib; {
     description = "Program for analysing NGS data";
@@ -44,4 +55,3 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2;
   };
 }
-

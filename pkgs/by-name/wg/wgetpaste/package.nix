@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchurl, wget, bash }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  wget,
+  bash,
+}:
 
 stdenv.mkDerivation rec {
   pname = "wgetpaste";
@@ -24,8 +30,10 @@ stdenv.mkDerivation rec {
     description = "Command-line interface to various pastebins";
     mainProgram = "wgetpaste";
     homepage = "https://github.com/zlin/wgetpaste";
-    license = lib.licenses.publicDomain;
-    maintainers = with lib.maintainers; [ qknight domenkozar ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      qknight
+    ];
     platforms = lib.platforms.all;
   };
 }

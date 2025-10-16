@@ -1,20 +1,25 @@
-{ lib
-, stdenv
-, fetchurl
-, dpkg
-, autoPatchelfHook
-, makeWrapper
-, perl
-, gnused
-, ghostscript
-, file
-, coreutils
-, gnugrep
-, which
+{
+  lib,
+  stdenv,
+  fetchurl,
+  dpkg,
+  autoPatchelfHook,
+  makeWrapper,
+  perl,
+  gnused,
+  ghostscript,
+  file,
+  coreutils,
+  gnugrep,
+  which,
 }:
 
 let
-  arches = [ "x86_64" "i686" "armv7l" ];
+  arches = [
+    "x86_64"
+    "i686"
+    "armv7l"
+  ];
 
   runtimeDeps = [
     ghostscript
@@ -30,15 +35,17 @@ stdenv.mkDerivation rec {
   pname = "cups-brother-hll2375dw";
   version = "4.0.0-1";
 
-  nativeBuildInputs = [ dpkg makeWrapper autoPatchelfHook ];
+  nativeBuildInputs = [
+    dpkg
+    makeWrapper
+    autoPatchelfHook
+  ];
   buildInputs = [ perl ];
 
   src = fetchurl {
     url = "https://download.brother.com/welcome/dlf103535//hll2375dwpdrv-${version}.i386.deb";
     hash = "sha256-N5VCBZLFrfw29QjjzlSvQ12urvyaf7ez/RJ08UwqHdk=";
   };
-
-  unpackPhase = "dpkg-deb -x $src .";
 
   patches = [
     # The brother lpdwrapper uses a temporary file to convey the printer settings.
@@ -54,12 +61,12 @@ stdenv.mkDerivation rec {
     mkdir -p $out
     cp -ar opt $out/opt
     # delete unnecessary files for the current architecture
-  '' + lib.concatMapStrings
-    (arch: ''
-      echo Deleting files for ${arch}
-      rm -r "$out/opt/brother/Printers/HLL2375DW/lpd/${arch}"
-    '')
-    (builtins.filter (arch: arch != stdenv.hostPlatform.linuxArch) arches) + ''
+  ''
+  + lib.concatMapStrings (arch: ''
+    echo Deleting files for ${arch}
+    rm -r "$out/opt/brother/Printers/HLL2375DW/lpd/${arch}"
+  '') (builtins.filter (arch: arch != stdenv.hostPlatform.linuxArch) arches)
+  + ''
     # bundled scripts don't understand the arch subdirectories for some reason
     ln -s \
       "$out/opt/brother/Printers/HLL2375DW/lpd/${stdenv.hostPlatform.linuxArch}/"* \
@@ -98,7 +105,7 @@ stdenv.mkDerivation rec {
     homepage = "http://www.brother.com/";
     description = "Brother HLL2375DW printer driver";
     license = licenses.unfree;
-    platforms = builtins.map (arch: "${arch}-linux") arches;
+    platforms = map (arch: "${arch}-linux") arches;
     maintainers = [ maintainers.gador ];
   };
 }

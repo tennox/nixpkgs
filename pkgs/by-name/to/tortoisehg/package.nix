@@ -1,28 +1,37 @@
-{ lib
-, fetchurl
-, python3Packages
-, mercurial
-, qt5
+{
+  lib,
+  fetchurl,
+  python3Packages,
+  mercurial,
+  qt5,
 }:
 
-python3Packages.buildPythonApplication rec {
+let
+  version = "7.0.1";
+in
+python3Packages.buildPythonApplication {
   pname = "tortoisehg";
-  version = "6.6.3";
+  inherit version;
+  pyproject = true;
 
   src = fetchurl {
     url = "https://www.mercurial-scm.org/release/tortoisehg/targz/tortoisehg-${version}.tar.gz";
-    sha256 = "sha256-9pg1N5uj1ZaZCAm4N8toRwfVHme7nAsNMZkXSRgFves=";
+    hash = "sha256-rCDLZ2ppD3Y71c31UNir/1pW1QBJViMP9JdoJiWf0nk=";
   };
+
+  build-system = with python3Packages; [ setuptools ];
 
   nativeBuildInputs = [
     qt5.wrapQtAppsHook
   ];
-  propagatedBuildInputs = with python3Packages; [
+
+  dependencies = with python3Packages; [
     mercurial
     # The one from python3Packages
     qscintilla-qt5
     iniparse
   ];
+
   buildInputs = [
     # Makes wrapQtAppsHook add these qt libraries to the wrapper search paths
     qt5.qtwayland
@@ -35,6 +44,7 @@ python3Packages.buildPythonApplication rec {
   # Convenient alias
   postInstall = ''
     ln -s $out/bin/thg $out/bin/tortoisehg
+    install -D --mode=0644 contrib/thg.desktop --target-directory $out/share/applications/
   '';
 
   # In python3Packages.buildPythonApplication doCheck is always true, and we
@@ -65,6 +75,9 @@ python3Packages.buildPythonApplication rec {
     homepage = "https://tortoisehg.bitbucket.io/";
     license = lib.licenses.gpl2Only;
     platforms = lib.platforms.linux;
-    maintainers = with lib.maintainers; [ danbst gbtb ];
+    maintainers = with lib.maintainers; [
+      danbst
+      gbtb
+    ];
   };
 }

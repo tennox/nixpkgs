@@ -1,4 +1,13 @@
-{ fetchurl, lib, stdenv, libuuid, popt, icu, ncurses, nixosTests }:
+{
+  fetchurl,
+  lib,
+  stdenv,
+  libuuid,
+  popt,
+  icu,
+  ncurses,
+  nixosTests,
+}:
 
 stdenv.mkDerivation rec {
   pname = "gptfdisk";
@@ -13,7 +22,8 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     patchShebangs gdisk_test.sh
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace Makefile.mac --replace \
       "-mmacosx-version-min=10.4" "-mmacosx-version-min=10.6"
     substituteInPlace Makefile.mac --replace \
@@ -29,7 +39,12 @@ stdenv.mkDerivation rec {
   '';
 
   buildPhase = lib.optionalString stdenv.hostPlatform.isDarwin "make -f Makefile.mac";
-  buildInputs = [ libuuid popt icu ncurses ];
+  buildInputs = [
+    libuuid
+    popt
+    icu
+    ncurses
+  ];
 
   installPhase = ''
     mkdir -p $out/sbin
@@ -50,6 +65,5 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     homepage = "https://www.rodsbooks.com/gdisk/";
     platforms = platforms.all;
-    maintainers = [ maintainers.ehmry ];
   };
 }

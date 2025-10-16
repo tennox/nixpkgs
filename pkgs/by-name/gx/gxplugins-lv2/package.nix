@@ -1,4 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, xorg, xorgproto, cairo, lv2, pkg-config }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  xorg,
+  xorgproto,
+  cairo,
+  lv2,
+  pkg-config,
+}:
 
 stdenv.mkDerivation rec {
   pname = "GxPlugins.lv2";
@@ -6,23 +15,30 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "brummer10";
-    repo = pname;
-    rev = "v${version}";
+    repo = "GxPlugins.lv2";
+    tag = "v${version}";
     hash = "sha256-NvmFoOAQtAnKrZgzG1Shy1HuJEWgjJloQEx6jw59hag=";
     fetchSubmodules = true;
   };
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
-    xorg.libX11 xorgproto cairo lv2
+    xorg.libX11
+    xorgproto
+    cairo
+    lv2
   ];
 
   installFlags = [ "INSTALL_DIR=$(out)/lib/lv2" ];
 
   configurePhase = ''
+    runHook preConfigure
+
     for i in GxBoobTube GxValveCaster; do
       substituteInPlace $i.lv2/Makefile --replace "\$(shell which echo) -e" "echo -e"
     done
+
+    runHook postConfigure
   '';
 
   meta = with lib; {

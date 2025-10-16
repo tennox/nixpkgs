@@ -1,6 +1,16 @@
-{ lib, stdenv, fetchurl, autoreconfHook, autoconf-archive, pkg-config, kmod
-, enable-tools ? true
-, enablePython ? false, python3, ncurses }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoreconfHook,
+  autoconf-archive,
+  pkg-config,
+  kmod,
+  enable-tools ? true,
+  enablePython ? false,
+  python3,
+  ncurses,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libgpiod";
@@ -17,7 +27,13 @@ stdenv.mkDerivation rec {
     ./0001-Drop-AC_FUNC_MALLOC-and-_REALLOC-and-check-for-them-.patch
   ];
 
-  buildInputs = [ kmod ] ++ lib.optionals enablePython [ python3 ncurses ];
+  buildInputs = [
+    kmod
+  ]
+  ++ lib.optionals enablePython [
+    python3
+    ncurses
+  ];
   nativeBuildInputs = [
     autoconf-archive
     pkg-config
@@ -28,7 +44,8 @@ stdenv.mkDerivation rec {
     "--enable-tools=${if enable-tools then "yes" else "no"}"
     "--enable-bindings-cxx"
     "--prefix=${placeholder "out"}"
-  ] ++ lib.optional enablePython "--enable-bindings-python";
+  ]
+  ++ lib.optional enablePython "--enable-bindings-python";
 
   meta = with lib; {
     description = "C library and tools for interacting with the linux GPIO character device";
@@ -39,7 +56,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/about/";
     license = licenses.lgpl2;
-    maintainers = [];
+    maintainers = [ ];
     platforms = platforms.linux;
   };
 }

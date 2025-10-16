@@ -1,4 +1,8 @@
-{ lib, buildFishPlugin, fetchFromGitHub }:
+{
+  lib,
+  buildFishPlugin,
+  fetchFromGitHub,
+}:
 
 buildFishPlugin {
   pname = "grc";
@@ -16,7 +20,7 @@ buildFishPlugin {
   '';
 
   meta = with lib; {
-    description = "grc Colourizer for some commands on Fish shell";
+    description = "Grc Colourizer for some commands on Fish shell";
     license = licenses.mit;
     maintainers = with maintainers; [ onny ];
     platforms = with platforms; unix;

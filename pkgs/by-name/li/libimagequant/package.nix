@@ -1,26 +1,27 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rust
-, rustPlatform
-, cargo-c
-, python3
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rust,
+  rustPlatform,
+  cargo-c,
+  python3,
 
-# tests
-, testers
-, vips
-, libimagequant
+  # tests
+  testers,
+  vips,
+  libimagequant,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "libimagequant";
-  version = "4.3.1";
+  version = "4.4.0";
 
   src = fetchFromGitHub {
     owner = "ImageOptim";
     repo = "libimagequant";
     rev = version;
-    hash = "sha256-dau+oGwcyN7AA1jEBtCgYV/cmrx5Wo3koKXbloYagrw=";
+    hash = "sha256-c9j0wVwTWtNrPy9UUsc0Gxbe6lP82C3DMXe+k/ZBYEw=";
   };
 
   cargoLock = {

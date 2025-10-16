@@ -1,8 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, gtk-engine-murrine }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  gtk-engine-murrine,
+}:
 
 stdenv.mkDerivation {
   pname = "omni-gtk-theme";
-  version = "unstable-2021-03-30";
+  version = "0-unstable-2021-03-30";
 
   src = fetchFromGitHub {
     owner = "getomni";

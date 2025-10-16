@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchurl }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "luculent";
@@ -19,7 +23,7 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "luculent font";
+    description = "Luculent font";
     homepage = "http://www.eastfarthing.com/luculent/";
     license = licenses.ofl;
     maintainers = [ ];

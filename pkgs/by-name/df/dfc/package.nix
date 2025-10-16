@@ -1,22 +1,42 @@
-{lib, stdenv, fetchurl, cmake, gettext}:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  gettext,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "dfc";
   version = "3.1.1";
 
-  src = fetchurl {
-    url = "https://projects.gw-computing.net/attachments/download/615/${pname}-${version}.tar.gz";
-    sha256 = "0m1fd7l85ckb7bq4c5c3g257bkjglm8gq7x42pkmpp87fkknc94n";
+  src = fetchFromGitHub {
+    owner = "rolinh";
+    repo = "dfc";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-k15q04dNWmHVeUabaCogkESQ+k63ZV7Xph2SMNpV/N8=";
   };
 
-  nativeBuildInputs = [ cmake gettext ];
+  # Fix for CMake v4
+  # ref. https://github.com/rolinh/dfc/pull/35
+  postPatch = ''
+    substituteInPlace CMakeLists.txt --replace-fail \
+      "cmake_minimum_required(VERSION 2.8.4)" \
+      "cmake_minimum_required(VERSION 3.10)"
+  '';
+
+  nativeBuildInputs = [
+    cmake
+    gettext
+  ];
 
   meta = {
-    homepage = "https://projects.gw-computing.net/projects/dfc";
+    homepage = "https://github.com/rolinh/dfc";
+    changelog = "https://github.com/rolinh/dfc/releases/tag/${finalAttrs.src.tag}";
     description = "Displays file system space usage using graphs and colors";
     license = lib.licenses.bsd3;
-    maintainers = with lib.maintainers; [qknight];
+    maintainers = with lib.maintainers; [ qknight ];
     platforms = lib.platforms.all;
     mainProgram = "dfc";
   };
-}
+})

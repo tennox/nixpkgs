@@ -1,17 +1,21 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "tfupdate";
-  version = "0.8.5";
+  version = "0.9.2";
 
   src = fetchFromGitHub {
     owner = "minamijoyo";
     repo = "tfupdate";
     rev = "v${version}";
-    sha256 = "sha256-iWiY1IuNZCqHpnAoib0SkWwAg1Mnuqr2QjKI3KZGYs0=";
+    sha256 = "sha256-izxvvR/wVNQlDWxJhUSAq2q0U0Y7fcFflEZRS2sfEIY=";
   };
 
-  vendorHash = "sha256-/ZNWVuGInZY/t0s317FQstEPeJpTKWMXUVo8cE44GkI=";
+  vendorHash = "sha256-gmIh1xlOXLASzY9E5phS48Bdj1agH5LdUUW0p/g4I5w=";
 
   # Tests start http servers which need to bind to local addresses:
   # panic: httptest: failed to listen on a port: listen tcp6 [::1]:0: bind: operation not permitted
@@ -23,6 +27,9 @@ buildGoModule rec {
     homepage = "https://github.com/minamijoyo/tfupdate";
     changelog = "https://github.com/minamijoyo/tfupdate/blob/${src.rev}/CHANGELOG.md";
     license = licenses.mit;
-    maintainers = with maintainers; [ Intuinewin qjoly ];
+    maintainers = with maintainers; [
+      Intuinewin
+      qjoly
+    ];
   };
 }

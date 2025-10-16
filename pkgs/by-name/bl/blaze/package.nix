@@ -1,9 +1,10 @@
-{ lib
-, stdenv
-, fetchFromBitbucket
-, cmake
-, blas
-, lapack-reference
+{
+  lib,
+  stdenv,
+  fetchFromBitbucket,
+  cmake,
+  blas,
+  lapack-reference,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -26,10 +27,9 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   meta = with lib; {
-    description = "high performance C++ math library";
+    description = "High performance C++ math library";
     homepage = "https://bitbucket.org/blaze-lib/blaze";
     license = with licenses; [ bsd3 ];
-    maintainers = with maintainers; [ Madouura ];
     platforms = platforms.unix;
   };
 })

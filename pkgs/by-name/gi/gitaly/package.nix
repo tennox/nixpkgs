@@ -1,12 +1,13 @@
-{ lib
-, callPackage
-, fetchFromGitLab
-, buildGoModule
-, pkg-config
+{
+  lib,
+  callPackage,
+  fetchFromGitLab,
+  buildGoModule,
+  pkg-config,
 }:
 
 let
-  version = "17.3.7";
+  version = "18.4.2";
   package_version = "v${lib.versions.major version}";
   gitaly_package = "gitlab.com/gitlab-org/gitaly/${package_version}";
 
@@ -20,48 +21,87 @@ let
       owner = "gitlab-org";
       repo = "gitaly";
       rev = "v${version}";
-      hash = "sha256-H//vwXzpUh1a8Lez5HTmwkF8TQVPVSefyabnEM4Wo4E=";
+      hash = "sha256-jwImYofmGfpnj43FinFmo9SQP6vpM0C4K6fmUECifG0=";
     };
 
-    vendorHash = "sha256-3Gwpf4zLg9KsmGr2bYmcHATsouKXe3W/vppGHT2B048=";
+    vendorHash = "sha256-DNZgdP7juELUX0cs0tnyqdf1yiUJ0S17nm0xqTk3KHQ=";
 
-    ldflags = [ "-X ${gitaly_package}/internal/version.version=${version}" "-X ${gitaly_package}/internal/version.moduleVersion=${version}" ];
+    ldflags = [
+      "-X ${gitaly_package}/internal/version.version=${version}"
+      "-X ${gitaly_package}/internal/version.moduleVersion=${version}"
+    ];
 
     tags = [ "static" ];
+
+    nativeBuildInputs = [ pkg-config ];
 
     doCheck = false;
   };
 
-  auxBins = buildGoModule ({
-    pname = "gitaly-aux";
+  auxBins = buildGoModule (
+    {
+      pname = "gitaly-aux";
 
-    subPackages = [ "cmd/gitaly-hooks" "cmd/gitaly-ssh" "cmd/gitaly-lfs-smudge" "cmd/gitaly-gpg" ];
-  } // commonOpts);
+      subPackages = [
+        # Can be determined by looking at the `go:embed` calls in https://gitlab.com/gitlab-org/gitaly/-/blob/master/packed_binaries.go
+        "cmd/gitaly-hooks"
+        "cmd/gitaly-ssh"
+        "cmd/gitaly-lfs-smudge"
+        "cmd/gitaly-gpg"
+      ];
+    }
+    // commonOpts
+  );
 in
-buildGoModule ({
-  pname = "gitaly";
+buildGoModule (
+  {
+    pname = "gitaly";
 
-  subPackages = [ "cmd/gitaly" "cmd/gitaly-backup" ];
+    subPackages = [
+      "cmd/gitaly"
+      "cmd/gitaly-backup"
+    ];
 
-  preConfigure = ''
-    mkdir -p _build/bin
-    cp -r ${auxBins}/bin/* _build/bin
-    for f in ${git}/bin/git-*; do
-      cp "$f" "_build/bin/gitaly-$(basename $f)";
-    done
-  '';
+    dontStrip = true;
 
-  outputs = [ "out" ];
+    preConfigure = ''
+      rm -r tools
 
-  passthru = {
-    inherit git;
-  };
+      mkdir -p _build/bin
+      cp -r ${auxBins}/bin/* _build/bin
 
-  meta = with lib; {
-    homepage = "https://gitlab.com/gitlab-org/gitaly";
-    description = "Git RPC service for handling all the git calls made by GitLab";
-    platforms = platforms.linux ++ [ "x86_64-darwin" ];
-    maintainers = teams.gitlab.members;
-    license = licenses.mit;
-  };
-} // commonOpts)
+      # Add git that will be embedded
+      echo 'print-%:;@echo $($*)' >> Makefile
+      sed -i 's:/usr/bin/env ::g' Makefile
+      for bin in $(make print-GIT_PACKED_EXECUTABLES); do
+        from="$(basename "$bin")"
+        from="''${from#gitaly-}"
+        from="${git}/libexec/git-core/''${from%-*}"
+        cp "$from" "$bin"
+      done
+
+    '';
+
+    doInstallCheck = true;
+    installCheckPhase = ''
+      runHook preInstallCheck
+      HOME=/build PAGER=cat ${git}/bin/git config -l
+      runHook postInstallCheck
+    '';
+
+    outputs = [ "out" ];
+
+    passthru = {
+      inherit git;
+    };
+
+    meta = with lib; {
+      homepage = "https://gitlab.com/gitlab-org/gitaly";
+      description = "Git RPC service for handling all the git calls made by GitLab";
+      platforms = platforms.linux ++ [ "x86_64-darwin" ];
+      teams = [ teams.gitlab ];
+      license = licenses.mit;
+    };
+  }
+  // commonOpts
+)

@@ -1,13 +1,17 @@
-{ lib, stdenv, fetchurl, libressl,
+{
+  lib,
+  stdenv,
+  fetchurl,
+  libressl,
 }:
 
 stdenv.mkDerivation rec {
   pname = "geomyidae";
-  version = "0.69";
+  version = "0.99";
 
   src = fetchurl {
     url = "gopher://bitreich.org/9/scm/geomyidae/tag/geomyidae-v${version}.tar.gz";
-    hash = "sha256-C0mAjyS2wZVipXP/sKxa/d7gDyYQ/MvmwqQ/QMzmcRE=";
+    hash = "sha256-QnAUqvyi+b14kIjqnreY6adFl62glRiuX9QiVamR6zw=";
   };
 
   buildInputs = [ libressl ];

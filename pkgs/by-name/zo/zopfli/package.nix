@@ -1,9 +1,18 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "zopfli";
   version = "1.0.3";
-  outputs = [ "out" "lib" "dev" ];
+  outputs = [
+    "out"
+    "lib"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "google";
@@ -15,7 +24,20 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
-  cmakeFlags = [ "-DBUILD_SHARED_LIBS=ON" "-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON" ];
+  cmakeFlags = [
+    "-DBUILD_SHARED_LIBS=ON"
+    "-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
+  ];
+
+  # Fix the build with CMake 4.
+  #
+  # See: <https://github.com/google/zopfli/pull/207>
+  postPatch = ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail \
+        'cmake_minimum_required(VERSION 2.8.11)' \
+        'cmake_minimum_required(VERSION 3.10)'
+  '';
 
   postInstall = ''
     install -Dm444 -t $out/share/doc/zopfli ../README*
@@ -35,6 +57,9 @@ stdenv.mkDerivation rec {
     platforms = platforms.unix;
     license = licenses.asl20;
     mainProgram = "zopfli";
-    maintainers = with maintainers; [ bobvanderlinden edef ];
+    maintainers = with maintainers; [
+      bobvanderlinden
+      edef
+    ];
   };
 }

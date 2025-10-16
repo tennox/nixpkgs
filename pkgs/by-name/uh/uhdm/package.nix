@@ -1,24 +1,24 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, python3
-, capnproto
-, gtest
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  python3,
+  capnproto,
+  gtest,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
-  pname = "UHDM";
-  # When updating this package, also consider updating science/logic/surelog
-  version = "1.84-unstable-2024-10-06";
+  pname = "uhdm";
+  # When updating this package, also consider updating surelog
+  version = "1.86";
 
   src = fetchFromGitHub {
     owner = "chipsalliance";
     repo = "UHDM";
-    # After we're back on a stable tag, use v${finalAttrs.version}
-    rev = "857f68de3ce5b6f919f3a0f489c93072751b1578";
-    hash = "sha256-qHcRncsvMiSJji+JLOlfQ87+pfKg+zvlqMTXKpImvTM=";
-    fetchSubmodules = false;  # we use all dependencies from nix
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
+    fetchSubmodules = false; # we use all dependencies from nix
   };
 
   nativeBuildInputs = [
@@ -37,13 +37,23 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   doCheck = true;
-  checkPhase = "make test";
+
+  checkPhase = ''
+    runHook preCheck
+
+    make test
+
+    runHook postCheck
+  '';
 
   meta = {
     description = "Universal Hardware Data Model";
     homepage = "https://github.com/chipsalliance/UHDM";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ matthuszagh hzeller ];
+    maintainers = with lib.maintainers; [
+      matthuszagh
+      hzeller
+    ];
     platforms = lib.platforms.all;
   };
 })

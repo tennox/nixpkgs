@@ -1,13 +1,30 @@
-{ coreutils, fetchFromGitHub, file, gawk, gnugrep, gnused
-, installShellFiles, lib, libiconv, makeWrapper, stdenv, ruby
+{
+  coreutils,
+  fetchFromGitHub,
+  file,
+  gawk,
+  gnugrep,
+  gnused,
+  installShellFiles,
+  lib,
+  libiconv,
+  makeWrapper,
+  stdenv,
+  ruby,
 }:
 
 stdenv.mkDerivation rec {
   pname = "mblaze";
   version = "1.3";
 
-  nativeBuildInputs = [ installShellFiles makeWrapper ];
-  buildInputs = [ libiconv ruby ];
+  nativeBuildInputs = [
+    installShellFiles
+    makeWrapper
+  ];
+  buildInputs = [
+    libiconv
+    ruby
+  ];
 
   src = fetchFromGitHub {
     owner = "leahneukirchen";
@@ -22,7 +39,8 @@ stdenv.mkDerivation rec {
 
   postInstall = ''
     installShellCompletion contrib/_mblaze
-  '' + lib.optionalString (ruby != null) ''
+  ''
+  + lib.optionalString (ruby != null) ''
     install -Dt $out/bin contrib/msuck contrib/mblow
 
     # The following wrappings are used to preserve the executable
@@ -38,9 +56,15 @@ stdenv.mkDerivation rec {
       makeWrapper $out/wrapped/$x $out/bin/$x \
         --argv0 $out/bin/$x \
         --prefix PATH : $out/bin \
-        --prefix PATH : ${lib.makeBinPath [
-          coreutils file gawk gnugrep gnused
-        ]}
+        --prefix PATH : ${
+          lib.makeBinPath [
+            coreutils
+            file
+            gawk
+            gnugrep
+            gnused
+          ]
+        }
     done
   '';
 

@@ -1,4 +1,18 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, cmake, pkg-config, bluez, dbus, glew, glfw, imgui, makeDesktopItem, copyDesktopItems }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  pkg-config,
+  bluez,
+  dbus,
+  glew,
+  glfw,
+  imgui,
+  makeDesktopItem,
+  copyDesktopItems,
+}:
 
 stdenv.mkDerivation rec {
   pname = "SonyHeadphonesClient";
@@ -7,7 +21,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "Plutoberth";
     repo = "SonyHeadphonesClient";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-vhI97KheKzr87exCh4xNN7NDefcagdMu1tWSt67vLiU=";
     fetchSubmodules = true;
   };
@@ -22,8 +36,18 @@ stdenv.mkDerivation rec {
     })
   ];
 
-  nativeBuildInputs = [ cmake pkg-config copyDesktopItems ];
-  buildInputs = [ bluez dbus glew glfw imgui ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    copyDesktopItems
+  ];
+  buildInputs = [
+    bluez
+    dbus
+    glew
+    glfw
+    imgui
+  ];
 
   sourceRoot = "${src.name}/Client";
 
@@ -47,7 +71,10 @@ stdenv.mkDerivation rec {
       icon = "SonyHeadphonesClient";
       desktopName = "Sony Headphones Client";
       comment = "A client recreating the functionality of the Sony Headphones app";
-      categories = [ "Audio" "Mixer" ];
+      categories = [
+        "Audio"
+        "Mixer"
+      ];
     })
   ];
 

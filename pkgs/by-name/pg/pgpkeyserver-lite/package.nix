@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "pgpkeyserver-lite";
@@ -7,7 +11,7 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "mattrude";
     repo = "pgpkeyserver-lite";
-    rev = "a038cb7";
+    rev = "a038cb79b927c99bf7da62f20d2c6a2f20374339";
     sha256 = "12pn92pcpv38b2gmamppn9yzdn7x52pgxnzpal22gqsxwimhs2rx";
   };
 

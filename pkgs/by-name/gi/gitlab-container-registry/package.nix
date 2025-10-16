@@ -1,8 +1,12 @@
-{ lib, buildGoModule, fetchFromGitLab }:
+{
+  lib,
+  buildGo124Module,
+  fetchFromGitLab,
+}:
 
-buildGoModule rec {
+buildGo124Module rec {
   pname = "gitlab-container-registry";
-  version = "4.13.0";
+  version = "4.28.0";
   rev = "v${version}-gitlab";
 
   # nixpkgs-update: no auto update
@@ -10,25 +14,33 @@ buildGoModule rec {
     owner = "gitlab-org";
     repo = "container-registry";
     inherit rev;
-    hash = "sha256-V58UjlIlGllbPBTZMY5EoGNC+toy11xLCnnLHXqJUVU=";
+    hash = "sha256-0v39mQ0wLq2VUYNeDU6E2M8Ny/e/A3VrE8+pmpwJgug=";
   };
 
-  vendorHash = "sha256-LSl94y1g0sfqXWddF7f8z2YRC5D6zJP1t+gsXqdVHww=";
+  vendorHash = "sha256-tCOXSZjJOWHTIdWYxdBaH6STKAwqlHsuDfhGd2KPx1Q=";
 
-  postPatch = ''
-    # Disable flaky inmemory storage driver test
-    rm registry/storage/driver/inmemory/driver_test.go
+  checkFlags =
+    let
+      skippedTests = [
+        # requires internet
+        "TestHTTPChecker"
+        # requires s3 credentials/urls
+        "TestS3DriverPathStyle"
+        # flaky
+        "TestPurgeAll"
+      ];
+    in
+    [ "-skip=^${builtins.concatStringsSep "$|^" skippedTests}$" ];
 
-    substituteInPlace health/checks/checks_test.go \
-      --replace \
-        'func TestHTTPChecker(t *testing.T) {' \
-        'func TestHTTPChecker(t *testing.T) { t.Skip("Test requires network connection")'
-  '';
+  __darwinAllowLocalNetworking = true;
 
   meta = with lib; {
     description = "GitLab Docker toolset to pack, ship, store, and deliver content";
     license = licenses.asl20;
-    maintainers = with maintainers; [ yayayayaka ] ++ teams.cyberus.members;
+    teams = with teams; [
+      gitlab
+      cyberus
+    ];
     platforms = platforms.unix;
   };
 }

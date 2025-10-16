@@ -1,20 +1,25 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch
-, rustPlatform, pkg-config, dtc, openssl
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  pkg-config,
+  dtc,
+  openssl,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "cloud-hypervisor";
-  version = "42.0";
+  version = "48.0";
 
   src = fetchFromGitHub {
     owner = "cloud-hypervisor";
-    repo = pname;
+    repo = "cloud-hypervisor";
     rev = "v${version}";
-    hash = "sha256-AuKUwYxAXY/rNQk5Jx4WxGj+wChRrDkw8fp3uO3KBv0=";
+    hash = "sha256-cfS3sO1GQIxF9UlzKP9iE/UuJwGVIkNBN7GDF/ltn4Q=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-xqMUB9aqkUIpnX0U30CfiWmjDI7IS5SuJIKF5byXIxk=";
+  cargoHash = "sha256-QvW1loljt9KzY0h2pG7n9NCkJJOYr/VxftsyqATm9DA=";
 
   separateDebugInfo = true;
 
@@ -26,18 +31,33 @@ rustPlatform.buildRustPackage rec {
 
   cargoTestFlags = [
     "--workspace"
-    "--bins" "--lib" # Integration tests require root.
-    "--exclude" "net_util" # /dev/net/tun
-    "--exclude" "vmm"      # /dev/kvm
+    "--bins"
+    "--lib" # Integration tests require root.
+    "--exclude"
+    "hypervisor" # /dev/kvm
+    "--exclude"
+    "net_util" # /dev/net/tun
+    "--exclude"
+    "vmm" # /dev/kvm
   ];
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/cloud-hypervisor/cloud-hypervisor";
     description = "Open source Virtual Machine Monitor (VMM) that runs on top of KVM";
     changelog = "https://github.com/cloud-hypervisor/cloud-hypervisor/releases/tag/v${version}";
-    license = with licenses; [ asl20 bsd3 ];
+    license = with lib.licenses; [
+      asl20
+      bsd3
+    ];
     mainProgram = "cloud-hypervisor";
-    maintainers = with maintainers; [ offline qyliss ];
-    platforms = [ "aarch64-linux" "x86_64-linux" ];
+    maintainers = with lib.maintainers; [
+      offline
+      qyliss
+    ];
+    platforms = [
+      "aarch64-linux"
+      "riscv64-linux"
+      "x86_64-linux"
+    ];
   };
 }

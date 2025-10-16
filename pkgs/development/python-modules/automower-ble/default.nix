@@ -10,7 +10,7 @@
 
 buildPythonPackage rec {
   pname = "automower-ble";
-  version = "0.2.0";
+  version = "0.2.7";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -18,8 +18,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "alistair23";
     repo = "AutoMower-BLE";
-    rev = "refs/tags/${version}";
-    hash = "sha256-BWfRXz78e1Xq0fNOGJ2IFnjNqfH3oD5VIGMxyCPtEUw=";
+    tag = version;
+    hash = "sha256-oOwSbGzTGXWm3Vmsui4k1lPRnT8+aIs6sk1DK/aRxzs=";
   };
 
   build-system = [ setuptools ];

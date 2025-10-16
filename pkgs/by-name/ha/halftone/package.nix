@@ -1,27 +1,28 @@
-{ lib
-, fetchFromGitHub
-, wrapGAppsHook4
-, meson
-, ninja
-, pkg-config
-, appstream-glib
-, desktop-file-utils
-, gobject-introspection
-, glib
-, blueprint-compiler
-, libadwaita
-, python3Packages
+{
+  lib,
+  fetchFromGitHub,
+  wrapGAppsHook4,
+  meson,
+  ninja,
+  pkg-config,
+  appstream-glib,
+  desktop-file-utils,
+  gobject-introspection,
+  glib,
+  blueprint-compiler,
+  libadwaita,
+  python3Packages,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "halftone";
-  version = "0.6.1";
+  version = "0.7.2";
 
   src = fetchFromGitHub {
     owner = "tfuxu";
-    repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-o55eimlDy86mbwveARxVXauMQEneAchVi2RNaj6FYxs=";
+    repo = "halftone";
+    tag = version;
+    hash = "sha256-5hT6ulmUlOrFVL4nV0tfvgkKdYGusp+1rBINQy3ZvpI=";
   };
 
   format = "other";

@@ -1,4 +1,9 @@
-{ lib, stdenv, autoreconfHook, ghostscript }:
+{
+  lib,
+  stdenv,
+  autoreconfHook,
+  ghostscript,
+}:
 
 stdenv.mkDerivation {
   pname = "ijs";
@@ -19,6 +24,6 @@ stdenv.mkDerivation {
     license = licenses.gpl3Plus;
 
     platforms = platforms.all;
-    maintainers = [ maintainers.abbradar ];
+    maintainers = [ ];
   };
 }

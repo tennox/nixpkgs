@@ -1,10 +1,11 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, unstableGitUpdater
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  unstableGitUpdater,
 }:
 
-buildGoModule rec {
+buildGoModule {
   pname = "tewisay";
   version = "0-unstable-2022-11-04";
 
@@ -35,7 +36,6 @@ buildGoModule rec {
     homepage = "https://github.com/raymond-w-ko/tewisay";
     description = "Cowsay replacement with unicode and partial ansi escape support";
     license = with licenses; [ cc0 ];
-    maintainers = with maintainers; [ Madouura ];
     mainProgram = "tewisay";
   };
 }

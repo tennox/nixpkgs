@@ -1,4 +1,8 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "jmespath";
@@ -17,10 +21,13 @@ buildGoModule rec {
     "./internal/testify"
   ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   meta = with lib; {
-    description = "JMESPath implementation in Go";
+    description = "Golang implementation of JMESPath";
     homepage = "https://github.com/jmespath/go-jmespath";
     license = licenses.asl20;
     maintainers = with maintainers; [ cransom ];

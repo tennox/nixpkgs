@@ -1,13 +1,14 @@
-{ lib
-, cmake
-, fetchFromGitHub
-, fetchpatch
-, lz4
-, pkg-config
-, python3
-, stdenv
-, unzip
-, enablePython ? false
+{
+  lib,
+  cmake,
+  fetchFromGitHub,
+  fetchpatch,
+  lz4,
+  pkg-config,
+  python3,
+  stdenv,
+  unzip,
+  enablePython ? false,
 }:
 
 stdenv.mkDerivation rec {
@@ -32,7 +33,8 @@ stdenv.mkDerivation rec {
       url = "https://salsa.debian.org/science-team/flann/-/raw/debian/1.9.1+dfsg-9/debian/patches/0001-src-cpp-fix-cmake-3.11-build.patch";
       sha256 = "REsBnbe6vlrZ+iCcw43kR5wy2o6q10RM73xjW5kBsr4=";
     })
-  ] ++ lib.optionals (!stdenv.cc.isClang) [
+  ]
+  ++ lib.optionals (!stdenv.cc.isClang) [
     # Avoid the bundled version of LZ4 and instead use the system one.
     (fetchpatch {
       url = "https://salsa.debian.org/science-team/flann/-/raw/debian/1.9.1+dfsg-9/debian/patches/0003-Use-system-version-of-liblz4.patch";
@@ -43,7 +45,8 @@ stdenv.mkDerivation rec {
       url = "https://github.com/flann-lib/flann/commit/25eb56ec78472bd419a121c6905095a793cf8992.patch";
       sha256 = "qt8h576Gn8uR7+T9u9bEBIRz6e6AoTKpa1JfdZVvW9s=";
     })
-  ] ++ lib.optionals stdenv.cc.isClang [
+  ]
+  ++ lib.optionals stdenv.cc.isClang [
     # Fix build with Clang 16.
     (fetchpatch {
       url = "https://github.com/flann-lib/flann/commit/be80cefa69b314a3d9e1ab971715e84145863ebb.patch";

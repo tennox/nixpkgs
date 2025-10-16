@@ -1,4 +1,16 @@
-{ lib, stdenv, fetchFromGitLab, meson, ninja, libdrm, libX11, libGL, mesa, pkg-config, gst_all_1 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  meson,
+  ninja,
+  libdrm,
+  libX11,
+  libGL,
+  libgbm,
+  pkg-config,
+  gst_all_1,
+}:
 
 stdenv.mkDerivation {
   pname = "kmscube";
@@ -12,13 +24,18 @@ stdenv.mkDerivation {
     hash = "sha256-kpnn4JBNvwatrcCF/RGk/fQ7qiKD26iLBr9ovDmAKBo=";
   };
 
-  nativeBuildInputs = [ meson pkg-config ninja ];
+  nativeBuildInputs = [
+    meson
+    pkg-config
+    ninja
+  ];
   buildInputs = [
     libdrm
     libX11
     libGL
-    mesa
-  ] ++ (with gst_all_1; [
+    libgbm
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-plugins-base
   ]);

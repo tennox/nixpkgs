@@ -1,24 +1,25 @@
-{ stdenv
-, lib
-, fetchurl
-, substituteAll
-, glib
-, libxml2
-, openconnect
-, intltool
-, pkg-config
-, networkmanager
-, gcr
-, libsecret
-, file
-, gtk3
-, webkitgtk_4_1
-, libnma
-, libnma-gtk4
-, gtk4
-, withGnome ? true
-, gnome
-, kmod
+{
+  stdenv,
+  lib,
+  fetchurl,
+  replaceVars,
+  glib,
+  libxml2,
+  openconnect,
+  intltool,
+  pkg-config,
+  networkmanager,
+  gcr,
+  libsecret,
+  file,
+  gtk3,
+  webkitgtk_4_1,
+  libnma,
+  libnma-gtk4,
+  gtk4,
+  withGnome ? true,
+  gnome,
+  kmod,
 }:
 
 stdenv.mkDerivation rec {
@@ -31,19 +32,18 @@ stdenv.mkDerivation rec {
   };
 
   patches = [
-    (substituteAll {
-      src = ./fix-paths.patch;
+    (replaceVars ./fix-paths.patch {
       inherit kmod openconnect;
     })
   ];
 
   buildInputs = [
-    glib
     libxml2
     openconnect
     networkmanager
     webkitgtk_4_1 # required, for SSO
-  ] ++ lib.optionals withGnome [
+  ]
+  ++ lib.optionals withGnome [
     gtk3
     libnma
     libnma-gtk4
@@ -53,6 +53,7 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [
+    glib
     intltool
     pkg-config
     file
@@ -71,11 +72,12 @@ stdenv.mkDerivation rec {
       versionPolicy = "odd-unstable";
     };
     networkManagerPlugin = "VPN/nm-openconnect-service.name";
+    networkManagerRuntimeDeps = [ openconnect ];
   };
 
   meta = with lib; {
     description = "NetworkManager’s OpenConnect plugin";
-    inherit (networkmanager.meta) maintainers platforms;
+    inherit (networkmanager.meta) maintainers teams platforms;
     license = licenses.gpl2Plus;
   };
 }

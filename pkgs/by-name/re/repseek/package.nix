@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "repseek";
@@ -13,7 +17,8 @@ stdenv.mkDerivation rec {
     substituteInPlace Makefile \
       --replace "INSTALLDIR = \$\$HOME/bin" "INSTALLDIR = $out/bin/" \
       --replace "CC= gcc" "CC = $CC"
-  '' + lib.optionalString stdenv.hostPlatform.isLinux ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isLinux ''
     substituteInPlace Makefile --replace "MACHINE = MACOSX" "MACHINE = LINUX"
   '';
 

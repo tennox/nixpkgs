@@ -1,20 +1,21 @@
-{ autoPatchelfHook
-, dpkg
-, fetchurl
-, makeDesktopItem
-, makeWrapper
-, stdenv
-, lib
-, udev
-, buildPackages
-, cpio
-, xar
-, libdbusmenu
-, alsa-lib
-, mesa
-, nss
-, nspr
-, systemd
+{
+  autoPatchelfHook,
+  dpkg,
+  fetchurl,
+  makeDesktopItem,
+  makeWrapper,
+  stdenv,
+  lib,
+  udev,
+  buildPackages,
+  cpio,
+  xar,
+  libdbusmenu,
+  alsa-lib,
+  libgbm,
+  nss,
+  nspr,
+  systemd,
 }:
 
 let
@@ -25,21 +26,23 @@ let
 
   pname = "wire-desktop";
 
-  version = let
-    x86_64-darwin = "3.35.4861";
-  in {
-    inherit x86_64-darwin;
-    aarch64-darwin = x86_64-darwin;
-    x86_64-linux = "3.36.3462";
-  }.${system} or throwSystem;
+  versions = builtins.fromJSON (builtins.readFile ./versions.json);
 
-  hash = let
-    x86_64-darwin = "sha256-QPxslMEz1jOH2LceFOdCyVDtpya1SfJ8GWMIAIhie4U=";
-  in {
-    inherit x86_64-darwin;
-    aarch64-darwin = x86_64-darwin;
-    x86_64-linux = "sha256-tlX15AT4PcrmD2Vna99TGqo0b/8xv2YOAt03aCqSeXg=";
-  }.${system} or throwSystem;
+  version =
+    {
+      x86_64-darwin = versions.macos.version;
+      aarch64-darwin = versions.macos.version;
+      x86_64-linux = versions.linux.version;
+    }
+    .${system} or throwSystem;
+
+  hash =
+    {
+      x86_64-darwin = versions.macos.hash;
+      aarch64-darwin = versions.macos.hash;
+      x86_64-linux = versions.linux.hash;
+    }
+    .${system} or throwSystem;
 
   meta = with lib; {
     description = "Modern, secure messenger for everyone";
@@ -57,7 +60,6 @@ let
     homepage = "https://wire.com/";
     downloadPage = "https://wire.com/download/";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    knownVulnerabilities = [ "CVE-2024-6775" ];
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [
       arianvp
@@ -66,11 +68,24 @@ let
     platforms = platforms.darwin ++ [
       "x86_64-linux"
     ];
-    hydraPlatforms = [];
+    hydraPlatforms = [ ];
+  };
+
+  passthru.updateScript = {
+    command = [
+      ./update.sh
+      ./.
+    ];
+    supportedFeatures = [ "commit" ];
   };
 
   linux = stdenv.mkDerivation rec {
-    inherit pname version meta;
+    inherit
+      pname
+      version
+      meta
+      passthru
+      ;
 
     src = fetchurl {
       url = "https://wire-app.wire.com/linux/debian/pool/main/Wire-${version}_amd64.deb";
@@ -78,7 +93,12 @@ let
     };
 
     desktopItem = makeDesktopItem {
-      categories = [ "Network" "InstantMessaging" "Chat" "VideoConference" ];
+      categories = [
+        "Network"
+        "InstantMessaging"
+        "Chat"
+        "VideoConference"
+      ];
       comment = "Secure messenger for everyone";
       desktopName = "Wire";
       exec = "wire-desktop %U";
@@ -103,19 +123,11 @@ let
 
     buildInputs = [
       alsa-lib
-      mesa
+      libgbm
       nss
       nspr
       systemd
     ];
-
-    unpackPhase = ''
-      runHook preUnpack
-
-      dpkg-deb -x $src .
-
-      runHook postUnpack
-    '';
 
     installPhase = ''
       runHook preInstall
@@ -138,7 +150,7 @@ let
     ];
 
     preFixup = ''
-      gappsWrapperArgs+=(--add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}")
+      gappsWrapperArgs+=(--add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}")
     '';
 
     postFixup = ''
@@ -148,7 +160,12 @@ let
   };
 
   darwin = stdenv.mkDerivation {
-    inherit pname version meta;
+    inherit
+      pname
+      version
+      meta
+      passthru
+      ;
 
     src = fetchurl {
       url = "https://github.com/wireapp/wire-desktop/releases/download/macos%2F${version}/Wire.pkg";
@@ -188,6 +205,4 @@ let
   };
 
 in
-if stdenv.hostPlatform.isDarwin
-then darwin
-else linux
+if stdenv.hostPlatform.isDarwin then darwin else linux

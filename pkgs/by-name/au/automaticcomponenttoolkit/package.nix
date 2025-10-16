@@ -1,4 +1,10 @@
-{ stdenv, lib, fetchFromGitHub, go }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  go,
+  writableTmpDirAsHomeHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "AutomaticComponentToolkit";
@@ -6,16 +12,18 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "Autodesk";
-    repo = pname;
+    repo = "AutomaticComponentToolkit";
     rev = "v${version}";
     sha256 = "1r0sbw82cf9dbcj3vgnbd4sc1lklzvijic2z5wgkvs21azcm0yzh";
   };
 
-  nativeBuildInputs = [ go ];
+  nativeBuildInputs = [
+    go
+    writableTmpDirAsHomeHook
+  ];
 
   buildPhase = ''
     cd Source
-    export HOME=/tmp
     go build -o act *.go
   '';
 
@@ -28,7 +36,7 @@ stdenv.mkDerivation rec {
     mainProgram = "act";
     homepage = "https://github.com/Autodesk/AutomaticComponentToolkit";
     license = licenses.bsd2;
-    maintainers = with maintainers; [ gebner ];
+    maintainers = [ ];
     platforms = platforms.all;
   };
 }

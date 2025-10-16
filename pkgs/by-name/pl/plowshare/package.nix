@@ -1,4 +1,12 @@
-{ lib, stdenv, fetchFromGitHub, makeWrapper, curl, recode, spidermonkey_115 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeBinaryWrapper,
+  curl,
+  recode,
+  spidermonkey_140,
+}:
 
 stdenv.mkDerivation rec {
 
@@ -9,10 +17,10 @@ stdenv.mkDerivation rec {
     owner = "mcrapet";
     repo = "plowshare";
     rev = "v${version}";
-    sha256 = "1p8s60dlzaldp006yj710s371aan915asyjhd99188vrj4jj1x79";
+    hash = "sha256-6fQgJZF5IxRSalB6rUpIVqlwhgbhSG8AuI2qTxswGt0=";
   };
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeBinaryWrapper ];
 
   dontBuild = true;
 
@@ -20,14 +28,19 @@ stdenv.mkDerivation rec {
     make PREFIX="$out" install
 
     for fn in plow{del,down,list,mod,probe,up}; do
-      wrapProgram "$out/bin/$fn" --prefix PATH : "${lib.makeBinPath [ curl recode spidermonkey_115 ]}"
+      wrapProgram "$out/bin/$fn" --prefix PATH : "${
+        lib.makeBinPath [
+          curl
+          recode
+          spidermonkey_140
+        ]
+      }"
     done
   '';
 
   meta = {
-    description = ''
-      A command-line download/upload tool for popular file sharing websites
-    '';
+    description = "Command-line download/upload tool for popular file sharing websites";
+    homepage = "https://github.com/mcrapet/plowshare";
     license = lib.licenses.gpl3;
     maintainers = with lib.maintainers; [ aforemny ];
     platforms = lib.platforms.linux;

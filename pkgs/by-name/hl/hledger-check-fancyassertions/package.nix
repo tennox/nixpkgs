@@ -1,4 +1,10 @@
-{lib, stdenvNoCC, haskellPackages, fetchurl, writers}:
+{
+  lib,
+  stdenvNoCC,
+  haskellPackages,
+  fetchurl,
+  writers,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "hledger-check-fancyassertions";
@@ -7,24 +13,29 @@ stdenvNoCC.mkDerivation rec {
   src = fetchurl {
     name = "hledger-check-fancyassertion-${version}.hs";
     url = "https://raw.githubusercontent.com/simonmichael/hledger/hledger-lib-${version}/bin/hledger-check-fancyassertions.hs";
-    sha256 = "0lyyz8dqkknd9d073l613kdkaqd9r6ymdw94d7mwp17pxvfr17wf";
+    hash = "sha256-p1JvPHSB5hkfZsTq1sSL0mxCRkhZu1zkpXTELVNFE64=";
   };
 
   dontUnpack = true;
   dontBuild = true;
 
-  executable = writers.writeHaskell
-    "hledger-check-fancyassertions"
-    {
-      libraries = with haskellPackages; [
-        hledger-lib
-        base base-compat base-compat-batteries filepath
-        megaparsec microlens optparse-applicative string-qq text time
-        transformers
-      ];
-      inherit (haskellPackages) ghc;
-    }
-    src;
+  executable = writers.writeHaskell "hledger-check-fancyassertions" {
+    libraries = with haskellPackages; [
+      hledger-lib
+      base
+      base-compat
+      base-compat-batteries
+      filepath
+      megaparsec
+      microlens
+      optparse-applicative
+      string-qq
+      text
+      time
+      transformers
+    ];
+    inherit (haskellPackages) ghc;
+  } src;
 
   installPhase = ''
     runHook preInstall

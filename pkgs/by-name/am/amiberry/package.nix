@@ -24,7 +24,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "BlitterStudio";
     repo = "amiberry";
-    rev = "refs/tags/v${finalAttrs.version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-EOoVJYefX2pQ2Zz9bLD1RS47u/+7ZWTMwZYha0juF64=";
   };
 
@@ -103,7 +103,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Optimized Amiga emulator for Linux/macOS";
     license = licenses.gpl3;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ michaelshmitty ];
+    maintainers = [ ];
     mainProgram = "amiberry";
   };
 })

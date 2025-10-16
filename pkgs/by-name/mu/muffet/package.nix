@@ -1,27 +1,33 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  versionCheckHook,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "muffet";
-  version = "2.10.6";
+  version = "2.11.0";
 
   src = fetchFromGitHub {
     owner = "raviqqe";
     repo = "muffet";
-    rev = "v${version}";
-    hash = "sha256-9dra/LhtSIWN2pjNEJMITz/GzyWRtXTyQBqBxRhjARc=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-GfRR+9PdfY63Pzv2XZenKs8XXAKRr9qMzcHOVhl+hv4=";
   };
 
-  vendorHash = "sha256-MYU8zgqI05oBep/dehs59S3JcrThrgLEzIgrIr/Tr4Y=";
+  vendorHash = "sha256-oidOSV8y0VwTabipe7XwurUAra9F65nkTXslwXJ94Jw=";
 
-  meta = with lib; {
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+  versionCheckProgramArg = "--version";
+
+  meta = {
     description = "Website link checker which scrapes and inspects all pages in a website recursively";
     homepage = "https://github.com/raviqqe/muffet";
-    changelog = "https://github.com/raviqqe/muffet/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ figsoda ];
+    changelog = "https://github.com/raviqqe/muffet/releases/tag/${finalAttrs.src.tag}";
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ figsoda ];
     mainProgram = "muffet";
   };
-}
+})

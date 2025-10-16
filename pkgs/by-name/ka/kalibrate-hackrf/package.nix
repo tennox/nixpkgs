@@ -1,8 +1,17 @@
-{ lib, stdenv, fetchFromGitHub, autoreconfHook, pkg-config, fftw, hackrf, libusb1 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  pkg-config,
+  fftw,
+  hackrf,
+  libusb1,
+}:
 
 stdenv.mkDerivation {
   pname = "kalibrate-hackrf";
-  version = "unstable-2016-08-27";
+  version = "0-unstable-2016-08-27";
 
   # There are no tags/releases, so use the latest commit from git master.
   # Currently, the latest commit is from 2016-07-03.
@@ -13,9 +22,16 @@ stdenv.mkDerivation {
     sha256 = "1jvn1qx7csgycxpx1k804sm9gk5a0c65z9gh8ybp9awq3pziv0nx";
   };
 
-  nativeBuildInputs = [ autoreconfHook pkg-config ];
+  nativeBuildInputs = [
+    autoreconfHook
+    pkg-config
+  ];
 
-  buildInputs = [ fftw hackrf libusb1 ];
+  buildInputs = [
+    fftw
+    hackrf
+    libusb1
+  ];
 
   postInstall = ''
     mv $out/bin/kal $out/bin/kal-hackrf

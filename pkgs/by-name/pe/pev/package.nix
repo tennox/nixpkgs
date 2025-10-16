@@ -1,8 +1,13 @@
-{ lib, stdenv, openssl, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  openssl,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "pev";
-  version = "unstable-2020-05-23";
+  version = "0-unstable-2020-05-23";
 
   src = fetchFromGitHub {
     owner = "merces";

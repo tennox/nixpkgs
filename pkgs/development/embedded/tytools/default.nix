@@ -1,4 +1,12 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config, wrapQtAppsHook , qtbase}:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  wrapQtAppsHook,
+  qtbase,
+}:
 
 stdenv.mkDerivation rec {
   pname = "tytools";
@@ -6,12 +14,16 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "Koromix";
-    repo = pname;
+    repo = "tytools";
     rev = "v${version}";
     sha256 = "sha256-MKhh0ooDZI1Ks8vVuPRiHhpOqStetGaAhE2ulvBstxA=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config wrapQtAppsHook ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    wrapQtAppsHook
+  ];
   buildInputs = [
     qtbase
   ];

@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, cmake, which, testers }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  which,
+  testers,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "yajl";
@@ -10,6 +17,10 @@ stdenv.mkDerivation (finalAttrs: {
     rev = "6bc5219389fd2752631682b0a8368e6d8218a8c5";
     hash = "sha256-vY0tqCkz6PN00Qbip5ViO64L3C06fJ4JjFuIk0TWgCo=";
   };
+
+  patches = [
+    ./yajl-cmake4-compat.patch
+  ];
 
   nativeBuildInputs = [ cmake ];
 

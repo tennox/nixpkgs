@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, docbook_xsl
-, libxslt
-, meson
-, ninja
-, pkg-config
-, bash-completion
-, libcap
-, libselinux
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  docbook_xsl,
+  libxslt,
+  meson,
+  ninja,
+  pkg-config,
+  bash-completion,
+  libcap,
+  libselinux,
 }:
 
 stdenv.mkDerivation rec {
@@ -21,6 +22,11 @@ stdenv.mkDerivation rec {
     rev = "v${version}";
     hash = "sha256-8IDMLQPeO576N1lizVudXUmTV6hNOiowjzRpEWBsZ+U=";
   };
+
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   postPatch = ''
     substituteInPlace tests/libtest.sh \

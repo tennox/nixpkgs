@@ -1,21 +1,26 @@
-{ lib, stdenv
-, fetchFromGitHub
-, python3
-, which
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  python3,
+  which,
 }:
 
 stdenv.mkDerivation rec {
   pname = "fatrace";
-  version = "0.17.0";
+  version = "0.19.1";
 
   src = fetchFromGitHub {
     owner = "martinpitt";
-    repo = pname;
+    repo = "fatrace";
     rev = version;
-    sha256 = "sha256-MRHM+hyuRevK4L3u6dGw1S3O7w+BJBsprJVcSz6Q9xg=";
+    sha256 = "sha256-ncLmO7DwkB2nC4K/40ctwRheVVSPDK+zfcGJZvYyuVI=";
   };
 
-  buildInputs = [ python3 which ];
+  buildInputs = [
+    python3
+    which
+  ];
 
   postPatch = ''
     substituteInPlace power-usage-report \

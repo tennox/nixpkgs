@@ -1,23 +1,24 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, nix-update-script
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  nix-update-script,
 }:
 
 buildGoModule rec {
   pname = "google-cloud-sql-proxy";
-  version = "2.14.0";
+  version = "2.18.2";
 
   src = fetchFromGitHub {
     owner = "GoogleCloudPlatform";
     repo = "cloud-sql-proxy";
     rev = "v${version}";
-    hash = "sha256-SM74Z9+oo472BIM/moSj9zyZh2HefkAkqoC4L1tu+X8=";
+    hash = "sha256-c37/364fAm4FR3TQ55zKRUVWr2rr7SZUMRlTJKEIc8c=";
   };
 
   subPackages = [ "." ];
 
-  vendorHash = "sha256-Ao/kSC4gcsZpRaSu7FhqJs1ulUbfrzOpO4CMropCywo=";
+  vendorHash = "sha256-nrrf7+6uaKHvrJg8mrqjbyJxDjZhO4KKPd9+nIX+8A0=";
 
   checkFlags = [
     "-short"
@@ -37,7 +38,10 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/GoogleCloudPlatform/cloud-sql-proxy";
     license = licenses.asl20;
-    maintainers = with maintainers; [ nicknovitski totoroot ];
+    maintainers = with maintainers; [
+      nicknovitski
+      totoroot
+    ];
     mainProgram = "cloud-sql-proxy";
   };
 }

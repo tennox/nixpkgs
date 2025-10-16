@@ -1,33 +1,35 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, meson
-, ninja
-, pkg-config
-, gobject-introspection
-, vala
-, gi-docgen
-, glib
-, gtk4
-, gtksourceview5
-, enchant
-, icu
-, libsysprof-capture
-, gnome
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  gobject-introspection,
+  vala,
+  gi-docgen,
+  glib,
+  gtk4,
+  gtksourceview5,
+  enchant,
+  icu,
+  libsysprof-capture,
+  gnome,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "libspelling";
-  version = "0.4.4";
+  version = "0.4.9";
 
-  outputs = [ "out" "dev" "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+    "devdoc"
+  ];
 
-  src = fetchFromGitLab {
-    domain = "gitlab.gnome.org";
-    owner = "GNOME";
-    repo = "libspelling";
-    rev = version;
-    hash = "sha256-6ggegeDR4UBP2LKn6lj0pOB1Iz7MwLEf9usIB28SEMA=";
+  src = fetchurl {
+    url = "mirror://gnome/sources/libspelling/${lib.versions.majorMinor finalAttrs.version}/libspelling-${finalAttrs.version}.tar.xz";
+    hash = "sha256-0JP9Na4PHJj7WIdlBSh/wKiF5H2p0kEdbXzVlfNNTr8=";
   };
 
   nativeBuildInputs = [
@@ -40,12 +42,17 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    glib
-    gtk4
-    gtksourceview5
     enchant
     icu
     libsysprof-capture
+  ];
+
+  propagatedBuildInputs = [
+    # These were moved from buildInputs because they are
+    # listed in `Requires` key of `libspelling-1.pc`
+    glib
+    gtk4
+    gtksourceview5
   ];
 
   postFixup = ''
@@ -57,11 +64,12 @@ stdenv.mkDerivation rec {
     packageName = "libspelling";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Spellcheck library for GTK 4";
     homepage = "https://gitlab.gnome.org/GNOME/libspelling";
-    license = licenses.lgpl21Plus;
-    changelog = "https://gitlab.gnome.org/GNOME/libspelling/-/raw/${version}/NEWS";
-    maintainers = with maintainers; [ chuangzhu ] ++ teams.gnome.members;
+    license = lib.licenses.lgpl21Plus;
+    changelog = "https://gitlab.gnome.org/GNOME/libspelling/-/raw/${finalAttrs.version}/NEWS";
+    maintainers = with lib.maintainers; [ chuangzhu ];
+    teams = [ lib.teams.gnome ];
   };
-}
+})

@@ -1,18 +1,19 @@
-{ lib
-, stdenv
-, fetchurl
-, xar
-, cpio
-, makeWrapper
+{
+  lib,
+  stdenv,
+  fetchurl,
+  xar,
+  pbzx,
+  cpio,
 }:
 
 let
   pname = "teams";
   versions = {
-    darwin = "1.6.00.4464";
+    darwin = "25255.703.3981.5698";
   };
   hashes = {
-    darwin = "sha256-DvXMrXotKWUqFCb7rZj8wU7mmZJKuTLGyx8qOB/aQtg=";
+    darwin = "sha256-p9tAvOJxoIO0d8z0qdfc4sokUNfaYKq2NtBHKOWYBM4=";
   };
   meta = with lib; {
     description = "Microsoft Teams";
@@ -21,38 +22,43 @@ let
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
     maintainers = with maintainers; [ tricktron ];
-    platforms = [ "x86_64-darwin" "aarch64-darwin" ];
+    platforms = [
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
     mainProgram = "teams";
   };
-
-  appName = "Teams.app";
 in
 stdenv.mkDerivation {
   inherit pname meta;
   version = versions.darwin;
 
   src = fetchurl {
-    url = "https://statics.teams.cdn.office.net/production-osx/${versions.darwin}/Teams_osx.pkg";
+    url = "https://statics.teams.cdn.office.net/production-osx/${versions.darwin}/MicrosoftTeams.pkg";
     hash = hashes.darwin;
   };
 
-  nativeBuildInputs = [ xar cpio makeWrapper ];
+  nativeBuildInputs = [
+    xar
+    pbzx
+    cpio
+  ];
 
   unpackPhase = ''
     xar -xf $src
-    zcat < Teams_osx_app.pkg/Payload | cpio -i
   '';
 
-  sourceRoot = "Microsoft\ Teams.app";
   dontPatch = true;
   dontConfigure = true;
   dontBuild = true;
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/{Applications/${appName},bin}
-    cp -R . $out/Applications/${appName}
-    makeWrapper $out/Applications/${appName}/Contents/MacOS/Teams $out/bin/teams
+    workdir=$(pwd)
+    APP_DIR=$out/Applications
+    mkdir -p $APP_DIR
+    cd $APP_DIR
+    pbzx -n "$workdir/MicrosoftTeams_app.pkg/Payload" | cpio -idm
     runHook postInstall
   '';
 }

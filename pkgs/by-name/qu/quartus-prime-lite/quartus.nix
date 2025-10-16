@@ -1,6 +1,17 @@
-{ stdenv, lib, unstick, fetchurl
-, withQuesta ? true
-, supportedDevices ? [ "Arria II" "Cyclone V" "Cyclone IV" "Cyclone 10 LP" "MAX II/V" "MAX 10 FPGA" ]
+{
+  stdenv,
+  lib,
+  unstick,
+  fetchurl,
+  withQuesta ? true,
+  supportedDevices ? [
+    "Arria II"
+    "Cyclone V"
+    "Cyclone IV"
+    "Cyclone 10 LP"
+    "MAX II/V"
+    "MAX 10 FPGA"
+  ],
 }:
 
 let
@@ -14,68 +25,85 @@ let
   };
 
   supportedDeviceIds =
-    assert lib.assertMsg (lib.all (name: lib.hasAttr name deviceIds) supportedDevices)
-      "Supported devices are: ${lib.concatStringsSep ", " (lib.attrNames deviceIds)}";
-    lib.listToAttrs (map (name: {
-      inherit name;
-      value = deviceIds.${name};
-    }) supportedDevices);
+    assert lib.assertMsg (lib.all (
+      name: lib.hasAttr name deviceIds
+    ) supportedDevices) "Supported devices are: ${lib.concatStringsSep ", " (lib.attrNames deviceIds)}";
+    lib.listToAttrs (
+      map (name: {
+        inherit name;
+        value = deviceIds.${name};
+      }) supportedDevices
+    );
 
-  unsupportedDeviceIds = lib.filterAttrs (name: value:
-    !(lib.hasAttr name supportedDeviceIds)
+  unsupportedDeviceIds = lib.filterAttrs (
+    name: value: !(lib.hasAttr name supportedDeviceIds)
   ) deviceIds;
 
   componentHashes = {
-    "arria_lite" = "0fg9mmncbb8vmmbc3hxgmrgvgfphn3k4glv7w2yjq66vz6nd8zql";
-    "cyclone" = "1min1hjaw8ll0c1gvl6ihp7hczw36ag8l2yzgl6avcapcw53hgyp";
-    "cyclone10lp" = "1kjjm11hjg0h6i7kilxvhmkay3v416bhwp0frg2bnwggpk29drxj";
-    "cyclonev" = "10v928qhyfqw3lszhhcdishh1875k1bki9i0czx9252jprgd1g7g";
-    "max" = "04sszzz3qnjziirisshhdqs7ks8mcvy15lc1mpp9sgm09pwlhgbb";
-    "max10" = "0dqlq477zdx4pf5hlbkl1ycxiav19vx4sk6277cpxm8y1xz70972";
+    "arria_lite" = "sha256-ASvi9YX15b4XXabGjkuR5wl9wDwCijl8s750XTR/4XU=";
+    "cyclone" = "sha256-iNA4S5mssffgn29NUhibJk6iKnmJ+vG9LYY3W+nnqcI=";
+    "cyclone10lp" = "sha256-247yR2fm5A3LWRjePJU99z1NBYziV8WkPL05wHJ4Z1Q=";
+    "cyclonev" = "sha256-Fa1PQ3pp9iTPYQljeKGyxHIXHaSolJZR8vXVb3gEN7g=";
+    "max" = "sha256-lAA1CgSfAjfilLDhRzfU2OkzGAChk7TMFckeboMB4mI=";
+    "max10" = "sha256-edycBj0P3qwLN2YS//QpCHQeGOW8WM0RqTIWdGAkEv8=";
   };
 
-  version = "23.1std.0.991";
+  version = "24.1std.0.1077";
 
-  download = {name, sha256}: fetchurl {
-    inherit name sha256;
-    # e.g. "23.1std.0.991" -> "23.1std/921"
-    url = "https://downloads.intel.com/akdlm/software/acdsinst/${lib.versions.majorMinor version}std/${lib.elemAt (lib.splitVersion version) 4}/ib_installers/${name}";
-  };
+  download =
+    { name, sha256 }:
+    fetchurl {
+      inherit name sha256;
+      # e.g. "23.1std.1.993" -> "23.1std/993"
+      url = "https://downloads.intel.com/akdlm/software/acdsinst/${lib.versions.majorMinor version}std/${lib.elemAt (lib.splitVersion version) 4}/ib_installers/${name}";
+    };
 
-  installers = map download ([{
-    name = "QuartusLiteSetup-${version}-linux.run";
-    sha256 = "1mg4db56rg407kdsvpzys96z59bls8djyddfzxi6bdikcklxz98h";
-  }] ++ lib.optional withQuesta {
-    name = "QuestaSetup-${version}-linux.run";
-    sha256 = "0f9lyphk4vf4ijif3kb4iqf18jl357z9h8g16kwnzaqwfngh2ixk";
-  });
-  components = map (id: download {
-    name = "${id}-${version}.qdz";
-    sha256 = lib.getAttr id componentHashes;
-  }) (lib.attrValues supportedDeviceIds);
+  installers = map download (
+    [
+      {
+        name = "QuartusLiteSetup-${version}-linux.run";
+        sha256 = "sha256-NFWT1VWcb3gun7GhpPbHzR3SIYBMpK40jESXS/vC5II=";
+      }
+    ]
+    ++ lib.optional withQuesta {
+      name = "QuestaSetup-${version}-linux.run";
+      sha256 = "sha256-4+Y34UiJwenlIp/XKzMs+2aYZt/Y6XmNmiYyXVmOQkc=";
+    }
+  );
+  components = map (
+    id:
+    download {
+      name = "${id}-${version}.qdz";
+      sha256 = lib.getAttr id componentHashes;
+    }
+  ) (lib.attrValues supportedDeviceIds);
 
-in stdenv.mkDerivation rec {
+in
+stdenv.mkDerivation {
   inherit version;
   pname = "quartus-prime-lite-unwrapped";
 
   nativeBuildInputs = [ unstick ];
 
-  buildCommand = let
-    copyInstaller = installer: ''
+  buildCommand =
+    let
+      copyInstaller = installer: ''
         # `$(cat $NIX_CC/nix-support/dynamic-linker) $src[0]` often segfaults, so cp + patchelf
         cp ${installer} $TEMP/${installer.name}
         chmod u+w,+x $TEMP/${installer.name}
         patchelf --interpreter $(cat $NIX_CC/nix-support/dynamic-linker) $TEMP/${installer.name}
       '';
-    copyComponent = component: "cp ${component} $TEMP/${component.name}";
-    # leaves enabled: quartus, devinfo
-    disabledComponents = [
-      "quartus_help"
-      "quartus_update"
-      "questa_fe"
-    ] ++ (lib.optional (!withQuesta) "questa_fse")
+      copyComponent = component: "cp ${component} $TEMP/${component.name}";
+      # leaves enabled: quartus, devinfo
+      disabledComponents = [
+        "quartus_help"
+        "quartus_update"
+        "questa_fe"
+      ]
+      ++ (lib.optional (!withQuesta) "questa_fse")
       ++ (lib.attrValues unsupportedDeviceIds);
-  in ''
+    in
+    ''
       echo "setting up installer..."
       ${lib.concatMapStringsSep "\n" copyInstaller installers}
       ${lib.concatMapStringsSep "\n" copyComponent components}
@@ -102,6 +130,10 @@ in stdenv.mkDerivation rec {
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
-    maintainers = with maintainers; [ bjornfor kwohlfahrt ];
+    maintainers = with maintainers; [
+      bjornfor
+      kwohlfahrt
+      zainkergaye
+    ];
   };
 }

@@ -1,26 +1,62 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config
-, zlib, libpng, libjpeg, libwebp, libGLU, libGL, glm
-, libX11, libXext, libXfixes, libXrandr, libXcomposite, slop, icu
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  zlib,
+  libpng,
+  libjpeg,
+  libwebp,
+  libGLU,
+  libGL,
+  glm,
+  libX11,
+  libXext,
+  libXfixes,
+  libXrandr,
+  libXcomposite,
+  slop,
+  icu,
 }:
 
 stdenv.mkDerivation rec {
   pname = "maim";
-  version = "5.8.0";
+  version = "5.8.1";
 
   src = fetchFromGitHub {
     owner = "naelstrof";
     repo = "maim";
     rev = "v${version}";
-    sha256 = "sha256-/tZqSJnKe8GiffSz9VIFKuxMktRld+hA4ZWP4TZQrlg=";
+    hash = "sha256-bbjV3+41cxAlKCEd1/nvnZ19GhctWOr5Lu4X+Vg3EAk=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ zlib libpng libjpeg libwebp libGLU libGL glm
-      libX11 libXext libXfixes libXrandr libXcomposite slop icu ];
+  # TODO: drop -DCMAKE_POLICY_VERSION_MINIMUM once maim adds CMake 4 support
+  cmakeFlags = [ "-DCMAKE_POLICY_VERSION_MINIMUM=3.10" ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    zlib
+    libpng
+    libjpeg
+    libwebp
+    libGLU
+    libGL
+    glm
+    libX11
+    libXext
+    libXfixes
+    libXrandr
+    libXcomposite
+    slop
+    icu
+  ];
 
   doCheck = false;
 
-  meta = with lib; {
+  meta = {
     mainProgram = "maim";
     inherit (src.meta) homepage;
     description = "Command-line screenshot utility";

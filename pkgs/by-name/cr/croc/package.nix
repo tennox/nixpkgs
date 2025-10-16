@@ -1,17 +1,23 @@
-{ lib, buildGoModule, fetchFromGitHub, callPackage, nixosTests }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  callPackage,
+  nixosTests,
+}:
 
 buildGoModule rec {
   pname = "croc";
-  version = "10.0.13";
+  version = "10.2.5";
 
   src = fetchFromGitHub {
     owner = "schollz";
-    repo = pname;
+    repo = "croc";
     rev = "v${version}";
-    hash = "sha256-GrdJAXHdkJYB+k2RexcCWhIhxY9UNY9IVJbzlLKDcKA=";
+    hash = "sha256-6zeJfRZFpfHsNSD1dICPoOt9HQBaw2eKSX4LH7fLyEk=";
   };
 
-  vendorHash = "sha256-gTSc2mDNt7K954GXxUjjxPR0NkZwSTCjQDQ9x57ookw=";
+  vendorHash = "sha256-zMN4SxgnHwLBZ8Lqk6wj/Ne3Hx41VVhf/01DgHT8/Tk=";
 
   subPackages = [ "." ];
 
@@ -38,7 +44,11 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/schollz/croc";
     license = licenses.mit;
-    maintainers = with maintainers; [ equirosa SuperSandro2000 ];
+    maintainers = with maintainers; [
+      equirosa
+      SuperSandro2000
+      ryan4yin
+    ];
     mainProgram = "croc";
   };
 }

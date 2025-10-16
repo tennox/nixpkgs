@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, ninja
-, curl
-, json_c
-, libbsd
-, argp-standalone
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  ninja,
+  curl,
+  json_c,
+  libbsd,
+  argp-standalone,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -16,7 +17,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "jmakhack";
     repo = "myanimelist-cli";
-    rev = "refs/tags/v${finalAttrs.version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-EmdkPpYEUIk9hr6rbnixjvznKSEnTCSMZz/17BfHGCk=";
   };
 
@@ -29,7 +30,8 @@ stdenv.mkDerivation (finalAttrs: {
     curl
     json_c
     libbsd
-  ] ++ lib.optionals (!stdenv.hostPlatform.isGnu) [
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isGnu) [
     argp-standalone
   ];
 
@@ -41,9 +43,9 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preInstall
 
     # Based on the upstream PKGBUILD
-    mkdir -p $out/share/doc/${finalAttrs.pname}
+    mkdir -p $out/share/doc/mya
     cp -a bin $out
-    cp $cmakeDir/README.md $out/share/doc/${finalAttrs.pname}
+    cp $cmakeDir/README.md $out/share/doc/mya
 
     runHook postInstall
   '';

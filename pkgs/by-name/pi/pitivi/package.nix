@@ -1,22 +1,23 @@
-{ lib
-, fetchurl
-, pkg-config
-, gettext
-, itstool
-, python3
-, wrapGAppsHook3
-, gst_all_1
-, gtk3
-, gobject-introspection
-, libpeas
-, librsvg
-, gnome
-, libnotify
-, gsound
-, meson
-, ninja
-, gsettings-desktop-schemas
-, hicolor-icon-theme
+{
+  lib,
+  fetchurl,
+  pkg-config,
+  gettext,
+  itstool,
+  python3,
+  wrapGAppsHook3,
+  gst_all_1,
+  gtk3,
+  gobject-introspection,
+  libpeas,
+  librsvg,
+  gnome,
+  libnotify,
+  gsound,
+  meson,
+  ninja,
+  gsettings-desktop-schemas,
+  hicolor-icon-theme,
 }:
 
 python3.pkgs.buildPythonApplication rec {
@@ -55,7 +56,8 @@ python3.pkgs.buildPythonApplication rec {
     gsound
     gsettings-desktop-schemas
     libnotify
-  ] ++ (with gst_all_1; [
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-editing-services
     gst-plugins-base

@@ -12,7 +12,7 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "stylish";
-  version = "unstable-2022-12-05";
+  version = "0-unstable-2022-12-05";
 
   nativeBuildInputs = [ makeWrapper ];
 
@@ -32,14 +32,16 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   postInstall = ''
-    wrapProgram $out/bin/styli.sh --prefix PATH : ${lib.makeBinPath [
-      curl
-      feh
-      file
-      jq
-      util-linux
-      wget
-    ]}
+    wrapProgram $out/bin/styli.sh --prefix PATH : ${
+      lib.makeBinPath [
+        curl
+        feh
+        file
+        jq
+        util-linux
+        wget
+      ]
+    }
   '';
 
   meta = with lib; {

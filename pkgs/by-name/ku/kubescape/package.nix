@@ -1,31 +1,34 @@
 {
   lib,
+  stdenv,
   buildGoModule,
   fetchFromGitHub,
   git,
   installShellFiles,
-  kubescape,
-  testers,
+  versionCheckHook,
 }:
 
 buildGoModule rec {
   pname = "kubescape";
-  version = "3.0.19";
+  version = "3.0.42";
 
   src = fetchFromGitHub {
     owner = "kubescape";
     repo = "kubescape";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-kEbCBXefnQO2gJ3kCxP1wLVmQl73E5mXGBza/iR4ioM=";
+    tag = "v${version}";
+    hash = "sha256-/+n0R7Lj2TReP+OUdhZh+te0XZT2Nd+8nKEFinEtlz0=";
     fetchSubmodules = true;
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-sywkDpqEHozqcmUOQuxYpM1YJfJKInpEcrysp8eB9Bw=";
+  vendorHash = "sha256-nRS6Ytb/zMsqRWehiPX3E9dX3Rv1gANs3hCEEbu5leY=";
 
   subPackages = [ "." ];
 
-  nativeBuildInputs = [ installShellFiles ];
+  nativeBuildInputs = [
+    installShellFiles
+    versionCheckHook
+  ];
 
   nativeCheckInputs = [ git ];
 
@@ -55,20 +58,18 @@ buildGoModule rec {
       --replace-fail "TestSetContextMetadata" "SkipSetContextMetadata"
   '';
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd kubescape \
       --bash <($out/bin/kubescape completion bash) \
       --fish <($out/bin/kubescape completion fish) \
       --zsh <($out/bin/kubescape completion zsh)
   '';
 
-  passthru.tests.version = testers.testVersion {
-    package = kubescape;
-    command = "kubescape version";
-    version = "v${version}";
-  };
+  doInstallCheck = true;
 
-  meta = with lib; {
+  versionCheckProgramArg = "version";
+
+  meta = {
     description = "Tool for testing if Kubernetes is deployed securely";
     homepage = "https://github.com/kubescape/kubescape";
     changelog = "https://github.com/kubescape/kubescape/releases/tag/v${version}";
@@ -83,8 +84,8 @@ buildGoModule rec {
       time. Kubescape integrates natively with other DevOps tools, including
       Jenkins, CircleCI and Github workflows.
     '';
-    license = licenses.asl20;
-    maintainers = with maintainers; [
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
       fab
       jk
     ];

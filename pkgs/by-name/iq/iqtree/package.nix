@@ -1,11 +1,12 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, boost
-, eigen
-, zlib
-, llvmPackages
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  boost,
+  eigen,
+  zlib,
+  llvmPackages,
 }:
 
 stdenv.mkDerivation rec {
@@ -15,7 +16,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "iqtree";
     repo = "iqtree2";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-8d5zqZIevv3bnq7z7Iyo/x8i445y1RAFtRMeK8s/ieQ=";
     fetchSubmodules = true;
   };
@@ -26,7 +27,8 @@ stdenv.mkDerivation rec {
     boost
     eigen
     zlib
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     llvmPackages.openmp
   ];
 
@@ -36,6 +38,9 @@ stdenv.mkDerivation rec {
     mainProgram = "iqtree2";
     license = licenses.lgpl2;
     maintainers = with maintainers; [ bzizou ];
-    platforms = [ "x86_64-linux" "x86_64-darwin" ];
+    platforms = [
+      "x86_64-linux"
+      "x86_64-darwin"
+    ];
   };
 }

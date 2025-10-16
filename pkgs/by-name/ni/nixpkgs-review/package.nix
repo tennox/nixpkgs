@@ -6,6 +6,8 @@
   installShellFiles,
   bubblewrap,
   nix-output-monitor,
+  delta,
+  glow,
   cacert,
   git,
   nix,
@@ -14,18 +16,20 @@
   withAutocomplete ? true,
   withSandboxSupport ? false,
   withNom ? false,
+  withDelta ? false,
+  withGlow ? false,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "nixpkgs-review";
-  version = "2.12.0";
+  version = "3.5.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Mic92";
     repo = "nixpkgs-review";
-    rev = "refs/tags/${version}";
-    hash = "sha256-yNdBqL3tceuoUHx8/j2y5ZTq1zeVDAm37RZtlCbC6rg=";
+    tag = version;
+    hash = "sha256-43+H68OPABAqg9GQZJ+XehyWmUWk+EWiHzSxyc55luY=";
   };
 
   build-system = [
@@ -36,20 +40,28 @@ python3Packages.buildPythonApplication rec {
     python3Packages.argcomplete
   ];
 
-  nativeBuildInputs =
-    [
-      installShellFiles
-    ]
-    ++ lib.optionals withAutocomplete [
-      python3Packages.argcomplete
-    ];
+  nativeBuildInputs = [
+    installShellFiles
+  ]
+  ++ lib.optionals withAutocomplete [
+    python3Packages.argcomplete
+  ];
+
+  nativeCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = "--version";
 
   makeWrapperArgs =
     let
       binPath = [
         nix
         git
-      ] ++ lib.optional withSandboxSupport bubblewrap ++ lib.optional withNom nix-output-monitor;
+      ]
+      ++ lib.optional withSandboxSupport bubblewrap
+      ++ lib.optional withNom nix-output-monitor
+      ++ lib.optional withDelta delta
+      ++ lib.optional withGlow glow;
     in
     [
       "--prefix PATH : ${lib.makeBinPath binPath}"
@@ -66,11 +78,6 @@ python3Packages.buildPythonApplication rec {
         --zsh <(register-python-argcomplete $cmd -s zsh)
     done
   '';
-
-  nativeCheckInputs = [
-    versionCheckHook
-  ];
-  versionCheckProgramArg = [ "--version" ];
 
   meta = {
     changelog = "https://github.com/Mic92/nixpkgs-review/releases/tag/${version}";

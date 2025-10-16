@@ -1,31 +1,31 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, substituteAll
-, xapp
-, circle-flags
-, gettext
-, gobject-introspection
-, mpv
-, python3
-, wrapGAppsHook3
-, yt-dlp
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  replaceVars,
+  xapp,
+  circle-flags,
+  gettext,
+  gobject-introspection,
+  mpv,
+  python3,
+  wrapGAppsHook3,
+  yt-dlp,
 }:
 
 stdenv.mkDerivation rec {
   pname = "hypnotix";
-  version = "4.6";
+  version = "5.3";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
     repo = "hypnotix";
-    rev = version;
-    hash = "sha256-wDzHCrZTbfIb9dpRoh5qYKQNjONOv34FYdOr4svOLEw=";
+    tag = version;
+    hash = "sha256-KJqGdBqeNtXYO3XOQvRJs4ie8jK4Hyv+YS86PB0dnOM=";
   };
 
   patches = [
-    (substituteAll {
-      src = ./libmpv-path.patch;
+    (replaceVars ./libmpv-path.patch {
       libmpv = "${lib.getLib mpv}/lib/libmpv${stdenv.hostPlatform.extensions.sharedLibrary}";
     })
   ];
@@ -56,7 +56,6 @@ stdenv.mkDerivation rec {
   ];
 
   pythonPath = with python3.pkgs; [
-    cinemagoer
     pygobject3
     requests
     setproctitle
@@ -88,9 +87,12 @@ stdenv.mkDerivation rec {
   meta = {
     description = "IPTV streaming application";
     homepage = "https://github.com/linuxmint/hypnotix";
-    changelog = "https://github.com/linuxmint/hypnotix/blob/${src.rev}/debian/changelog";
+    changelog = "https://github.com/linuxmint/hypnotix/blob/${src.tag}/debian/changelog";
     license = lib.licenses.gpl3Plus;
-    maintainers = with lib.maintainers; [ dotlambda bobby285271 ];
+    maintainers = with lib.maintainers; [
+      dotlambda
+      bobby285271
+    ];
     platforms = lib.platforms.linux;
     mainProgram = "hypnotix";
   };

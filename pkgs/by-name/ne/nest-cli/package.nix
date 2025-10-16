@@ -1,23 +1,23 @@
-{ buildNpmPackage
-, darwin
-, fetchFromGitHub
-, lib
-, python3
-, stdenv
+{
+  buildNpmPackage,
+  fetchFromGitHub,
+  lib,
+  python3,
 }:
 
 buildNpmPackage rec {
   pname = "nest-cli";
-  version = "10.4.7";
+  version = "11.0.10";
 
   src = fetchFromGitHub {
     owner = "nestjs";
-    repo = pname;
-    rev = version;
-    hash = "sha256-DVLmB4WE+8p2i2l2aq7u/YefeEykKd3B7ekaq5vKUjI=";
+    repo = "nest-cli";
+    tag = version;
+    hash = "sha256-mNnEbZv6LG5YDYZj7kAiPcg2Se9wJidON+9Tp/TIpd4=";
   };
 
-  npmDepsHash = "sha256-bgnbf2YyjndJQ4jX08gW6htGPLV+znARuaJBuh8Kwa8=";
+  npmDepsHash = "sha256-dEg0WmNNNLMQj+9bHkwf0uz9Vyx+QFSHrQv7fk1DxjQ=";
+  npmFlags = [ "--legacy-peer-deps" ];
 
   env = {
     npm_config_build_from_source = true;
@@ -27,15 +27,15 @@ buildNpmPackage rec {
     python3
   ];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreServices
-  ];
-
-  meta = with lib; {
-    description = "CLI tool for Nest applications";
+  meta = {
     homepage = "https://nestjs.com";
-    license = licenses.mit;
+    description = "CLI tool for Nest applications";
+    license = lib.licenses.mit;
+    changelog = "https://github.com/nestjs/nest-cli/releases/tag/${version}";
     mainProgram = "nest";
-    maintainers = [ maintainers.ehllie ];
+    maintainers = with lib.maintainers; [
+      ehllie
+      phanirithvij
+    ];
   };
 }

@@ -1,8 +1,12 @@
-{ lib, stdenv, fetchFromGitHub }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+}:
 
 stdenv.mkDerivation {
   pname = "hexdiff";
-  version = "unstable-2018-01-24";
+  version = "0-unstable-2018-01-24";
 
   src = fetchFromGitHub {
     owner = "ahroach";

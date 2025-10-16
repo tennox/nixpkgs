@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "mhash";
@@ -22,7 +26,7 @@ stdenv.mkDerivation rec {
       which are based on hash algorithms.
     '';
     homepage = "https://mhash.sourceforge.net";
-    license = "LGPL";
+    license = lib.licenses.lgpl2Only;
     platforms = lib.platforms.unix;
   };
 }

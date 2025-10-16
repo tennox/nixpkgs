@@ -1,4 +1,8 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "gron";
@@ -13,10 +17,14 @@ buildGoModule rec {
 
   vendorHash = "sha256-K/QAG9mCIHe7PQhex3TntlGYAK9l0bESWk616N97dBs=";
 
-  ldflags = [ "-s" "-w" "-X main.gronVersion=${version}" ];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X main.gronVersion=${version}"
+  ];
 
   meta = with lib; {
-    description = "Make JSON greppable!";
+    description = "Make JSON greppable";
     mainProgram = "gron";
     longDescription = ''
       gron transforms JSON into discrete assignments to make it easier to grep
@@ -26,6 +34,9 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/tomnomnom/gron";
     license = licenses.mit;
-    maintainers = with maintainers; [ fgaz SuperSandro2000 ];
+    maintainers = with maintainers; [
+      fgaz
+      SuperSandro2000
+    ];
   };
 }

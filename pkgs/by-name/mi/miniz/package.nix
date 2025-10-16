@@ -1,26 +1,30 @@
-{ lib
-, fetchFromGitHub
-, nix-update-script
-, stdenv
-, testers
-, validatePkgConfig
-, cmake
+{
+  lib,
+  fetchFromGitHub,
+  nix-update-script,
+  stdenv,
+  testers,
+  validatePkgConfig,
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "miniz";
-  version = "3.0.2";
+  version = "3.1.0";
 
   src = fetchFromGitHub {
     owner = "richgel999";
     repo = "miniz";
     rev = finalAttrs.version;
-    hash = "sha256-3J0bkr2Yk+MJXilUqOCHsWzuykySv5B1nepmucvA4hg=";
+    hash = "sha256-DQbXz1ehBNGFhuaW5Nz509njpPe73QpMHyKDbpqX0aI=";
   };
-  passthru.updateScript = nix-update-script {};
+  passthru.updateScript = nix-update-script { };
 
   strictDeps = true;
-  nativeBuildInputs = [ cmake validatePkgConfig ];
+  nativeBuildInputs = [
+    cmake
+    validatePkgConfig
+  ];
 
   postFixup = ''
     substituteInPlace "$out"/lib/pkgconfig/miniz.pc \

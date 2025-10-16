@@ -12,9 +12,6 @@
   isodate,
   pyparsing,
 
-  # propagates <3.8
-  importlib-metadata,
-
   # extras: networkx
   networkx,
 
@@ -24,31 +21,30 @@
   # tests
   pip,
   pytest-cov-stub,
-  pytest7CheckHook,
+  pytestCheckHook,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "rdflib";
-  version = "7.0.0";
-  format = "pyproject";
+  version = "7.1.4";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "RDFLib";
-    repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-VCjvgXMun1Hs+gPeqjzLXbIX1NBQ5aMLz0aWlwsm0iY=";
+    repo = "rdflib";
+    tag = version;
+    hash = "sha256-u9hdwxAJIuTQ3zKstbwn88u1opzWXc8otJKbtIl4Li4=";
   };
 
-  nativeBuildInputs = [ poetry-core ];
+  build-system = [ poetry-core ];
 
-  propagatedBuildInputs = [
-    isodate
-    html5lib
+  dependencies = [
     pyparsing
-  ] ++ lib.optionals (pythonOlder "3.8") [ importlib-metadata ];
+  ]
+  ++ lib.optionals (pythonOlder "3.11") [ isodate ];
 
   optional-dependencies = {
     html = [ html5lib ];
@@ -60,32 +56,32 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     pip
     pytest-cov-stub
-    # Failed: DID NOT WARN. No warnings of type (<class 'UserWarning'>,) were emitted.
-    pytest7CheckHook
+    pytestCheckHook
     setuptools
-  ] ++ optional-dependencies.networkx ++ optional-dependencies.html;
+  ]
+  ++ optional-dependencies.networkx
+  ++ optional-dependencies.html;
 
-  pytestFlagsArray = [
+  disabledTestPaths = [
     # requires network access
-    "--deselect=rdflib/__init__.py::rdflib"
-    "--deselect=test/jsonld/test_onedotone.py::test_suite"
+    "rdflib/__init__.py::rdflib"
+    "test/jsonld/test_onedotone.py::test_suite"
   ];
 
-  disabledTests =
-    [
-      # Requires network access
-      "test_service"
-      "testGuessFormatForParse"
-      "test_infix_owl_example1"
-      "test_context"
-      "test_example"
-      "test_guess_format_for_parse"
-      "rdflib.extras.infixowl"
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # Require loopback network access
-      "TestGraphHTTP"
-    ];
+  disabledTests = [
+    # Requires network access
+    "test_service"
+    "testGuessFormatForParse"
+    "test_infix_owl_example1"
+    "test_context"
+    "test_example"
+    "test_guess_format_for_parse"
+    "rdflib.extras.infixowl"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    # Require loopback network access
+    "TestGraphHTTP"
+  ];
 
   pythonImportsCheck = [ "rdflib" ];
 

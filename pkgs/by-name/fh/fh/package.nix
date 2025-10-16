@@ -1,26 +1,25 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, installShellFiles
-, stdenv
-, darwin
-, gcc
-, libcxx
-, cacert
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  installShellFiles,
+  stdenv,
+  gcc,
+  cacert,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "fh";
-  version = "0.1.18";
+  version = "0.1.25";
 
   src = fetchFromGitHub {
     owner = "DeterminateSystems";
     repo = "fh";
     rev = "v${version}";
-    hash = "sha256-McfJXbr/oadsfQV7hzB6sEMy9sfXthHcjsbOiQs2+rU=";
+    hash = "sha256-YVtFzJMdHpshtRqBDVw3Kr88psAPfcdOI0XVDGnFkq0=";
   };
 
-  cargoHash = "sha256-PGXd4spD2gNyQIloVZuhWZ1VQtacXPLMCQiBekZbEp4=";
+  cargoHash = "sha256-D/8YYv9V1ny9AWFkVPgcE9doq+OxN+yiCCt074FKgn0=";
 
   nativeBuildInputs = [
     installShellFiles
@@ -30,13 +29,11 @@ rustPlatform.buildRustPackage rec {
   checkInputs = [ cacert ];
 
   buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
     gcc.cc.lib
   ];
 
   env = lib.optionalAttrs stdenv.hostPlatform.isDarwin {
-    NIX_CFLAGS_COMPILE = "-I${lib.getDev libcxx}/include/c++/v1";
+    NIX_CFLAGS_COMPILE = "-I${lib.getInclude stdenv.cc.libcxx}/include/c++/v1";
   };
 
   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''

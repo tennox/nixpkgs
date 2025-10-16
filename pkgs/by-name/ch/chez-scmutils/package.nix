@@ -1,4 +1,11 @@
-{ stdenv, lib, fetchFromGitHub, chez, chez-srfi, chez-mit }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  chez,
+  chez-srfi,
+  chez-mit,
+}:
 
 stdenv.mkDerivation rec {
   pname = "chez-scmutils";
@@ -11,7 +18,11 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-y2ug7GfmkJC6jddgB8YllsumjmGxFJxTGTpPf1Vcs/s=";
   };
 
-  buildInputs = [ chez chez-srfi chez-mit ];
+  buildInputs = [
+    chez
+    chez-srfi
+    chez-mit
+  ];
 
   lib-path = "lib/csv${lib.versions.majorMinor chez.version}-site";
 
@@ -24,7 +35,7 @@ stdenv.mkDerivation rec {
   doCheck = false;
 
   meta = with lib; {
-    description = "This is a port of the ‘MIT Scmutils’ library to Chez Scheme";
+    description = "Port of the 'MIT Scmutils' library to Chez Scheme";
     homepage = "https://github.com/fedeinthemix/chez-scmutils/";
     maintainers = [ maintainers.jitwit ];
     license = licenses.gpl3;

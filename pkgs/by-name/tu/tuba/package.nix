@@ -1,47 +1,49 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, vala
-, meson
-, ninja
-, python3
-, pkg-config
-, wrapGAppsHook4
-, desktop-file-utils
-, gtk4
-, libadwaita
-, json-glib
-, glib
-, glib-networking
-, gnome
-, gobject-introspection
-, gtksourceview5
-, libxml2
-, libgee
-, librsvg
-, libsoup_3
-, libsecret
-, libwebp
-, libspelling
-, webp-pixbuf-loader
-, icu
-, gst_all_1
-, clapper
-# clapper support is still experimental and has bugs.
-# See https://github.com/GeopJr/Tuba/pull/931
-, clapperSupport? false
-, nix-update-script
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  vala,
+  meson,
+  ninja,
+  python3,
+  pkg-config,
+  wrapGAppsHook4,
+  desktop-file-utils,
+  gtk4,
+  libadwaita,
+  json-glib,
+  gexiv2,
+  glib,
+  glib-networking,
+  gnome,
+  gobject-introspection,
+  gtksourceview5,
+  libxml2,
+  libgee,
+  librsvg,
+  libsoup_3,
+  libsecret,
+  libwebp,
+  libspelling,
+  webkitgtk_6_0,
+  webp-pixbuf-loader,
+  icu,
+  gst_all_1,
+  clapper-enhancers,
+  clapper-unwrapped,
+  clapperSupport ? true,
+  nix-update-script,
 }:
 
 stdenv.mkDerivation rec {
   pname = "tuba";
-  version = "0.8.4";
+  version = "0.10.1";
 
   src = fetchFromGitHub {
     owner = "GeopJr";
     repo = "Tuba";
     rev = "v${version}";
-    hash = "sha256-PRzLTlq8XfI5dYZhJ8YBtYi4H3883S2olp9jrn1Q5CQ=";
+    hash = "sha256-t1L1TP1G6jr/jjhBYelidobzHSrjupgus19T+cMdj0I=";
   };
 
   nativeBuildInputs = [
@@ -56,6 +58,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
+    gexiv2
     glib
     glib-networking
     gtksourceview5
@@ -68,37 +71,48 @@ stdenv.mkDerivation rec {
     libsecret
     libwebp
     libspelling
+    webkitgtk_6_0
     icu
-  ] ++ (with gst_all_1; [
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-libav
     gst-plugins-base
     (gst-plugins-good.override { gtkSupport = true; })
     gst-plugins-bad
-  ]) ++ lib.optionals clapperSupport [
-    clapper
+  ])
+  ++ lib.optionals clapperSupport [
+    clapper-unwrapped
   ];
 
   mesonFlags = [
-    (lib.mesonBool "clapper" clapperSupport)
+    (lib.mesonEnable "clapper" clapperSupport)
   ];
 
   env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang "-Wno-error=int-conversion";
 
-  passthru = {
-    updateScript = nix-update-script { };
-  };
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --set-default CLAPPER_ENHANCERS_PATH "${clapper-enhancers}/${clapper-enhancers.passthru.pluginPath}"
+    )
+  '';
 
   # Pull in WebP support for avatars from Misskey instances.
   # In postInstall to run before gappsWrapperArgsHook.
   postInstall = ''
-    export GDK_PIXBUF_MODULE_FILE="${gnome._gdkPixbufCacheBuilder_DO_NOT_USE {
-      extraLoaders = [
-        librsvg
-        webp-pixbuf-loader
-      ];
-    }}"
+    export GDK_PIXBUF_MODULE_FILE="${
+      gnome._gdkPixbufCacheBuilder_DO_NOT_USE {
+        extraLoaders = [
+          librsvg
+          webp-pixbuf-loader
+        ];
+      }
+    }"
   '';
+
+  passthru = {
+    updateScript = nix-update-script { };
+  };
 
   meta = {
     description = "Browse the Fediverse";
@@ -106,6 +120,10 @@ stdenv.mkDerivation rec {
     mainProgram = "dev.geopjr.Tuba";
     license = lib.licenses.gpl3Only;
     changelog = "https://github.com/GeopJr/Tuba/releases/tag/v${version}";
-    maintainers = with lib.maintainers; [ chuangzhu aleksana donovanglover ];
+    maintainers = with lib.maintainers; [
+      chuangzhu
+      donovanglover
+    ];
+    teams = [ lib.teams.gnome-circle ];
   };
 }

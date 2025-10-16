@@ -1,4 +1,10 @@
-{ stdenv, lib, fetchurl, cmake, libx86 }:
+{
+  stdenv,
+  lib,
+  fetchurl,
+  cmake,
+  libx86,
+}:
 
 stdenv.mkDerivation rec {
   pname = "read-edid";
@@ -12,14 +18,16 @@ stdenv.mkDerivation rec {
   patches = [ ./fno-common.patch ];
 
   postPatch = ''
-    substituteInPlace CMakeLists.txt --replace 'COPYING' 'LICENSE'
+    substituteInPlace CMakeLists.txt --replace-fail 'COPYING' 'LICENSE'
+
+    # cmake 4 compatibility, upstream is dead
+    substituteInPlace CMakeLists.txt --replace-fail "cmake_minimum_required (VERSION 2.6)" "cmake_minimum_required (VERSION 3.10)"
   '';
 
   nativeBuildInputs = [ cmake ];
   buildInputs = lib.optional stdenv.hostPlatform.isx86 libx86;
 
   cmakeFlags = [ "-DCLASSICBUILD=${if stdenv.hostPlatform.isx86 then "ON" else "OFF"}" ];
-
 
   meta = with lib; {
     description = "Tool for reading and parsing EDID data from monitors";

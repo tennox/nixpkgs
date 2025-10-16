@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, boost
-, cxxopts
-, libpulseaudio
-, meson
-, ninja
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  boost,
+  cxxopts,
+  libpulseaudio,
+  meson,
+  ninja,
+  pkg-config,
 }:
 
 stdenv.mkDerivation rec {
@@ -20,9 +21,23 @@ stdenv.mkDerivation rec {
     hash = "sha256-LbRhsW2MiTYWSH6X9Pz9XdJdH9Na0QCO8CFmlzZmDjQ=";
   };
 
-  nativeBuildInputs = [ pkg-config meson ninja ];
+  postPatch = ''
+    # icu76 headers (included via cxxopts) require c++17 features
+    substituteInPlace meson.build \
+      --replace-fail 'cpp_std=c++11' 'cpp_std=c++17'
+  '';
 
-  buildInputs = [ boost cxxopts libpulseaudio ];
+  nativeBuildInputs = [
+    pkg-config
+    meson
+    ninja
+  ];
+
+  buildInputs = [
+    boost
+    cxxopts
+    libpulseaudio
+  ];
 
   meta = with lib; {
     description = "Pulseaudio command line mixer";

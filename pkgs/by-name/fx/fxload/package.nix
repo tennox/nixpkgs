@@ -1,6 +1,7 @@
-{ lib
-, stdenv
-, libusb1
+{
+  lib,
+  stdenv,
+  libusb1,
 }:
 
 stdenv.mkDerivation rec {
@@ -27,6 +28,6 @@ stdenv.mkDerivation rec {
     mainProgram = "fxload";
     license = licenses.gpl2Only;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ realsnick ];
+    maintainers = with maintainers; [ logger ];
   };
 }

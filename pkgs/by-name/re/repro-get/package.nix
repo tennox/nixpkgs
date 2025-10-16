@@ -1,10 +1,12 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, testers
-, repro-get
-, cacert
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  repro-get,
+  cacert,
 }:
 
 buildGoModule rec {
@@ -34,7 +36,7 @@ buildGoModule rec {
     "-X github.com/reproducible-containers/${pname}/pkg/version.Version=v${version}"
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd repro-get \
       --bash <($out/bin/repro-get completion bash) \
       --fish <($out/bin/repro-get completion fish) \
@@ -44,7 +46,9 @@ buildGoModule rec {
   passthru.tests = {
     "pkg-version" = repro-get.overrideAttrs (old: {
       # see invalidateFetcherByDrvHash
-      name = "${repro-get.pname}-${builtins.unsafeDiscardStringContext (lib.substring 0 12 (baseNameOf repro-get.drvPath))}";
+      name = "${repro-get.pname}-${
+        builtins.unsafeDiscardStringContext (lib.substring 0 12 (baseNameOf repro-get.drvPath))
+      }";
       subPackages = [ "pkg/version" ];
       installPhase = ''
         rm -rf $out

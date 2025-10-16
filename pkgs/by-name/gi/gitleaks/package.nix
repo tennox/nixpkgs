@@ -3,24 +3,24 @@
   stdenv,
   buildGoModule,
   fetchFromGitHub,
-  gitleaks,
   installShellFiles,
-  testers,
   nix-update-script,
+  versionCheckHook,
+  git,
 }:
 
 buildGoModule rec {
   pname = "gitleaks";
-  version = "8.21.2";
+  version = "8.28.0";
 
   src = fetchFromGitHub {
     owner = "zricethezav";
     repo = "gitleaks";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-1MCSGFpjYD4XdES+kJTz/NTN/B00TWMQ1Rmk/nsKf2Q=";
+    tag = "v${version}";
+    hash = "sha256-smh3Ge278lYVEcs6r1F43daexgjgddy1HKhU5E4CBYM=";
   };
 
-  vendorHash = "sha256-iIgS0fXdiVMYKr3FZTYlCSEqqaH9sxZh1MFry9pGET8=";
+  vendorHash = "sha256-dd9sHt5t0s4Vff1rOwQY1OC+0FIw0SDt/cwJN+IL5D8=";
 
   ldflags = [
     "-s"
@@ -28,10 +28,12 @@ buildGoModule rec {
     "-X=github.com/zricethezav/gitleaks/v${lib.versions.major version}/cmd.Version=${version}"
   ];
 
-  nativeBuildInputs = [ installShellFiles ];
+  nativeBuildInputs = [
+    installShellFiles
+    versionCheckHook
+  ];
 
-  # With v8 the config tests are blocking
-  doCheck = false;
+  nativeCheckInputs = [ git ];
 
   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd ${pname} \
@@ -40,14 +42,11 @@ buildGoModule rec {
       --zsh <($out/bin/${pname} completion zsh)
   '';
 
-  passthru.tests.version = testers.testVersion {
-    package = gitleaks;
-    command = "${pname} version";
-  };
+  doInstallCheck = true;
 
   passthru.updateScript = nix-update-script { };
 
-  meta = with lib; {
+  meta = {
     description = "Scan git repos (or files) for secrets";
     longDescription = ''
       Gitleaks is a SAST tool for detecting hardcoded secrets like passwords,
@@ -55,8 +54,8 @@ buildGoModule rec {
     '';
     homepage = "https://github.com/zricethezav/gitleaks";
     changelog = "https://github.com/zricethezav/gitleaks/releases/tag/v${version}";
-    license = with licenses; [ mit ];
-    maintainers = with maintainers; [ fab ];
+    license = with lib.licenses; [ mit ];
+    maintainers = with lib.maintainers; [ fab ];
     mainProgram = "gitleaks";
   };
 }

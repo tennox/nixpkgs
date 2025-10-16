@@ -1,7 +1,11 @@
-{ lib, stdenvNoCC, fetchFromGitHub }:
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+}:
 stdenvNoCC.mkDerivation {
   pname = "rtl8192su";
-  version = "unstable-2016-10-05";
+  version = "0-unstable-2016-10-05";
 
   src = fetchFromGitHub {
     owner = "chunkeey";

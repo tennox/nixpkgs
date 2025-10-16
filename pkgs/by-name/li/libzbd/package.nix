@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, autoconf-archive
-, autoreconfHook
-, fetchFromGitHub
-, gtk3
-, libtool
-, pkg-config
-, guiSupport ? false
+{
+  lib,
+  stdenv,
+  autoconf-archive,
+  autoreconfHook,
+  fetchFromGitHub,
+  gtk3,
+  libtool,
+  pkg-config,
+  guiSupport ? false,
 }:
 
 stdenv.mkDerivation rec {
@@ -24,7 +25,8 @@ stdenv.mkDerivation rec {
     autoconf-archive # this can be removed with the next release
     autoreconfHook
     libtool
-  ] ++ lib.optionals guiSupport [ pkg-config ];
+  ]
+  ++ lib.optionals guiSupport [ pkg-config ];
 
   buildInputs = lib.optionals guiSupport [ gtk3 ];
 
@@ -35,7 +37,10 @@ stdenv.mkDerivation rec {
     mainProgram = "zbd";
     homepage = "https://github.com/westerndigitalcorporation/libzbd";
     maintainers = [ ];
-    license = with licenses; [ lgpl3Plus gpl3Plus ];
+    license = with licenses; [
+      lgpl3Plus
+      gpl3Plus
+    ];
     platforms = platforms.linux;
   };
 }

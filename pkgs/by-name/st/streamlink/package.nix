@@ -1,23 +1,26 @@
-{ lib
-, python3Packages
-, fetchPypi
-, substituteAll
-, ffmpeg
+{
+  lib,
+  python3Packages,
+  fetchPypi,
+  replaceVars,
+  ffmpeg,
+  extras ? [
+    "decompress"
+  ],
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "streamlink";
-  version = "6.11.0";
+  version = "7.5.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-Vi5ddTyhCeGVYgfeSsJ8M3zmuZ++ftcgO5RRBe1bL4Y=";
+    hash = "sha256-wJG8d6PMjhKaIy2z4sjYuuLf75aBP83sYu4CB5QGj7k=";
   };
 
   patches = [
-    (substituteAll {
-      src = ./ffmpeg-path.patch;
+    (replaceVars ./ffmpeg-path.patch {
       ffmpeg = lib.getExe ffmpeg;
     })
   ];
@@ -39,23 +42,29 @@ python3Packages.buildPythonApplication rec {
     "test_no_cache"
   ];
 
-  propagatedBuildInputs = with python3Packages; [
-    certifi
-    isodate
-    lxml
-    pycountry
-    pycryptodome
-    pysocks
-    requests
-    trio
-    trio-websocket
-    typing-extensions
-    urllib3
-    websocket-client
-  ];
+  propagatedBuildInputs =
+    with python3Packages;
+    [
+      certifi
+      isodate
+      lxml
+      pycountry
+      pycryptodome
+      pysocks
+      requests
+      trio
+      trio-websocket
+      urllib3
+      websocket-client
+    ]
+    ++ lib.attrVals extras optional-dependencies;
+
+  optional-dependencies = with python3Packages; {
+    decompress = urllib3.optional-dependencies.brotli ++ urllib3.optional-dependencies.zstd;
+  };
 
   meta = {
-    changelog = "https://github.com/streamlink/streamlink/raw/${version}/CHANGELOG.md";
+    changelog = "https://streamlink.github.io/changelog.html";
     description = "CLI for extracting streams from various websites to video player of your choosing";
     homepage = "https://streamlink.github.io/";
     longDescription = ''
@@ -67,6 +76,10 @@ python3Packages.buildPythonApplication rec {
     '';
     license = lib.licenses.bsd2;
     mainProgram = "streamlink";
-    maintainers = with lib.maintainers; [ dezgeg zraexy DeeUnderscore ];
+    maintainers = with lib.maintainers; [
+      dezgeg
+      zraexy
+      DeeUnderscore
+    ];
   };
 }

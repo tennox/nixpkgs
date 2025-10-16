@@ -17,20 +17,20 @@
 
 buildPythonPackage rec {
   pname = "glyphslib";
-  version = "6.9.0";
+  version = "6.11.6";
 
-  format = "pyproject";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "googlefonts";
     repo = "glyphsLib";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-NanqjZZkxrhPaBsR+FrARvsO3vdT2MYnWFtkO0hpbQg=";
+    tag = "v${version}";
+    hash = "sha256-ZHF+q6L2XcYk5HRuRz1pgvfRAwY2GxLqyjIDY1ocsEQ=";
   };
 
-  nativeBuildInputs = [ setuptools-scm ];
+  build-system = [ setuptools-scm ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     fonttools
     openstep-plist
     ufolib2

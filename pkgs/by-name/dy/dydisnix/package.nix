@@ -1,9 +1,23 @@
-{ lib, stdenv, fetchFromGitHub, autoconf, automake, libtool, pkg-config, glib
-, libxml2, libxslt, getopt, libiconv, gettext, nix, disnix
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoconf,
+  automake,
+  libtool,
+  pkg-config,
+  glib,
+  libxml2,
+  libxslt,
+  getopt,
+  libiconv,
+  gettext,
+  nix,
+  disnix,
 }:
 
-stdenv.mkDerivation rec {
-  version = "unstable-2020-11-02";
+stdenv.mkDerivation {
+  version = "0-unstable-2020-11-02";
   pname = "dydisnix";
 
   src = fetchFromGitHub {
@@ -13,8 +27,22 @@ stdenv.mkDerivation rec {
     sha256 = "00f341274hwwil8mlgcgq331vfca9sscvpdbgkxsjvbhcqd8qa52";
   };
 
-  nativeBuildInputs = [ pkg-config autoconf automake libtool ];
-  buildInputs = [ glib libxml2 libxslt getopt nix disnix libiconv gettext ];
+  nativeBuildInputs = [
+    pkg-config
+    autoconf
+    automake
+    libtool
+  ];
+  buildInputs = [
+    glib
+    libxml2
+    libxslt
+    getopt
+    nix
+    disnix
+    libiconv
+    gettext
+  ];
 
   preConfigure = ''
     ./bootstrap

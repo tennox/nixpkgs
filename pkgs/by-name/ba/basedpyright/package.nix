@@ -2,6 +2,8 @@
   lib,
   fetchFromGitHub,
   runCommand,
+  stdenv,
+  clang_20,
   buildNpmPackage,
   docify,
   testers,
@@ -16,16 +18,16 @@
 
 buildNpmPackage rec {
   pname = "basedpyright";
-  version = "1.21.1";
+  version = "1.31.6";
 
   src = fetchFromGitHub {
     owner = "detachhead";
     repo = "basedpyright";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-RwckZqEL5U60XSYul74p9Ezg+N8FrnLkRFpdxIa7/34=";
+    tag = "v${version}";
+    hash = "sha256-SqG51pxkJQ/YrknSOMy6KWn1pvdgJa5CLnFl5naAPMA=";
   };
 
-  npmDepsHash = "sha256-hCZ68sLpQs/7SYVf3pMAHfstRm1C/d80j8fESIFdhnw=";
+  npmDepsHash = "sha256-dwtMl5dFpol+J+cM6EHiwO+F93Iyurwx9Kr317IGtVw=";
   npmWorkspace = "packages/pyright";
 
   preBuild = ''
@@ -37,17 +39,20 @@ buildNpmPackage rec {
   nativeBuildInputs = [
     docify
     pkg-config
-  ];
+  ]
+  ++ lib.optional stdenv.isDarwin [ clang_20 ]; # clang_21 breaks keytar
 
   buildInputs = [ libsecret ];
 
   postInstall = ''
     mv "$out/bin/pyright" "$out/bin/basedpyright"
     mv "$out/bin/pyright-langserver" "$out/bin/basedpyright-langserver"
+    # Remove dangling symlinks created during installation (remove -delete to just see the files, or -print '%l\n' to see the target
+    find -L $out -type l -print -delete
   '';
 
   nativeInstallCheckInputs = [ versionCheckHook ];
-  versionCheckProgramArg = [ "--version" ];
+  versionCheckProgramArg = "--version";
   doInstallCheck = true;
 
   passthru = {
@@ -94,11 +99,14 @@ buildNpmPackage rec {
   };
 
   meta = {
-    changelog = "https://github.com/detachhead/basedpyright/releases/tag/${version}";
+    changelog = "https://github.com/detachhead/basedpyright/releases/tag/${src.tag}";
     description = "Type checker for the Python language";
     homepage = "https://github.com/detachhead/basedpyright";
     license = lib.licenses.mit;
     mainProgram = "basedpyright";
-    maintainers = with lib.maintainers; [ kiike ];
+    maintainers = with lib.maintainers; [
+      kiike
+      misilelab
+    ];
   };
 }

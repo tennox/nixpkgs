@@ -1,6 +1,12 @@
-{ lib, stdenv, fetchurl, pkg-config, expat, libmysqlclient,
+{
+  lib,
+  stdenv,
+  fetchurl,
+  pkg-config,
+  expat,
+  libmysqlclient,
   enableXmlpipe2 ? false,
-  enableMysql ? true
+  enableMysql ? true,
 }:
 
 stdenv.mkDerivation rec {
@@ -17,7 +23,8 @@ stdenv.mkDerivation rec {
   configureFlags = [
     "--program-prefix=sphinxsearch-"
     "--enable-id64"
-  ] ++ lib.optionals (!enableMysql) [
+  ]
+  ++ lib.optionals (!enableMysql) [
     "--without-mysql"
   ];
 
@@ -25,19 +32,24 @@ stdenv.mkDerivation rec {
     pkg-config
   ];
 
-  buildInputs = lib.optionals enableMysql [
-    libmysqlclient
-  ] ++ lib.optionals enableXmlpipe2 [
-    expat
-  ];
+  buildInputs =
+    lib.optionals enableMysql [
+      libmysqlclient
+    ]
+    ++ lib.optionals enableXmlpipe2 [
+      expat
+    ];
 
   CXXFLAGS = "-std=c++98";
 
   meta = {
     description = "Open source full text search server";
-    homepage    = "http://sphinxsearch.com";
-    license     = lib.licenses.gpl2Plus;
-    platforms   = lib.platforms.all;
-    maintainers = with lib.maintainers; [ ederoyd46 valodim ];
+    homepage = "http://sphinxsearch.com";
+    license = lib.licenses.gpl2Plus;
+    platforms = lib.platforms.all;
+    maintainers = with lib.maintainers; [
+      ederoyd46
+      valodim
+    ];
   };
 }

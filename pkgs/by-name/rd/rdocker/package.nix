@@ -1,8 +1,14 @@
-{ lib, stdenv, fetchFromGitHub, makeWrapper, openssh }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  openssh,
+}:
 
 stdenv.mkDerivation {
   pname = "rdocker";
-  version = "unstable-2018-07-17";
+  version = "0-unstable-2018-07-17";
 
   src = fetchFromGitHub {
     owner = "dvddarias";

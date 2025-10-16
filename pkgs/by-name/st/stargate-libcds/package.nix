@@ -1,7 +1,8 @@
-{ lib
-, stdenv
-, fetchpatch
-, fetchFromGitHub
+{
+  lib,
+  stdenv,
+  fetchpatch,
+  fetchFromGitHub,
 }:
 
 stdenv.mkDerivation rec {
@@ -41,7 +42,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "C data structure library";
     homepage = "https://github.com/stargateaudio/libcds";
-    maintainers = with maintainers; [ yuu ];
+    maintainers = [ ];
     license = licenses.lgpl3Only;
   };
 }

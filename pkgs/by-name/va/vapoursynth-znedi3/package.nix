@@ -24,17 +24,18 @@ stdenv.mkDerivation {
     ln -s ${vapoursynth}/include/vapoursynth vsxx/vapoursynth
   '';
 
-  makeFlags =
-    [ "CPPFLAGS=-DNNEDI3_WEIGHTS_PATH='\"$(out)/share/nnedi3/nnedi3_weights.bin\"'" ]
-    ++ lib.optionals stdenv.hostPlatform.isx86 [
-      "X86=1"
-      "X86_AVX512=1"
-    ];
+  makeFlags = [
+    "CPPFLAGS=-DNNEDI3_WEIGHTS_PATH='\"$(out)/share/nnedi3/nnedi3_weights.bin\"'"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isx86 [
+    "X86=1"
+    "X86_AVX512=1"
+  ];
 
   installPhase = ''
     runHook preInstall
 
-    install -D -t $out/lib/vapoursynth vsznedi3${stdenv.hostPlatform.extensions.sharedLibrary}
+    install -D -t $out/lib/vapoursynth vsznedi3.so
     install -D -m644 -t $out/share/nnedi3 nnedi3_weights.bin
 
     runHook postInstall

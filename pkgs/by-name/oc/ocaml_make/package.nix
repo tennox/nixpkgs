@@ -1,11 +1,16 @@
-{stdenv, lib, fetchurl}:
+{
+  stdenv,
+  lib,
+  fetchurl,
+}:
 
 let
 
   version = "6.37.0";
   sha256 = "99ff58080ed154cc4bd70f915fe4760dffb026a1c0447caa0b3bdb982b24b0a8";
 
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   pname = "ocaml-make";
   inherit version;
 
@@ -24,7 +29,11 @@ in stdenv.mkDerivation {
   meta = {
     homepage = "http://www.ocaml.info/home/ocaml_sources.html";
     description = "Generic OCaml Makefile for GNU Make";
-    license = "LGPL";
+    license = with lib.licenses; [
+      lgpl21Only
+      ocamlLgplLinkingException
+      gpl3Only
+    ];
     platforms = lib.platforms.unix;
   };
 }

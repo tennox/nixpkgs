@@ -1,11 +1,12 @@
-{ lib
-, python3
-, fetchFromGitHub
+{
+  lib,
+  python3,
+  fetchFromGitHub,
 }:
 
-python3.pkgs.buildPythonApplication rec {
+python3.pkgs.buildPythonApplication {
   pname = "rmfuse";
-  version = "unstable-2021-06-06";
+  version = "0.2.3";
 
   pyproject = true;
 

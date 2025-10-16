@@ -1,11 +1,12 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
 buildGoModule {
   pname = "paperlike-go";
-  version = "unstable-2021-03-26";
+  version = "0-unstable-2021-03-26";
 
   src = fetchFromGitHub {
     owner = "leoluk";
@@ -22,7 +23,7 @@ buildGoModule {
     description = "Linux Go library and CLI utility to control a Dasung Paperlike display via I2C DDC";
     homepage = "https://github.com/leoluk/paperlike-go";
     license = lib.licenses.asl20;
-    maintainers = [ lib.maintainers.adisbladis ];
+    maintainers = [ ];
     platforms = lib.platforms.linux;
     mainProgram = "paperlike-cli";
   };

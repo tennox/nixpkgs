@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, ncurses, pkg-config, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  ncurses,
+  pkg-config,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   version = "7.1.5";
@@ -6,12 +13,15 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "folkertvanheusden";
-    repo = pname;
+    repo = "multitail";
     rev = version;
     hash = "sha256-c9NlQLgHngNBbADZ6/legWFaKHJAQR/LZIfh8bJoc4Y=";
   };
 
-  nativeBuildInputs = [ pkg-config cmake ];
+  nativeBuildInputs = [
+    pkg-config
+    cmake
+  ];
 
   buildInputs = [ ncurses ];
 
@@ -27,7 +37,7 @@ stdenv.mkDerivation rec {
 
   meta = {
     homepage = "https://github.com/folkertvanheusden/multitail";
-    description = "tail on Steroids";
+    description = "tail on steroids";
     maintainers = with lib.maintainers; [ matthiasbeyer ];
     platforms = lib.platforms.unix;
     license = lib.licenses.asl20;

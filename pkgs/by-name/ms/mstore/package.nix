@@ -1,13 +1,23 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, gfortran
-, meson
-, ninja
-, pkg-config
-, python3
-, mctc-lib
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  gfortran,
+  buildType ? "meson",
+  meson,
+  ninja,
+  cmake,
+  pkg-config,
+  python3,
+  mctc-lib,
 }:
+
+assert (
+  builtins.elem buildType [
+    "meson"
+    "cmake"
+  ]
+);
 
 stdenv.mkDerivation rec {
   pname = "mstore";
@@ -15,16 +25,33 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "grimme-lab";
-    repo = pname;
+    repo = "mstore";
     rev = "v${version}";
     hash = "sha256-zfrxdrZ1Um52qTRNGJoqZNQuHhK3xM/mKfk0aBLrcjw=";
   };
 
-  nativeBuildInputs = [ gfortran meson ninja pkg-config python3 ];
+  patches = [
+    # Fix wrong generation of package config include paths
+    ./pkgconfig.patch
+  ];
+
+  nativeBuildInputs = [
+    gfortran
+    pkg-config
+    python3
+  ]
+  ++ lib.optionals (buildType == "meson") [
+    meson
+    ninja
+  ]
+  ++ lib.optional (buildType == "cmake") cmake;
 
   buildInputs = [ mctc-lib ];
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   postPatch = ''
     patchShebangs --build config/install-mod.py

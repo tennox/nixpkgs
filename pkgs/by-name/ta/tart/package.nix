@@ -1,20 +1,24 @@
-{ lib
-, stdenvNoCC
-, fetchurl
-, makeWrapper
-# Softnet support ("--net-softnet") is disabled by default as it requires
-# passwordless-sudo when installed through nix. Alternatively users may install
-# softnet through other means with "setuid"-bit enabled.
-# See https://github.com/cirruslabs/softnet#installing
-, enableSoftnet ? false, softnet
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+  makeWrapper,
+  # Softnet support ("--net-softnet") is disabled by default as it requires
+  # passwordless-sudo when installed through nix. Alternatively users may install
+  # softnet through other means with "setuid"-bit enabled.
+  # See https://github.com/cirruslabs/softnet#installing
+  enableSoftnet ? false,
+  softnet,
+  nix-update-script,
+  versionCheckHook,
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "tart";
-  version = "2.20.2";
+  version = "2.28.6";
 
   src = fetchurl {
-      url = "https://github.com/cirruslabs/tart/releases/download/${finalAttrs.version}/tart-arm64.tar.gz";
-      hash = "sha256-caHuBTRpbmFbmTlDRnxZyGM6F95iKjMhKbPTez5Hecc=";
+    url = "https://github.com/cirruslabs/tart/releases/download/${finalAttrs.version}/tart.tar.gz";
+    hash = "sha256-F6bYWVHtzXo6TH4CAvdF6qx7OCVvKACsh2KdRYFsxOw=";
   };
   sourceRoot = ".";
 
@@ -35,13 +39,22 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  doInstallCheck = true;
+  passthru.updateScript = nix-update-script { };
+
   meta = with lib; {
-    description = "macOS VMs on Apple Silicon to use in CI and other automations";
+    description = "macOS and Linux VMs on Apple Silicon to use in CI and other automations";
     homepage = "https://tart.run";
     license = licenses.fairsource09;
-    maintainers = with maintainers; [ emilytrau aduh95 ];
-    mainProgram = finalAttrs.pname;
-    platforms = [ "aarch64-darwin" ];
+    maintainers = with maintainers; [
+      emilytrau
+      aduh95
+    ];
+    mainProgram = "tart";
+    platforms = platforms.darwin;
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
   };
 })

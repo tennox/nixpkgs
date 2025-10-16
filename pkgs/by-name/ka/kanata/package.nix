@@ -1,50 +1,44 @@
-{ stdenv
-, lib
-, darwin
-, rustPlatform
-, fetchFromGitHub
-, jq
-, moreutils
-, versionCheckHook
-, nix-update-script
-, withCmd ? false
+{
+  stdenv,
+  lib,
+  gnused,
+  apple-sdk_13,
+  darwinMinVersionHook,
+  rustPlatform,
+  karabiner-dk,
+  fetchFromGitHub,
+  versionCheckHook,
+  common-updater-scripts,
+  yq,
+  curl,
+  jq,
+  writeShellApplication,
+  writeShellScriptBin,
+  withCmd ? false,
 }:
-
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "kanata";
-  version = "1.7.0";
+  version = "1.9.0";
 
   src = fetchFromGitHub {
     owner = "jtroo";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-cG9so0x0y8CbTxLOxSQwn5vG72KxHJzzTIH4lQA4MvE=";
+    repo = "kanata";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-xxAIwiwCQugDXpWga9bQ9ZGfem46rwDlmf64dX/tw7g=";
   };
 
-  cargoHash = "sha256-QQrFUJ24Qnrx8+7+h9riycXZSQUdH1sXMhpDzU9AXiI=";
+  cargoHash = "sha256-LfjuQHR3vVUr2e0efVymnfCnyYkFRx7ZiNdSIjBZc5s=";
 
-  # the dependency native-windows-gui contains both README.md and readme.md,
-  # which causes a hash mismatch on systems with a case-insensitive filesystem
-  # this removes the readme files and updates cargo's checksum file accordingly
-  depsExtraArgs = {
-    nativeBuildInputs = [
-      jq
-      moreutils
-    ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    apple-sdk_13
+    (darwinMinVersionHook "13.0")
+  ];
 
-    postBuild = ''
-      pushd $name/native-windows-gui
-
-      rm --force --verbose README.md readme.md
-      jq 'del(.files."README.md") | del(.files."readme.md")' \
-        .cargo-checksum.json -c \
-        | sponge .cargo-checksum.json
-
-      popd
-    '';
-  };
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.IOKit ];
+  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    (writeShellScriptBin "sw_vers" ''
+      echo 'ProductVersion: 13.0'
+    '')
+  ];
 
   buildFeatures = lib.optional withCmd "cmd";
 
@@ -58,16 +52,37 @@ rustPlatform.buildRustPackage rec {
   ];
 
   passthru = {
-    updateScript = nix-update-script { };
+    darwinDriverVersion = "5.0.0"; # needs to be updated if karabiner-driverkit changes
+    updateScript = lib.getExe (writeShellApplication {
+      name = "update-script-kanata";
+      runtimeInputs = [
+        curl
+        gnused
+        yq
+        jq
+        common-updater-scripts
+      ];
+      text = builtins.readFile ./update.sh;
+    });
+
+    darwinDriver =
+      if stdenv.hostPlatform.isDarwin then
+        (karabiner-dk.override {
+          driver-version = finalAttrs.passthru.darwinDriverVersion;
+        })
+      else
+        null;
   };
 
   meta = with lib; {
     description = "Tool to improve keyboard comfort and usability with advanced customization";
     homepage = "https://github.com/jtroo/kanata";
     license = licenses.lgpl3Only;
-    maintainers = with maintainers; [ bmanuel linj ];
+    maintainers = with maintainers; [
+      linj
+      auscyber
+    ];
     platforms = platforms.unix;
     mainProgram = "kanata";
-    broken = stdenv.hostPlatform.isDarwin;
   };
-}
+})

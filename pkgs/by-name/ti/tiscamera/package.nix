@@ -1,34 +1,35 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, runtimeShell
-, catch2
-, elfutils
-, libselinux
-, libsepol
-, libunwind
-, libusb1
-, libuuid
-, libzip
-, orc
-, pcre
-, zstd
-, glib
-, gobject-introspection
-, gst_all_1
-, wrapGAppsHook3
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  runtimeShell,
+  catch2,
+  elfutils,
+  libselinux,
+  libsepol,
+  libunwind,
+  libusb1,
+  libuuid,
+  libzip,
+  orc,
+  pcre,
+  zstd,
+  glib,
+  gobject-introspection,
+  gst_all_1,
+  wrapGAppsHook3,
   # needs pkg_resources
-, withDoc ? false
-, sphinx
-, graphviz
-, withAravis ? true
-, aravis
-, meson
-, withAravisUsbVision ? withAravis
-, withGui ? true
-, qt5
+  withDoc ? false,
+  sphinx,
+  graphviz,
+  withAravis ? true,
+  aravis,
+  meson,
+  withAravisUsbVision ? withAravis,
+  withGui ? true,
+  qt5,
 }:
 
 stdenv.mkDerivation rec {
@@ -56,12 +57,15 @@ stdenv.mkDerivation rec {
     pkg-config
     wrapGAppsHook3
     gobject-introspection
-  ] ++ lib.optionals withDoc [
+  ]
+  ++ lib.optionals withDoc [
     sphinx
     graphviz
-  ] ++ lib.optionals withAravis [
+  ]
+  ++ lib.optionals withAravis [
     meson
-  ] ++ lib.optionals withGui [
+  ]
+  ++ lib.optionals withGui [
     qt5.wrapQtAppsHook
   ];
 
@@ -82,9 +86,11 @@ stdenv.mkDerivation rec {
     gst_all_1.gst-plugins-good
     gst_all_1.gst-plugins-bad
     gst_all_1.gst-plugins-ugly
-  ] ++ lib.optionals withAravis [
+  ]
+  ++ lib.optionals withAravis [
     aravis
-  ] ++ lib.optionals withGui [
+  ]
+  ++ lib.optionals withGui [
     qt5.qtbase
   ];
 
@@ -120,6 +126,8 @@ stdenv.mkDerivation rec {
   QT_PLUGIN_PATH = lib.optionalString withGui "${qt5.qtbase.bin}/${qt5.qtbase.qtPluginPrefix}";
 
   dontWrapQtApps = true;
+
+  doInstallCheck = true;
 
   preFixup = ''
     gappsWrapperArgs+=("''${qtWrapperArgs[@]}")

@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchurl, ncurses }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  ncurses,
+}:
 
 stdenv.mkDerivation rec {
   pname = "collapseos-cvm";
@@ -24,7 +29,6 @@ stdenv.mkDerivation rec {
     downloadPage = "http://collapseos.org/files/";
     homepage = "http://collapseos.org/";
     license = lib.licenses.gpl3Only;
-    maintainers = with lib.maintainers; [ ehmry ];
     mainProgram = "cos-serial";
   };
 }

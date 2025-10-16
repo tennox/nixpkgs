@@ -1,24 +1,26 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 
-# testing
-, testers
-, witness
+  # testing
+  testers,
+  witness,
 }:
 
 buildGoModule rec {
   pname = "witness";
-  version = "0.6.0";
+  version = "0.9.2";
 
   src = fetchFromGitHub {
     owner = "in-toto";
     repo = "witness";
     rev = "v${version}";
-    sha256 = "sha256-ao9mxN5cMGopCRXUkJRTNJemizzibdw0Q+oAhKjUyHA=";
+    sha256 = "sha256-0Q+6nG5N3Xp5asmRMPZccLxw6dWiZVX6fuIUf1rT+mI=";
   };
-  vendorHash = "sha256-pDMvtSavifWfxJqfiOef0CyT8KtU8BUjEFwReElkEeM=";
+  vendorHash = "sha256-oH/aWt8Hl/BIN+IYLcuVYWDpQZaYABAOGxXyLssjQg0=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -38,7 +40,7 @@ buildGoModule rec {
     unset subPackages
   '';
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd witness \
       --bash <($out/bin/witness completion bash) \
       --fish <($out/bin/witness completion fish) \
@@ -51,7 +53,7 @@ buildGoModule rec {
     version = "v${version}";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Pluggable framework for software supply chain security. Witness prevents tampering of build materials and verifies the integrity of the build process from source to target";
     longDescription = ''
       Witness prevents tampering of build materials and verifies the integrity
@@ -65,7 +67,10 @@ buildGoModule rec {
     mainProgram = "witness";
     homepage = "https://github.com/testifysec/witness";
     changelog = "https://github.com/testifysec/witness/releases/tag/v${version}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ fkautz jk ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
+      fkautz
+      jk
+    ];
   };
 }

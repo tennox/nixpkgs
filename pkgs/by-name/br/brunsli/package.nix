@@ -1,16 +1,20 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, brotli
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  brotli,
 }:
 
 stdenv.mkDerivation rec {
   pname = "brunsli";
   version = "0.1";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "google";
@@ -35,8 +39,14 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     rm -r third_party
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     rm -r build
+  ''
+  # fix build with cmake v4, should be removed in next release
+  + ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail 'cmake_minimum_required(VERSION 3.1)' 'cmake_minimum_required(VERSION 3.10)'
   '';
 
   nativeBuildInputs = [

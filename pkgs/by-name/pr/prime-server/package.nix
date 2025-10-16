@@ -1,5 +1,14 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config
-, curl, zeromq, czmq, libsodium }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  curl,
+  zeromq,
+  czmq,
+  libsodium,
+}:
 
 stdenv.mkDerivation rec {
   pname = "prime-server";
@@ -8,13 +17,21 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "kevinkreiser";
     repo = "prime_server";
-    rev = version;
+    tag = version;
     sha256 = "0izmmvi3pvidhlrgfpg4ccblrw6fil3ddxg5cfxsz4qbh399x83w";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ curl zeromq czmq libsodium ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    curl
+    zeromq
+    czmq
+    libsodium
+  ];
 
   # https://github.com/kevinkreiser/prime_server/issues/95
   env.NIX_CFLAGS_COMPILE = toString [ "-Wno-error=unused-variable" ];
@@ -24,6 +41,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/kevinkreiser/prime_server";
     license = licenses.bsd2;
     maintainers = [ maintainers.Thra11 ];
-    platforms = platforms.linux;
+    platforms = platforms.linux ++ platforms.darwin;
   };
 }

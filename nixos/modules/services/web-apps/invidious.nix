@@ -1,4 +1,10 @@
-{ lib, config, pkgs, options, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  options,
+  ...
+}:
 let
   cfg = config.services.invidious;
   # To allow injecting secrets with jq, json (instead of yaml) is used
@@ -13,8 +19,8 @@ let
   commonInvidousServiceConfig = {
     description = "Invidious (An alternative YouTube front-end)";
     wants = [ "network-online.target" ];
-    after = [ "network-online.target" ] ++ lib.optional cfg.database.createLocally "postgresql.service";
-    requires = lib.optional cfg.database.createLocally "postgresql.service";
+    after = [ "network-online.target" ] ++ lib.optional cfg.database.createLocally "postgresql.target";
+    requires = lib.optional cfg.database.createLocally "postgresql.target";
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
@@ -30,10 +36,18 @@ let
       ProtectHome = true;
       ProtectKernelLogs = true;
       ProtectProc = "invisible";
-      RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+      ];
       RestrictNamespaces = true;
       SystemCallArchitectures = "native";
-      SystemCallFilter = [ "@system-service" "~@privileged" "~@resources" ];
+      SystemCallFilter = [
+        "@system-service"
+        "~@privileged"
+        "~@resources"
+      ];
 
       # Because of various issues Invidious must be restarted often, at least once a day, ideally
       # every hour.
@@ -45,7 +59,8 @@ let
       RuntimeRandomizedExtraSec = lib.mkDefault "5min";
     };
   };
-  mkInvidiousService = scaleIndex:
+  mkInvidiousService =
+    scaleIndex:
     lib.foldl' lib.recursiveUpdate commonInvidousServiceConfig [
       # only generate the hmac file in the first service
       (lib.optionalAttrs (scaleIndex == 0) {
@@ -102,12 +117,12 @@ let
     ];
 
   serviceConfig = {
-    systemd.services = builtins.listToAttrs (builtins.genList
-      (scaleIndex: {
+    systemd.services = builtins.listToAttrs (
+      builtins.genList (scaleIndex: {
         name = "invidious" + lib.optionalString (scaleIndex > 0) "-${builtins.toString scaleIndex}";
         value = mkInvidiousService scaleIndex;
-      })
-      cfg.serviceScale);
+      }) cfg.serviceScale
+    );
 
     services.invidious.settings = {
       # Automatically initialises and migrates the database if necessary
@@ -115,9 +130,7 @@ let
 
       db = {
         user = lib.mkDefault (
-          if (lib.versionAtLeast config.system.stateVersion "24.05")
-          then "invidious"
-          else "kemal"
+          if (lib.versionAtLeast config.system.stateVersion "24.05") then "invidious" else "kemal"
         );
         dbname = lib.mkDefault "invidious";
         port = cfg.database.port;
@@ -129,7 +142,8 @@ let
       };
 
       host_binding = cfg.address;
-    } // (lib.optionalAttrs (cfg.domain != null) {
+    }
+    // (lib.optionalAttrs (cfg.domain != null) {
       inherit (cfg) domain;
     });
 
@@ -166,7 +180,10 @@ let
 
     services.postgresql = {
       enable = true;
-      ensureUsers = lib.singleton { name = cfg.settings.db.user; ensureDBOwnership = true; };
+      ensureUsers = lib.singleton {
+        name = cfg.settings.db.user;
+        ensureDBOwnership = true;
+      };
       ensureDatabases = lib.singleton cfg.settings.db.dbname;
     };
   };
@@ -227,8 +244,16 @@ let
         ProtectKernelLogs = true;
         CapabilityBoundingSet = "";
         SystemCallArchitectures = "native";
-        SystemCallFilter = [ "@system-service" "~@privileged" "~@resources" "@network-io" ];
-        RestrictAddressFamilies = [ "AF_INET" "AF_INET6" ];
+        SystemCallFilter = [
+          "@system-service"
+          "~@privileged"
+          "~@resources"
+          "@network-io"
+        ];
+        RestrictAddressFamilies = [
+          "AF_INET"
+          "AF_INET6"
+        ];
         RestrictNamespaces = true;
       };
     };
@@ -240,34 +265,35 @@ let
       external_port = 80;
     };
 
-    services.nginx = let
-      ip = if cfg.address == "0.0.0.0" then "127.0.0.1" else cfg.address;
-    in
-    {
-      enable = true;
-      virtualHosts.${cfg.domain} = {
-        locations."/".proxyPass =
-          if cfg.serviceScale == 1 then
-            "http://${ip}:${toString cfg.port}"
-          else "http://upstream-invidious";
+    services.nginx =
+      let
+        ip = if cfg.address == "0.0.0.0" then "127.0.0.1" else cfg.address;
+      in
+      {
+        enable = true;
+        virtualHosts.${cfg.domain} = {
+          locations."/".proxyPass =
+            if cfg.serviceScale == 1 then "http://${ip}:${toString cfg.port}" else "http://upstream-invidious";
 
-        enableACME = lib.mkDefault true;
-        forceSSL = lib.mkDefault true;
+          enableACME = lib.mkDefault true;
+          forceSSL = lib.mkDefault true;
+        };
+        upstreams = lib.mkIf (cfg.serviceScale > 1) {
+          "upstream-invidious".servers = builtins.listToAttrs (
+            builtins.genList (scaleIndex: {
+              name = "${ip}:${toString (cfg.port + scaleIndex)}";
+              value = { };
+            }) cfg.serviceScale
+          );
+        };
       };
-      upstreams = lib.mkIf (cfg.serviceScale > 1) {
-        "upstream-invidious".servers = builtins.listToAttrs (builtins.genList
-          (scaleIndex: {
-            name = "${ip}:${toString (cfg.port + scaleIndex)}";
-            value = { };
-          })
-          cfg.serviceScale);
-      };
-    };
 
-    assertions = [{
-      assertion = cfg.domain != null;
-      message = "To use services.invidious.nginx, you need to set services.invidious.domain";
-    }];
+    assertions = [
+      {
+        assertion = cfg.domain != null;
+        message = "To use services.invidious.nginx, you need to set services.invidious.domain";
+      }
+    ];
   };
 in
 {
@@ -315,7 +341,7 @@ in
       description = ''
         How many invidious instances to run.
 
-        See https://docs.invidious.io/improve-public-instance/#2-multiple-invidious-processes for more details
+        See <https://docs.invidious.io/improve-public-instance/#2-multiple-invidious-processes> for more details
         on how this is intended to work. All instances beyond the first one have the options `channel_threads`
         and `feed_threads` set to 0 to avoid conflicts with multiple instances refreshing subscriptions. Instances
         will be configured to bind to consecutive ports starting with {option}`services.invidious.port` for the
@@ -421,7 +447,7 @@ in
 
           If {option}`services.invidious.nginx.enable` is used, nginx will be configured automatically. If not, you
           need to configure a reverse proxy yourself according to
-          https://docs.invidious.io/improve-public-instance/#3-speed-up-video-playback-with-http3-ytproxy.
+          <https://docs.invidious.io/improve-public-instance/#3-speed-up-video-playback-with-http3-ytproxy>.
         '';
       };
 
@@ -453,11 +479,13 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [
-    serviceConfig
-    localDatabaseConfig
-    nginxConfig
-    ytproxyConfig
-    sigHelperConfig
-  ]);
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      serviceConfig
+      localDatabaseConfig
+      nginxConfig
+      ytproxyConfig
+      sigHelperConfig
+    ]
+  );
 }

@@ -1,46 +1,73 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rustPlatform
-, just
-, pkg-config
-, wayland
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  just,
+  pkg-config,
+  wayland,
+  nix-update-script,
+  nixosTests,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cosmic-randr";
-  version = "1.0.0-alpha.3";
+  version = "1.0.0-beta.1.1";
 
+  # nixpkgs-update: no auto update
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-randr";
-    rev = "epoch-${version}";
-    hash = "sha256-xakK4APhlNKuWbCMP6nJXLyOaQ0hFCvzOht3P8CkV/0=";
+    tag = "epoch-${finalAttrs.version}";
+    hash = "sha256-daP2YZ7B1LXzqh2n0KoSTJbitdK+hlZO+Ydt9behzmQ=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-S5zvh/pJA3JMwQ3K5RPPHuHKLQA9g1Ae7NLWgy9b5FA=";
+  cargoHash = "sha256-tkmBthh+nM3Mb9WoSjxMbx3t0NTf6lv91TwEwEANS6U=";
 
-  nativeBuildInputs = [ just pkg-config ];
+  nativeBuildInputs = [
+    just
+    pkg-config
+  ];
+
   buildInputs = [ wayland ];
 
   dontUseJustBuild = true;
+  dontUseJustCheck = true;
 
   justFlags = [
     "--set"
     "prefix"
     (placeholder "out")
     "--set"
-    "bin-src"
-    "target/${stdenv.hostPlatform.rust.cargoShortTarget}/release/cosmic-randr"
+    "cargo-target-dir"
+    "target/${stdenv.hostPlatform.rust.cargoShortTarget}"
   ];
 
-  meta = with lib; {
+  passthru = {
+    tests = {
+      inherit (nixosTests)
+        cosmic
+        cosmic-autologin
+        cosmic-noxwayland
+        cosmic-autologin-noxwayland
+        ;
+    };
+    updateScript = nix-update-script {
+      extraArgs = [
+        "--version"
+        "unstable"
+        "--version-regex"
+        "epoch-(.*)"
+      ];
+    };
+  };
+
+  meta = {
     homepage = "https://github.com/pop-os/cosmic-randr";
     description = "Library and utility for displaying and configuring Wayland outputs";
-    license = licenses.mpl20;
-    maintainers = with maintainers; [ nyabinary ];
-    platforms = platforms.linux;
+    license = lib.licenses.mpl20;
+    teams = [ lib.teams.cosmic ];
+    platforms = lib.platforms.linux;
     mainProgram = "cosmic-randr";
   };
-}
+})

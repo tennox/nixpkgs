@@ -1,14 +1,15 @@
-{ lib
-, fetchFromGitHub
-, rustPlatform
-, makeWrapper
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  makeWrapper,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "kibi";
   version = "0.2.2";
 
-  cargoHash = "sha256-ebUCkcUACganeq5U0XU4VIGClKDZGhUw6K3WBgTUUUw=";
+  cargoHash = "sha256-7SOkREsGiolT5LxLAbjZe3aAYBT/AlhlOXDlDmoei9w=";
 
   src = fetchFromGitHub {
     owner = "ilai-deutel";

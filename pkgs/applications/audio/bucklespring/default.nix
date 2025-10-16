@@ -1,17 +1,18 @@
-{ lib
-, stdenv
-, fetchFromGitHub
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
 
-, legacy ? false
-, libinput
+  legacy ? false,
+  libinput,
 
-, pkg-config
-, makeWrapper
+  pkg-config,
+  makeWrapper,
 
-, openal
-, alure
-, libXtst
-, libX11
+  openal,
+  alure,
+  libXtst,
+  libX11,
 }:
 
 let
@@ -23,16 +24,25 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "zevv";
-    repo = pname;
+    repo = "bucklespring";
     rev = "v${version}";
     sha256 = "0prhqibivxzmz90k79zpwx3c97h8wa61rk5ihi9a5651mnc46mna";
   };
 
-  nativeBuildInputs = [ pkg-config makeWrapper ];
+  nativeBuildInputs = [
+    pkg-config
+    makeWrapper
+  ];
 
-  buildInputs = [ openal alure ]
-    ++ optionals (legacy) [ libXtst libX11 ]
-    ++ optionals (!legacy) [ libinput ];
+  buildInputs = [
+    openal
+    alure
+  ]
+  ++ optionals legacy [
+    libXtst
+    libX11
+  ]
+  ++ optionals (!legacy) [ libinput ];
 
   makeFlags = optionals (!legacy) [ "libinput=1" ];
 
@@ -58,7 +68,7 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://github.com/zevv/bucklespring";
     license = licenses.gpl2Only;
-    platforms  = platforms.unix;
-    maintainers = [ maintainers.evils ];
+    platforms = platforms.unix;
+    maintainers = [ ];
   };
 }

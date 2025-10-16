@@ -1,4 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, fetchYarnDeps, yarnConfigHook, nixosTests, writeText, python3 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchYarnDeps,
+  yarnConfigHook,
+  nixosTests,
+  writeText,
+  python3,
+}:
 
 let
   pname = "powerdns-admin";
@@ -6,7 +15,7 @@ let
   src = fetchFromGitHub {
     owner = "PowerDNS-Admin";
     repo = "PowerDNS-Admin";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-q9mt8wjSNFb452Xsg+qhNOWa03KJkYVGAeCWVSzZCyk=";
   };
 
@@ -14,11 +23,50 @@ let
 
   pythonDeps = with python.pkgs; [
     distutils
-    flask flask-assets flask-login flask-sqlalchemy flask-migrate flask-seasurf flask-mail flask-session flask-session-captcha flask-sslify
-    mysqlclient psycopg2 sqlalchemy
-    certifi cffi configobj cryptography bcrypt requests python-ldap pyotp qrcode dnspython
-    gunicorn itsdangerous python3-saml pytz rcssmin rjsmin authlib bravado-core
-    lima lxml passlib pyasn1 pytimeparse pyyaml jinja2 itsdangerous webcolors werkzeug zipp zxcvbn
+    flask
+    flask-assets
+    flask-login
+    flask-sqlalchemy
+    flask-migrate
+    flask-seasurf
+    flask-mail
+    flask-session
+    flask-session-captcha
+    flask-sslify
+    mysqlclient
+    psycopg2
+    sqlalchemy
+    certifi
+    cffi
+    configobj
+    cryptography
+    bcrypt
+    requests
+    python-ldap
+    pyotp
+    qrcode
+    dnspython
+    gunicorn
+    itsdangerous
+    python3-saml
+    pytz
+    rcssmin
+    rjsmin
+    authlib
+    bravado-core
+    lima
+    lxml
+    passlib
+    pyasn1
+    pytimeparse
+    pyyaml
+    jinja2
+    itsdangerous
+    webcolors
+    werkzeug
+    zipp
+    zxcvbn
+    standard-imghdr
   ];
 
   all_patches = [
@@ -36,7 +84,8 @@ let
 
     nativeBuildInputs = [
       yarnConfigHook
-    ] ++ pythonDeps;
+    ]
+    ++ pythonDeps;
     patches = all_patches ++ [
       ./0002-Remove-cssrewrite-filter.patch
     ];
@@ -62,7 +111,8 @@ let
     assets.register('js_main', 'generated/main.js')
     assets.register('css_main', 'generated/main.css')
   '';
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   inherit pname version src;
 
   nativeBuildInputs = [ python.pkgs.wrapPython ];
@@ -81,8 +131,8 @@ in stdenv.mkDerivation {
   patches = all_patches ++ [
     ./0003-Fix-flask-migrate-4.0-compatibility.patch
     ./0004-Fix-flask-session-and-powerdns-admin-compatibility.patch
-    ./0005-Use-app-context-to-create-routes.patch
-    ./0006-Register-modules-before-starting.patch
+    ./0005-Fix-app-context-and-register-modules.patch
+    ./0006-Fix-regex.patch
   ];
 
   postPatch = ''
@@ -116,11 +166,14 @@ in stdenv.mkDerivation {
     tests = nixosTests.powerdns-admin;
   };
 
-  meta = with lib; {
+  meta = {
     description = "PowerDNS web interface with advanced features";
     mainProgram = "powerdns-admin";
     homepage = "https://github.com/PowerDNS-Admin/PowerDNS-Admin";
-    license = licenses.mit;
-    maintainers = with maintainers; [ Flakebi zhaofengli ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      Flakebi
+      zhaofengli
+    ];
   };
 }

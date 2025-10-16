@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, ncurses }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  ncurses,
+}:
 
 stdenv.mkDerivation rec {
   pname = "braincurses";
@@ -7,7 +12,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "bderrly";
     repo = "braincurses";
-    rev = version;
+    tag = version;
     sha256 = "0gpny9wrb0zj3lr7iarlgn9j4367awj09v3hhxz9r9a6yhk4anf5";
   };
 

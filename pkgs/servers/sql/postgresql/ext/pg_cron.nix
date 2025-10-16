@@ -1,22 +1,27 @@
-{ lib, stdenv, fetchFromGitHub, postgresql, buildPostgresqlExtension }:
+{
+  fetchFromGitHub,
+  lib,
+  postgresql,
+  postgresqlBuildExtension,
+}:
 
-buildPostgresqlExtension rec {
+postgresqlBuildExtension (finalAttrs: {
   pname = "pg_cron";
-  version = "1.6.4";
+  version = "1.6.7";
 
   src = fetchFromGitHub {
-    owner  = "citusdata";
-    repo   = pname;
-    rev    = "v${version}";
-    hash   = "sha256-t1DpFkPiSfdoGG2NgNT7g1lkvSooZoRoUrix6cBID40=";
+    owner = "citusdata";
+    repo = "pg_cron";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-oQjaQeIEMbg5pipY8tT4I7bNdyDOwcr/ZJikqgcEZOs=";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Run Cron jobs through PostgreSQL";
-    homepage    = "https://github.com/citusdata/pg_cron";
-    changelog   = "https://github.com/citusdata/pg_cron/releases/tag/v${version}";
-    maintainers = with maintainers; [ thoughtpolice ];
-    platforms   = postgresql.meta.platforms;
-    license     = licenses.postgresql;
+    homepage = "https://github.com/citusdata/pg_cron";
+    changelog = "https://github.com/citusdata/pg_cron/releases/tag/v${finalAttrs.version}";
+    maintainers = with lib.maintainers; [ thoughtpolice ];
+    platforms = postgresql.meta.platforms;
+    license = lib.licenses.postgresql;
   };
-}
+})

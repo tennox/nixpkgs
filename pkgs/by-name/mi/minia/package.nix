@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, cmake, hdf5, boost }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  hdf5,
+  boost,
+}:
 
 stdenv.mkDerivation rec {
   pname = "minia";
@@ -7,7 +14,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "GATB";
     repo = "minia";
-    rev = "v${version}";
+    tag = "v${version}";
     sha256 = "0bmfrywixaaql898l0ixsfkhxjf2hb08ssnqzlzacfizxdp46siq";
     fetchSubmodules = true;
   };
@@ -17,7 +24,10 @@ stdenv.mkDerivation rec {
   env.NIX_CFLAGS_COMPILE = toString [ "-Wformat" ];
 
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ hdf5 boost ];
+  buildInputs = [
+    hdf5
+    boost
+  ];
 
   prePatch = ''
     rm -rf thirdparty/gatb-core/gatb-core/thirdparty/{hdf5,boost}

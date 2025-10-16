@@ -1,45 +1,57 @@
-{ stdenv
-, lib
-, autoreconfHook
-, gitUpdater
-, gnome-common
-, which
-, fetchgit
-, libgtop
-, libwnck
-, glib
-, vala
-, pkg-config
-, libstartup_notification
-, gobject-introspection
-, gtk-doc
-, docbook_xsl
-, xorgserver
-, dbus
-, python3
-, wrapGAppsHook3
+{
+  stdenv,
+  lib,
+  autoreconfHook,
+  gitUpdater,
+  gnome-common,
+  which,
+  fetchgit,
+  libgtop,
+  libwnck,
+  glib,
+  vala,
+  pkg-config,
+  libstartup_notification,
+  gobject-introspection,
+  gtk-doc,
+  docbook_xsl,
+  xorgserver,
+  dbus,
+  python3,
+  wrapGAppsHook3,
+  withDocs ? stdenv.buildPlatform.canExecute stdenv.hostPlatform,
 }:
 
 stdenv.mkDerivation rec {
   pname = "bamf";
   version = "0.5.6";
 
-  outputs = [ "out" "dev" "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+  ]
+  ++ lib.optionals withDocs [
+    "devdoc"
+  ];
 
   src = fetchgit {
     url = "https://git.launchpad.net/~unity-team/bamf";
-    rev = version;
+    tag = version;
     sha256 = "7U+2GcuDjPU8quZjkd8bLADGlG++tl6wSo0mUQkjAXQ=";
   };
 
+  depsBuildBuild = [
+    pkg-config
+  ];
+
   nativeBuildInputs = [
-    (python3.withPackages (ps: with ps; [ lxml ])) # Tests
+    (python3.pythonOnBuildForHost.withPackages (ps: with ps; [ lxml ])) # Tests
     autoreconfHook
     dbus
     docbook_xsl
     gnome-common
     gobject-introspection
-    gtk-doc
+    gtk-doc # required for autoreconfHook, even when `withDocs = false`
     pkg-config
     vala
     which
@@ -62,8 +74,10 @@ stdenv.mkDerivation rec {
   '';
 
   configureFlags = [
-    "--enable-gtk-doc"
     "--enable-headless-tests"
+  ]
+  ++ lib.optionals withDocs [
+    "--enable-gtk-doc"
   ];
 
   # Fix paths
@@ -74,6 +88,7 @@ stdenv.mkDerivation rec {
 
   # TODO: Requires /etc/machine-id
   doCheck = false;
+  strictDeps = true;
 
   # Ignore deprecation errors
   env.NIX_CFLAGS_COMPILE = "-DGLIB_DISABLE_DEPRECATION_WARNINGS";
@@ -91,6 +106,7 @@ stdenv.mkDerivation rec {
     homepage = "https://launchpad.net/bamf";
     license = licenses.lgpl3;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ davidak ] ++ teams.pantheon.members;
+    maintainers = with maintainers; [ davidak ];
+    teams = [ teams.pantheon ];
   };
 }

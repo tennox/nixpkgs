@@ -1,37 +1,67 @@
 {
   lib,
   buildPythonPackage,
+  celery,
+  debugpy,
+  docker,
   fetchFromGitHub,
-  flit-core,
+  kombu,
+  poetry-core,
+  psutil,
+  pytest-docker-tools,
+  pytest,
+  pythonOlder,
+  setuptools,
+  tenacity,
 }:
 
 buildPythonPackage rec {
   pname = "pytest-celery";
-  version = "0.1.0";
+  version = "1.2.1";
+  pyproject = true;
 
-  format = "pyproject";
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "celery";
     repo = "pytest-celery";
-    rev = "v${version}";
-    hash = "sha256-vzWwkOS3BLOInaFDk+PegvEmC88ZZ1sG1CmHwhn7r9w=";
+    tag = "v${version}";
+    hash = "sha256-E8GO/00IC9kUvQLZmTFaK4FFQ7d+/tw/kVTQbAqRRRM=";
   };
 
   postPatch = ''
-    # avoid infinite recursion with celery
+    # Avoid infinite recursion with celery
     substituteInPlace pyproject.toml \
-      --replace '"celery >= 4.4.0"' ""
+      --replace 'celery = { version = "*" }' ""
   '';
 
-  nativeBuildInputs = [ flit-core ];
+  pythonRelaxDeps = [
+    "debugpy"
+    "setuptools"
+  ];
 
-  # This package has nothing to test or import.
+  build-system = [ poetry-core ];
+
+  buildInput = [ pytest ];
+
+  dependencies = [
+    (celery.overridePythonAttrs { doCheck = false; })
+    debugpy
+    docker
+    kombu
+    psutil
+    pytest-docker-tools
+    setuptools
+    tenacity
+  ];
+
+  # Infinite recursion with celery
   doCheck = false;
 
   meta = with lib; {
     description = "Pytest plugin to enable celery.contrib.pytest";
     homepage = "https://github.com/celery/pytest-celery";
+    changelog = "https://github.com/celery/pytest-celery/blob/${src.tag}/Changelog.rst";
     license = licenses.mit;
     maintainers = [ ];
   };

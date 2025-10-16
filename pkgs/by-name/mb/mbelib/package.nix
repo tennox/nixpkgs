@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "mbelib";
@@ -13,6 +18,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
+  cmakeFlags = [ (lib.cmakeFeature "CMAKE_POLICY_VERSION_MINIMUM" "3.10") ];
+
   doCheck = true;
 
   meta = with lib; {
@@ -20,6 +27,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/szechyjs/mbelib";
     license = licenses.isc;
     platforms = platforms.unix;
-    maintainers = [ ];
+    maintainers = [ lib.maintainers.aciceri ];
   };
 }

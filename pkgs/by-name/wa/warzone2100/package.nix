@@ -1,39 +1,42 @@
-{ lib
-, stdenv
-, fetchurl
-, cmake
-, ninja
-, p7zip
-, pkg-config
-, asciidoctor
-, gettext
+{
+  lib,
+  stdenv,
+  fetchurl,
+  cmake,
+  ninja,
+  p7zip,
+  pkg-config,
+  asciidoctor,
+  gettext,
 
-, SDL2
-, libtheora
-, libvorbis
-, libopus
-, openal
-, openalSoft
-, physfs
-, miniupnpc
-, libsodium
-, curl
-, libpng
-, freetype
-, harfbuzz
-, sqlite
-, which
-, vulkan-headers
-, vulkan-loader
-, shaderc
+  SDL2,
+  libtheora,
+  libvorbis,
+  libopus,
+  openal,
+  openalSoft,
+  physfs,
+  miniupnpc,
+  libsodium,
+  curl,
+  libpng,
+  freetype,
+  harfbuzz,
+  sqlite,
+  which,
+  vulkan-headers,
+  vulkan-loader,
+  shaderc,
+  protobuf,
+  libzip,
 
-, testers
-, warzone2100
-, nixosTests
+  testers,
+  warzone2100,
+  nixosTests,
 
-, gitUpdater
+  gitUpdater,
 
-, withVideos ? false
+  withVideos ? false,
 }:
 
 let
@@ -46,11 +49,11 @@ in
 
 stdenv.mkDerivation (finalAttrs: {
   inherit pname;
-  version  = "4.5.5";
+  version = "4.6.1";
 
   src = fetchurl {
     url = "mirror://sourceforge/project/warzone2100/releases/${finalAttrs.version}/warzone2100_src.tar.xz";
-    hash = "sha256-B/YbrnIWh+3rYtpId+hQMKA6BTpZPWRRlPxld44EgP8=";
+    hash = "sha256-JqxVOEYCQ/ihSdMSZNpxyqTTPvaoAQA37/JOdyeMpQs=";
   };
 
   buildInputs = [
@@ -68,7 +71,10 @@ stdenv.mkDerivation (finalAttrs: {
     freetype
     harfbuzz
     sqlite
-  ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
+    protobuf
+    libzip
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
     vulkan-headers
     vulkan-loader
   ];
@@ -102,7 +108,8 @@ stdenv.mkDerivation (finalAttrs: {
     #
     # Alternatively, we could have set CMAKE_INSTALL_BINDIR to "bin".
     "-DCMAKE_INSTALL_DATAROOTDIR=${placeholder "out"}/share"
-  ] ++ lib.optional stdenv.hostPlatform.isDarwin "-P../configure_mac.cmake";
+  ]
+  ++ lib.optional stdenv.hostPlatform.isDarwin "-P../configure_mac.cmake";
 
   postInstall = lib.optionalString withVideos ''
     cp ${sequences_src} $out/share/warzone2100/sequences.wz
@@ -137,7 +144,9 @@ stdenv.mkDerivation (finalAttrs: {
     '';
     homepage = "https://wz2100.net";
     license = licenses.gpl2Plus;
-    maintainers = with maintainers; [ astsmtl fgaz ];
+    maintainers = with maintainers; [
+      fgaz
+    ];
     platforms = platforms.all;
     # configure_mac.cmake tries to download stuff
     # https://github.com/Warzone2100/warzone2100/blob/master/macosx/README.md

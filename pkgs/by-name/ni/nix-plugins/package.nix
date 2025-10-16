@@ -1,20 +1,35 @@
-{ lib, stdenv, fetchFromGitHub, nix, cmake, pkg-config, boost }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  nixVersions,
+  nixComponents ? nixVersions.nixComponents_2_30,
+  cmake,
+  pkg-config,
+  boost,
+}:
 
 stdenv.mkDerivation rec {
   pname = "nix-plugins";
-  version = "15.0.0";
+  version = "16.0.0";
 
   src = fetchFromGitHub {
     owner = "shlevy";
     repo = "nix-plugins";
     rev = version;
-    hash = "sha256-C4VqKHi6nVAHuXVhqvTRRyn0Bb619ez4LzgUWPH1cbM=";
+    hash = "sha256-yofHs1IyAkyMqrWlLkmnX+CmH+qsvlhKN1YZM4nRf1M=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
   buildInputs = [
-    nix
+    nixComponents.nix-expr
+    nixComponents.nix-main
+    nixComponents.nix-store
+    nixComponents.nix-cmd
     boost
   ];
 

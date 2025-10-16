@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  utils,
   ...
 }:
 let
@@ -24,10 +25,10 @@ in
       type = lib.types.package;
       default = pkgs.scx.full;
       defaultText = lib.literalExpression "pkgs.scx.full";
-      example = lib.literalExpression "pkgs.scx.rustland";
+      example = lib.literalExpression "pkgs.scx.rustscheds";
       description = ''
         `scx` package to use. `scx.full`, which includes all schedulers, is the default.
-        You may choose a minimal package, such as `pkgs.scx.rustland`, if only one specific scheduler is needed.
+        You may choose a minimal package, such as `pkgs.scx.rustscheds`.
 
         ::: {.note}
         Overriding this does not change the default scheduler; you should set `services.scx.scheduler` for it.
@@ -38,18 +39,27 @@ in
     scheduler = lib.mkOption {
       type = lib.types.enum [
         "scx_bpfland"
+        "scx_chaos"
+        "scx_cosmos"
         "scx_central"
+        "scx_flash"
         "scx_flatcg"
         "scx_lavd"
         "scx_layered"
+        "scx_mitosis"
         "scx_nest"
+        "scx_p2dq"
         "scx_pair"
+        "scx_prev"
         "scx_qmap"
         "scx_rlfifo"
         "scx_rustland"
         "scx_rusty"
+        "scx_sdt"
         "scx_simple"
+        "scx_tickless"
         "scx_userland"
+        "scx_wd40"
       ];
       default = "scx_rustland";
       example = "scx_bpfland";
@@ -61,6 +71,7 @@ in
 
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.singleLineStr;
+      default = [ ];
       example = [
         "--slice-us 5000"
         "--verbose"
@@ -90,9 +101,13 @@ in
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${lib.getExe' cfg.package cfg.scheduler} ${lib.concatStringsSep " " cfg.extraArgs}";
+        ExecStart = utils.escapeSystemdExecArgs (
+          [
+            (lib.getExe' cfg.package cfg.scheduler)
+          ]
+          ++ cfg.extraArgs
+        );
         Restart = "on-failure";
-        StandardError = "journal";
       };
 
       wantedBy = [ "multi-user.target" ];
@@ -106,5 +121,7 @@ in
     ];
   };
 
-  meta.maintainers = with lib.maintainers; [ johnrtitor ];
+  meta = {
+    inherit (pkgs.scx.full.meta) maintainers;
+  };
 }

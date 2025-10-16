@@ -8,8 +8,7 @@
   makeWrapper,
 
   # buildInputs
-  apple-sdk_11,
-  darwinMinVersionHook,
+  fmt,
   rsync,
 
   versionCheckHook,
@@ -18,13 +17,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "lua-language-server";
-  version = "3.13.0";
+  version = "3.15.0";
 
   src = fetchFromGitHub {
     owner = "luals";
     repo = "lua-language-server";
-    rev = "refs/tags/${finalAttrs.version}";
-    hash = "sha256-V8iqMmf9uVwWvFqEYPlc7WhPnPmKMlJuhve81kf3yQg=";
+    tag = finalAttrs.version;
+    hash = "sha256-frsq5OA3giLOJ/KPcAqVhme+0CtJuZrS3F4zHN1PnFM=";
     fetchSubmodules = true;
   };
 
@@ -33,50 +32,60 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    # aligned_alloc
-    apple-sdk_11
-    (darwinMinVersionHook "10.15")
+  buildInputs = [
+    fmt
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     rsync
   ];
 
-  postPatch =
+  env.NIX_LDFLAGS = "-lfmt";
+
+  postPatch = ''
+    # filewatch tests are failing on darwin
+    # this feature is not used in lua-language-server
+    substituteInPlace 3rd/bee.lua/test/test.lua \
+      --replace-fail 'require "test_filewatch"' ""
+
+    # use nixpkgs fmt library
+    for d in 3rd/bee.lua 3rd/luamake/bee.lua
+    do
+      rm -r $d/3rd/fmt/*
+      touch $d/3rd/fmt/format.cc
+      substituteInPlace $d/bee/nonstd/format.h $d/bee/nonstd/print.h \
+        --replace-fail "include <3rd/fmt/fmt" "include <fmt"
+    done
+
+    # flaky tests on linux
+    # https://github.com/LuaLS/lua-language-server/issues/2926
+    substituteInPlace test/tclient/init.lua \
+      --replace-fail "require 'tclient.tests.load-relative-library'" ""
+
+    pushd 3rd/luamake
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin (
+    # This package uses the program clang for C and C++ files. The language
+    # is selected via the command line argument -std, but this do not work
+    # in combination with the nixpkgs clang wrapper. Therefor we have to
+    # find all c++ compiler statements and replace $cc (which expands to
+    # clang) with clang++.
     ''
-      # filewatch tests are failing on darwin
-      # this feature is not used in lua-language-server
-      substituteInPlace 3rd/bee.lua/test/test.lua \
-        --replace-fail 'require "test_filewatch"' ""
-
-      # flaky tests on linux
-      # https://github.com/LuaLS/lua-language-server/issues/2926
-      substituteInPlace test/tclient/init.lua \
-        --replace-fail "require 'tclient.tests.load-relative-library'" ""
-
-      pushd 3rd/luamake
+      sed -i compile/ninja/macos.ninja \
+        -e '/c++/s,$cc,clang++,' \
+        -e '/test.lua/s,= .*,= true,' \
+        -e '/ldl/s,$cc,clang++,'
+      sed -i scripts/compiler/gcc.lua \
+        -e '/cxx_/s,$cc,clang++,'
     ''
-    + lib.optionalString stdenv.hostPlatform.isDarwin (
-      # This package uses the program clang for C and C++ files. The language
-      # is selected via the command line argument -std, but this do not work
-      # in combination with the nixpkgs clang wrapper. Therefor we have to
-      # find all c++ compiler statements and replace $cc (which expands to
-      # clang) with clang++.
-      ''
-        sed -i compile/ninja/macos.ninja \
-          -e '/c++/s,$cc,clang++,' \
-          -e '/test.lua/s,= .*,= true,' \
-          -e '/ldl/s,$cc,clang++,'
-        sed -i scripts/compiler/gcc.lua \
-          -e '/cxx_/s,$cc,clang++,'
-      ''
-      # Avoid relying on ditto (impure)
-      + ''
-        substituteInPlace compile/ninja/macos.ninja \
-          --replace-fail "ditto" "rsync -a"
+    # Avoid relying on ditto (impure)
+    + ''
+      substituteInPlace compile/ninja/macos.ninja \
+        --replace-fail "ditto" "rsync -a"
 
-        substituteInPlace scripts/writer.lua \
-          --replace-fail "ditto" "rsync -a"
-      ''
-    );
+      substituteInPlace scripts/writer.lua \
+        --replace-fail "ditto" "rsync -a"
+    ''
+  );
 
   ninjaFlags = [
     "-fcompile/ninja/${if stdenv.hostPlatform.isDarwin then "macos" else "linux"}.ninja"
@@ -113,7 +122,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = [ "--version" ];
+  versionCheckProgramArg = "--version";
   doInstallCheck = true;
 
   passthru.updateScript = nix-update-script { };

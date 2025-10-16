@@ -1,4 +1,9 @@
-{ lib, python3, fetchFromGitHub, withServer ? false }:
+{
+  lib,
+  python3,
+  fetchFromGitHub,
+  withServer ? false,
+}:
 
 let
   serverRequire = with python3.pkgs; [
@@ -16,16 +21,17 @@ let
     toml
   ];
 in
-with python3.pkgs; buildPythonApplication rec {
-  version = "4.8";
+with python3.pkgs;
+buildPythonApplication rec {
+  version = "5.0";
   pname = "buku";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "jarun";
     repo = "buku";
-    rev = "v${version}";
-    sha256 = "sha256-kPVlfTYUusf5CZnKB53WZcCHo3MEnA2bLUHTRPGPn+8=";
+    tag = "v${version}";
+    sha256 = "sha256-b3j3WLMXl4sXZpIObC+F7RRpo07cwJpAK7lQ7+yIzro=";
   };
 
   nativeBuildInputs = [
@@ -34,14 +40,14 @@ with python3.pkgs; buildPythonApplication rec {
 
   nativeCheckInputs = [
     hypothesis
-    pytest
+    pytestCheckHook
     pytest-recording
     pyyaml
     mypy-extensions
     click
     pylint
     flake8
-    pytest-cov
+    pytest-cov-stub
     pyyaml
   ];
 
@@ -51,7 +57,8 @@ with python3.pkgs; buildPythonApplication rec {
     certifi
     urllib3
     html5lib
-  ] ++ lib.optionals withServer serverRequire;
+  ]
+  ++ lib.optionals withServer serverRequire;
 
   preCheck = ''
     # Disables a test which requires internet
@@ -61,7 +68,8 @@ with python3.pkgs; buildPythonApplication rec {
       --replace "self.assertEqual(url, \"https://www.google.com\")" ""
     substituteInPlace setup.py \
       --replace mypy-extensions==0.4.1 mypy-extensions>=0.4.1
-  '' + lib.optionalString (!withServer) ''
+  ''
+  + lib.optionalString (!withServer) ''
     rm tests/test_{server,views}.py
   '';
 
@@ -72,7 +80,8 @@ with python3.pkgs; buildPythonApplication rec {
     cp auto-completion/zsh/* $out/share/zsh/site-functions
     cp auto-completion/bash/* $out/share/bash-completion/completions
     cp auto-completion/fish/* $out/share/fish/vendor_completions.d
-  '' + lib.optionalString (!withServer) ''
+  ''
+  + lib.optionalString (!withServer) ''
     rm $out/bin/bukuserver
   '';
 

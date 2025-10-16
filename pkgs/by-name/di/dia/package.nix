@@ -1,23 +1,24 @@
-{ lib
-, stdenv
-, fetchFromGitLab
-, appstream-glib
-, dblatex
-, desktop-file-utils
-, graphene
-, gtk3
-, gtk-mac-integration-gtk3
-, intltool
-, libxml2
-, libxslt
-, meson
-, ninja
-, pkg-config
-, poppler
-, python3
-, wrapGAppsHook3
+{
+  lib,
+  stdenv,
+  fetchFromGitLab,
+  appstream-glib,
+  dblatex,
+  desktop-file-utils,
+  graphene,
+  gtk3,
+  gtk-mac-integration-gtk3,
+  intltool,
+  libxml2,
+  libxslt,
+  meson,
+  ninja,
+  pkg-config,
+  poppler,
+  python3,
+  wrapGAppsHook3,
   # Building with docs are still failing in unstable-2023-09-28
-, withDocs ? false
+  withDocs ? false,
 }:
 
 stdenv.mkDerivation {
@@ -32,8 +33,8 @@ stdenv.mkDerivation {
     hash = "sha256-U+8TUE1ULt6MNxnvw9kFjCAVBecUy2Sarof6H9+kR7Q=";
   };
 
-  # Required for the PDF plugin when building with clang.
-  CXXFLAGS = "-std=c++17";
+  # Required for the PDF plugin
+  CXXFLAGS = "-std=c++20";
 
   preConfigure = ''
     patchShebangs .
@@ -42,14 +43,14 @@ stdenv.mkDerivation {
   buildInputs = [
     graphene
     gtk3
-    libxml2
+    (libxml2.override { zlibSupport = true; })
     python3
     poppler
-  ] ++
-  lib.optionals withDocs [
+  ]
+  ++ lib.optionals withDocs [
     libxslt
-  ] ++
-  lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     gtk-mac-integration-gtk3
   ];
 
@@ -61,8 +62,8 @@ stdenv.mkDerivation {
     ninja
     pkg-config
     wrapGAppsHook3
-  ] ++
-  lib.optionals withDocs [
+  ]
+  ++ lib.optionals withDocs [
     dblatex
   ];
 

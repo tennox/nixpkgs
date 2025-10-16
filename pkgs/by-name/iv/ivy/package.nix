@@ -1,4 +1,8 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "ivy";
@@ -15,11 +19,14 @@ buildGoModule rec {
 
   subPackages = [ "." ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   meta = with lib; {
     homepage = "https://github.com/robpike/ivy";
-    description = "ivy, an APL-like calculator";
+    description = "APL-like calculator";
     mainProgram = "ivy";
     license = licenses.bsd3;
     maintainers = with maintainers; [ smasher164 ];

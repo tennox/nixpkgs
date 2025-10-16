@@ -1,14 +1,20 @@
-{ lib, stdenv, fetchFromGitHub, cmake, unstableGitUpdater }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  unstableGitUpdater,
+}:
 
 stdenv.mkDerivation {
   pname = "nanosvg";
-  version = "0-unstable-2023-12-30";
+  version = "0-unstable-2025-09-28";
 
   src = fetchFromGitHub {
     owner = "memononen";
     repo = "nanosvg";
-    rev = "93ce879dc4c04a3ef1758428ec80083c38610b1f";
-    hash = "sha256-ZtenaXJqMZr2+BxYENG1zUoQ+Qoxlxy0m/1YfJBKAFk=";
+    rev = "66579081d84b613daa49a64f76357ce65925e13b";
+    hash = "sha256-wdT0FIGSlfjDK1k95t17NIF2mEWLkJVAZL9TImehIUE=";
   };
 
   nativeBuildInputs = [ cmake ];

@@ -1,7 +1,22 @@
-{ config, lib, stdenv, fetchFromGitHub, pkg-config, libconfig
-, gtkmm2, glibmm, libxml2, libsecret, curl, libzip
-, librsvg, gst_all_1, autoreconfHook, makeWrapper
-, useUnrar ? config.ahoviewer.useUnrar or false, unrar
+{
+  config,
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  libconfig,
+  gtkmm2,
+  glibmm,
+  libxml2,
+  libsecret,
+  curl,
+  libzip,
+  librsvg,
+  gst_all_1,
+  autoreconfHook,
+  makeWrapper,
+  useUnrar ? config.ahoviewer.useUnrar or false,
+  unrar,
 }:
 
 assert useUnrar -> unrar != null;
@@ -13,21 +28,33 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "ahodesuka";
     repo = "ahoviewer";
-    rev = version;
+    tag = version;
     sha256 = "1avdl4qcpznvf3s2id5qi1vnzy4wgh6vxpnrz777a1s4iydxpcd8";
   };
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ autoreconfHook pkg-config makeWrapper ];
+  nativeBuildInputs = [
+    autoreconfHook
+    pkg-config
+    makeWrapper
+  ];
   buildInputs = [
-    glibmm libconfig gtkmm2 glibmm libxml2
-    libsecret curl libzip librsvg
+    glibmm
+    libconfig
+    gtkmm2
+    glibmm
+    libxml2
+    libsecret
+    curl
+    libzip
+    librsvg
     gst_all_1.gstreamer
     gst_all_1.gst-plugins-good
     gst_all_1.gst-libav
     gst_all_1.gst-plugins-base
-  ] ++ lib.optional useUnrar unrar;
+  ]
+  ++ lib.optional useUnrar unrar;
 
   NIX_LDFLAGS = "-lpthread";
 
@@ -50,5 +77,3 @@ stdenv.mkDerivation rec {
     platforms = platforms.linux;
   };
 }
-
-

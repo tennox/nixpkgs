@@ -1,8 +1,19 @@
-{ stdenv, lib, makeWrapper, dev_only_shellcheck ? null,
-fetchFromGitHub,
+{
+  stdenv,
+  lib,
+  makeWrapper,
+  dev_only_shellcheck ? null,
+  fetchFromGitHub,
 
-fzf, coreutils, libxml2, libxslt, jing, findutils, gnugrep, gnused,
-docbook5
+  fzf,
+  coreutils,
+  libxml2,
+  libxslt,
+  jing-trang,
+  findutils,
+  gnugrep,
+  gnused,
+  docbook5,
 }:
 stdenv.mkDerivation rec {
   pname = "xmloscopy";
@@ -18,7 +29,7 @@ stdenv.mkDerivation rec {
     coreutils
     libxml2
     libxslt
-    jing
+    jing-trang
     findutils
     gnugrep
     gnused
@@ -44,7 +55,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "wtf is my docbook broken?";
+    description = "XML debugger";
     mainProgram = "xmloscopy";
     homepage = "https://github.com/grahamc/xmloscopy";
     license = licenses.mit;

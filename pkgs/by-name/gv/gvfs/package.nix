@@ -1,61 +1,63 @@
-{ stdenv
-, lib
-, fetchurl
-, meson
-, ninja
-, pkg-config
-, substituteAll
-, gettext
-, dbus
-, glib
-, udevSupport ? stdenv.hostPlatform.isLinux
-, libgudev
-, udisks2
-, libgcrypt
-, libcap
-, polkit
-, libgphoto2
-, avahi
-, libarchive
-, fuse3
-, libcdio
-, libxml2
-, libsoup_3
-, libxslt
-, docbook_xsl
-, docbook_xml_dtd_42
-, samba
-, libmtp
-, gnomeSupport ? false
-, gnome
-, gcr_4
-, glib-networking
-, gnome-online-accounts
-, wrapGAppsHook3
-, libimobiledevice
-, libbluray
-, libcdio-paranoia
-, libnfs
-, openssh
-, libsecret
-, libgdata
-, libmsgraph
-, python3
-, gsettings-desktop-schemas
+{
+  stdenv,
+  lib,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  replaceVars,
+  gettext,
+  dbus,
+  glib,
+  udevSupport ? stdenv.hostPlatform.isLinux,
+  libgudev,
+  udisks2,
+  libgcrypt,
+  libcap,
+  polkit,
+  libgphoto2,
+  avahi,
+  libarchive,
+  fuse3,
+  libcdio,
+  libxml2,
+  libsoup_3,
+  libxslt,
+  docbook_xsl,
+  docbook_xml_dtd_42,
+  samba,
+  libmtp,
+  gnomeSupport ? false,
+  gnome,
+  gcr_4,
+  glib-networking,
+  gnome-online-accounts,
+  wrapGAppsHook3,
+  libimobiledevice,
+  libbluray,
+  libcdio-paranoia,
+  libnfs,
+  openssh,
+  libsecret,
+  libgdata,
+  libmsgraph,
+  python3,
+  gsettings-desktop-schemas,
+  googleSupport ? false, # dependency on vulnerable libsoup versions
 }:
 
+assert googleSupport -> gnomeSupport;
 stdenv.mkDerivation (finalAttrs: {
   pname = "gvfs";
-  version = "1.56.1";
+  version = "1.57.2";
 
   src = fetchurl {
     url = "mirror://gnome/sources/gvfs/${lib.versions.majorMinor finalAttrs.version}/gvfs-${finalAttrs.version}.tar.xz";
-    hash = "sha256-hnMczsZ5ZI+HNOI3sd4ZDr3ubkyMD1b0VMMViOUJqhA=";
+    hash = "sha256-8Wvvjsof1sEX6F2wEdIekVZpeQ1VhnNJxfGykSmelYU=";
   };
 
   patches = [
-    (substituteAll {
-      src = ./hardcode-ssh-path.patch;
+    (replaceVars ./hardcode-ssh-path.patch {
       ssh_program = "${lib.getBin openssh}/bin/ssh";
     })
   ];
@@ -89,7 +91,8 @@ stdenv.mkDerivation (finalAttrs: {
     libxml2
     gsettings-desktop-schemas
     libsoup_3
-  ] ++ lib.optionals udevSupport [
+  ]
+  ++ lib.optionals udevSupport [
     libgudev
     udisks2
     fuse3
@@ -99,19 +102,23 @@ stdenv.mkDerivation (finalAttrs: {
     libcap
     polkit
     libcdio-paranoia
-  ] ++ lib.optionals gnomeSupport [
+  ]
+  ++ lib.optionals gnomeSupport [
     gcr_4
     glib-networking # TLS support
     gnome-online-accounts
     libsecret
-    libgdata
     libmsgraph
+  ]
+  ++ lib.optionals googleSupport [
+    libgdata
   ];
 
   mesonFlags = [
     "-Dsystemduserunitdir=${placeholder "out"}/lib/systemd/user"
     "-Dtmpfilesdir=no"
-  ] ++ lib.optionals (!udevSupport) [
+  ]
+  ++ lib.optionals (!udevSupport) [
     "-Dgudev=false"
     "-Dudisks2=false"
     "-Dfuse=false"
@@ -122,15 +129,20 @@ stdenv.mkDerivation (finalAttrs: {
     "-Dgphoto2=false"
     "-Dlibusb=false"
     "-Dlogind=false"
-  ] ++ lib.optionals (!gnomeSupport) [
+  ]
+  ++ lib.optionals (!gnomeSupport) [
     "-Dgcr=false"
     "-Dgoa=false"
     "-Dkeyring=false"
-    "-Dgoogle=false"
     "-Donedrive=false"
-  ] ++ lib.optionals (avahi == null) [
+  ]
+  ++ lib.optionals (!googleSupport) [
+    "-Dgoogle=false"
+  ]
+  ++ lib.optionals (avahi == null) [
     "-Ddnssd=false"
-  ] ++ lib.optionals (samba == null) [
+  ]
+  ++ lib.optionals (samba == null) [
     # Xfce don't want samba
     "-Dsmb=false"
   ];
@@ -148,9 +160,10 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = with lib; {
-    description = "Virtual Filesystem support library" + optionalString gnomeSupport " (full GNOME support)";
+    description =
+      "Virtual Filesystem support library" + optionalString gnomeSupport " (full GNOME support)";
     license = licenses.lgpl2Plus;
     platforms = platforms.unix;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
   };
 })

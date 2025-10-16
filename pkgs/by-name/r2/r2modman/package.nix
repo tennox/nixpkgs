@@ -1,31 +1,32 @@
-{ lib
-, stdenv
-, yarn
-, fetchYarnDeps
-, fixup-yarn-lock
-, nodejs
-, electron
-, fetchFromGitHub
-, nix-update-script
-, makeWrapper
-, makeDesktopItem
-, copyDesktopItems
+{
+  lib,
+  stdenv,
+  yarn,
+  fetchYarnDeps,
+  fixup-yarn-lock,
+  nodejs,
+  electron,
+  fetchFromGitHub,
+  nix-update-script,
+  makeWrapper,
+  makeDesktopItem,
+  copyDesktopItems,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "r2modman";
-  version = "3.1.50";
+  version = "3.2.3";
 
   src = fetchFromGitHub {
     owner = "ebkr";
     repo = "r2modmanPlus";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-WmF7tH5PiaggyvP/klWwNgaLKVhIoApxDtwwLpug52A=";
+    hash = "sha256-0LlZsyUSVuDakbNUzJ1ZUBe9KxWNd0ONKkPafwbCINY=";
   };
 
   offlineCache = fetchYarnDeps {
     yarnLock = "${finalAttrs.src}/yarn.lock";
-    hash = "sha256-ntXZ4gRXRqiPQxdwXDsLxGdBqUV5eboy9ntTlJsz9FA=";
+    hash = "sha256-HLVHxjyymi0diurVamETrfwYM2mkUrIOHhbYCrqGkeg=";
   };
 
   patches = [
@@ -86,7 +87,7 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper '${lib.getExe electron}' "$out/bin/r2modman" \
       --inherit-argv0 \
       --add-flags "$out/share/r2modman" \
-      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}"
+      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}"
 
     runHook postInstall
   '';
@@ -94,12 +95,17 @@ stdenv.mkDerivation (finalAttrs: {
   desktopItems = [
     (makeDesktopItem {
       name = "r2modman";
-      exec = "r2modman";
+      exec = "r2modman %U";
       icon = "r2modman";
       desktopName = "r2modman";
       comment = finalAttrs.meta.description;
       categories = [ "Game" ];
-      keywords = [ "launcher" "mod manager" "thunderstore" ];
+      mimeTypes = [ "x-scheme-handler/ror2mm" ];
+      keywords = [
+        "launcher"
+        "mod manager"
+        "thunderstore"
+      ];
     })
   ];
 
@@ -111,7 +117,9 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/ebkr/r2modmanPlus";
     license = lib.licenses.mit;
     mainProgram = "r2modman";
-    maintainers = with lib.maintainers; [ aidalgol huantian ];
+    maintainers = with lib.maintainers; [
+      huantian
+    ];
     inherit (electron.meta) platforms;
   };
 })

@@ -1,7 +1,8 @@
-{ lib
-, makeSetupHook
-, which
-, callPackage
+{
+  lib,
+  makeSetupHook,
+  which,
+  callPackage,
 }:
 
 makeSetupHook {
@@ -10,9 +11,9 @@ makeSetupHook {
     which = lib.getBin which;
     awkscript = ./patch-ppd-lines.awk;
   };
-  passthru.tests.test = callPackage ./test.nix {};
+  passthru.tests.test = callPackage ./test.nix { };
   meta = {
-    description = "setup hook to patch executable paths in ppd files";
+    description = "Setup hook to patch executable paths in ppd files";
     maintainers = [ lib.maintainers.yarny ];
   };
 } ./patch-ppd-hook.sh

@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchurl
-, dimensions ? 6 # works for <= dimensions dimensions, but is only optimized for that exact value
-, doSymlink ? true # symlink the executables to the default location (without dimension postfix)
+{
+  lib,
+  stdenv,
+  fetchurl,
+  dimensions ? 6, # works for <= dimensions dimensions, but is only optimized for that exact value
+  doSymlink ? true, # symlink the executables to the default location (without dimension postfix)
 }:
 
 let
@@ -47,7 +48,8 @@ stdenv.mkDerivation rec {
     for file in poly class cws nef mori; do
       cp -p $file.x "$out/bin/$file-${dim}d.x"
     done
-  '' + lib.optionalString doSymlink ''
+  ''
+  + lib.optionalString doSymlink ''
     cd $out/bin
     for file in poly class cws nef mori; do
       ln -sf $file-6d.x $file.x
@@ -85,7 +87,7 @@ stdenv.mkDerivation rec {
     # version was released that pointed to gplv2 however, so thats probably
     # the right license.
     license = licenses.gpl2;
-    maintainers = teams.sage.members;
+    teams = [ teams.sage ];
     platforms = platforms.unix;
   };
 }

@@ -1,6 +1,13 @@
-{ stdenv, lib, fetchFromGitHub
-, imagemagick, pkg-config, wayland-scanner, wayland, wayland-protocols
-, unstableGitUpdater
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  imagemagick,
+  pkg-config,
+  wayland-scanner,
+  wayland,
+  wayland-protocols,
+  unstableGitUpdater,
 }:
 
 stdenv.mkDerivation {
@@ -16,14 +23,21 @@ stdenv.mkDerivation {
 
   separateDebugInfo = true;
   depsBuildBuild = [ pkg-config ];
-  nativeBuildInputs = [ imagemagick pkg-config wayland-scanner ];
-  buildInputs = [ wayland wayland-protocols ];
+  nativeBuildInputs = [
+    imagemagick
+    pkg-config
+    wayland-scanner
+  ];
+  buildInputs = [
+    wayland
+    wayland-protocols
+  ];
 
   installPhase = ''
-    runHook preBuild
+    runHook preInstall
     mkdir -p $out/bin
     install hello-wayland $out/bin
-    runHook postBuild
+    runHook postInstall
   '';
 
   passthru.updateScript = unstableGitUpdater { };

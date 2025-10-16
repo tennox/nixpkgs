@@ -17,23 +17,28 @@
 
 buildPythonPackage rec {
   pname = "lxml";
-  version = "5.3.0";
+  version = "6.0.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "lxml";
     repo = "lxml";
-    rev = "refs/tags/lxml-${version}";
-    hash = "sha256-xhKtqsh5FfgXt1fKUhN/Aib/004P7epArv3/XxDSBtw=";
+    tag = "lxml-${version}";
+    hash = "sha256-iY47nhAbA8ScnjmK2/7lVCBP8f65v1zOs3TcgQULlQ0=";
   };
 
-  # setuptoolsBuildPhase needs dependencies to be passed through nativeBuildInputs
+  build-system = [
+    cython
+    setuptools
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcodebuild ];
+
+  # required for build time dependency check
   nativeBuildInputs = [
     libxml2.dev
     libxslt.dev
-    cython
-    setuptools
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcodebuild ];
+  ];
+
   buildInputs = [
     libxml2
     libxslt

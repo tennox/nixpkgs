@@ -1,38 +1,42 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, makeWrapper
-, git
-, go
-, gnumake
-, installShellFiles
-, testers
-, kubebuilder
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  makeWrapper,
+  git,
+  go,
+  gnumake,
+  installShellFiles,
+  testers,
+  kubebuilder,
 }:
 
 buildGoModule rec {
   pname = "kubebuilder";
-  version = "4.3.0";
+  version = "4.9.0";
 
   src = fetchFromGitHub {
     owner = "kubernetes-sigs";
     repo = "kubebuilder";
     rev = "v${version}";
-    hash = "sha256-awwUYmzLKz+K6qKN+nNWRAxIM/UFDF1r1cI7heeqrlo=";
+    hash = "sha256-CokzuduRJyRYIrkqE+LJE6znskfZIJfU12m4vDhZB0k=";
   };
 
-  vendorHash = "sha256-+7vCd9mC5rkC+XKc7hsHMFgT8R6dJfT0XR6PsJM3Xdc=";
+  vendorHash = "sha256-ValoM/qVrDKPjI5SOq4XkYNKPKjfQcrXKogfpd2aKLQ=";
 
-  subPackages = ["cmd"];
+  subPackages = [
+    "cmd"
+    "."
+  ];
 
   allowGoReference = true;
 
   ldflags = [
-    "-X main.kubeBuilderVersion=v${version}"
-    "-X main.goos=${go.GOOS}"
-    "-X main.goarch=${go.GOARCH}"
-    "-X main.gitCommit=unknown"
-    "-X main.buildDate=unknown"
+    "-X sigs.k8s.io/kubebuilder/v4/cmd.kubeBuilderVersion=v${version}"
+    "-X sigs.k8s.io/kubebuilder/v4/cmd.goos=${go.GOOS}"
+    "-X sigs.k8s.io/kubebuilder/v4/cmd.goarch=${go.GOARCH}"
+    "-X sigs.k8s.io/kubebuilder/v4/cmd.gitCommit=unknown"
+    "-X sigs.k8s.io/kubebuilder/v4/cmd.buildDate=unknown"
   ];
 
   nativeBuildInputs = [
@@ -42,9 +46,14 @@ buildGoModule rec {
   ];
 
   postInstall = ''
-    mv $out/bin/cmd $out/bin/kubebuilder
     wrapProgram $out/bin/kubebuilder \
-      --prefix PATH : ${lib.makeBinPath [ go gnumake ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          go
+          gnumake
+          git
+        ]
+      }
 
     installShellCompletion --cmd kubebuilder \
       --bash <($out/bin/kubebuilder completion bash) \

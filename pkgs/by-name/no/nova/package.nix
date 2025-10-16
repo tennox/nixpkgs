@@ -1,19 +1,27 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "nova";
-  version = "3.11";
+  version = "3.11.8";
 
   src = fetchFromGitHub {
     owner = "FairwindsOps";
-    repo = pname;
+    repo = "nova";
     rev = "v${version}";
-    hash = "sha256-gkEUc2mhm1r69XzAnglLhdyYI4jQ24oEk/NRMgeyw60=";
+    hash = "sha256-2iFDTCjBnMf0FglHTZq9v+yyzCqvrT1vhDkpAL6yG6Y=";
   };
 
-  vendorHash = "sha256-v3ld3bHpVWNJgQ6K5iS7q8QV4ft4RE42wKi+f4++yqY=";
+  vendorHash = "sha256-+cw2NclPLT9S1iakK2S5uc+nFE84MIl6QOH/L0kgoHE=";
 
-  ldflags = [ "-X main.version=${version}" "-s" "-w" ];
+  ldflags = [
+    "-X main.version=${version}"
+    "-s"
+    "-w"
+  ];
 
   meta = with lib; {
     description = "Find outdated or deprecated Helm charts running in your cluster";

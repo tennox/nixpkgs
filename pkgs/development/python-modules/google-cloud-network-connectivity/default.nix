@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "google-cloud-network-connectivity";
-  version = "2.5.1";
+  version = "2.10.0";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -23,7 +23,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     inherit version;
     pname = "google_cloud_network_connectivity";
-    hash = "sha256-n/E8kTwQrs/sdP9I374ieVc1CDt72a3rg+60Kf6TEqk=";
+    hash = "sha256-wbznAUjwh57xuvuLWOrk1eXvxuDE+wWh6Cx3oQI8dqE=";
   };
 
   build-system = [ setuptools ];
@@ -33,7 +33,8 @@ buildPythonPackage rec {
     grpc-google-iam-v1
     proto-plus
     protobuf
-  ] ++ google-api-core.optional-dependencies.grpc;
+  ]
+  ++ google-api-core.optional-dependencies.grpc;
 
   nativeCheckInputs = [
     mock

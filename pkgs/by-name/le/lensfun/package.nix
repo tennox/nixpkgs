@@ -1,4 +1,15 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, glib, zlib, libpng, cmake, python3 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  glib,
+  zlib,
+  libpng,
+  cmake,
+  python3,
+  python3Packages,
+}:
 
 let
   version = "0.3.4";
@@ -27,30 +38,47 @@ stdenv.mkDerivation {
   # replace database with a more recent snapshot
   # the master branch uses version 2 profiles, while 0.3.3 requires version 1 profiles,
   # so we run the conversion tool the project provides,
-  # then untar the verson 1 profiles into the source dir before we build
+  # then untar the version 1 profiles into the source dir before we build
   prePatch = ''
     rm -R data/db
     python3 ${lensfunDatabase}/tools/lensfun_convert_db_v2_to_v1.py $TMPDIR ${lensfunDatabase}/data/db
     mkdir -p data/db
     tar xvf $TMPDIR/db/version_1.tar -C data/db
     date +%s > data/db/timestamp.txt
+  ''
+  # Backport CMake 4 support
+  # This is already on master, but not yet in a stable release:
+  # https://github.com/lensfun/lensfun/issues/2520
+  # https://github.com/lensfun/lensfun/commit/011de2e85813ff496a85404b30891352555de077
+  + ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail \
+        'CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12 FATAL_ERROR )' \
+        'CMAKE_MINIMUM_REQUIRED(VERSION 3.12 FATAL_ERROR)'
   '';
 
   nativeBuildInputs = [
     cmake
     pkg-config
     python3
-    python3.pkgs.setuptools
-    python3.pkgs.lxml # For the db converison
+    python3Packages.setuptools
+    python3Packages.lxml # For the db converison
   ];
 
-  buildInputs = [ glib zlib libpng ];
+  buildInputs = [
+    glib
+    zlib
+    libpng
+  ];
 
   cmakeFlags = [ "-DINSTALL_HELPER_SCRIPTS=OFF" ];
 
   meta = with lib; {
     platforms = platforms.linux ++ platforms.darwin;
-    maintainers = with maintainers; [ flokli paperdigits ];
+    maintainers = with maintainers; [
+      flokli
+      paperdigits
+    ];
     license = lib.licenses.lgpl3;
     description = "Opensource database of photographic lenses and their characteristics";
     homepage = "https://lensfun.github.io";

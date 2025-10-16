@@ -1,23 +1,31 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "json-c";
-  version = "0.17";
+  version = "0.18";
 
   src = fetchFromGitHub {
     owner = "json-c";
     repo = "json-c";
-    rev = "json-c-0.17-20230812";
-    hash = "sha256-R5KIJ0xVgGqffjzJaZvvvhAneJ+ZBuanyF6KYTTxb58=";
+    rev = "json-c-0.18-20240915";
+    hash = "sha256-UyMXr8Vc6kDOx1/lD2YKPiHdaTotXAF9ak0yQuwrSUA=";
   };
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   nativeBuildInputs = [ cmake ];
+
+  cmakeFlags = [
+    (lib.cmakeBool "BUILD_APPS" false)
+  ];
 
   meta = with lib; {
     description = "JSON implementation in C";

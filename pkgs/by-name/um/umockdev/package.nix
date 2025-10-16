@@ -1,33 +1,39 @@
-{ stdenv
-, lib
-, docbook-xsl-nons
-, fetchurl
-, glib
-, gobject-introspection
-, gtk-doc
-, libgudev
-, libpcap
-, meson
-, mesonEmulatorHook
-, ninja
-, pkg-config
-, python3
-, substituteAll
-, systemdMinimal
-, usbutils
-, vala
-, which
+{
+  stdenv,
+  lib,
+  docbook-xsl-nons,
+  fetchurl,
+  glib,
+  gobject-introspection,
+  gtk-doc,
+  libgudev,
+  libpcap,
+  meson,
+  mesonEmulatorHook,
+  ninja,
+  pkg-config,
+  python3,
+  replaceVars,
+  systemdMinimal,
+  usbutils,
+  vala,
+  which,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "umockdev";
-  version = "0.18.4";
+  version = "0.19.3";
 
-  outputs = [ "bin" "out" "dev" "devdoc" ];
+  outputs = [
+    "bin"
+    "out"
+    "dev"
+    "devdoc"
+  ];
 
   src = fetchurl {
     url = "https://github.com/martinpitt/umockdev/releases/download/${finalAttrs.version}/umockdev-${finalAttrs.version}.tar.xz";
-    hash = "sha256-EVMG8Xvnj4yZ4gZS4t7M3UjfOHNr8A609D/vw4CaMZw=";
+    hash = "sha256-RuReq29la/wJJDjX4OXfTF9R0Y46gzYMK+aAsgehoLc=";
   };
 
   patches = [
@@ -38,8 +44,7 @@ stdenv.mkDerivation (finalAttrs: {
     # Replace references to udevadm with an absolute paths, so programs using
     # umockdev will just work without having to provide it in their test environment
     # $PATH.
-    (substituteAll {
-      src = ./substitute-udevadm.patch;
+    (replaceVars ./substitute-udevadm.patch {
       udevadm = "${systemdMinimal}/bin/udevadm";
     })
   ];
@@ -52,7 +57,8 @@ stdenv.mkDerivation (finalAttrs: {
     ninja
     pkg-config
     vala
-  ] ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+  ]
+  ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
     mesonEmulatorHook
   ];
 

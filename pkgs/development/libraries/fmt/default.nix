@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   cmake,
   enableShared ? !stdenv.hostPlatform.isStatic,
 
@@ -39,7 +40,7 @@ let
 
       nativeBuildInputs = [ cmake ];
 
-      cmakeFlags = [ "-DBUILD_SHARED_LIBS=${if enableShared then "ON" else "OFF"}" ];
+      cmakeFlags = [ (lib.cmakeBool "BUILD_SHARED_LIBS" enableShared) ];
 
       doCheck = true;
 
@@ -61,21 +62,23 @@ let
         homepage = "https://fmt.dev/";
         changelog = "https://github.com/fmtlib/fmt/blob/${version}/ChangeLog.rst";
         downloadPage = "https://github.com/fmtlib/fmt/";
-        maintainers = [ maintainers.jdehaas ];
+        maintainers = [ ];
         license = licenses.mit;
         platforms = platforms.all;
       };
     };
 in
 {
-  fmt_8 = generic {
-    version = "8.1.1";
-    hash = "sha256-leb2800CwdZMJRWF5b1Y9ocK0jXpOX/nwo95icDf308=";
-  };
-
   fmt_9 = generic {
     version = "9.1.0";
     hash = "sha256-rP6ymyRc7LnKxUXwPpzhHOQvpJkpnRFOt2ctvUNlYI0=";
+    patches = [
+      # Fixes the build with Clang ≥ 18.
+      (fetchpatch {
+        url = "https://github.com/fmtlib/fmt/commit/c4283ec471bd3efdb114bc1ab30c7c7c5e5e0ee0.patch";
+        hash = "sha256-YyB5GY/ZqJQIhhGy0ICMPzfP/OUuyLnciiyv8Nscsec=";
+      })
+    ];
   };
 
   fmt_10 = generic {
@@ -84,7 +87,14 @@ in
   };
 
   fmt_11 = generic {
-    version = "11.0.2";
-    hash = "sha256-IKNt4xUoVi750zBti5iJJcCk3zivTt7nU12RIf8pM+0=";
+    version = "11.2.0";
+    hash = "sha256-sAlU5L/olxQUYcv8euVYWTTB8TrVeQgXLHtXy8IMEnU=";
+    patches = [
+      # Fixes the build with libc++ ≥ 21.
+      (fetchpatch {
+        url = "https://github.com/fmtlib/fmt/commit/3cabf3757b6bc00330b55975317b2c145e4c689d.patch";
+        hash = "sha256-SJFzNNC0Bt2aEQJlHGc0nv9KOpPQ+TgDX5iuFMUs9tk=";
+      })
+    ];
   };
 }

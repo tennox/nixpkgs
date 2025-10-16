@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, ant
-, jdk8
-, makeWrapper
-, makeDesktopItem
-, copyDesktopItems
-, strip-nondeterminism
-, stripJavaArchivesHook
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  ant,
+  jdk8,
+  makeWrapper,
+  makeDesktopItem,
+  copyDesktopItems,
+  strip-nondeterminism,
+  stripJavaArchivesHook,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -78,7 +79,16 @@ stdenv.mkDerivation (finalAttrs: {
       exec = "brmodelo";
       icon = "brmodelo";
       comment = finalAttrs.meta.description;
-      categories = [ "Development" "Education" "Database" "2DGraphics" "ComputerScience" "DataVisualization" "Engineering" "Java" ];
+      categories = [
+        "Development"
+        "Education"
+        "Database"
+        "2DGraphics"
+        "ComputerScience"
+        "DataVisualization"
+        "Engineering"
+        "Java"
+      ];
     })
   ];
 
@@ -97,7 +107,7 @@ stdenv.mkDerivation (finalAttrs: {
     # _JAVA_AWT_WM_NONREPARENTING=1.
     makeWrapper ${jdk8}/bin/java $out/bin/brmodelo \
        --prefix _JAVA_AWT_WM_NONREPARENTING : 1 \
-       --prefix _JAVA_OPTIONS : "-Dawt.useSystemAAFontSettings=on" \
+       --prefix _JAVA_OPTIONS " " "-Dawt.useSystemAAFontSettings=gasp" \
        --add-flags "-jar $out/share/java/brModelo.jar"
 
     for size in 16 24 32 48 64 128 256; do
@@ -117,6 +127,6 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/chcandido/brModelo";
     license = licenses.gpl3;
     mainProgram = "brmodelo";
-    maintainers = with maintainers; [ yuu ];
+    maintainers = [ ];
   };
 })

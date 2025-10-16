@@ -1,29 +1,40 @@
-{ stdenv
-, fetchFromGitHub
-, cmake
-, extra-cmake-modules
-, wrapQtAppsHook
-, qtbase
-, kwin
-, kcmutils
-, libepoxy
-, libxcb
-, lib
+{
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  extra-cmake-modules,
+  wrapQtAppsHook,
+  qtbase,
+  kwin,
+  kcmutils,
+  libepoxy,
+  libxcb,
+  lib,
 }:
 
 stdenv.mkDerivation rec {
   pname = "kde-rounded-corners";
-  version = "0.6.7";
+  version = "0.8.5";
 
   src = fetchFromGitHub {
     owner = "matinlotfali";
     repo = "KDE-Rounded-Corners";
     rev = "v${version}";
-    hash = "sha256-xzs5eTNOO27//vfkax4cpKO3xnsjavSNU6tyt8H/dF0=";
+    hash = "sha256-ef63PVG0JOHY4zyq5M5oAAcxtfhm1XOvpsxgSeXvgDo=";
   };
 
-  nativeBuildInputs = [ cmake extra-cmake-modules wrapQtAppsHook ];
-  buildInputs = [ kcmutils kwin libepoxy libxcb qtbase ];
+  nativeBuildInputs = [
+    cmake
+    extra-cmake-modules
+    wrapQtAppsHook
+  ];
+  buildInputs = [
+    kcmutils
+    kwin
+    libepoxy
+    libxcb
+    qtbase
+  ];
 
   meta = with lib; {
     description = "Rounds the corners of your windows";

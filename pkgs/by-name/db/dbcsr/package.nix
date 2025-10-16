@@ -1,27 +1,28 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, mpiCheckPhaseHook
-, pkg-config
-, fypp
-, gfortran
-, blas
-, lapack
-, python3
-, libxsmm
-, mpi
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  mpiCheckPhaseHook,
+  pkg-config,
+  fypp,
+  gfortran,
+  blas,
+  lapack,
+  python3,
+  libxsmm,
+  mpi,
 }:
 
 stdenv.mkDerivation rec {
   pname = "dbcsr";
-  version = "2.7.0";
+  version = "2.8.0";
 
   src = fetchFromGitHub {
     owner = "cp2k";
     repo = "dbcsr";
     rev = "v${version}";
-    hash = "sha256-QEO7f27DLsCvKXgFJnneHs1kO+5V9xiURpbQuGg1P0M=";
+    hash = "sha256-YXySNw3+DiY7E57W1ypeWLyawwcWVGlmTM4Kgj7Nnmo=";
   };
 
   postPatch = ''
@@ -37,6 +38,11 @@ stdenv.mkDerivation rec {
       --replace 'COMMAND ''${Python_EXECUTABLE} ''${FYPP_EXECUTABLE}' 'COMMAND ''${FYPP_EXECUTABLE}'
   '';
 
+  outputs = [
+    "out"
+    "dev"
+  ];
+
   nativeBuildInputs = [
     gfortran
     python3
@@ -45,7 +51,11 @@ stdenv.mkDerivation rec {
     fypp
   ];
 
-  buildInputs = [ blas lapack libxsmm ];
+  buildInputs = [
+    blas
+    lapack
+    libxsmm
+  ];
 
   propagatedBuildInputs = [ mpi ];
 

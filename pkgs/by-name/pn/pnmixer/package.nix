@@ -1,26 +1,58 @@
-{ lib, stdenv, fetchFromGitHub, cmake, pkg-config, gettext, alsa-lib, gtk3, glib, libnotify, libX11, pcre }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  gettext,
+  alsa-lib,
+  gtk3,
+  glib,
+  libnotify,
+  libX11,
+  pcre,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "pnmixer";
   version = "0.7.2";
 
   src = fetchFromGitHub {
     owner = "nicklan";
     repo = "pnmixer";
-    rev = "v${version}";
-    sha256 = "0416pa933ddf4b7ph9zxhk5jppkk7ppcq1aqph6xsrfnka4yb148";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-iITliZrWZd0NvFgFzO49c94ry4T9J3jPIq61MZK6JhA=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config gettext ];
+  patches = [
+    # https://github.com/nicklan/pnmixer/pull/197
+    ./fix-cmake-version.patch
+  ];
 
-  buildInputs = [ alsa-lib gtk3 glib libnotify libX11 pcre ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    gettext
+  ];
 
-  meta = with lib; {
+  buildInputs = [
+    alsa-lib
+    gtk3
+    glib
+    libnotify
+    libX11
+    pcre
+  ];
+
+  meta = {
     homepage = "https://github.com/nicklan/pnmixer";
     description = "ALSA volume mixer for the system tray";
-    license = licenses.gpl3;
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ campadrenalin romildo ];
+    license = lib.licenses.gpl3;
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [
+      campadrenalin
+      romildo
+    ];
     mainProgram = "pnmixer";
   };
-}
+})

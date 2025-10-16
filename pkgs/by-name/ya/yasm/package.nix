@@ -1,4 +1,9 @@
-{lib, stdenv, fetchurl, buildPackages}:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  buildPackages,
+}:
 
 stdenv.mkDerivation rec {
   pname = "yasm";
@@ -8,6 +13,11 @@ stdenv.mkDerivation rec {
     url = "https://www.tortall.net/projects/yasm/releases/yasm-${version}.tar.gz";
     sha256 = "0gv0slmm0qpq91za3v2v9glff3il594x5xsrbgab7xcmnh0ndkix";
   };
+
+  patches = [
+    # https://github.com/yasm/yasm/pull/287
+    ./gcc-15.patch
+  ];
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
 

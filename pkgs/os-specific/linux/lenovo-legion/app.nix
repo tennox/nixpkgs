@@ -8,13 +8,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "lenovo-legion-app";
-  version = "0.0.18";
+  version = "0.0.21-unstable-2025-07-11";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "johnfanv2";
     repo = "LenovoLegionLinux";
-    rev = "e9c1d8157a7b25e4334d0b1d887338c670e39f6a";
-    hash = "sha256-6JYOTDzz9/flyEDQo1UPjWT5+Cuea5fsdbdc6AooDxU=";
+    rev = "f559df04cc0705b2b181dfd0404110a4d1d6e2a9";
+    hash = "sha256-WXGDlykH6aBUVotmDcGZ8Y/zC8iBAv57u3hXRnfTaSo=";
   };
 
   sourceRoot = "${src.name}/python/legion_linux";
@@ -24,6 +25,7 @@ python3.pkgs.buildPythonApplication rec {
   propagatedBuildInputs = with python3.pkgs; [
     pyqt6
     argcomplete
+    pillow
     pyyaml
     darkdetect
     xorg.libxcb
@@ -33,7 +35,7 @@ python3.pkgs.buildPythonApplication rec {
     # only fixup application (legion-linux-gui), service (legiond) currently not installed so do not fixup
     # version
     substituteInPlace ./setup.cfg \
-      --replace-fail "_VERSION" "${version}"
+      --replace-fail "_VERSION" "${builtins.head (lib.splitString "-" version)}"
 
     # /etc
     substituteInPlace ./legion_linux/legion.py \
@@ -57,7 +59,7 @@ python3.pkgs.buildPythonApplication rec {
     platforms = lib.platforms.linux;
     maintainers = with lib.maintainers; [
       ulrikstrid
-      realsnick
+      logger
       chn
     ];
     mainProgram = "legion_gui";

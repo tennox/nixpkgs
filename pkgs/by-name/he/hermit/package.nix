@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchzip }:
+{
+  lib,
+  stdenvNoCC,
+  fetchzip,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "hermit";
@@ -19,7 +23,7 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "monospace font designed to be clear, pragmatic and very readable";
+    description = "Monospace font designed to be clear, pragmatic and very readable";
     homepage = "https://pcaro.es/p/hermit";
     license = licenses.ofl;
     maintainers = [ ];

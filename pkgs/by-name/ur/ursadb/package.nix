@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ursadb";
@@ -7,7 +12,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "CERT-Polska";
     repo = "ursadb";
-    rev = "v${finalAttrs.version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-UVfOImngYPB8UBQHzxwJM+dT3DWiT+7V+QGfUggjazI=";
     fetchSubmodules = true;
   };

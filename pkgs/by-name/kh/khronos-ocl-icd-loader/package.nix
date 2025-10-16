@@ -1,14 +1,21 @@
-{ lib, stdenv, fetchFromGitHub, opencl-headers, cmake, withTracing ? false }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  opencl-headers,
+  cmake,
+  withTracing ? false,
+}:
 
 stdenv.mkDerivation rec {
   pname = "opencl-icd-loader";
-  version = "2024.05.08";
+  version = "2025.07.22";
 
   src = fetchFromGitHub {
     owner = "KhronosGroup";
     repo = "OpenCL-ICD-Loader";
     rev = "v${version}";
-    hash = "sha256-wFwc1ku3FNEH2k8TJij2sT7JspWorR/XbxXwPZaQcGA=";
+    hash = "sha256-jwviNwX7C7b9lqIS4oZ4YLEFBfBdmQfXHxW3FPPYxYs=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -23,7 +30,7 @@ stdenv.mkDerivation rec {
     mainProgram = "cllayerinfo";
     homepage = "https://github.com/KhronosGroup/OpenCL-ICD-Loader";
     license = licenses.asl20;
-    maintainers = with maintainers; [ davidtwco ];
+    maintainers = [ ];
     platforms = platforms.unix;
   };
 }

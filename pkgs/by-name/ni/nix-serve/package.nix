@@ -1,18 +1,18 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, bzip2
-, nixVersions
-, makeWrapper
-, nixosTests
-, fetchpatch
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  bzip2,
+  nix,
+  perl,
+  makeWrapper,
+  nixosTests,
 }:
 
 let
-  rev = "77ffa33d83d2c7c6551c5e420e938e92d72fec24";
-  sha256 = "sha256-MJRdVO2pt7wjOu5Hk0eVeNbk5bK5+Uo/Gh9XfO4OlMY=";
-  nix = nixVersions.nix_2_24;
-  inherit (nix.perl-bindings) perl;
+  rev = "a7e046db4b29d422fc9aac60ea6b82b31399951a";
+  sha256 = "sha256-6ZQ0OLijq6UtOtUqRdFC19+helhU0Av6MvGCZf6XmcQ=";
+  inherit (nix.libs) nix-perl-bindings;
 in
 
 stdenv.mkDerivation {
@@ -25,14 +25,6 @@ stdenv.mkDerivation {
     inherit rev sha256;
   };
 
-  patches = [
-    # Part of https://github.com/edolstra/nix-serve/pull/61
-    (fetchpatch {
-      url = "https://github.com/edolstra/nix-serve/commit/9e434fff4486afeb3cc3f631f6dc56492b204704.patch";
-      sha256 = "sha256-TxQ6q6UApTKsYIMdr/RyrkKSA3k47stV63bTbxchNTU=";
-    })
-  ];
-
   nativeBuildInputs = [ makeWrapper ];
 
   dontBuild = true;
@@ -40,12 +32,26 @@ stdenv.mkDerivation {
   installPhase = ''
     install -Dm0755 nix-serve.psgi $out/libexec/nix-serve/nix-serve.psgi
 
-    makeWrapper ${perl.withPackages(p: [ p.DBDSQLite p.Plack p.Starman nix.perl-bindings ])}/bin/starman $out/bin/nix-serve \
-                --prefix PATH : "${lib.makeBinPath [ bzip2 nix ]}" \
-                --add-flags $out/libexec/nix-serve/nix-serve.psgi
+    makeWrapper ${
+      perl.withPackages (p: [
+        p.DBDSQLite
+        p.Plack
+        p.Starman
+        nix-perl-bindings
+      ])
+    }/bin/starman $out/bin/nix-serve \
+      --prefix PATH : "${
+        lib.makeBinPath [
+          bzip2
+          nix
+        ]
+      }" \
+      --add-flags $out/libexec/nix-serve/nix-serve.psgi
   '';
 
-  /** The nix package that nix-serve got its nix perl bindings from. */
+  /**
+    The nix package that nix-serve got its nix perl bindings from.
+  */
   passthru.nix = nix;
 
   passthru.tests = {

@@ -1,4 +1,12 @@
-{ stdenv, lib, fetchFromGitHub, boost, cairo, lv2, pkg-config }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  boost,
+  cairo,
+  lv2,
+  pkg-config,
+}:
 
 stdenv.mkDerivation rec {
   pname = "quadrafuzz";
@@ -6,8 +14,8 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "jpcima";
-    repo = pname;
-    rev = "v${version}";
+    repo = "quadrafuzz";
+    tag = "v${version}";
     sha256 = "1kjsf7il9krihwlrq08gk2xvil4b4q5zd87nnm103hby2w7ws7z1";
     fetchSubmodules = true;
   };
@@ -19,7 +27,9 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ pkg-config ];
 
   buildInputs = [
-    boost cairo lv2
+    boost
+    cairo
+    lv2
   ];
 
   makeFlags = [

@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, libnotify, pkg-config, glib }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  libnotify,
+  pkg-config,
+  glib,
+}:
 
 stdenv.mkDerivation rec {
   pname = "batsignal";
@@ -7,11 +14,14 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "electrickite";
     repo = "batsignal";
-    rev = version;
+    tag = version;
     sha256 = "sha256-yngd2yP6XtRp8y8ZUd0NISdf8+8wJvpLogrQQMdB0lA=";
   };
 
-  buildInputs = [ libnotify glib ];
+  buildInputs = [
+    libnotify
+    glib
+  ];
   nativeBuildInputs = [ pkg-config ];
   installFlags = [ "PREFIX=${placeholder "out"}" ];
 

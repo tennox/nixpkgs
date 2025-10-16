@@ -1,7 +1,9 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 }:
 
 buildGoModule rec {
@@ -10,7 +12,7 @@ buildGoModule rec {
 
   src = fetchFromGitHub {
     owner = "aquasecurity";
-    repo = pname;
+    repo = "chain-bench";
     rev = "v${version}";
     sha256 = "sha256-5+jSbXbT1UwHMVeZ07qcY8Is88ddHdr7QlgcbQK+8FA=";
   };
@@ -24,7 +26,7 @@ buildGoModule rec {
     "-X main.version=v${version}"
   ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd chain-bench \
       --bash <($out/bin/chain-bench completion bash) \
       --fish <($out/bin/chain-bench completion fish) \
@@ -39,7 +41,7 @@ buildGoModule rec {
     runHook postInstallCheck
   '';
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/aquasecurity/chain-bench";
     changelog = "https://github.com/aquasecurity/chain-bench/releases/tag/v${version}";
     description = "Open-source tool for auditing your software supply chain stack for security compliance based on a new CIS Software Supply Chain benchmark";
@@ -52,7 +54,7 @@ buildGoModule rec {
       hackers and protect your sensitive data and customer trust, you need to
       ensure your code is compliant with your organization's policies.
     '';
-    license = licenses.asl20;
-    maintainers = with maintainers; [ jk ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ jk ];
   };
 }

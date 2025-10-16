@@ -1,25 +1,27 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, nix-update-script
-, go
-, testers
-, pulsarctl
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  nix-update-script,
+  go,
+  testers,
+  pulsarctl,
 }:
 
 buildGoModule rec {
   pname = "pulsarctl";
-  version = "2.11.1.3";
+  version = "4.0.4.3";
 
   src = fetchFromGitHub {
     owner = "streamnative";
     repo = "pulsarctl";
     rev = "v${version}";
-    hash = "sha256-sztjHw3su8KAV/zZcJqPWhjblINa8nYCN5Dzhn6X07w=";
+    hash = "sha256-acNd3nF1nHkYlw7tPoD01IjEc97dLvyAZ7yC1UDWN7s=";
   };
 
-  vendorHash = "sha256-NQ8zvrW6lBF1js+WI2PPvXhv4YRS2IBT6S4vDoE1BFc=";
+  vendorHash = "sha256-AruXsUIKeUMcojf0XF1ZEaZ2LlXDwCp2n82RN5e0Rj8=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -33,7 +35,9 @@ buildGoModule rec {
         GoVersion = "go${go.version}";
       };
     in
-    (lib.mapAttrsToList (k: v: "-X github.com/streamnative/pulsarctl/pkg/cmdutils.${k}=${v}") buildVars);
+    (lib.mapAttrsToList (
+      k: v: "-X github.com/streamnative/pulsarctl/pkg/cmdutils.${k}=${v}"
+    ) buildVars);
 
   excludedPackages = [
     "./pkg/test"
@@ -47,7 +51,7 @@ buildGoModule rec {
 
   doCheck = false;
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd pulsarctl \
       --bash <($out/bin/pulsarctl completion bash) \
       --fish <($out/bin/pulsarctl completion fish) \
@@ -64,7 +68,7 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = " a CLI for Apache Pulsar written in Go";
+    description = "CLI for Apache Pulsar written in Go";
     homepage = "https://github.com/streamnative/pulsarctl";
     license = with licenses; [ asl20 ];
     platforms = platforms.unix;

@@ -17,7 +17,7 @@
 
 buildPythonPackage rec {
   pname = "spotifyaio";
-  version = "0.8.8";
+  version = "1.0.0";
   pyproject = true;
 
   disabled = pythonOlder "3.11";
@@ -25,8 +25,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "joostlek";
     repo = "python-spotify";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-4u6YVkFeUF8jHrReFLnQGeC5qxfVyL8tuSHR8Ta74Hw=";
+    tag = "v${version}";
+    hash = "sha256-wl8THtmdJ2l6XNDtmmnk/MF+qTZL0UsbL8o6i/Vwf5k=";
   };
 
   build-system = [ poetry-core ];
@@ -54,7 +54,7 @@ buildPythonPackage rec {
   meta = {
     description = "Module for interacting with for Spotify";
     homepage = "https://github.com/joostlek/python-spotify/";
-    changelog = "https://github.com/joostlek/python-spotify/releases/tag/v${version}";
+    changelog = "https://github.com/joostlek/python-spotify/releases/tag/${src.tag}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ fab ];
   };

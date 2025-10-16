@@ -1,27 +1,42 @@
-{ lib, stdenv, fetchFromGitHub, makeWrapper
-, ghostscript, netpbm, perl }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  ghostscript,
+  netpbm,
+  perl,
+}:
 # TODO: withTex
 
 stdenv.mkDerivation rec {
   pname = "latex2html";
-  version = "2024";
+  version = "2025";
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "latex2html";
+    repo = "latex2html";
     rev = "v${version}";
-    sha256 = "sha256-MF+S6x+k+lkutJQ60HCxFpdR96K3AFZcP/4guK9RvsA=";
+    sha256 = "sha256-xylIU2GY/1t9mA8zJzEjHwAIlvVxZmUAUdQ/IXEy+Wg=";
   };
 
-  buildInputs = [ ghostscript netpbm perl ];
+  buildInputs = [
+    ghostscript
+    netpbm
+    perl
+  ];
 
   nativeBuildInputs = [ makeWrapper ];
 
   configurePhase = ''
+    runHook preConfigure
+
     ./configure \
       --prefix="$out" \
       --without-mktexlsr \
       --with-texpath=$out/share/texmf/tex/latex/html
+
+    runHook postConfigure
   '';
 
   postInstall = ''

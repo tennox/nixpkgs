@@ -28,7 +28,7 @@
 
 buildPythonPackage rec {
   pname = "starlette";
-  version = "0.40.0";
+  version = "0.47.2";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -36,8 +36,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "encode";
     repo = "starlette";
-    rev = "refs/tags/${version}";
-    hash = "sha256-CBkDDsIw9LAIeAzN5E9gdEvznFugoa/RilPmnwcJBy4=";
+    tag = version;
+    hash = "sha256-FseSZrLWuNaLro2iLMcfiCrbx2Gz8+aEmLaSk/+PgN4=";
   };
 
   build-system = [ hatchling ];
@@ -56,15 +56,13 @@ buildPythonPackage rec {
     pytestCheckHook
     trio
     typing-extensions
-  ] ++ lib.flatten (lib.attrValues optional-dependencies);
+  ]
+  ++ lib.flatten (lib.attrValues optional-dependencies);
 
-  pytestFlagsArray = [
-    "-W"
-    "ignore::DeprecationWarning"
-    "-W"
-    "ignore::trio.TrioDeprecationWarning"
-    "-W"
-    "ignore::ResourceWarning" # FIXME remove once test suite is fully compatible with anyio 4.4.0
+  pytestFlags = [
+    "-Wignore::DeprecationWarning"
+    "-Wignore::trio.TrioDeprecationWarning"
+    "-Wignore::ResourceWarning" # FIXME remove once test suite is fully compatible with anyio 4.4.0
   ];
 
   pythonImportsCheck = [ "starlette" ];

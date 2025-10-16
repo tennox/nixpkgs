@@ -1,10 +1,19 @@
-{ fetchFromGitHub, lib, python3Packages, gnupg, perl }:
+{
+  fetchFromGitHub,
+  lib,
+  python3Packages,
+  gnupg,
+  perl,
+}:
 
-let version = "3.0.0"; in
+let
+  version = "3.0.0";
+in
 python3Packages.buildPythonApplication {
   pname = "pius";
   namePrefix = "";
   inherit version;
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "jaymzh";
@@ -36,6 +45,6 @@ python3Packages.buildPythonApplication {
     license = lib.licenses.gpl2Only;
 
     platforms = lib.platforms.gnu ++ lib.platforms.linux;
-    maintainers = with lib.maintainers; [ ];
+    maintainers = [ ];
   };
 }

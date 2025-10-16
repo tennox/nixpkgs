@@ -1,12 +1,16 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "dpic";
-  version = "2024.01.01";
+  version = "2025.08.01";
 
   src = fetchurl {
     url = "https://ece.uwaterloo.ca/~aplevich/dpic/${pname}-${version}.tar.gz";
-    sha256 = "sha256-FhkBrJr4bXMFUSuhtWSUBPtMgDoPqwYmJ8w8WJWthy8=";
+    sha256 = "sha256-Dzj1wekVGIJsssbpViSzkNGAjvrcBAL4ORFRLwznJsM=";
   };
 
   # The prefix passed to configure is not used.
@@ -21,4 +25,3 @@ stdenv.mkDerivation rec {
     mainProgram = "dpic";
   };
 }
-

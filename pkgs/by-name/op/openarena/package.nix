@@ -1,24 +1,25 @@
-{ lib
-, fetchzip
-, fetchFromGitHub
-, stdenv
-, fetchpatch
-, copyDesktopItems
-, curl
-, makeBinaryWrapper
-, pkg-config
-, which
-, freetype
-, libglvnd
-, libjpeg
-, libogg
-, libvorbis
-, libxmp
-, openal
-, SDL2
-, speex
-, makeDesktopItem
-, nixosTests
+{
+  lib,
+  fetchzip,
+  fetchFromGitHub,
+  stdenv,
+  fetchpatch,
+  copyDesktopItems,
+  curl,
+  makeBinaryWrapper,
+  pkg-config,
+  which,
+  freetype,
+  libglvnd,
+  libjpeg,
+  libogg,
+  libvorbis,
+  libxmp,
+  openal,
+  SDL2,
+  speex,
+  makeDesktopItem,
+  nixosTests,
 }:
 
 let
@@ -30,7 +31,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "openarena";
-  version = "unstable-2023-03-02";
+  version = "0-unstable-2023-03-02";
 
   src = fetchFromGitHub {
     name = "openarena-source";
@@ -99,7 +100,10 @@ stdenv.mkDerivation (finalAttrs: {
       icon = "openarena";
       comment = "A fast-paced 3D first-person shooter, similar to id Software Inc.'s Quake III Arena";
       desktopName = "OpenArena";
-      categories = [ "Game" "ActionGame" ];
+      categories = [
+        "Game"
+        "ActionGame"
+      ];
     })
   ];
 
@@ -110,7 +114,9 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "http://openarena.ws/";
     license = lib.licenses.gpl2Plus;
     mainProgram = "openarena";
-    maintainers = with lib.maintainers; [ drupol wyvie ];
+    maintainers = with lib.maintainers; [
+      wyvie
+    ];
     platforms = lib.platforms.linux;
   };
 })

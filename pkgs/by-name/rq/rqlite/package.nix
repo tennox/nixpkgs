@@ -1,37 +1,44 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "rqlite";
-  version = "8.31.2";
+  version = "9.1.2";
 
   src = fetchFromGitHub {
     owner = "rqlite";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-qxv7HuT7nV0Kr95WH1o02qbtn+oA85b4ZHm/rHGq25A=";
+    repo = "rqlite";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-7QAJofhssL2N5szD4j9rcv830sEnMyrS2Mg4s4G33HI=";
   };
 
-  vendorHash = "sha256-P8v0vqxOfN9JjwsdoM6JmqGujGP5V68OAUc3KB/YU+k=";
+  vendorHash = "sha256-zGAC7yDccfhZ+2WeiN9DAsOFTa3j4ymPxeFNwam7+Ts=";
 
-  subPackages = [ "cmd/rqlite" "cmd/rqlited" "cmd/rqbench" ];
+  subPackages = [
+    "cmd/rqlite"
+    "cmd/rqlited"
+    "cmd/rqbench"
+  ];
 
   # Leaving other flags from https://github.com/rqlite/rqlite/blob/master/package.sh
-  # since automatically retriving those is nontrivial and inessential
+  # since automatically retrieving those is nontrivial and inessential
   ldflags = [
-    "-s" "-w"
-    "-X github.com/rqlite/rqlite/cmd.Version=${src.rev}"
+    "-s"
+    "-w"
+    "-X github.com/rqlite/rqlite/cmd.Version=${finalAttrs.version}"
   ];
 
   # Tests are in a different subPackage which fails trying to access the network
   doCheck = false;
 
-  meta = with lib; {
+  meta = {
     description = "Lightweight, distributed relational database built on SQLite";
     homepage = "https://github.com/rqlite/rqlite";
-    license = licenses.mit;
-    maintainers = with maintainers; [ dit7ya ];
+    changelog = "https://github.com/rqlite/rqlite/blob/${finalAttrs.src.tag}/CHANGELOG.md";
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ dit7ya ];
   };
-}
+})

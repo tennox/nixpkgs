@@ -1,10 +1,11 @@
-{ stdenv
-, fetchurl
-, pname
-, version
-, meta
-, unzip
-, makeWrapper
+{
+  stdenv,
+  fetchurl,
+  pname,
+  version,
+  meta,
+  unzip,
+  makeWrapper,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -12,7 +13,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "https://github.com/Foundry376/Mailspring/releases/download/${finalAttrs.version}/Mailspring-AppleSilicon.zip";
-    hash = "sha256-LYv3643oj58WR+4IE4XmJmCgD9S2AXNbPwW5W0QCuGI=";
+    hash = "sha256-jbsU8pSvhPFKFjIr+2ZHETOihKKoqQiZmKQ6eGtAIKk=";
   };
   dontUnpack = true;
 

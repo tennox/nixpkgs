@@ -1,31 +1,32 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, runCommand
-, ncurses
-, gettext
-, pkg-config
-, cscope
-, ruby_3_2
-, tcl
-, perl540
-, luajit
-, darwin
-, libiconv
-, python3
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  runCommand,
+  ncurses,
+  gettext,
+  pkg-config,
+  cscope,
+  ruby,
+  tcl,
+  perl,
+  luajit,
+  darwin,
+  libiconv,
+  python3,
 }:
 
 # Try to match MacVim's documented script interface compatibility
 let
-  perl = perl540;
-  # Ruby 3.2
-  ruby = ruby_3_2;
+  #perl = perl540;
+  # Ruby 3.3
+  #ruby = ruby_3_3;
 
   # Building requires a few system tools to be in PATH.
   # Some of these we could patch into the relevant source files (such as xcodebuild and
   # qlmanage) but some are used by Xcode itself and we have no choice but to put them in PATH.
   # Symlinking them in this way is better than just putting all of /usr/bin in there.
-  buildSymlinks = runCommand "macvim-build-symlinks" {} ''
+  buildSymlinks = runCommand "macvim-build-symlinks" { } ''
     mkdir -p $out/bin
     ln -s /usr/bin/xcrun /usr/bin/xcodebuild /usr/bin/tiffutil /usr/bin/qlmanage $out/bin
   '';
@@ -45,9 +46,19 @@ stdenv.mkDerivation (finalAttrs: {
 
   enableParallelBuilding = true;
 
-  nativeBuildInputs = [ pkg-config buildSymlinks ];
+  nativeBuildInputs = [
+    pkg-config
+    buildSymlinks
+  ];
   buildInputs = [
-    gettext ncurses cscope luajit ruby tcl perl python3
+    gettext
+    ncurses
+    cscope
+    luajit
+    ruby
+    tcl
+    perl
+    python3
   ];
 
   patches = [ ./macvim.patch ];
@@ -123,8 +134,7 @@ stdenv.mkDerivation (finalAttrs: {
         XCODEFLAGS="-scheme MacVim -derivedDataPath $NIX_BUILD_TOP/derivedData"
         --with-xcodecfg="Release"
       )
-    ''
-  ;
+    '';
 
   # Because we're building with system clang, this means we're building against Xcode's SDK and
   # linking against system libraries. The configure script is picking up Nix Libsystem (via ruby)
@@ -140,7 +150,6 @@ stdenv.mkDerivation (finalAttrs: {
   postConfigure = ''
     substituteInPlace src/auto/config.mk \
       --replace " -L${stdenv.cc.libc}/lib" "" \
-      --replace " -L${darwin.libobjc}/lib" "" \
       --replace " -L${darwin.libunwind}/lib" "" \
       --replace " -L${libiconv}/lib" ""
 
@@ -205,6 +214,34 @@ stdenv.mkDerivation (finalAttrs: {
     license = licenses.vim;
     maintainers = [ ];
     platforms = platforms.darwin;
-    hydraPlatforms = []; # hydra can't build this as long as we rely on Xcode and sandboxProfile
+    hydraPlatforms = [ ]; # hydra can't build this as long as we rely on Xcode and sandboxProfile
+    # Needs updating to a newer MacVim for Python and Ruby version support
+    broken = true;
+    knownVulnerabilities = [
+      "CVE-2023-46246"
+      "CVE-2023-48231"
+      "CVE-2023-48232"
+      "CVE-2023-48233"
+      "CVE-2023-48234"
+      "CVE-2023-48235"
+      "CVE-2023-48236"
+      "CVE-2023-48237"
+      "CVE-2023-48706"
+      "CVE-2023-5344"
+      "CVE-2023-5441"
+      "CVE-2023-5535"
+      "CVE-2024-22667"
+      "CVE-2024-41957"
+      "CVE-2024-41965"
+      "CVE-2024-43374"
+      "CVE-2024-47814"
+      "CVE-2025-1215"
+      "CVE-2025-22134"
+      "CVE-2025-24014"
+      "CVE-2025-26603"
+      "CVE-2025-29768"
+      "CVE-2025-53905"
+      "CVE-2025-53906"
+    ];
   };
 })

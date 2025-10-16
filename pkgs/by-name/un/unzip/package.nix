@@ -1,6 +1,10 @@
-{ lib, stdenv, fetchurl
-, bzip2
-, enableNLS ? false, libnatspec
+{
+  lib,
+  stdenv,
+  fetchurl,
+  bzip2,
+  enableNLS ? false,
+  libnatspec,
 }:
 
 stdenv.mkDerivation rec {
@@ -8,13 +12,19 @@ stdenv.mkDerivation rec {
   version = "6.0";
 
   src = fetchurl {
-    url = "mirror://sourceforge/infozip/unzip${lib.replaceStrings ["."] [""] version}.tar.gz";
+    url = "mirror://sourceforge/infozip/unzip${lib.replaceStrings [ "." ] [ "" ] version}.tar.gz";
     sha256 = "0dxx11knh3nk95p2gg2ak777dd11pr7jx5das2g49l262scrcv83";
   };
 
-  hardeningDisable = [ "format" ];
+  hardeningDisable = [
+    "format"
+    "strictflexarrays3"
+  ];
 
-  patchFlags = [ "-p1" "-F3" ];
+  patchFlags = [
+    "-p1"
+    "-F3"
+  ];
 
   patches = [
     ./CVE-2014-8139.diff
@@ -68,13 +78,17 @@ stdenv.mkDerivation rec {
       url = "https://git.launchpad.net/ubuntu/+source/unzip/plain/debian/patches/CVE-2021-4217.patch?id=94a790fcbb5d6c53cdf5d786bcaa0b8dc10309b6";
       hash = "sha256-YKE4jVNSlrHLbszXNYYRtAQs0ly4AsodEz6tadMIVqE=";
     })
-  ] ++ lib.optional enableNLS
-    (fetchurl {
-      url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-natspec.patch?id=56bd759df1d0c750a065b8c845e93d5dfa6b549d";
-      name = "unzip-6.0-natspec.patch";
-      sha256 = "67ab260ae6adf8e7c5eda2d1d7846929b43562943ec4aff629bd7018954058b1";
-    });
+  ]
+  ++ lib.optional enableNLS (fetchurl {
+    url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-natspec.patch?id=56bd759df1d0c750a065b8c845e93d5dfa6b549d";
+    name = "unzip-6.0-natspec.patch";
+    sha256 = "67ab260ae6adf8e7c5eda2d1d7846929b43562943ec4aff629bd7018954058b1";
+  });
 
+  # gcc-15 uses c23 standard, which removed non-prototype function declarations.
+  postPatch = ''
+    sed -i '/localtime()/ d' unix/unxcfg.h
+  '';
 
   nativeBuildInputs = [ bzip2 ];
   buildInputs = [ bzip2 ] ++ lib.optional enableNLS libnatspec;

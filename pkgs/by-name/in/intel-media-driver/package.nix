@@ -1,30 +1,34 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, pkg-config
-, libva
-, libpciaccess
-, intel-gmmlib
-, libdrm
-, enableX11 ? stdenv.hostPlatform.isLinux
-, libX11
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  pkg-config,
+  libva,
+  libpciaccess,
+  intel-gmmlib,
+  libdrm,
+  enableX11 ? stdenv.hostPlatform.isLinux,
+  libX11,
   # for passhtru.tests
-, pkgsi686Linux
+  pkgsi686Linux,
 }:
 
 stdenv.mkDerivation rec {
   pname = "intel-media-driver";
-  version = "24.3.4";
+  version = "25.3.4";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   src = fetchFromGitHub {
     owner = "intel";
     repo = "media-driver";
     rev = "intel-media-${version}";
-    hash = "sha256-vgbWwL4mu8YZzfvBvxna8Ioz6ig29iA2RZHKuHdh5Ic=";
+    hash = "sha256-76FBaeTXSRbUN63AaV0XSj/QFi0UF+K/ig+LFjQQgFQ=";
   };
 
   patches = [
@@ -33,6 +37,9 @@ stdenv.mkDerivation rec {
       url = "https://salsa.debian.org/multimedia-team/intel-media-driver-non-free/-/raw/7376a99f060c26d6be8e56674da52a61662617b9/debian/patches/0002-Remove-settings-based-on-ARCH.patch";
       hash = "sha256-57yePuHWYb3XXrB4MjYO2h6jbqfs4SGTLlLG91el8M4=";
     })
+
+    # cmake 4 compatibility, upstream PR: https://github.com/intel/media-driver/pull/1919
+    ./cmake4.patch
   ];
 
   cmakeFlags = [
@@ -43,12 +50,22 @@ stdenv.mkDerivation rec {
     "-DMEDIA_BUILD_FATAL_WARNINGS=OFF"
   ];
 
-  env.NIX_CFLAGS_COMPILE = lib.optionalString (stdenv.hostPlatform.system == "i686-linux") "-D_FILE_OFFSET_BITS=64";
+  env.NIX_CFLAGS_COMPILE = lib.optionalString (
+    stdenv.hostPlatform.system == "i686-linux"
+  ) "-D_FILE_OFFSET_BITS=64";
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
-  buildInputs = [ libva libpciaccess intel-gmmlib libdrm ]
-    ++ lib.optional enableX11 libX11;
+  buildInputs = [
+    libva
+    libpciaccess
+    intel-gmmlib
+    libdrm
+  ]
+  ++ lib.optional enableX11 libX11;
 
   postFixup = lib.optionalString enableX11 ''
     patchelf --set-rpath "$(patchelf --print-rpath $out/lib/dri/iHD_drv_video.so):${lib.makeLibraryPath [ libX11 ]}" \
@@ -59,7 +76,7 @@ stdenv.mkDerivation rec {
     inherit (pkgsi686Linux) intel-media-driver;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Intel Media Driver for VAAPI — Broadwell+ iGPUs";
     longDescription = ''
       The Intel Media Driver for VAAPI is a new VA-API (Video Acceleration API)
@@ -68,8 +85,11 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://github.com/intel/media-driver";
     changelog = "https://github.com/intel/media-driver/releases/tag/intel-media-${version}";
-    license = with licenses; [ bsd3 mit ];
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ SuperSandro2000 ];
+    license = with lib.licenses; [
+      bsd3
+      mit
+    ];
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [ SuperSandro2000 ];
   };
 }

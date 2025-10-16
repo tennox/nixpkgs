@@ -1,8 +1,12 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule {
   pname = "cidrgrep";
-  version = "unstable-2020-11-17";
+  version = "0-unstable-2020-11-17";
 
   src = fetchFromGitHub {
     owner = "tomdoherty";

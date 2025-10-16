@@ -1,15 +1,16 @@
-{ lib
-, stdenv
-, fetchurl
-, fetchpatch
-, pkg-config
-, glib
-, which
-, bison
-, nixosTests
-, libnl
-, linuxHeaders
-, gnutls
+{
+  lib,
+  stdenv,
+  fetchurl,
+  fetchpatch,
+  pkg-config,
+  glib,
+  which,
+  bison,
+  nixosTests,
+  libnl,
+  linuxHeaders,
+  gnutls,
 }:
 
 stdenv.mkDerivation rec {
@@ -39,7 +40,8 @@ stdenv.mkDerivation rec {
   buildInputs = [
     glib
     gnutls
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     libnl
     linuxHeaders
   ];

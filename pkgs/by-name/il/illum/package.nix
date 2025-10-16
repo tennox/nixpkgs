@@ -1,4 +1,14 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, pkg-config, ninja, libevdev, libev, udev }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  pkg-config,
+  ninja,
+  libevdev,
+  libev,
+  udev,
+}:
 
 stdenv.mkDerivation rec {
   pname = "illum";
@@ -7,7 +17,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "jmesmon";
     repo = "illum";
-    rev = "v${version}";
+    tag = "v${version}";
     sha256 = "S4lUBeRnZlRUpIxFdN/bh979xvdS7roF6/6Dk0ZUrnM=";
     fetchSubmodules = true;
   };
@@ -21,10 +31,19 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ ninja libevdev libev udev ];
+  buildInputs = [
+    ninja
+    libevdev
+    libev
+    udev
+  ];
 
   configurePhase = ''
+    runHook preConfigure
+
     bash ./configure
+
+    runHook postConfigure
   '';
 
   installPhase = ''

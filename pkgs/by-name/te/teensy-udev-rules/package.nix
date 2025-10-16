@@ -1,4 +1,8 @@
-{ lib, stdenv, coreutils }:
+{
+  lib,
+  stdenv,
+  coreutils,
+}:
 
 stdenv.mkDerivation {
   pname = "teensy-udev-rules";
@@ -30,6 +34,5 @@ stdenv.mkDerivation {
     '';
     platforms = platforms.linux;
     license = licenses.unfree; # No license specified.
-    maintainers = with maintainers; [ aidalgol ];
   };
 }

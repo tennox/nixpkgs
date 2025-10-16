@@ -1,6 +1,20 @@
-{ lib, stdenv, fetchFromGitHub, writeText
-, glib, meson, ninja, pkg-config, python3
-, coreutils, gnome-desktop, gnupg, gtk3, systemdMinimal, udisks
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  writeText,
+  glib,
+  meson,
+  ninja,
+  pkg-config,
+  python3,
+  coreutils,
+  gnome-desktop,
+  gnupg,
+  gtk3,
+  systemdMinimal,
+  udisks,
+  xz,
 }:
 
 stdenv.mkDerivation rec {
@@ -10,16 +24,27 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "endlessm";
     repo = "eos-installer";
-    rev = "Release_${version}";
+    tag = "Release_${version}";
     sha256 = "BqvZglzFJabGXkI8hnLiw1r+CvM7kSKQPj8IKYBB6S4=";
     fetchSubmodules = true;
   };
 
   strictDeps = true;
   nativeBuildInputs = [
-    glib gnupg meson ninja pkg-config python3
+    glib
+    gnupg
+    meson
+    ninja
+    pkg-config
+    python3
   ];
-  buildInputs = [ gnome-desktop gtk3 systemdMinimal udisks ];
+  buildInputs = [
+    gnome-desktop
+    gtk3
+    systemdMinimal
+    udisks
+    xz
+  ];
 
   preConfigure = ''
     patchShebangs tests

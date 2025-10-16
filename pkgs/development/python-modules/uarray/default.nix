@@ -11,20 +11,21 @@
   numpy,
   astunparse,
   typing-extensions,
+  nix-update-script,
   pytestCheckHook,
   pytest-cov-stub,
 }:
 
 buildPythonPackage rec {
   pname = "uarray";
-  version = "0.9.0";
+  version = "0.9.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Quansight-Labs";
-    repo = pname;
-    rev = "refs/tags/${version}";
-    hash = "sha256-q9lMU/xA+G2x38yZy3DxCpXTEmg1lZhZ8GFIHDIKE24=";
+    repo = "uarray";
+    tag = version;
+    hash = "sha256-eCrmmP+9TI+T8Km8MOz0EqseneFwPizlnZloK5yNLcM=";
   };
 
   build-system = [
@@ -54,12 +55,14 @@ buildPythonPackage rec {
     cd $TMP
   '';
 
-  pytestFlagsArray = [
+  pytestFlags = [
     "--pyargs"
     "uarray"
   ];
 
   pythonImportsCheck = [ "uarray" ];
+
+  passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
     description = "Universal array library";

@@ -1,15 +1,17 @@
-{ lib, stdenv
-, fetchzip
-, pkg-config
-, autoreconfHook
-, gtk2
-, alsa-lib
-, SDL
-, jack2
-, audiofile
-, goocanvas # graphical envelope editing
-, libxml2
-, libsndfile
+{
+  lib,
+  stdenv,
+  fetchzip,
+  pkg-config,
+  autoreconfHook,
+  gtk2,
+  alsa-lib,
+  SDL,
+  jack2,
+  audiofile,
+  goocanvas, # graphical envelope editing
+  libxml2,
+  libsndfile,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -40,7 +42,8 @@ stdenv.mkDerivation (finalAttrs: {
 
   configureFlags = [
     "--with-graphics-backend=gdk"
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     "--disable-alsa"
   ];
 
@@ -59,7 +62,8 @@ stdenv.mkDerivation (finalAttrs: {
     goocanvas
     libxml2
     libsndfile
-  ] ++ lib.optional stdenv.hostPlatform.isLinux alsa-lib;
+  ]
+  ++ lib.optional stdenv.hostPlatform.isLinux alsa-lib;
 
   meta = with lib; {
     description = "Music tracking tool similar in design to the DOS program FastTracker and the Amiga legend ProTracker";

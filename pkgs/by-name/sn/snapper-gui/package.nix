@@ -1,20 +1,33 @@
-{ lib, fetchFromGitHub, python3, python3Packages
-, adwaita-icon-theme, gtk3, wrapGAppsHook3, gtksourceview3, snapper
-, gobject-introspection
+{
+  lib,
+  fetchFromGitHub,
+  nix-update-script,
+  python3,
+  python3Packages,
+  adwaita-icon-theme,
+  gtk3,
+  wrapGAppsHook3,
+  gtksourceview3,
+  snapper,
+  gobject-introspection,
 }:
 
-python3Packages.buildPythonApplication rec {
+python3Packages.buildPythonApplication {
   pname = "snapper-gui";
-  version = "2020-10-20";
+  version = "0.1-unstable-2022-06-26";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "ricardomv";
-    repo = pname;
-    rev = "f0c67abe0e10cc9e2ebed400cf80ecdf763fb1d1";
-    sha256 = "13j4spbi9pxg69zifzai8ifk4207sn0vwh6vjqryi0snd5sylh7h";
+    repo = "snapper-gui";
+    rev = "191575084a4e951802c32a4177dc704cf435883a";
+    sha256 = "sha256-uy1oLJx4ERGc8OHzmPpnJX81jPB9ztrA0qbmm1UcmTY=";
   };
 
-  nativeBuildInputs = [ wrapGAppsHook3 gobject-introspection ];
+  nativeBuildInputs = [
+    wrapGAppsHook3
+    gobject-introspection
+  ];
 
   buildInputs = [
     python3
@@ -31,6 +44,10 @@ python3Packages.buildPythonApplication rec {
     gtksourceview3
     snapper
   ];
+
+  passthru.updateScript = nix-update-script {
+    extraArgs = [ "--version=branch" ];
+  };
 
   meta = with lib; {
     description = "Graphical interface for snapper";

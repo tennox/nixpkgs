@@ -1,9 +1,11 @@
-{ config
-, lib
-, pkgs
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  ...
 }:
-with lib; let
+with lib;
+let
   cfg = config.services.handheld-daemon;
 in
 {
@@ -28,7 +30,8 @@ in
     services.handheld-daemon.ui.enable = mkDefault true;
     environment.systemPackages = [
       cfg.package
-    ] ++ lib.optional cfg.ui.enable cfg.ui.package;
+    ]
+    ++ lib.optional cfg.ui.enable cfg.ui.package;
     services.udev.packages = [ cfg.package ];
     systemd.packages = [ cfg.package ];
 
@@ -45,7 +48,7 @@ in
       ];
 
       serviceConfig = {
-        ExecStart = "${ lib.getExe cfg.package } --user ${ cfg.user }";
+        ExecStart = "${lib.getExe cfg.package} --user ${cfg.user}";
         Nice = "-12";
         Restart = "on-failure";
         RestartSec = "10";

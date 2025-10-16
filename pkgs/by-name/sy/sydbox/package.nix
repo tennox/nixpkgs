@@ -1,77 +1,90 @@
-{ lib
-, stdenv
-, fetchurl
-, pkg-config
-, autoreconfHook
-, python3
-, perl
-, libxslt
-, docbook_xsl
-, docbook_xml_dtd_42
-, libseccomp
-, installTests ? true, gnumake, which
-, debugBuild ? false, libunwind
+{
+  lib,
+  fetchFromGitLab,
+  libseccomp,
+  mandoc,
+  nix-update-script,
+  pkg-config,
+  rustPlatform,
+  scdoc,
+  testers,
 }:
 
-stdenv.mkDerivation rec {
-  pname = "sydbox-1";
-  version = "2.2.0";
+rustPlatform.buildRustPackage (finalAttrs: {
+  pname = "sydbox";
+  version = "3.39.1";
 
-  outputs = [ "out" "dev" "man" "doc" ]
-    ++ lib.optional installTests "installedTests";
-
-  src = fetchurl {
-    url = "https://git.exherbo.org/${pname}.git/snapshot/${pname}-${version}.tar.xz";
-    sha256 = "0664myrrzbvsw73q5b7cqwgv4hl9a7vkm642s1r96gaxm16jk0z7";
-  };
-
-  nativeBuildInputs = [
-    pkg-config
-    autoreconfHook
-    python3
-    perl
-    libxslt.bin
-    docbook_xsl
-    docbook_xml_dtd_42
+  outputs = [
+    "out"
+    "man"
   ];
 
-  buildInputs = [
-    libseccomp
-  ] ++ lib.optional debugBuild libunwind
-    ++ lib.optionals installTests [
-      gnumake
-      python3
-      perl
-      which
-    ];
-
-  enableParallelBuilding = true;
-
-  configureFlags = [ ]
-    ++ lib.optionals installTests [ "--enable-installed-tests"
-      "--libexecdir=${placeholder "installedTests"}/libexec" ]
-    ++ lib.optional debugBuild "--enable-debug";
-
-  makeFlags = [ "SYD_INCLUDEDIR=${stdenv.cc.libc.dev}/include" ];
-
-  doCheck = true;
-  checkPhase = ''
-    # Many of the regular test cases in t/ do not work inside the build sandbox
-    make -C syd check
-  '';
-
-  postInstall = if installTests then ''
-    moveToOutput bin/syd-test $installedTests
-  '' else ''
-    # Tests are installed despite --disable-installed-tests
-    rm -r $out/bin/syd-test $out/libexec
-  '';
-
-  meta = with lib; {
-    homepage = "https://sydbox.exherbo.org/";
-    description = "seccomp-based application sandbox";
-    license = licenses.gpl2Only;
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ mvs ];
+  src = fetchFromGitLab {
+    domain = "gitlab.exherbo.org";
+    owner = "Sydbox";
+    repo = "sydbox";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-LJHZb4TGo+Lep7yiej2G1H6mXAoEk5ixn/lGDxAWqvg=";
   };
-}
+
+  cargoHash = "sha256-mUeJ3A2HW2pXWXW3Abb+aqTaZjVrchYJNCJCDC2Em9s=";
+
+  nativeBuildInputs = [
+    mandoc
+    pkg-config
+    scdoc
+  ];
+
+  buildInputs = [ libseccomp ];
+
+  makeFlags = [ "PREFIX=${placeholder "out"}" ];
+
+  checkFlags = [
+    # rm -rf tmpdir: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+    "--skip=fs::tests::test_relative_symlink_resolution"
+    # Failed to write C source file!: Os { code: 13, kind: PermissionDenied, message: "Permission denied" }
+    "--skip=proc::tests::test_proc_set_at_secure_test_32bit_dynamic"
+    # Flakey. May only fail on OfBorg/Hydra
+    # Failed to write C source file!: Os { code: 13, kind: PermissionDenied, message: "Permission denied" }
+    "proc::tests::test_proc_set_at_secure_test_32bit_static"
+    # Failed to write C source file!: Os { code: 13, kind: PermissionDenied, message: "Permission denied" }
+    "--skip=proc::tests::test_proc_set_at_secure_test_32bit_static_pie"
+    # /bin/false: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+    "--skip=syd_test"
+
+    # Endlessly stall or use "invalid arguments". Maybe a sandbox issue?
+    "--skip=caps"
+    "--skip=landlock"
+    "--skip=proc::proc_cmdline"
+    "--skip=proc::proc_comm"
+  ];
+
+  # TODO: Have these directories be created upstream similar to the vim files
+  postInstall = ''
+    mkdir -p $out/share/man/man{1,2,5,7}
+
+    make $makeFlags install-{man,vim}
+  '';
+
+  passthru = {
+    tests.version = testers.testVersion {
+      package = finalAttrs.finalPackage;
+      command = "syd -V";
+    };
+
+    updateScript = nix-update-script { };
+  };
+
+  meta = {
+    description = "Seccomp-based application sandbox";
+    homepage = "https://gitlab.exherbo.org/sydbox/sydbox";
+    changelog = "https://gitlab.exherbo.org/sydbox/sydbox/-/blob/${finalAttrs.src.tag}/ChangeLog.md";
+    license = lib.licenses.gpl3Plus;
+    maintainers = with lib.maintainers; [
+      mvs
+      getchoo
+    ];
+    mainProgram = "syd";
+    platforms = lib.platforms.linux;
+  };
+})

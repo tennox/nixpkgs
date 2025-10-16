@@ -1,94 +1,95 @@
-{ lib
-, stdenv
-, python
-, buildPythonPackage
-, fetchFromGitHub
-, alembic
-, argcomplete
-, asgiref
-, attrs
-, blinker
-, cached-property
-, cattrs
-, clickclick
-, colorlog
-, configupdater
-, connexion
-, cron-descriptor
-, croniter
-, cryptography
-, deprecated
-, dill
-, flask
-, flask-login
-, flask-appbuilder
-, flask-caching
-, flask-session
-, flask-wtf
-, gitpython
-, google-re2
-, graphviz
-, gunicorn
-, httpx
-, iso8601
-, importlib-resources
-, importlib-metadata
-, inflection
-, itsdangerous
-, jinja2
-, jsonschema
-, lazy-object-proxy
-, linkify-it-py
-, lockfile
-, markdown
-, markupsafe
-, marshmallow-oneofschema
-, mdit-py-plugins
-, numpy
-, openapi-spec-validator
-, opentelemetry-api
-, opentelemetry-exporter-otlp
-, pandas
-, pathspec
-, pendulum
-, psutil
-, pydantic
-, pygments
-, pyjwt
-, python-daemon
-, python-dateutil
-, python-nvd3
-, python-slugify
-, python3-openid
-, pythonOlder
-, pyyaml
-, rich
-, rich-argparse
-, setproctitle
-, sqlalchemy
-, sqlalchemy-jsonfield
-, swagger-ui-bundle
-, tabulate
-, tenacity
-, termcolor
-, typing-extensions
-, unicodecsv
-, werkzeug
-, freezegun
-, pytest-asyncio
-, pytestCheckHook
-, time-machine
-, mkYarnPackage
-, fetchYarnDeps
-, writeScript
+{
+  lib,
+  stdenv,
+  python,
+  buildPythonPackage,
+  fetchFromGitHub,
+  alembic,
+  argcomplete,
+  asgiref,
+  attrs,
+  blinker,
+  cached-property,
+  cattrs,
+  clickclick,
+  colorlog,
+  configupdater,
+  connexion,
+  cron-descriptor,
+  croniter,
+  cryptography,
+  deprecated,
+  dill,
+  flask,
+  flask-login,
+  flask-appbuilder,
+  flask-caching,
+  flask-session,
+  flask-wtf,
+  gitpython,
+  google-re2,
+  graphviz,
+  gunicorn,
+  httpx,
+  iso8601,
+  importlib-resources,
+  importlib-metadata,
+  inflection,
+  itsdangerous,
+  jinja2,
+  jsonschema,
+  lazy-object-proxy,
+  linkify-it-py,
+  lockfile,
+  markdown,
+  markupsafe,
+  marshmallow-oneofschema,
+  mdit-py-plugins,
+  numpy,
+  openapi-spec-validator,
+  opentelemetry-api,
+  opentelemetry-exporter-otlp,
+  pandas,
+  pathspec,
+  pendulum,
+  psutil,
+  pydantic,
+  pygments,
+  pyjwt,
+  python-daemon,
+  python-dateutil,
+  python-nvd3,
+  python-slugify,
+  python3-openid,
+  pythonOlder,
+  pyyaml,
+  rich,
+  rich-argparse,
+  setproctitle,
+  sqlalchemy,
+  sqlalchemy-jsonfield,
+  swagger-ui-bundle,
+  tabulate,
+  tenacity,
+  termcolor,
+  typing-extensions,
+  unicodecsv,
+  werkzeug,
+  freezegun,
+  pytest-asyncio,
+  pytestCheckHook,
+  time-machine,
+  mkYarnPackage,
+  fetchYarnDeps,
+  writeScript,
 
-# Extra airflow providers to enable
-, enabledProviders ? []
+  # Extra airflow providers to enable
+  enabledProviders ? [ ],
 }:
 let
   version = "2.7.3";
 
-  airflow-src = fetchFromGitHub rec {
+  airflow-src = fetchFromGitHub {
     owner = "apache";
     repo = "airflow";
     rev = "refs/tags/${version}";
@@ -146,6 +147,7 @@ in
 buildPythonPackage rec {
   pname = "apache-airflow";
   inherit version;
+  format = "setuptools";
   src = airflow-src;
 
   disabled = pythonOlder "3.7";
@@ -220,9 +222,11 @@ buildPythonPackage rec {
     typing-extensions
     unicodecsv
     werkzeug
-  ] ++ lib.optionals (pythonOlder "3.9") [
+  ]
+  ++ lib.optionals (pythonOlder "3.9") [
     importlib-metadata
-  ] ++ providerDependencies;
+  ]
+  ++ providerDependencies;
 
   buildInputs = [
     airflow-frontend
@@ -244,7 +248,8 @@ buildPythonPackage rec {
     # https://github.com/apache/airflow/issues/33854
     substituteInPlace pyproject.toml \
       --replace '[project]' $'[project]\nname = "apache-airflow"\nversion = "${version}"'
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     # Fix failing test on Hydra
     substituteInPlace airflow/utils/db.py \
       --replace "/tmp/sqlite_default.db" "$TMPDIR/sqlite_default.db"
@@ -270,7 +275,8 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [
     "airflow"
-  ] ++ providerImports;
+  ]
+  ++ providerImports;
 
   preCheck = ''
     export AIRFLOW_HOME=$HOME
@@ -283,7 +289,7 @@ buildPythonPackage rec {
     airflow db reset -y
   '';
 
-  pytestFlagsArray = [
+  enabledTestPaths = [
     "tests/core/test_core.py"
   ];
 
@@ -329,7 +335,11 @@ buildPythonPackage rec {
     description = "Programmatically author, schedule and monitor data pipelines";
     homepage = "https://airflow.apache.org/";
     license = licenses.asl20;
-    maintainers = with maintainers; [ bhipple gbpdt ingenieroariel ];
+    maintainers = with maintainers; [
+      bhipple
+      gbpdt
+      ingenieroariel
+    ];
     knownVulnerabilities = [
       "CVE-2023-50943"
       "CVE-2023-50944"

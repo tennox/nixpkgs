@@ -1,6 +1,10 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
-buildGoModule rec {
+buildGoModule {
   pname = "prosody-filer";
   version = "unstable-2021-05-24";
 
@@ -17,7 +21,7 @@ buildGoModule rec {
 
   meta = with lib; {
     homepage = "https://github.com/ThomasLeister/prosody-filer";
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
     license = licenses.mit;
     platforms = platforms.linux;
     description = "Simple file server for handling XMPP http_upload requests";

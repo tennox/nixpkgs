@@ -1,55 +1,48 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, perl
-, wrapGAppsHook3
-, wrapQtAppsHook
-, qtbase
-, qtcharts
-, qtpositioning
-, qtmultimedia
-, qtserialport
-, qtwayland
-, qtwebengine
-, calcmysky
-, qxlsx
-, indilib
-, libnova
-, qttools
-, exiv2
-, nlopt
-, testers
-, xvfb-run
-, gitUpdater
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  perl,
+  wrapGAppsHook3,
+  wrapQtAppsHook,
+  qtbase,
+  qtcharts,
+  qtpositioning,
+  qtmultimedia,
+  qtserialport,
+  qtwayland,
+  qtwebengine,
+  calcmysky,
+  qxlsx,
+  indilib,
+  libnova,
+  qttools,
+  exiv2,
+  nlopt,
+  testers,
+  xvfb-run,
+  gitUpdater,
+  md4c,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "stellarium";
-  version = "24.3";
+  version = "25.3";
 
   src = fetchFromGitHub {
     owner = "Stellarium";
     repo = "stellarium";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-shDp2tCOynMiEuTSx4TEK8V9h3EsMDq+kkZFhldrinM=";
+    hash = "sha256-9uQ6u1+dSszmKG8eY6kSXhqsCPRGw6tulCTCrLByIxc=";
   };
-
-  patches = [
-    # Compatibility with INDI 2.0 series from https://github.com/Stellarium/stellarium/pull/3269
-    (fetchpatch {
-      url = "https://github.com/Stellarium/stellarium/commit/31fd7bebf33fa710ce53ac8375238a24758312bc.patch";
-      hash = "sha256-eJEqqitZgtV6noeCi8pDBYMVTFIVWXZU1fiEvoilX8o=";
-    })
-  ];
 
   postPatch = lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace CMakeLists.txt \
-      --replace 'SET(CMAKE_INSTALL_PREFIX "''${PROJECT_BINARY_DIR}/Stellarium.app/Contents")' \
+      --replace-fail 'SET(CMAKE_INSTALL_PREFIX "''${PROJECT_BINARY_DIR}/Stellarium.app/Contents")' \
                 'SET(CMAKE_INSTALL_PREFIX "${placeholder "out"}/Applications/Stellarium.app/Contents")'
     substituteInPlace src/CMakeLists.txt \
-      --replace "\''${_qt_bin_dir}/../" "${qtmultimedia}/lib/qt-6/"
+      --replace-fail "\''${_qt_bin_dir}/../" "${qtmultimedia}/lib/qt-6/"
   '';
 
   nativeBuildInputs = [
@@ -72,14 +65,17 @@ stdenv.mkDerivation (finalAttrs: {
     indilib
     libnova
     exiv2
+    md4c
     nlopt
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     qtwayland
   ];
 
   preConfigure = ''
     export SOURCE_DATE_EPOCH=$(date -d 20${lib.versions.major finalAttrs.version}0101 +%s)
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     export LC_ALL=en_US.UTF-8
   '';
 
@@ -111,12 +107,13 @@ stdenv.mkDerivation (finalAttrs: {
     updateScript = gitUpdater { rev-prefix = "v"; };
   };
 
-  meta =  {
+  meta = {
     description = "Free open-source planetarium";
     mainProgram = "stellarium";
     homepage = "https://stellarium.org/";
     license = lib.licenses.gpl2Plus;
     platforms = lib.platforms.unix;
     maintainers = with lib.maintainers; [ kilianar ];
+    broken = stdenv.hostPlatform.isDarwin;
   };
 })

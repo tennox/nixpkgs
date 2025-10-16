@@ -1,14 +1,19 @@
-{ cmake, fetchFromGitHub, lib, stdenv }:
+{
+  cmake,
+  fetchFromGitHub,
+  lib,
+  stdenv,
+}:
 
 stdenv.mkDerivation rec {
   pname = "pcm";
-  version = "202409";
+  version = "202509";
 
   src = fetchFromGitHub {
-    owner = "opcm";
+    owner = "intel";
     repo = "pcm";
     rev = version;
-    hash = "sha256-eCFyk6V1wpTImDKbsSiwgnqIduh62YG8GK0jxZL04Yc=";
+    hash = "sha256-RIpyh4JN1/ePoSLQPyB3pgx6ifBcpJK+1d9YQcGZed4=";
   };
 
   nativeBuildInputs = [ cmake ];

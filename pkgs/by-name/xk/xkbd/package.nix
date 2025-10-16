@@ -1,5 +1,18 @@
-{ lib, stdenv, fetchFromGitHub, freetype, libXrender, libXft, xorgproto
-, xinput, libXi, libXext, libXtst, libXpm, libX11, autoreconfHook
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  freetype,
+  libXrender,
+  libXft,
+  xorgproto,
+  xinput,
+  libXi,
+  libXext,
+  libXtst,
+  libXpm,
+  libX11,
+  autoreconfHook,
 }:
 
 stdenv.mkDerivation rec {
@@ -14,15 +27,23 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    freetype libXrender libXft libXext libXtst libXpm libX11
-    libXi xorgproto xinput
+    freetype
+    libXrender
+    libXft
+    libXext
+    libXtst
+    libXpm
+    libX11
+    libXi
+    xorgproto
+    xinput
   ];
 
   nativeBuildInputs = [ autoreconfHook ];
 
   meta = with lib; {
     homepage = "https://github.com/mahatma-kaganovich/xkbd";
-    description = "onscreen soft keyboard for X11";
+    description = "On-screen soft keyboard for X11";
     license = licenses.gpl2Plus;
     maintainers = [ ];
     platforms = platforms.linux;

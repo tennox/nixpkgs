@@ -1,12 +1,14 @@
-{ lib
-, fetchFromGitHub
-, buildGoModule
-, mpv
-, makeWrapper
-, installShellFiles
-, nix-update-script
-, testers
-, radioboat
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  buildGoModule,
+  mpv,
+  makeWrapper,
+  installShellFiles,
+  nix-update-script,
+  testers,
+  radioboat,
 }:
 
 buildGoModule rec {
@@ -28,13 +30,16 @@ buildGoModule rec {
     "-X github.com/slashformotion/radioboat/internal/buildinfo.Version=${version}"
   ];
 
-  nativeBuildInputs = [ makeWrapper installShellFiles ];
+  nativeBuildInputs = [
+    makeWrapper
+    installShellFiles
+  ];
 
   preFixup = ''
     wrapProgram $out/bin/radioboat --prefix PATH ":" "${lib.makeBinPath [ mpv ]}";
   '';
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd radioboat \
       --bash <($out/bin/radioboat completion bash) \
       --fish <($out/bin/radioboat completion fish) \

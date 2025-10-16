@@ -1,5 +1,18 @@
-{ stdenv, lib, fetchFromGitHub, makeWrapper
-, ipcalc, iproute2, util-linux, coreutils, ethtool, gnugrep, gnused, nvme-cli }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  makeWrapper,
+  ipcalc,
+  iproute2,
+  util-linux,
+  coreutils,
+  ethtool,
+  gnugrep,
+  gnused,
+  nvme-cli,
+  udevCheckHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "google-guest-configs";
@@ -12,9 +25,20 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-0SRu6p/DsHNNI20mkXJitt/Ee5S2ooiy5hNmD+ndecM=";
   };
 
-  binDeps = lib.makeBinPath [ coreutils util-linux gnugrep gnused ethtool ipcalc iproute2 ];
+  binDeps = lib.makeBinPath [
+    coreutils
+    util-linux
+    gnugrep
+    gnused
+    ethtool
+    ipcalc
+    iproute2
+  ];
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [
+    makeWrapper
+    udevCheckHook
+  ];
 
   dontConfigure = true;
   dontBuild = true;
@@ -28,6 +52,8 @@ stdenv.mkDerivation rec {
       --subst-var-by logger "${util-linux}/bin/logger"
     patch -p1 < ./fix-paths.patch
   '';
+
+  doInstallCheck = true;
 
   installPhase = ''
     mkdir -p $out/{bin,etc,lib}
@@ -47,6 +73,6 @@ stdenv.mkDerivation rec {
     description = "Linux Guest Environment for Google Compute Engine";
     license = licenses.asl20;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ abbradar ];
+    maintainers = [ ];
   };
 }

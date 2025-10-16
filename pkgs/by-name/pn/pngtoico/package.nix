@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchurl, libpng, fetchpatch }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  libpng,
+  fetchpatch,
+}:
 
 stdenv.mkDerivation rec {
   pname = "pngtoico";
@@ -11,13 +17,17 @@ stdenv.mkDerivation rec {
 
   patches = [
     (fetchpatch {
-      url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-gfx/pngtoico/files/pngtoico-1.0.1-libpng15.patch";
+      url = "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-gfx/pngtoico/files/pngtoico-1.0.1-libpng15.patch?id=dec60bb6900d6ebdaaa6aa1dcb845b30b739f9b5";
       hash = "sha256-MeRV4FL37Wq7aFRnjbxPokcBKmPM+h94cnFJmdvHAt0=";
     })
   ];
 
   configurePhase = ''
+    runHook preConfigure
+
     sed -i s,/usr/local,$out, Makefile
+
+    runHook postConfigure
   '';
 
   buildInputs = [ libpng ];

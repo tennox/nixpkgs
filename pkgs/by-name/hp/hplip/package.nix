@@ -1,57 +1,91 @@
-{ lib, stdenv, fetchurl, substituteAll
-, pkg-config, autoreconfHook, gobject-introspection, wrapGAppsHook3
-, cups, zlib, libjpeg, libusb1, python311Packages, sane-backends
-, dbus, file, ghostscript, usbutils
-, net-snmp, openssl, perl, nettools, avahi
-, bash, util-linux
-# To remove references to gcc-unwrapped
-, removeReferencesTo, qt5
-, withQt5 ? true
-, withPlugin ? false
-, withStaticPPDInstall ? false
+{
+  lib,
+  stdenv,
+  fetchurl,
+  replaceVars,
+  pkg-config,
+  autoreconfHook,
+  gobject-introspection,
+  wrapGAppsHook3,
+  cups,
+  zlib,
+  libjpeg,
+  libusb1,
+  python3Packages,
+  sane-backends,
+  dbus,
+  file,
+  ghostscript,
+  usbutils,
+  net-snmp,
+  openssl,
+  perl,
+  net-tools,
+  avahi,
+  bash,
+  util-linux,
+  # To remove references to gcc-unwrapped
+  removeReferencesTo,
+  qt5,
+  withQt5 ? true,
+  withPlugin ? false,
+  withStaticPPDInstall ? false,
 }:
 
 let
 
   pname = "hplip";
-  version = "3.24.4";
+  version = "3.25.2";
 
   src = fetchurl {
     url = "mirror://sourceforge/hplip/${pname}-${version}.tar.gz";
-    hash = "sha256-XXZDgxiTpeKt351C1YGl2/5arwI2Johrh2LFZF2g8fs=";
+    hash = "sha256-6HL/KOslF3Balfbhg576HlCnejOq6JBSeN8r2CCRllM=";
   };
 
   plugin = fetchurl {
-    url = "https://developers.hp.com/sites/default/files/${pname}-${version}-plugin.run";
-    hash = "sha256-Hzxr3SVmGoouGBU2VdbwbwKMHZwwjWnI7P13Z6LQxao=";
+    url = "https://www.openprinting.org/download/printdriver/auxfiles/HP/plugins/${pname}-${version}-plugin.run";
+    hash = "sha256-miz41WYehGVI27tZUjGlRIpctjcpzJPfjR9lLf0WelQ=";
   };
 
-  hplipState = substituteAll {
+  hplipState = replaceVars ./hplip.state {
     inherit version;
-    src = ./hplip.state;
   };
 
   hplipPlatforms = {
-    i686-linux   = "x86_32";
+    i686-linux = "x86_32";
     x86_64-linux = "x86_64";
     armv6l-linux = "arm32";
     armv7l-linux = "arm32";
     aarch64-linux = "arm64";
   };
 
-  hplipArch = hplipPlatforms.${stdenv.hostPlatform.system}
-    or (throw "HPLIP not supported on ${stdenv.hostPlatform.system}");
+  hplipArch =
+    hplipPlatforms.${stdenv.hostPlatform.system}
+      or (throw "HPLIP not supported on ${stdenv.hostPlatform.system}");
 
-  pluginArches = [ "x86_32" "x86_64" "arm32" "arm64" ];
+  pluginArches = [
+    "x86_32"
+    "x86_64"
+    "arm32"
+    "arm64"
+  ];
 
 in
 
-assert withPlugin -> builtins.elem hplipArch pluginArches
-  || throw "HPLIP plugin not supported on ${stdenv.hostPlatform.system}";
-
-python311Packages.buildPythonApplication {
-  inherit pname version src;
+python3Packages.buildPythonApplication {
+  inherit pname version;
   format = "other";
+
+  srcs = [ src ] ++ lib.optional withPlugin plugin;
+
+  unpackCmd = lib.optionalString withPlugin ''
+    if ! [[ "$curSrc" =~ -plugin\.run$ ]]; then return 1; fi # fallback to regular unpackCmdHooks
+
+    # Unpack plugin shar
+    sh "$curSrc" --noexec --keep
+  '';
+
+  sourceRoot = "${pname}-${version}";
 
   buildInputs = [
     libjpeg
@@ -66,7 +100,8 @@ python311Packages.buildPythonApplication {
     perl
     zlib
     avahi
-  ] ++ lib.optionals withQt5 [
+  ]
+  ++ lib.optionals withQt5 [
     qt5.qtwayland
   ];
 
@@ -76,22 +111,32 @@ python311Packages.buildPythonApplication {
     autoreconfHook
     gobject-introspection
     wrapGAppsHook3
-  ] ++ lib.optional withQt5 qt5.wrapQtAppsHook;
+  ]
+  ++ lib.optional withQt5 qt5.wrapQtAppsHook;
 
-  pythonPath = with python311Packages; [
-    dbus
-    pillow
-    pygobject3
-    reportlab
-    usbutils
-    dbus-python
-    distro
-  ] ++ lib.optionals withQt5 [
-    pyqt5
-    pyqt5-sip
+  pythonPath =
+    with python3Packages;
+    [
+      dbus
+      pillow
+      pygobject3
+      reportlab
+      usbutils
+      dbus-python
+      distro
+      distutils
+    ]
+    ++ lib.optionals withQt5 [
+      pyqt5
+      pyqt5-sip
+    ];
+
+  makeWrapperArgs = [
+    "--prefix"
+    "PATH"
+    ":"
+    "${net-tools}/bin"
   ];
-
-  makeWrapperArgs = [ "--prefix" "PATH" ":" "${nettools}/bin" ];
 
   patches = [
     # HPLIP's getSystemPPDs() function relies on searching for PPDs below common FHS
@@ -103,15 +148,15 @@ python311Packages.buildPythonApplication {
     # Remove all ImageProcessor functionality since that is closed source
     (fetchurl {
       url = "https://web.archive.org/web/20230226174550/https://sources.debian.org/data/main/h/hplip/3.22.10+dfsg0-1/debian/patches/0028-Remove-ImageProcessor-binary-installs.patch";
-      sha256 = "sha256:18njrq5wrf3fi4lnpd1jqmaqr7ph5d7jxm7f15b1wwrbxir1rmml";
+      hash = "sha256-tNYccuwrcx5WCe7ULk8r8J6MVcUytGspiW64zAvO0qI=";
     })
   ];
 
   postPatch = ''
     # https://github.com/NixOS/nixpkgs/issues/44230
     substituteInPlace createPPD.sh \
-      --replace ppdc "${cups}/bin/ppdc" \
-      --replace "gzip -c" "gzip -cn"
+      --replace-fail ppdc "${cups}/bin/ppdc" \
+      --replace-fail "gzip -c" "gzip -cn"
 
     # HPLIP hardcodes absolute paths everywhere. Nuke from orbit.
     find . -type f -exec sed -i \
@@ -134,7 +179,10 @@ python311Packages.buildPythonApplication {
     echo 'AUTOMAKE_OPTIONS = foreign' >> Makefile.am
   '';
 
-  configureFlags = let out = placeholder "out"; in
+  configureFlags =
+    let
+      out = placeholder "out";
+    in
     [
       "--with-hpppddir=${out}/share/cups/model/HP"
       "--with-cupsfilterdir=${out}/lib/cups/filter"
@@ -151,8 +199,7 @@ python311Packages.buildPythonApplication {
       "--disable-imageProcessor-build"
     ]
     ++ lib.optional withStaticPPDInstall "--enable-cups-ppd-install"
-    ++ lib.optional withQt5 "--enable-qt5"
-  ;
+    ++ lib.optional withQt5 "--enable-qt5";
 
   # Prevent 'ppdc: Unable to find include file "<font.defs>"' which prevent
   # generation of '*.ppd' files.
@@ -160,15 +207,20 @@ python311Packages.buildPythonApplication {
   # Could not find how to fix the problem in 'ppdc' so this is a workaround.
   CUPS_DATADIR = "${cups}/share/cups";
 
-  makeFlags = let out = placeholder "out"; in [
-    "halpredir=${out}/share/hal/fdi/preprobe/10osvendor"
-    "rulesdir=${out}/etc/udev/rules.d"
-    "policykit_dir=${out}/share/polkit-1/actions"
-    "policykit_dbus_etcdir=${out}/etc/dbus-1/system.d"
-    "policykit_dbus_sharedir=${out}/share/dbus-1/system-services"
-    "hplip_confdir=${out}/etc/hp"
-    "hplip_statedir=${out}/var/lib/hp"
-  ];
+  makeFlags =
+    let
+      out = placeholder "out";
+    in
+    [
+      "halpredir=${out}/share/hal/fdi/preprobe/10osvendor"
+      "rulesdir=${out}/etc/udev/rules.d"
+      "policykit_dir=${out}/share/polkit-1/actions"
+      "policykit_dbus_etcdir=${out}/etc/dbus-1/system.d"
+      "policykit_dbus_sharedir=${out}/share/dbus-1/system-services"
+      "PYTHONEXECDIR=${out}/lib/python${lib.versions.majorMinor python3Packages.python.version}/site-packages"
+      "hplip_confdir=${out}/etc/hp"
+      "hplip_statedir=${out}/var/lib/hp"
+    ];
 
   postConfigure = ''
     # don't save timestamp, in order to improve reproducibility
@@ -178,6 +230,16 @@ python311Packages.buildPythonApplication {
 
   enableParallelBuilding = true;
   enableParallelInstalling = false;
+
+  env = {
+    NIX_CFLAGS_COMPILE = toString [
+      "-Wno-error=implicit-int"
+      "-Wno-error=implicit-function-declaration"
+      "-Wno-error=return-mismatch"
+      "-Wno-error=int-conversion"
+      "-Wno-error=incompatible-pointer-types"
+    ];
+  };
 
   #
   # Running `hp-diagnose_plugin -g` can be used to diagnose
@@ -189,9 +251,9 @@ python311Packages.buildPythonApplication {
       ln -s $out/share/hplip/data/images/$resolution/hp_logo.png \
         $out/share/icons/hicolor/$resolution/apps/hp_logo.png
     done
-  '' + lib.optionalString withPlugin ''
-    sh ${plugin} --noexec --keep
-    cd plugin_tmp
+  ''
+  + lib.optionalString withPlugin ''
+    pushd $NIX_BUILD_TOP/plugin_tmp
 
     cp plugin.spec $out/share/hplip/
 
@@ -227,6 +289,8 @@ python311Packages.buildPythonApplication {
 
     mkdir -p $out/var/lib/hp
     cp ${hplipState} $out/var/lib/hp/hplip.state
+
+    popd
   '';
 
   # The installed executables are just symlinks into $out/share/hplip,
@@ -270,17 +334,28 @@ python311Packages.buildPythonApplication {
 
   # There are some binaries there, which reference gcc-unwrapped otherwise.
   stripDebugList = [
-    "share/hplip" "lib/cups/backend" "lib/cups/filter" python311Packages.python.sitePackages "lib/sane"
+    "share/hplip"
+    "lib/cups/backend"
+    "lib/cups/filter"
+    python3Packages.python.sitePackages
+    "lib/sane"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Print, scan and fax HP drivers for Linux";
     homepage = "https://developers.hp.com/hp-linux-imaging-and-printing";
     downloadPage = "https://sourceforge.net/projects/hplip/files/hplip/";
-    license = if withPlugin
-      then licenses.unfree
-      else with licenses; [ mit bsd2 gpl2Plus ];
-    platforms = [ "i686-linux" "x86_64-linux" "armv6l-linux" "armv7l-linux" "aarch64-linux" ];
-    maintainers = with maintainers; [ ttuegel ];
+    license =
+      if withPlugin then
+        lib.licenses.unfree
+      else
+        with lib.licenses;
+        [
+          mit
+          bsd2
+          gpl2Plus
+        ];
+    platforms = lib.attrNames hplipPlatforms;
+    maintainers = with lib.maintainers; [ ttuegel ];
   };
 }

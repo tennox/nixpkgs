@@ -1,8 +1,16 @@
-{ stdenv, fetchFromGitHub, pkg-config, libGL, glfw, soil, lib }:
+{
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  libGL,
+  glfw,
+  soil,
+  lib,
+}:
 
 stdenv.mkDerivation {
   pname = "esshader";
-  version = "unstable-2020-08-09";
+  version = "0-unstable-2020-08-09";
 
   src = fetchFromGitHub {
     owner = "cmcsun";
@@ -20,7 +28,9 @@ stdenv.mkDerivation {
     pkg-config
   ];
   buildInputs = [
-    libGL glfw soil
+    libGL
+    glfw
+    soil
   ];
 
   installPhase = ''

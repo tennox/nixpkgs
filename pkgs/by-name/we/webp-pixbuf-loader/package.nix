@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, meson
-, ninja
-, pkg-config
-, makeWrapper
-, gdk-pixbuf
-, libwebp
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  meson,
+  ninja,
+  pkg-config,
+  makeWrapper,
+  gdk-pixbuf,
+  libwebp,
 }:
 
 let
@@ -54,7 +55,8 @@ stdenv.mkDerivation rec {
 
     # gdk-pixbuf disables the thumbnailer in cross-builds (https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/commit/fc37708313a5fc52083cf10c9326f3509d67701f)
     # and therefore makeWrapper will fail because 'gdk-pixbuf-thumbnailer' the executable does not exist.
-  '' + lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
+  ''
+  + lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
     # It assumes gdk-pixbuf-thumbnailer can find the webp loader in the loaders.cache referenced by environment variable, breaking containment.
     # So we replace it with a wrapped executable.
     mkdir -p "$out/bin"
@@ -67,6 +69,7 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/aruiz/webp-pixbuf-loader";
     license = licenses.lgpl2Plus;
     platforms = platforms.unix;
-    maintainers = teams.gnome.members ++ [ maintainers.cwyc ];
+    maintainers = [ maintainers.cwyc ];
+    teams = [ teams.gnome ];
   };
 }

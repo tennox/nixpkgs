@@ -1,32 +1,69 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, gfortran
-, meson
-, ninja
-, pkg-config
-, python3
-, json-fortran
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  gfortran,
+  buildType ? "meson",
+  meson,
+  ninja,
+  cmake,
+  pkg-config,
+  python3,
+  jonquil,
 }:
+
+assert (
+  builtins.elem buildType [
+    "meson"
+    "cmake"
+  ]
+);
 
 stdenv.mkDerivation rec {
   pname = "mctc-lib";
-  version = "0.3.2";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "grimme-lab";
-    repo = pname;
+    repo = "mctc-lib";
     rev = "v${version}";
-    hash = "sha256-dJYKnGlcc4N40h1RnP6MJyBj70/8kb1q4OyKTmlvS70=";
+    hash = "sha256-MWqvFxFGnFrGppiSy97oUWz7p1sD6GkTrMEZTFgSExg=";
   };
 
-  nativeBuildInputs = [ gfortran meson ninja pkg-config python3 ];
+  patches = [
+    # Allow dynamically linked jonquil as dependency. That then additionally
+    # requires linking in toml-f
+    ./meson.patch
 
-  buildInputs = [ json-fortran ];
+    # Fix wrong generation of package config include paths
+    ./cmake.patch
+  ];
 
-  outputs = [ "out" "dev" ];
+  nativeBuildInputs = [
+    gfortran
+    pkg-config
+    python3
+  ]
+  ++ lib.optionals (buildType == "meson") [
+    meson
+    ninja
+  ]
+  ++ lib.optional (buildType == "cmake") cmake;
+
+  buildInputs = [
+    jonquil
+  ];
+
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   doCheck = true;
+
+  preCheck = ''
+    export OMP_NUM_THREADS=2
+  '';
 
   postPatch = ''
     patchShebangs --build config/install-mod.py

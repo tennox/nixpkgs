@@ -1,17 +1,18 @@
-{ lib
-, stdenv
-, fetchurl
-, pkg-config
-, intltool
-, wrapGAppsHook3
-, gtk3
-, alsa-lib
-, libpulseaudio
-, fftw
-, fftwFloat
-, json_c
-, libjack2
-, jackSupport ? true
+{
+  lib,
+  stdenv,
+  fetchurl,
+  pkg-config,
+  intltool,
+  wrapGAppsHook3,
+  gtk3,
+  alsa-lib,
+  libpulseaudio,
+  fftw,
+  fftwFloat,
+  json_c,
+  libjack2,
+  jackSupport ? true,
 }:
 
 stdenv.mkDerivation rec {
@@ -36,7 +37,8 @@ stdenv.mkDerivation rec {
     fftw
     fftwFloat
     json_c
-  ] ++ lib.optional jackSupport libjack2;
+  ]
+  ++ lib.optional jackSupport libjack2;
 
   configureFlags = lib.optional (!jackSupport) "--disable-jack";
 

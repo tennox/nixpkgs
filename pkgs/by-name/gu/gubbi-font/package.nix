@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, fontforge }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fontforge,
+}:
 
 stdenv.mkDerivation rec {
   pname = "gubbi-font";
@@ -24,6 +29,5 @@ stdenv.mkDerivation rec {
     description = "Kannada font";
     license = licenses.gpl3Plus;
     platforms = platforms.all;
-    maintainers = with maintainers; [ ehmry ];
   };
 }

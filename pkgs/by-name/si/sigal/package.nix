@@ -1,18 +1,19 @@
-{ stdenv
-, lib
-, python3
-, fetchPypi
-, ffmpeg
+{
+  stdenv,
+  lib,
+  python3,
+  fetchPypi,
+  ffmpeg,
 }:
 
 python3.pkgs.buildPythonApplication rec {
   pname = "sigal";
-  version = "2.4";
+  version = "2.5";
   pyproject = true;
 
   src = fetchPypi {
     inherit version pname;
-    hash = "sha256-pDTaqtqfuk7tACkyaKClTJotuVcTKli5yx1wbEM93TM=";
+    hash = "sha256-IOAQ6lMudYH+Ukx27VKbPNKmQKBaX3j0p750nC5Y1Hg=";
   };
 
   nativeBuildInputs = with python3.pkgs; [
@@ -37,7 +38,8 @@ python3.pkgs.buildPythonApplication rec {
 
   nativeCheckInputs = [
     ffmpeg
-  ] ++ (with python3.pkgs; [
+  ]
+  ++ (with python3.pkgs; [
     pytestCheckHook
   ]);
 
@@ -54,6 +56,8 @@ python3.pkgs.buildPythonApplication rec {
     mainProgram = "sigal";
     homepage = "http://sigal.saimon.org/";
     license = licenses.mit;
-    maintainers = with maintainers; [ domenkozar matthiasbeyer ];
+    maintainers = with maintainers; [
+      matthiasbeyer
+    ];
   };
 }

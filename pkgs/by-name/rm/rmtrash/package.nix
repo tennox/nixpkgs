@@ -1,5 +1,13 @@
-{ lib, stdenvNoCC, fetchFromGitHub, makeWrapper
-, trash-cli, coreutils, which, getopt }:
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+  makeWrapper,
+  trash-cli,
+  coreutils,
+  which,
+  getopt,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "rmtrash";
@@ -7,7 +15,7 @@ stdenvNoCC.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "PhrozenByte";
-    repo = pname;
+    repo = "rmtrash";
     rev = "v${version}";
     sha256 = "sha256-vCtIM6jAYfrAOopiTcb4M5GNtucVnK0XEEKbMq1Cbc4=";
   };
@@ -18,13 +26,20 @@ stdenvNoCC.mkDerivation rec {
     for f in rm{,dir}trash; do
       install -D ./$f $out/bin/$f
       wrapProgram $out/bin/$f \
-        --prefix PATH : ${lib.makeBinPath [ trash-cli coreutils which getopt ]}
+        --prefix PATH : ${
+          lib.makeBinPath [
+            trash-cli
+            coreutils
+            which
+            getopt
+          ]
+        }
     done
   '';
 
   meta = with lib; {
     homepage = "https://github.com/PhrozenByte/rmtrash";
-    description = "trash-put made compatible with GNUs rm and rmdir";
+    description = "Trash-put made compatible with GNUs rm and rmdir";
     longDescription = ''
       Put files (and directories) in trash using the `trash-put` command in a
       way that is, otherwise as `trash-put` itself, compatible to GNUs `rm`

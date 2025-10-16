@@ -1,11 +1,11 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, tailwindcss
-, oniguruma
-, stdenv
-, darwin
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  tailwindcss,
+  oniguruma,
+  stdenv,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -19,7 +19,7 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-FVd8NQVtzlZsDY40ZMJDdaX+6Q5jUxZHUq2v+kDFVOk=";
   };
 
-  cargoHash = "sha256-48qDAgHf1tGUwhQWqEi4LQQmSi9PplTlgjVd7/yxZZc=";
+  cargoHash = "sha256-wPYgAbaoUVJoZT1nRCBsPziszkAubImZEKGrC2RAkEA=";
 
   nativeBuildInputs = [
     pkg-config
@@ -28,9 +28,6 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     oniguruma
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreServices
-    darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
   # requires internet access
@@ -42,7 +39,8 @@ rustPlatform.buildRustPackage rec {
   env = {
     RUSTONIG_SYSTEM_LIBONIG = true;
     ORANDA_USE_TAILWIND_BINARY = true;
-  } // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+  }
+  // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
     # without this, tailwindcss fails with OpenSSL configuration error
     OPENSSL_CONF = "";
   };
@@ -51,7 +49,10 @@ rustPlatform.buildRustPackage rec {
     description = "Generate beautiful landing pages for your developer tools";
     homepage = "https://github.com/axodotdev/oranda";
     changelog = "https://github.com/axodotdev/oranda/blob/${src.rev}/CHANGELOG.md";
-    license = with licenses; [ asl20 mit ];
+    license = with licenses; [
+      asl20
+      mit
+    ];
     maintainers = with maintainers; [ figsoda ];
     mainProgram = "oranda";
   };

@@ -1,8 +1,12 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
-buildGoModule rec {
+buildGoModule {
   pname = "gohai";
-  version = "unstable-2022-04-12";
+  version = "0-unstable-2022-04-12";
 
   src = fetchFromGitHub {
     owner = "DataDog";
@@ -13,7 +17,10 @@ buildGoModule rec {
 
   vendorHash = "sha256-aN1fwGbBm45e6qdRu+4wnv2ZI7SOsIPONB4vF9o2vlI=";
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   doCheck = false;
 

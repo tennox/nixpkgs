@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchzip }:
+{
+  lib,
+  stdenvNoCC,
+  fetchzip,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "garamond-libre";
@@ -21,7 +25,7 @@ stdenvNoCC.mkDerivation rec {
   meta = with lib; {
     homepage = "https://github.com/dbenjaminmiller/garamond-libre";
     description = "Garamond Libre font family";
-    maintainers = with maintainers; [ drupol ];
+    maintainers = [ ];
     license = licenses.x11;
     platforms = platforms.all;
   };

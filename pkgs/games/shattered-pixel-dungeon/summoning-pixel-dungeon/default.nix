@@ -1,7 +1,8 @@
-{ callPackage
-, fetchFromGitHub
-, fetchpatch
-, substitute
+{
+  callPackage,
+  fetchFromGitHub,
+  fetchpatch,
+  substitute,
 }:
 
 callPackage ../generic.nix rec {
@@ -19,7 +20,11 @@ callPackage ../generic.nix rec {
   patches = [
     (substitute {
       src = ./disable-git-version.patch;
-      substitutions = [ "--subst-var-by" "version" version ];
+      substitutions = [
+        "--subst-var-by"
+        "version"
+        version
+      ];
     })
     # FIXME: Remove after next release
     (fetchpatch {
@@ -42,6 +47,6 @@ callPackage ../generic.nix rec {
   meta = {
     homepage = "https://github.com/TrashboxBobylev/Summoning-Pixel-Dungeon";
     downloadPage = "https://github.com/TrashboxBobylev/Summoning-Pixel-Dungeon/releases";
-    description = "A fork of the Shattered Pixel Dungeon roguelike with added summoning mechanics";
+    description = "Fork of the Shattered Pixel Dungeon roguelike with added summoning mechanics";
   };
 }

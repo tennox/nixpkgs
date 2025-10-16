@@ -1,4 +1,12 @@
-{lib, stdenv, fetchFromGitHub, perl, perlPackages, makeWrapper, glibc }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  perl,
+  perlPackages,
+  makeWrapper,
+  glibc,
+}:
 
 stdenv.mkDerivation rec {
   version = "1.1.5";
@@ -26,21 +34,24 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ perl glibc ]
-    ++ (with perlPackages; [
-      LWP
-      LWPProtocolHttps
-      MozillaCA
-      CryptSSLeay
-      IOSocketINET6
-      LinuxDistribution
-      JSONPP
-      JSON
-      LogLogLite
-      TryTiny
-      DBI
-      DBDmysql
-    ]);
+  buildInputs = [
+    perl
+    glibc
+  ]
+  ++ (with perlPackages; [
+    LWP
+    LWPProtocolHttps
+    MozillaCA
+    CryptSSLeay
+    IOSocketINET6
+    LinuxDistribution
+    JSONPP
+    JSON
+    LogLogLite
+    TryTiny
+    DBI
+    DBDmysql
+  ]);
 
   dontBuild = true;
 
@@ -65,6 +76,9 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     maintainers = [ maintainers.rvl ];
     inherit version;
-    platforms = [ "x86_64-linux" "i686-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "i686-linux"
+    ];
   };
 }

@@ -1,13 +1,17 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "tkrzw";
-  version = "1.0.31";
+  version = "1.0.32";
   # TODO: defeat multi-output reference cycles
 
   src = fetchurl {
     url = "https://dbmx.net/tkrzw/pkg/tkrzw-${version}.tar.gz";
-    hash = "sha256-7FdHglIBTHGKRt66WNTGEe5qUcrIyTYPrnuVrUc8l08=";
+    hash = "sha256-00BN+saJhjK2l4DA8JlMX2upYhkaYcmw9LU7qLsncxw=";
   };
 
   postPatch = ''
@@ -22,7 +26,6 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Set of implementations of DBM";
     homepage = "https://dbmx.net/tkrzw/";
-    maintainers = with maintainers; [ ehmry ];
     license = licenses.asl20;
     platforms = platforms.all;
   };

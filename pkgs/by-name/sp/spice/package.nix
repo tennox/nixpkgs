@@ -1,37 +1,39 @@
-{ lib, stdenv
-, fetchurl
-, meson
-, ninja
-, pkg-config
-, pixman
-, alsa-lib
-, openssl
-, libXrandr
-, libXfixes
-, libXext
-, libXrender
-, libXinerama
-, libjpeg
-, zlib
-, spice-protocol
-, python3
-, glib
-, cyrus_sasl
-, libcacard
-, lz4
-, libopus
-, gst_all_1
-, orc
-, gdk-pixbuf
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  pixman,
+  alsa-lib,
+  openssl,
+  libXrandr,
+  libXfixes,
+  libXext,
+  libXrender,
+  libXinerama,
+  libjpeg,
+  zlib,
+  spice-protocol,
+  python3,
+  glib,
+  cyrus_sasl,
+  libcacard,
+  lz4,
+  libopus,
+  gst_all_1,
+  orc,
+  gdk-pixbuf,
 }:
 
 stdenv.mkDerivation rec {
   pname = "spice";
-  version = "0.15.2";
+  version = "0.16.0";
 
   src = fetchurl {
     url = "https://www.spice-space.org/download/releases/spice-server/${pname}-${version}.tar.bz2";
-    sha256 = "sha256-bZ62EX8DkXRxxLwQAEq+z/SKefuF64WhxF8CM3cBW4E=";
+    sha256 = "sha256-Cm7JUo8FNxJhu7LUb/Nee1xF/4m7l1qZr5Wl8g/0cX0=";
   };
 
   patches = [
@@ -44,7 +46,6 @@ stdenv.mkDerivation rec {
     ninja
     pkg-config
     python3
-    python3.pkgs.six
     python3.pkgs.pyparsing
   ];
 
@@ -67,9 +68,11 @@ stdenv.mkDerivation rec {
     python3.pkgs.pyparsing
     spice-protocol
     zlib
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     gdk-pixbuf
   ];
 
@@ -81,9 +84,6 @@ stdenv.mkDerivation rec {
 
   postPatch = ''
     patchShebangs build-aux
-
-    # Forgotten in 0.15.2 tarball
-    sed -i /meson.add_dist_script/d meson.build
   '';
 
   postInstall = ''
@@ -102,7 +102,9 @@ stdenv.mkDerivation rec {
     homepage = "https://www.spice-space.org/";
     license = licenses.lgpl21;
 
-    maintainers = with maintainers; [ bluescreen303 atemu ];
+    maintainers = with maintainers; [
+      atemu
+    ];
     platforms = with platforms; linux ++ darwin;
   };
 }

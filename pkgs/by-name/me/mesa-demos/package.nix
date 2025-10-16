@@ -1,22 +1,25 @@
-{ lib
-, stdenv
-, fetchurl
-, libglut
-, libGL
-, libGLU
-, libX11
-, libXext
-, mesa
-, meson
-, ninja
-, pkg-config
-, wayland
-, wayland-scanner
-, wayland-protocols
-, vulkan-loader
-, libxkbcommon
-, libdecor
-, glslang
+{
+  lib,
+  stdenv,
+  fetchurl,
+  libglut,
+  libGL,
+  libGLU,
+  libX11,
+  libxcb,
+  libXext,
+  libgbm,
+  mesa,
+  meson,
+  ninja,
+  pkg-config,
+  wayland,
+  wayland-scanner,
+  wayland-protocols,
+  vulkan-loader,
+  libxkbcommon,
+  libdecor,
+  glslang,
 }:
 
 stdenv.mkDerivation rec {
@@ -43,10 +46,11 @@ stdenv.mkDerivation rec {
   buildInputs = [
     libglut
     libX11
+    libxcb
     libXext
     libGL
     libGLU
-    mesa
+    libgbm
     wayland
     wayland-protocols
     vulkan-loader

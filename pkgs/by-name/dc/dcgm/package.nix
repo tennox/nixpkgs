@@ -1,97 +1,100 @@
-{ lib
-, gcc11Stdenv
-, fetchFromGitHub
-, autoAddDriverRunpath
-, catch2
-, cmake
-, cudaPackages_10_2
-, cudaPackages_11_8
-, cudaPackages_12
-, fmt_9
-, git
-, jsoncpp
-, libevent
-, plog
-, python3
-, symlinkJoin
-, tclap_1_4
-, yaml-cpp
-
-, static ? gcc11Stdenv.hostPlatform.isStatic
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoAddDriverRunpath,
+  catch2_3,
+  cmake,
+  ctestCheckHook,
+  coreutils,
+  mpi,
+  mpiCheckPhaseHook,
+  ninja,
+  cudaPackages_12,
+  boost186,
+  fmt_10,
+  git,
+  jsoncpp,
+  libevent,
+  lshw,
+  plog,
+  python3,
+  replaceVars,
+  symlinkJoin,
+  tclap_1_4,
+  util-linux,
+  yaml-cpp,
 }:
 let
-  # DCGM depends on 3 different versions of CUDA at the same time.
-  # The runtime closure, thankfully, is quite small because most things
-  # are statically linked.
-  cudaPackageSetByVersion = [
-    {
-      version = "10";
-      # Nixpkgs cudaPackages_10 doesn't have redist packages broken out.
-      pkgSet = [
-        cudaPackages_10_2.cudatoolkit
-        cudaPackages_10_2.cudatoolkit.lib
-      ];
-    }
-    {
-      version = "11";
-      pkgSet = getCudaPackages cudaPackages_11_8;
-    }
-    {
-      version = "12";
-      pkgSet = getCudaPackages cudaPackages_12;
-    }
+  # DCGM can depend on multiple versions of CUDA at the same time.
+  # The runtime closure, thankfully, is quite small as it does not
+  # include the CUDA libraries.
+  cudaPackageSets = [
+    cudaPackages_12
   ];
 
   # Select needed redist packages from cudaPackages
   # C.f. https://github.com/NVIDIA/DCGM/blob/7e1012302679e4bb7496483b32dcffb56e528c92/dcgmbuild/scripts/0080_cuda.sh#L24-L39
-  getCudaPackages = p: with p; [
-    cuda_cccl
-    cuda_cudart
-    cuda_nvcc
-    cuda_nvml_dev
-    libcublas
-    libcufft
-    libcurand
-  ];
+  getCudaPackages =
+    p: with p; [
+      cuda_cccl
+      cuda_cudart
+      cuda_nvcc
+      cuda_nvml_dev
+      libcublas
+      libcufft
+      libcurand
+    ];
 
-  # Builds CMake code to add CUDA paths for include and lib.
-  mkAppendCudaPaths = { version, pkgSet }:
+  # Builds CMake flags to add CUDA paths for include and lib.
+  mkCudaFlags =
+    cudaPackages:
     let
+      version = cudaPackages.cudaMajorVersion;
       # The DCGM CMake assumes that the folder containing cuda.h contains all headers, so we must
       # combine everything together for headers to work.
-      # It would be more convenient to use symlinkJoin on *just* the include subdirectories
-      # of each package, but not all of them have an include directory and making that work
-      # is more effort than it's worth for this temporary, build-time package.
-      combined = symlinkJoin {
-        name = "cuda-combined-${version}";
-        paths = pkgSet;
+      headers = symlinkJoin {
+        name = "cuda-headers-combined-${version}";
+        paths = lib.map (pkg: "${lib.getInclude pkg}/include") (getCudaPackages cudaPackages);
       };
-      # The combined package above breaks the build for some reason so we just configure
-      # each package's library path.
-      libs = lib.concatMapStringsSep " " (x: ''"${x}/lib"'') pkgSet;
-    in ''
-      list(APPEND Cuda${version}_INCLUDE_PATHS "${combined}/include")
-      list(APPEND Cuda${version}_LIB_PATHS ${libs})
-    '';
-
-# gcc11 is required by DCGM's very particular build system
-# C.f. https://github.com/NVIDIA/DCGM/blob/7e1012302679e4bb7496483b32dcffb56e528c92/dcgmbuild/build.sh#L22
-in gcc11Stdenv.mkDerivation rec {
+    in
+    [
+      (lib.cmakeFeature "CUDA${version}_INCLUDE_DIR" "${headers}")
+      (lib.cmakeFeature "CUDA${version}_LIBS" "${cudaPackages.cuda_cudart.stubs}/lib/stubs/libcuda.so")
+      (lib.cmakeFeature "CUDA${version}_STATIC_LIBS" "${lib.getLib cudaPackages.cuda_cudart}/lib/libcudart.so")
+      (lib.cmakeFeature "CUDA${version}_STATIC_CUBLAS_LIBS" (
+        lib.concatStringsSep ";" [
+          "${lib.getLib cudaPackages.libcublas}/lib/libcublas.so"
+          "${lib.getLib cudaPackages.libcublas}/lib/libcublasLt.so"
+        ]
+      ))
+    ];
+in
+stdenv.mkDerivation {
   pname = "dcgm";
-  version = "3.3.5"; # N.B: If you change this, be sure prometheus-dcgm-exporter supports this version.
+  version = "4.3.1"; # N.B: If you change this, be sure prometheus-dcgm-exporter supports this version.
 
   src = fetchFromGitHub {
     owner = "NVIDIA";
     repo = "DCGM";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-n/uWvgvxAGfr1X51XgtHfFGDOO5AMBSV5UWQQpsylpg=";
+    # No tag for 4.3.1 yet.
+    #tag = "v${version}";
+    rev = "1477d8785e899ab3450fdff2b486102e9bed096b";
+    hash = "sha256-FebqG28aodENGLNBBbiGpckzzeuP+y44dCALtYnN1yU=";
   };
 
-  # Add our paths to the CUDA paths so FindCuda.cmake can find them.
-  EXTRA_CUDA_PATHS = lib.concatMapStringsSep "\n" mkAppendCudaPaths cudaPackageSetByVersion;
-  prePatch = ''
-    echo "$EXTRA_CUDA_PATHS"$'\n'"$(cat cmake/FindCuda.cmake)" > cmake/FindCuda.cmake
-  '';
+  patches = [
+    ./remove-cuda-11.patch
+    ./dynamic-libs.patch
+    (replaceVars ./fix-paths.patch {
+      inherit coreutils;
+      inherit util-linux;
+      inherit lshw;
+      inherit mpi;
+      inherit (stdenv) shell;
+      dcgm_out = null;
+    })
+  ];
 
   hardeningDisable = [ "all" ];
 
@@ -104,32 +107,70 @@ in gcc11Stdenv.mkDerivation rec {
     autoAddDriverRunpath
 
     cmake
+    ninja
     git
     python3
   ];
 
   buildInputs = [
     # Header-only
-    catch2
+    boost186
+    catch2_3
     plog.dev
     tclap_1_4
 
-    # Dependencies that can be either static or dynamic.
-    (fmt_9.override { enableShared = !static; }) # DCGM's build uses the static outputs regardless of enableShared
-    (yaml-cpp.override { inherit static; stdenv = gcc11Stdenv; })
-
-    # TODO: Dependencies that DCGM's CMake hard-codes to be static-only.
-    (jsoncpp.override { enableStatic = true; })
-    (libevent.override { sslSupport = false; static = true; })
+    fmt_10
+    yaml-cpp
+    jsoncpp
+    libevent
   ];
 
-  disallowedReferences = lib.concatMap (x: x.pkgSet) cudaPackageSetByVersion;
+  nativeCheckInputs = [
+    mpi
+    ctestCheckHook
+    mpiCheckPhaseHook
+  ];
+
+  disabledTests = [
+    # Fail due to lack of `/sys` in the sandbox.
+    "DcgmModuleSysmon::PauseResume Module resumed after initialization"
+    "DcgmModuleSysmon PauseResume Module rejects invalid messages"
+    "DcgmModuleSysmon PauseResume Module accepts valid messages"
+    "DcgmModuleSysmon Watches"
+    "DcgmModuleSysmon maxSampleAge"
+    "DcgmModuleSysmon::CalculateCoreUtilization"
+    "DcgmModuleSysmon::ParseProcStatCpuLine"
+    "DcgmModuleSysmon::ParseThermalFileContentsAndStore"
+    "DcgmModuleSysmon::PopulateTemperatureFileMap"
+    "DcgmModuleSysmon::ReadCoreSpeed"
+    "DcgmModuleSysmon::ReadTemperature"
+    "Sysmon: initialize module"
+  ];
+
+  # Add our paths to the CMake flags so FindCuda.cmake can find them.
+  cmakeFlags = lib.concatMap mkCudaFlags cudaPackageSets;
+
+  # Lots of dodgy C++.
+  env.NIX_CFLAGS_COMPILE = "-Wno-error";
+
+  doCheck = true;
+  dontUseNinjaCheck = true;
+
+  postPatch = ''
+    while read -r -d "" file; do
+      substituteInPlace "$file" --replace-quiet @dcgm_out@ "$out"
+    done < <(find . '(' -name '*.h' -or -name '*.cpp' ')' -print0)
+  '';
+
+  disallowedReferences = lib.concatMap getCudaPackages cudaPackageSets;
+
+  __structuredAttrs = true;
 
   meta = with lib; {
     description = "Data Center GPU Manager (DCGM) is a daemon that allows users to monitor NVIDIA data-center GPUs";
     homepage = "https://developer.nvidia.com/dcgm";
     license = licenses.asl20;
-    maintainers = teams.deshaw.members;
+    teams = [ teams.deshaw ];
     mainProgram = "dcgmi";
     platforms = platforms.linux;
   };

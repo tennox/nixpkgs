@@ -1,30 +1,32 @@
-{ lib
-, fetchFromGitHub
-, python3Packages
-, gettext
-, gobject-introspection
-, gtk3
-, wrapGAppsHook3
-, xdg-utils
-, scrot
-, slop
-, xclip
-, grim
-, slurp
-, wl-clipboard
-, waylandSupport ? true
-, x11Support ? true
+{
+  lib,
+  fetchFromGitHub,
+  python3Packages,
+  gettext,
+  gobject-introspection,
+  gtk3,
+  wrapGAppsHook3,
+  xdg-utils,
+  scrot,
+  slop,
+  xclip,
+  grim,
+  slurp,
+  wl-clipboard,
+  waylandSupport ? true,
+  x11Support ? true,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "gscreenshot";
-  version = "3.6.3";
+  version = "3.10.0";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "thenaterhood";
-    repo = "${pname}";
-    rev = "refs/tags/v${version}";
-    sha256 = "sha256-fpxKhgLpXbuUhALzF6n4v3FLcLaqbqLLxwQJE/wJrAY=";
+    repo = "gscreenshot";
+    tag = "v${version}";
+    sha256 = "sha256-y5G2eJ5G6FpH01n1/YTcjPh6u58N0nJO6gcC9yEr+84=";
   };
 
   # needed for wrapGAppsHook3 to function
@@ -38,18 +40,21 @@ python3Packages.buildPythonApplication rec {
     gobject-introspection
     gtk3
     xdg-utils
-  ] ++ lib.optionals waylandSupport [
+  ]
+  ++ lib.optionals waylandSupport [
     # wayland deps
     grim
     slurp
     wl-clipboard
-  ] ++ lib.optionals x11Support [
+  ]
+  ++ lib.optionals x11Support [
     # X11 deps
     scrot
     slop
     xclip
     python3Packages.xlib
-  ] ++ (with python3Packages; [
+  ]
+  ++ (with python3Packages; [
     pillow
     pygobject3
     setuptools

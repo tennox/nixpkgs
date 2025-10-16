@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, autoreconfHook, scheme48, unstableGitUpdater }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  scheme48,
+  unstableGitUpdater,
+}:
 
 stdenv.mkDerivation {
   pname = "scsh";
@@ -12,9 +19,21 @@ stdenv.mkDerivation {
     fetchSubmodules = true;
   };
 
+  patches = [
+    # Fix the build against gcc-14:
+    # https://github.com/scheme/scsh/pull/50
+    ./gcc-14-p1.patch
+    # Fix the build against gcc-14:
+    # https://github.com/scheme/scsh/pull/51
+    ./gcc-14-p2.patch
+  ];
+
   nativeBuildInputs = [ autoreconfHook ];
   buildInputs = [ scheme48 ];
   configureFlags = [ "--with-scheme48=${scheme48}" ];
+  makeFlags = [
+    "SCHEME48VERSION=${scheme48.version}"
+  ];
 
   passthru.updateScript = unstableGitUpdater { };
 

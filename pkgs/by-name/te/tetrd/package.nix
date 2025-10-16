@@ -1,23 +1,24 @@
-{ stdenv
-, lib
-, fetchurl
-, autoPatchelfHook
-, makeWrapper
-, c-ares
-, ffmpeg
-, libevent
-, libvpx
-, libxslt
-, xorg
-, minizip
-, nss
-, re2
-, snappy
-, libnotify
-, libappindicator-gtk3
-, libappindicator
-, udev
-, mesa # required for libgbm
+{
+  stdenv,
+  lib,
+  fetchurl,
+  autoPatchelfHook,
+  makeWrapper,
+  c-ares,
+  ffmpeg,
+  libevent,
+  libvpx,
+  libxslt,
+  xorg,
+  minizip,
+  nss,
+  re2,
+  snappy,
+  libnotify,
+  libappindicator-gtk3,
+  libappindicator,
+  udev,
+  libgbm,
 }:
 
 stdenv.mkDerivation rec {
@@ -55,7 +56,7 @@ stdenv.mkDerivation rec {
     libappindicator-gtk3
     libappindicator
     udev
-    mesa
+    libgbm
   ];
 
   installPhase = ''
@@ -81,6 +82,5 @@ stdenv.mkDerivation rec {
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
-    maintainers = with maintainers; [ Madouura ];
   };
 }

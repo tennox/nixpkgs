@@ -1,29 +1,78 @@
-{ lib, stdenv, fetchFromGitLab
-, meson, ninja, pkg-config, scdoc
-, mesa, lz4, zstd, ffmpeg, libva
+{
+  lib,
+  rustPlatform,
+  fetchFromGitLab,
+  meson,
+  ninja,
+  pkg-config,
+  scdoc,
+  libgbm,
+  lz4,
+  zstd,
+  ffmpeg,
+  cargo,
+  rustc,
+  vulkan-headers,
+  vulkan-loader,
+  shaderc,
+  llvmPackages,
+  autoPatchelfHook,
+  wayland-scanner,
+  rust-bindgen,
+  nix-update-script,
 }:
-
-stdenv.mkDerivation rec {
+llvmPackages.stdenv.mkDerivation (finalAttrs: {
   pname = "waypipe";
-  version = "0.9.1";
+  version = "0.10.5";
 
   src = fetchFromGitLab {
     domain = "gitlab.freedesktop.org";
     owner = "mstoeckl";
     repo = "waypipe";
-    rev = "v${version}";
-    hash = "sha256-4I8ohllhIA3/LNgFAKH5GwwHKO5QKNex0+Be0OOgR14=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-yvywUHb6WNOdHpbPymdY8xHvWkkoCOIaK2YdEPXH6eU=";
+  };
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit (finalAttrs) pname version src;
+    hash = "sha256-6+DTbFjHdeC10XSN3t6NEyyHmSgCuib1IFjbq15indU=";
   };
 
   strictDeps = true;
+  LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
   depsBuildBuild = [ pkg-config ];
-  nativeBuildInputs = [ meson ninja pkg-config scdoc ];
-  buildInputs = [
-    # Optional dependencies:
-    mesa lz4 zstd ffmpeg libva
+
+  nativeBuildInputs = [
+    meson
+    ninja
+    pkg-config
+    scdoc
+    cargo
+    shaderc # for glslc
+    rustc
+    wayland-scanner
+    rustPlatform.cargoSetupHook
+    autoPatchelfHook
+    rust-bindgen
   ];
 
-  meta = with lib; {
+  buildInputs = [
+    libgbm
+    lz4
+    zstd
+    ffmpeg
+    vulkan-headers
+    vulkan-loader
+  ];
+
+  runtimeDependencies = [
+    libgbm
+    ffmpeg.lib
+    vulkan-loader
+  ];
+
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
     description = "Network proxy for Wayland clients (applications)";
     longDescription = ''
       waypipe is a proxy for Wayland clients. It forwards Wayland messages and
@@ -31,10 +80,10 @@ stdenv.mkDerivation rec {
       makes application forwarding similar to ssh -X feasible.
     '';
     homepage = "https://mstoeckl.com/notes/gsoc/blog.html";
-    changelog = "https://gitlab.freedesktop.org/mstoeckl/waypipe/-/releases#v${version}";
-    license = licenses.mit;
-    platforms = platforms.linux;
-    maintainers = with maintainers; [ mic92 ];
+    changelog = "https://gitlab.freedesktop.org/mstoeckl/waypipe/-/releases#v${finalAttrs.version}";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [ mic92 ];
     mainProgram = "waypipe";
   };
-}
+})

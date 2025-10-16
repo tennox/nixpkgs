@@ -1,23 +1,24 @@
-{ lib
-, stdenv
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, xorg
+{
+  lib,
+  stdenv,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  xorg,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "flitter";
-  version = "1.1.1";
+  version = "1.1.4";
 
   src = fetchFromGitHub {
     owner = "alexozer";
     repo = "flitter";
-    rev = "v${version}";
-    sha256 = "sha256-8e13kSQEjzzf+j4uTrocVioZjJ6lAz+80dLfWwjPb9o=";
+    tag = version;
+    hash = "sha256-2oK70WusLzLh2Pnb80S2rbpd7IFdApvIVvdYuhvkfBs=";
   };
 
-  cargoHash = "sha256-NpUSWoOUhSgbzeCkXEgn4P387bada6fv/M8aZYe8CoU=";
+  cargoHash = "sha256-UiHy4k4yLgwLZrnR07It93gM3dShou9OD055yygWN24=";
 
   nativeBuildInputs = [
     pkg-config

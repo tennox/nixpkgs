@@ -1,20 +1,32 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  nix-update-script,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "bchunk";
   version = "1.2.2";
 
-  src = fetchurl {
-    url = "http://he.fi/bchunk/${pname}-${version}.tar.gz";
-    sha256 = "12dxx98kbpc5z4dgni25280088bhlsb677rp832r82zzc1drpng7";
+  src = fetchFromGitHub {
+    owner = "hessu";
+    repo = "bchunk";
+    tag = "release/${finalAttrs.version}";
+    hash = "sha256-wFhBRLRwyC7FrGzadbssqLI9/UwfxBmFfOetaFJgsCo=";
   };
 
-  makeFlags = lib.optionals stdenv.cc.isClang [ "CC=${stdenv.cc.targetPrefix}cc" "LD=${stdenv.cc.targetPrefix}cc" ];
+  makeFlags = lib.optionals stdenv.cc.isClang [
+    "CC=${stdenv.cc.targetPrefix}cc"
+    "LD=${stdenv.cc.targetPrefix}cc"
+  ];
 
   installPhase = ''
     install -Dt $out/bin bchunk
     install -Dt $out/share/man/man1 bchunk.1
   '';
+
+  passthru.updateScript = nix-update-script { };
 
   meta = with lib; {
     homepage = "http://he.fi/bchunk/";
@@ -23,4 +35,4 @@ stdenv.mkDerivation rec {
     license = licenses.gpl2Plus;
     mainProgram = "bchunk";
   };
-}
+})

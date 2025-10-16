@@ -14,7 +14,7 @@
 
 buildPythonPackage rec {
   pname = "mkdocs-mermaid2-plugin";
-  version = "1.1.0";
+  version = "1.2.2";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
@@ -22,8 +22,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "fralau";
     repo = "mkdocs-mermaid2-plugin";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-9vYLkGUnL+rnmZntcgFzOvXQdf6angb9DRsmrBjnPUY=";
+    tag = "v${version}";
+    hash = "sha256-4WuE9fO4o0uN48W2Rwd4gKa6pK9bqyrcGjFLEkfJ0E4=";
   };
 
   propagatedBuildInputs = [

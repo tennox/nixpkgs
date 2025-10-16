@@ -12,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "aiostream";
-  version = "0.6.3";
+  version = "0.7.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -20,8 +20,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "vxgmichel";
     repo = "aiostream";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-MssA4gDo79mlHjVwQAxhX6DZPHB4Quo6V05Nye91oJg=";
+    tag = "v${version}";
+    hash = "sha256-oOx1LG3UyMJRm/HvmrHT00jTp3+XzmvS2XRH4BJNyPE=";
   };
 
   build-system = [ setuptools ];
@@ -39,7 +39,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Generator-based operators for asynchronous iteration";
     homepage = "https://aiostream.readthedocs.io";
-    changelog = "https://github.com/vxgmichel/aiostream/releases/tag/v${version}";
+    changelog = "https://github.com/vxgmichel/aiostream/releases/tag/${src.tag}";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ rmcgibbo ];
   };

@@ -14,7 +14,7 @@
 let
   self = buildPythonPackage rec {
     pname = "opentsne";
-    version = "1.0.2";
+    version = "1.0.3";
     pyproject = true;
 
     disabled = pythonOlder "3.9";
@@ -22,8 +22,8 @@ let
     src = fetchFromGitHub {
       owner = "pavlin-policar";
       repo = "openTSNE";
-      rev = "refs/tags/v${version}";
-      hash = "sha256-e1YXF9cdguzcEW0KanIHYlZQiUc+FH8IVOaPshAswco=";
+      tag = "v${version}";
+      hash = "sha256-dJM8hv85ST5qGo/oZVr/MgIHGPGpZ+ajaUL7pfSJLAg=";
     };
 
     build-system = [

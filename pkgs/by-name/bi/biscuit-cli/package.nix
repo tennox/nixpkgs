@@ -1,23 +1,24 @@
-{ lib
-, fetchFromGitHub
-, rustPlatform
-, testers
-, nix-update-script
-, biscuit-cli
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  testers,
+  nix-update-script,
+  biscuit-cli,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "biscuit-cli";
-  version = "0.5.0";
+  version = "0.6.0";
 
   src = fetchFromGitHub {
     owner = "biscuit-auth";
     repo = "biscuit-cli";
-    rev = version;
-    sha256 = "sha256-BLDJ4Rzu48sAklbv021XSzmATRd+D01yGHqJt6kvjGw=";
+    tag = version;
+    sha256 = "sha256-s4Y4MhM79Z+4VxB03+56OqRQJaSHj2VQEJcL6CsT+2k=";
   };
 
-  cargoHash = "sha256-J5/3zk9ZjSuiZBKrogP+8sVZr+w9dYlROkRRJFPyVvs=";
+  cargoHash = "sha256-OG8/9CxOTCYXwyavdaXvak8GbCOMvelcsSJVkEgdMdI=";
 
   passthru = {
     updateScript = nix-update-script { };
@@ -31,7 +32,10 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "CLI to generate and inspect biscuit tokens";
     homepage = "https://www.biscuitsec.org/";
-    maintainers = with maintainers; [ shlevy gaelreyrol ];
+    maintainers = with maintainers; [
+      shlevy
+      gaelreyrol
+    ];
     license = licenses.bsd3;
     mainProgram = "biscuit";
   };

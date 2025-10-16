@@ -4,25 +4,21 @@
   buildPythonPackage,
   fetchFromGitHub,
   paho-mqtt,
-  pythonOlder,
   pycryptodomex,
   requests,
-  retrying,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "meross-iot";
-  version = "0.4.7.5";
+  version = "0.4.10.3";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "albertogeniola";
     repo = "MerossIot";
-    rev = "refs/tags/${version}";
-    hash = "sha256-CEBZVbUkRMWw95imL1k3q7Z3Nkyzwleh5C/s0XxfhfQ=";
+    tag = version;
+    hash = "sha256-VxwOigIyLTeP1P9uyiavsu14zTjuLCZuka+2cLqJDUw=";
   };
 
   build-system = [ setuptools ];
@@ -32,8 +28,8 @@ buildPythonPackage rec {
     paho-mqtt
     pycryptodomex
     requests
-    retrying
-  ];
+  ]
+  ++ aiohttp.optional-dependencies.speedups;
 
   # Test require network access
   doCheck = false;

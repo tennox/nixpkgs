@@ -1,37 +1,43 @@
-{ lib
-, stdenv
-, fetchurl
-, meson
-, ninja
-, pkg-config
-, gobject-introspection
-, buildPackages
-, withIntrospection ? lib.meta.availableOn stdenv.hostPlatform gobject-introspection && stdenv.hostPlatform.emulatorAvailable buildPackages
-, gsettings-desktop-schemas
-, makeWrapper
-, dbus
-, glib
-, dconf
-, libX11
-, libxml2
-, libXtst
-, libXi
-, libXext
-, gnome
-, systemd
-, systemdSupport ? lib.meta.availableOn stdenv.hostPlatform systemd
+{
+  lib,
+  stdenv,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  gobject-introspection,
+  buildPackages,
+  withIntrospection ?
+    lib.meta.availableOn stdenv.hostPlatform gobject-introspection
+    && stdenv.hostPlatform.emulatorAvailable buildPackages,
+  gsettings-desktop-schemas,
+  makeWrapper,
+  dbus,
+  glib,
+  dconf,
+  libX11,
+  libxml2,
+  libXtst,
+  libXi,
+  libXext,
+  gnome,
+  systemdLibs,
+  systemdSupport ? lib.meta.availableOn stdenv.hostPlatform systemdLibs,
 }:
 
 stdenv.mkDerivation rec {
   pname = "at-spi2-core";
-  version = "2.54.0";
+  version = "2.56.2";
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
   separateDebugInfo = true;
 
   src = fetchurl {
-    url = "mirror://gnome/sources/${pname}/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
-    hash = "sha256-1+7n51vt3MJyztwrYFNWAPOq5uSBWJ68Znr8Q3wKYHk=";
+    url = "mirror://gnome/sources/at-spi2-core/${lib.versions.majorMinor version}/at-spi2-core-${version}.tar.xz";
+    hash = "sha256-4bHJg2qJR4UvdEDDLiMXkjTHa9mM2cxAAfN2QF+LeDs=";
   };
 
   nativeBuildInputs = [
@@ -40,7 +46,8 @@ stdenv.mkDerivation rec {
     ninja
     pkg-config
     makeWrapper
-  ] ++ lib.optionals withIntrospection [
+  ]
+  ++ lib.optionals withIntrospection [
     gobject-introspection
   ];
 
@@ -52,9 +59,10 @@ stdenv.mkDerivation rec {
     libXi
     # libXext is a transitive dependency of libXi
     libXext
-  ] ++ lib.optionals systemdSupport [
+  ]
+  ++ lib.optionals systemdSupport [
     # libsystemd is a needed for dbus-broker support
-    systemd
+    systemdLibs
   ];
 
   # In atspi-2.pc dbus-1 glib-2.0
@@ -73,16 +81,18 @@ stdenv.mkDerivation rec {
     # including the entire dbus closure in libraries linked with
     # the at-spi2-core libraries.
     "-Ddbus_daemon=/run/current-system/sw/bin/dbus-daemon"
-  ] ++ lib.optionals systemdSupport [
+  ]
+  ++ lib.optionals systemdSupport [
     # Same as the above, but for dbus-broker
     "-Ddbus_broker=/run/current-system/sw/bin/dbus-broker-launch"
-  ] ++ lib.optionals (!systemdSupport) [
+  ]
+  ++ lib.optionals (!systemdSupport) [
     "-Duse_systemd=false"
   ];
 
   passthru = {
     updateScript = gnome.updateScript {
-      packageName = pname;
+      packageName = "at-spi2-core";
       versionPolicy = "odd-unstable";
     };
   };
@@ -98,7 +108,8 @@ stdenv.mkDerivation rec {
     description = "Assistive Technology Service Provider Interface protocol definitions and daemon for D-Bus";
     homepage = "https://gitlab.gnome.org/GNOME/at-spi2-core";
     license = licenses.lgpl21Plus;
-    maintainers = teams.gnome.members ++ (with maintainers; [ raskin ]);
+    maintainers = with maintainers; [ raskin ];
+    teams = [ teams.gnome ];
     platforms = platforms.unix;
   };
 }

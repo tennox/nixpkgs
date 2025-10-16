@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchurl, mkfontscale }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  mkfontscale,
+}:
 
 stdenv.mkDerivation rec {
   pname = "proggyfonts";
@@ -35,7 +40,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    homepage = "https://www.upperbounds.net";
+    homepage = "https://github.com/bluescan/proggyfonts";
     description = "Set of fixed-width screen fonts that are designed for code listings";
     license = licenses.mit;
     platforms = platforms.all;

@@ -1,34 +1,54 @@
-{ lib, stdenv, fetchFromGitHub, autoreconfHook, doxygen, numactl
-, rdma-core, libbfd, libiberty, perl, zlib, symlinkJoin, pkg-config
-, config
-, autoAddDriverRunpath
-, enableCuda ? config.cudaSupport
-, cudaPackages
-, enableRocm ? config.rocmSupport
-, rocmPackages
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  doxygen,
+  numactl,
+  rdma-core,
+  libbfd,
+  libiberty,
+  perl,
+  zlib,
+  symlinkJoin,
+  pkg-config,
+  config,
+  autoAddDriverRunpath,
+  enableCuda ? config.cudaSupport,
+  cudaPackages,
+  enableRocm ? config.rocmSupport,
+  rocmPackages,
 }:
 
 let
-  rocmList = with rocmPackages; [ rocm-core rocm-runtime rocm-device-libs clr ];
+  rocmList = with rocmPackages; [
+    rocm-core
+    rocm-runtime
+    rocm-device-libs
+    clr
+  ];
 
   rocm = symlinkJoin {
     name = "rocm";
     paths = rocmList;
   };
-
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "ucx";
-  version = "1.17.0";
+  version = "1.19.0";
 
   src = fetchFromGitHub {
     owner = "openucx";
     repo = "ucx";
-    rev = "v${version}";
-    sha256 = "sha256-Qd3c51LeF04haZA4wK6loNZwX2a3ju+ljwdPYPoUKCQ=";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-n3xJmbvUXZzfhotOBJRyH2OEL4NFZIKyB808HwEQSYo=";
   };
 
-  outputs = [ "out" "doc" "dev" ];
+  outputs = [
+    "out"
+    "doc"
+    "dev"
+  ];
 
   nativeBuildInputs = [
     autoreconfHook
@@ -47,11 +67,13 @@ stdenv.mkDerivation rec {
     perl
     rdma-core
     zlib
-  ] ++ lib.optionals enableCuda [
+  ]
+  ++ lib.optionals enableCuda [
     cudaPackages.cuda_cudart
     cudaPackages.cuda_nvml_dev
 
-  ] ++ lib.optionals enableRocm rocmList;
+  ]
+  ++ lib.optionals enableRocm rocmList;
 
   LDFLAGS = lib.optionals enableCuda [
     # Fake libnvidia-ml.so (the real one is deployed impurely)
@@ -64,7 +86,8 @@ stdenv.mkDerivation rec {
     "--with-rc"
     "--with-dm"
     "--with-verbs=${lib.getDev rdma-core}"
-  ] ++ lib.optionals enableCuda [ "--with-cuda=${cudaPackages.cuda_cudart}" ]
+  ]
+  ++ lib.optionals enableCuda [ "--with-cuda=${cudaPackages.cuda_cudart}" ]
   ++ lib.optional enableRocm "--with-rocm=${rocm}";
 
   postInstall = ''
@@ -77,11 +100,14 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  meta = with lib; {
+  meta = {
     description = "Unified Communication X library";
     homepage = "https://www.openucx.org";
-    license = licenses.bsd3;
-    platforms = platforms.linux;
-    maintainers = [ maintainers.markuskowa ];
+    license = lib.licenses.bsd3;
+    platforms = lib.platforms.linux;
+    # LoongArch64 is not supported.
+    # See: https://github.com/openucx/ucx/issues/9873
+    badPlatforms = lib.platforms.loongarch64;
+    maintainers = with lib.maintainers; [ markuskowa ];
   };
-}
+})

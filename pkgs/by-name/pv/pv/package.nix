@@ -1,15 +1,16 @@
-{ lib
-, stdenv
-, fetchurl
+{
+  lib,
+  stdenv,
+  fetchurl,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "pv";
-  version = "1.8.14";
+  version = "1.9.42";
 
   src = fetchurl {
     url = "https://www.ivarch.com/programs/sources/pv-${finalAttrs.version}.tar.gz";
-    hash = "sha256-DMGIEaSAmlh9SxHUdpG7wK2DpdldLCYGr3Tqe0pnR1Y=";
+    hash = "sha256-+9fRsE7+5iyCQSVaP+HF9SNvGm4e2F8CcwsMZEiBAXU=";
   };
 
   meta = {

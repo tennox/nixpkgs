@@ -1,6 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch
-, enableShared ? !stdenv.hostPlatform.isStatic
-, enableStatic ? stdenv.hostPlatform.isStatic
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  enableShared ? !stdenv.hostPlatform.isStatic,
+  enableStatic ? stdenv.hostPlatform.isStatic,
 }:
 
 stdenv.mkDerivation rec {
@@ -18,7 +22,8 @@ stdenv.mkDerivation rec {
 
   patches = [
     ./enable-static-shared.patch
-  ] ++ lib.optionals stdenv.hostPlatform.isAarch32 [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isAarch32 [
     # https://github.com/nodejs/http-parser/pull/510
     (fetchpatch {
       url = "https://github.com/nodejs/http-parser/commit/4f15b7d510dc7c6361a26a7c6d2f7c3a17f8d878.patch";
@@ -34,18 +39,20 @@ stdenv.mkDerivation rec {
     "AEXT=${lib.strings.removePrefix "." stdenv.hostPlatform.extensions.staticLibrary}"
     "ENABLE_SHARED=${if enableShared then "1" else "0"}"
     "ENABLE_STATIC=${if enableStatic then "1" else "0"}"
-  ] ++ lib.optionals enableShared [
+  ]
+  ++ lib.optionals enableShared [
     "SOEXT=${lib.strings.removePrefix "." stdenv.hostPlatform.extensions.sharedLibrary}"
-  ] ++ lib.optionals enableStatic [
+  ]
+  ++ lib.optionals enableStatic [
     "AEXT=${lib.strings.removePrefix "." stdenv.hostPlatform.extensions.staticLibrary}"
-  ] ++ lib.optionals (enableShared && stdenv.hostPlatform.isWindows) [
+  ]
+  ++ lib.optionals (enableShared && stdenv.hostPlatform.isWindows) [
     "SONAME=$(SOLIBNAME).$(SOMAJOR).$(SOMINOR).$(SOEXT)"
     "LIBNAME=$(SOLIBNAME).$(SOMAJOR).$(SOMINOR).$(SOREV).$(SOEXT)"
     "LDFLAGS=-Wl,--out-implib=$(LIBNAME).a"
   ];
 
-  buildFlags = lib.optional enableShared "library"
-    ++ lib.optional enableStatic "package";
+  buildFlags = lib.optional enableShared "library" ++ lib.optional enableStatic "package";
 
   doCheck = true;
   checkTarget = "test";

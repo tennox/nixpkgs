@@ -4,16 +4,16 @@
   fetchFromGitHub,
 }:
 
-python3.pkgs.buildPythonApplication rec {
+python3.pkgs.buildPythonApplication {
   pname = "ghstack";
-  version = "0.9.3";
+  version = "0.12.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ezyang";
     repo = "ghstack";
-    rev = "0c412bf0d9515e11b58cddaeb1b1d9f0b17a5295";
-    hash = "sha256-VDsYIeFL8U5anUJ9KtWhEUeuoaO2qu5K7lSnGTjxNGs=";
+    rev = "fa7e7023d798aad6b115b88c5ad67ce88a4fc2a6";
+    hash = "sha256-Ywwjeupa8eE/vkrbl5SIbvQs53xaLnq9ieWRFwzmuuc=";
   };
 
   build-system = [ python3.pkgs.poetry-core ];

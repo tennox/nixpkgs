@@ -4,21 +4,21 @@
   installShellFiles,
   php,
   nix-update-script,
-  testers,
+  versionCheckHook,
 }:
 
 php.buildComposerProject2 (finalAttrs: {
   pname = "castor";
-  version = "0.20.0";
+  version = "0.27.0";
 
   src = fetchFromGitHub {
     owner = "jolicode";
     repo = "castor";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-/ceWw2/ct0+89XKgLzNywkd7/tIYI1+k1h05c6vaqIU=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-ot4akuKhNtEXukiDSy69q75phx6EvkJsL0XHAN+el+M=";
   };
 
-  vendorHash = "sha256-w8CyN3iLgC8seN01yC8ikQQs773A/rT3z5n+emEKqDE=";
+  vendorHash = "sha256-S5NCV3wd/EA282NA0Wbtj7gbZw9YU835cr5CmpAnapc=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -30,16 +30,16 @@ php.buildComposerProject2 (finalAttrs: {
       --zsh <(php $out/bin/castor completion zsh)
   '';
 
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [ versionCheckHook ];
+  versionCheckProgramArg = "--version";
+
   passthru = {
     updateScript = nix-update-script { };
-    tests.version = testers.testVersion {
-      command = "castor --version";
-      package = php.packages.castor;
-      version = "v${finalAttrs.version}";
-    };
   };
 
   meta = {
+    broken = lib.versionOlder php.version "8.2";
     changelog = "https://github.com/jolicode/castor/blob/v${finalAttrs.version}/CHANGELOG.md";
     description = "DX oriented task runner and command launcher built with PHP";
     homepage = "https://github.com/jolicode/castor";

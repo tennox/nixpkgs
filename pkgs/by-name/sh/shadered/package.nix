@@ -1,13 +1,15 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, sfml
-, glm
-, python3
-, glew
-, pkg-config
-, SDL2 }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  sfml,
+  glm,
+  python3,
+  glew,
+  pkg-config,
+  SDL2,
+}:
 
 stdenv.mkDerivation rec {
   pname = "SHADERed";
@@ -15,8 +17,8 @@ stdenv.mkDerivation rec {
 
   src = fetchFromGitHub {
     owner = "dfranx";
-    repo = pname;
-    rev = "v${version}";
+    repo = "SHADERed";
+    tag = "v${version}";
     fetchSubmodules = true;
     sha256 = "0drf8wwx0gcmi22jq2yyjy7ppxynfq172wqakchscm313j248fjr";
   };

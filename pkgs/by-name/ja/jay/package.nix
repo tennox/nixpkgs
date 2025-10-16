@@ -1,41 +1,44 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, libGL
-, libinput
-, libxkbcommon
-, mesa
-, pango
-, udev
-, shaderc
-, libglvnd
-, vulkan-loader
-, autoPatchelfHook
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  libGL,
+  libinput,
+  pkgconf,
+  xkeyboard_config,
+  libgbm,
+  pango,
+  udev,
+  shaderc,
+  libglvnd,
+  vulkan-loader,
+  autoPatchelfHook,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "jay";
-  version = "1.5.0";
+  version = "1.11.1";
 
   src = fetchFromGitHub {
     owner = "mahkoh";
-    repo = pname;
+    repo = "jay";
     rev = "v${version}";
-    sha256 = "sha256-cuXFkG2YwS0w4xzr7jpjr0QmVA5UJfk5SpjIQKxN/LY=";
+    sha256 = "sha256-mm2bXxl9TaKwmeCwFz3IKznqjsfY8RKEVU/RK4zd63U=";
   };
 
-  cargoHash = "sha256-w3ARwQlehJq9uNSQmbUjiWik4a2W3Ax/6/BIsdDUfKM=";
+  cargoHash = "sha256-T7053eAH3IqkAxNZpYHdC6Z7JZtArrOqGMjoIccjemI=";
 
   SHADERC_LIB_DIR = "${lib.getLib shaderc}/lib";
 
   nativeBuildInputs = [
     autoPatchelfHook
+    pkgconf
   ];
 
   buildInputs = [
     libGL
-    libxkbcommon
-    mesa
+    xkeyboard_config
+    libgbm
     pango
     udev
     libinput
@@ -48,15 +51,15 @@ rustPlatform.buildRustPackage rec {
   ];
 
   postInstall = ''
-    install -D etc/jay.portal $out/usr/share/xdg-desktop-portal/portals/jay.portal
-    install -D etc/jay-portals.conf $out/usr/share/xdg-desktop-portal/jay-portals.conf
+    install -D etc/jay.portal $out/share/xdg-desktop-portal/portals/jay.portal
+    install -D etc/jay-portals.conf $out/share/xdg-desktop-portal/jay-portals.conf
   '';
 
   meta = with lib; {
     description = "Wayland compositor written in Rust";
     homepage = "https://github.com/mahkoh/jay";
     license = licenses.gpl3;
-    platforms   = platforms.linux;
+    platforms = platforms.linux;
     maintainers = with maintainers; [ dit7ya ];
     mainProgram = "jay";
   };

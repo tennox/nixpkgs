@@ -1,44 +1,57 @@
-{ fetchurl
-, lib
-, stdenv
-, meson
-, mesonEmulatorHook
-, ninja
-, pkg-config
-, gnome
-, gtk3
-, atk
-, gobject-introspection
-, spidermonkey_128
-, pango
-, cairo
-, readline
-, libsysprof-capture
-, glib
-, libxml2
-, dbus
-, gdk-pixbuf
-, harfbuzz
-, makeWrapper
-, which
-, xvfb-run
-, nixosTests
-, installTests ? true
+{
+  fetchurl,
+  lib,
+  stdenv,
+  meson,
+  mesonEmulatorHook,
+  ninja,
+  pkg-config,
+  gnome,
+  gtk3,
+  gtk4,
+  atk,
+  gobject-introspection,
+  spidermonkey_128,
+  pango,
+  cairo,
+  readline,
+  libsysprof-capture,
+  glib,
+  libxml2,
+  dbus,
+  gdk-pixbuf,
+  harfbuzz,
+  makeWrapper,
+  which,
+  xvfb-run,
+  nixosTests,
+  installTests ? true,
 }:
 
 let
   testDeps = [
-    gtk3 atk pango.out gdk-pixbuf harfbuzz glib.out
+    gtk3
+    gtk4
+    atk
+    pango.out
+    gdk-pixbuf
+    harfbuzz
+    glib.out
   ];
-in stdenv.mkDerivation (finalAttrs: {
+in
+stdenv.mkDerivation (finalAttrs: {
   pname = "gjs";
-  version = "1.82.1";
+  version = "1.84.2";
 
-  outputs = [ "out" "dev" "installedTests" ];
+  outputs = [
+    "out"
+    "dev"
+    "installedTests"
+  ];
 
   src = fetchurl {
     url = "mirror://gnome/sources/gjs/${lib.versions.majorMinor finalAttrs.version}/gjs-${finalAttrs.version}.tar.xz";
-    hash = "sha256-+zmqVjZXbeDloRcfVqGlgl4r0aaZcvsSC6eL0Qm1aTw=";
+    hash = "sha256-NRQu3zRXBWNjACkew6fVg/FJaf8/rg/zD0qVseZ0AWY=";
   };
 
   patches = [
@@ -51,6 +64,12 @@ in stdenv.mkDerivation (finalAttrs: {
     # Disable introspection test in installed tests
     # (minijasmine:1317): GLib-GIO-WARNING **: 17:33:39.556: Error creating IO channel for /proc/self/mountinfo: No such file or directory (g-io-error-quark, 1)
     ./disable-introspection-test.patch
+
+    # The reason is unclear, but a test that creates a file named "öäü-3" fails only on ZFS filesystems:
+    # 24/78 gjs:JS / GIMarshalling  FAIL  0.59s  726/727 subtests passed
+    # not ok 796 Filename tests various types of path existing
+    # Message: Error opening file “/build/.UGHEA3/öäü-3”: Invalid or incomplete multibyte or wide character in /build/gjs-1.84.2/build/../installed-tests/js/testGIMarshalling.js (line 2937)
+    ./disable-umlaut-test.patch
   ];
 
   nativeBuildInputs = [
@@ -62,7 +81,8 @@ in stdenv.mkDerivation (finalAttrs: {
     libxml2 # for xml-stripblanks
     dbus # for dbus-run-session
     gobject-introspection
-  ] ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+  ]
+  ++ lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
     mesonEmulatorHook
   ];
 
@@ -75,7 +95,8 @@ in stdenv.mkDerivation (finalAttrs: {
 
   nativeCheckInputs = [
     xvfb-run
-  ] ++ testDeps;
+  ]
+  ++ testDeps;
 
   propagatedBuildInputs = [
     glib
@@ -83,7 +104,8 @@ in stdenv.mkDerivation (finalAttrs: {
 
   mesonFlags = [
     "-Dinstalled_test_prefix=${placeholder "installedTests"}"
-  ] ++ lib.optionals (!stdenv.hostPlatform.isLinux || stdenv.hostPlatform.isMusl) [
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isLinux || stdenv.hostPlatform.isMusl) [
     "-Dprofiler=disabled"
   ];
 
@@ -92,7 +114,8 @@ in stdenv.mkDerivation (finalAttrs: {
   postPatch = ''
     patchShebangs build/choose-tests-locale.sh
     substituteInPlace installed-tests/debugger-test.sh --subst-var-by gjsConsole $out/bin/gjs-console
-  '' + lib.optionalString stdenv.hostPlatform.isMusl ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isMusl ''
     substituteInPlace installed-tests/js/meson.build \
       --replace "'Encoding'," "#'Encoding',"
   '';
@@ -106,6 +129,7 @@ in stdenv.mkDerivation (finalAttrs: {
     ln -s $PWD/libgjs.so.0 $out/lib/libgjs.so.0
     ln -s $PWD/subprojects/gobject-introspection-tests/libgimarshallingtests.so $installedTests/libexec/installed-tests/gjs/libgimarshallingtests.so
     ln -s $PWD/subprojects/gobject-introspection-tests/libregress.so $installedTests/libexec/installed-tests/gjs/libregress.so
+    ln -s $PWD/subprojects/gobject-introspection-tests/libutility.so $installedTests/libexec/installed-tests/gjs/libutility.so
     ln -s $PWD/subprojects/gobject-introspection-tests/libwarnlib.so $installedTests/libexec/installed-tests/gjs/libwarnlib.so
     ln -s $PWD/installed-tests/js/libgjstesttools/libgjstesttools.so $installedTests/libexec/installed-tests/gjs/libgjstesttools.so
   '';
@@ -125,6 +149,8 @@ in stdenv.mkDerivation (finalAttrs: {
 
   checkPhase = ''
     runHook preCheck
+    GTK_A11Y=none \
+    HOME=$(mktemp -d) \
     xvfb-run -s '-screen 0 800x600x24' \
       meson test --print-errorlogs
     runHook postCheck
@@ -147,7 +173,8 @@ in stdenv.mkDerivation (finalAttrs: {
     description = "JavaScript bindings for GNOME";
     homepage = "https://gitlab.gnome.org/GNOME/gjs/blob/master/doc/Home.md";
     license = licenses.lgpl2Plus;
-    maintainers = teams.gnome.members;
-    platforms = platforms.unix;
+    mainProgram = "gjs";
+    teams = [ teams.gnome ];
+    inherit (gobject-introspection.meta) platforms badPlatforms;
   };
 })

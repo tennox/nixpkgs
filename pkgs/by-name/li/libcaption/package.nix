@@ -1,8 +1,9 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, re2c
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  re2c,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -12,7 +13,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "szatmary";
     repo = "libcaption";
-    rev = finalAttrs.version;
+    tag = finalAttrs.version;
     hash = "sha256-OBtxoFJF0cxC+kfSK8TIKIdLkmCh5WOJlI0fejnisJo=";
     fetchSubmodules = true;
   };

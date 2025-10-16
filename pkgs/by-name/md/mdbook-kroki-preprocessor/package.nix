@@ -1,24 +1,23 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, openssl
-, stdenv
-, darwin
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  openssl,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "mdbook-kroki-preprocessor";
-  version = "0.2.0";
+  version = "0.2.1";
 
   src = fetchFromGitHub {
     owner = "joelcourtney";
     repo = "mdbook-kroki-preprocessor";
     rev = "v${version}";
-    hash = "sha256-3BxIhJK0YWZBEbbNwMKixo1icEn+QKJwoskgIEaZcGQ=";
+    hash = "sha256-rTXieHa/EIg69vUQE2FOD1Xb4cUVe5CvBiv9CnhHB3I=";
   };
 
-  cargoHash = "sha256-9jIB80vtskpR3/QYhaA0JFw6IhIsS9VnCnJtE5RfDRk=";
+  cargoHash = "sha256-aTtjrCl13oOKqwPGiVlOfjGqAdBS94XGjcvn3bBWpa0=";
 
   nativeBuildInputs = [
     pkg-config
@@ -26,9 +25,6 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     openssl
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreFoundation
-    darwin.apple_sdk.frameworks.Security
   ];
 
   meta = with lib; {
@@ -36,6 +32,8 @@ rustPlatform.buildRustPackage rec {
     mainProgram = "mdbook-kroki-preprocessor";
     homepage = "https://github.com/joelcourtney/mdbook-kroki-preprocessor";
     license = licenses.gpl3Only;
-    maintainers = with maintainers; [ blaggacao matthiasbeyer ];
+    maintainers = with maintainers; [
+      matthiasbeyer
+    ];
   };
 }

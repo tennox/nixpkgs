@@ -1,5 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, perl, perlPackages, makeWrapper, shortenPerlShebang, openssl
-, nixosTests
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  perl,
+  perlPackages,
+  makeWrapper,
+  shortenPerlShebang,
+  openssl,
+  nixosTests,
 }:
 
 perlPackages.buildPerlPackage rec {
@@ -8,20 +16,40 @@ perlPackages.buildPerlPackage rec {
 
   src = fetchFromGitHub {
     owner = "convos-chat";
-    repo = pname;
+    repo = "convos";
     rev = "v${version}";
     sha256 = "sha256-dBvXo8y4OMKcb0imgnnzoklnPN3YePHDvy5rIBOkTfs=";
   };
 
-  nativeBuildInputs = [ makeWrapper ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ shortenPerlShebang ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ shortenPerlShebang ];
 
   buildInputs = with perlPackages; [
-    CryptPassphrase CryptPassphraseArgon2 CryptPassphraseBcrypt
-    FileHomeDir FileReadBackwards HTTPAcceptLanguage SyntaxKeywordTry FutureAsyncAwait
-    IOSocketSSL IRCUtils JSONValidator LinkEmbedder ModuleInstall
-    Mojolicious MojoliciousPluginOpenAPI MojoliciousPluginSyslog ParseIRC
-    TextMarkdownHoedown TimePiece UnicodeUTF8 CpanelJSONXS EV YAMLLibYAML
+    CryptPassphrase
+    CryptPassphraseArgon2
+    CryptPassphraseBcrypt
+    FileHomeDir
+    FileReadBackwards
+    HTTPAcceptLanguage
+    SyntaxKeywordTry
+    FutureAsyncAwait
+    IOSocketSSL
+    IRCUtils
+    JSONValidator
+    LinkEmbedder
+    ModuleInstall
+    Mojolicious
+    MojoliciousPluginOpenAPI
+    MojoliciousPluginSyslog
+    ParseIRC
+    TextMarkdownHoedown
+    TimePiece
+    UnicodeUTF8
+    CpanelJSONXS
+    EV
+    YAMLLibYAML
   ];
 
   propagatedBuildInputs = [ openssl ];
@@ -79,9 +107,11 @@ perlPackages.buildPerlPackage rec {
     ln -s $AUTO_SHARE_PATH/public/assets $out/assets
     cp -vR templates $out/templates
     cp Makefile.PL $out/Makefile.PL
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     shortenPerlShebang $out/bin/convos
-  '' + ''
+  ''
+  + ''
     wrapProgram $out/bin/convos --set MOJO_HOME $out
   '';
 
@@ -89,7 +119,7 @@ perlPackages.buildPerlPackage rec {
 
   meta = {
     homepage = "https://convos.chat";
-    description = "Convos is the simplest way to use IRC in your browser";
+    description = "IRC browser client";
     mainProgram = "convos";
     license = lib.licenses.artistic2;
     maintainers = with lib.maintainers; [ sgo ];

@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchurl, fetchpatch, buildPackages }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  fetchpatch,
+  buildPackages,
+}:
 
 stdenv.mkDerivation rec {
   pname = "procmail";
@@ -10,6 +16,9 @@ stdenv.mkDerivation rec {
   };
 
   patches = [
+    # Avoid benchmarking the build machine to determine compilation results
+    # https://build.opensuse.org/projects/server:mail/packages/procmail/files/reproducible.patch?expand=1
+    ./reproducible.patch
     # Fix clang-16 and gcc-14 build failures:
     #   https://github.com/BuGlessRB/procmail/pull/7
     (fetchpatch {
@@ -30,7 +39,8 @@ stdenv.mkDerivation rec {
     sed -e "3i\
     .PHONY: install
     " -i Makefile
-  '' + lib.optionalString (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+  ''
+  + lib.optionalString (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     substituteInPlace src/Makefile.0 \
       --replace-fail '@./_autotst' '@${stdenv.hostPlatform.emulator buildPackages} ./_autotst'
     sed -e '3i\
@@ -41,13 +51,15 @@ stdenv.mkDerivation rec {
 
   # default target is binaries + manpages; manpages don't cross compile without more work.
   makeFlags = lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [ "bins" ];
-  installTargets = lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [ "install.bin" ];
+  installTargets = lib.optionals (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+    "install.bin"
+  ];
 
   meta = with lib; {
     description = "Mail processing and filtering utility";
     homepage = "https://github.com/BuGlessRB/procmail/";
     license = licenses.gpl2;
     platforms = platforms.unix;
-    maintainers = with maintainers; [ gebner ];
+    maintainers = [ ];
   };
 }

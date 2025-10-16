@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, fetchurl
-, perlPackages
-, makeWrapper
+{
+  lib,
+  stdenv,
+  fetchurl,
+  perlPackages,
+  makeWrapper,
 }:
 
 stdenv.mkDerivation rec {
@@ -22,22 +23,25 @@ stdenv.mkDerivation rec {
   postPatch = ''
     patchShebangs mylvmbackup
     substituteInPlace Makefile \
-      --replace "prefix = /usr/local" "prefix = ${builtins.placeholder "out"}" \
-      --replace "sysconfdir = /etc" "sysconfdir = ${builtins.placeholder "out"}/etc" \
+      --replace "prefix = /usr/local" "prefix = ${placeholder "out"}" \
+      --replace "sysconfdir = /etc" "sysconfdir = ${placeholder "out"}/etc" \
       --replace "/usr/bin/install" "install"
   '';
 
   postInstall = ''
     wrapProgram "$out/bin/mylvmbackup" \
-      --prefix PERL5LIB : "${perlPackages.makePerlPath (
-    with perlPackages; [
-      ConfigIniFiles
-      DBDmysql
-      DBI
-      TimeDate
-      FileCopyRecursive
-    ]
-  )}"
+      --prefix PERL5LIB : "${
+        perlPackages.makePerlPath (
+          with perlPackages;
+          [
+            ConfigIniFiles
+            DBDmysql
+            DBI
+            TimeDate
+            FileCopyRecursive
+          ]
+        )
+      }"
   '';
 
   meta = {

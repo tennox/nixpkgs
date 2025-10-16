@@ -1,29 +1,41 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, clusterctl }:
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  testers,
+  clusterctl,
+}:
 
 buildGoModule rec {
   pname = "clusterctl";
-  version = "1.8.4";
+  version = "1.11.2";
 
   src = fetchFromGitHub {
     owner = "kubernetes-sigs";
     repo = "cluster-api";
     rev = "v${version}";
-    hash = "sha256-a6IgPrGI6jA3rVWqGaVPuLxnCJ82SyxWdZZ6xd5DoNs=";
+    hash = "sha256-2l9Mk9CWmmzTflyC+ZWr2A7NyT78rf0bXQETvCYlLuM=";
   };
 
-  vendorHash = "sha256-0VVaD1vGIGezgkVCvIhNHmZqVFxFu4UcUUh0wuX2viw=";
+  vendorHash = "sha256-hnyw2n82nFBN+6Km9usIKSMSTxucdY497J957mP2eEo=";
 
   subPackages = [ "cmd/clusterctl" ];
 
   nativeBuildInputs = [ installShellFiles ];
 
-  ldflags = let t = "sigs.k8s.io/cluster-api/version"; in [
-    "-X ${t}.gitMajor=${lib.versions.major version}"
-    "-X ${t}.gitMinor=${lib.versions.minor version}"
-    "-X ${t}.gitVersion=v${version}"
-  ];
+  ldflags =
+    let
+      t = "sigs.k8s.io/cluster-api/version";
+    in
+    [
+      "-X ${t}.gitMajor=${lib.versions.major version}"
+      "-X ${t}.gitMinor=${lib.versions.minor version}"
+      "-X ${t}.gitVersion=v${version}"
+    ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     # errors attempting to write config to read-only $HOME
     export HOME=$TMPDIR
 

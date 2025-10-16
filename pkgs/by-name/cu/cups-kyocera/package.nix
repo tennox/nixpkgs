@@ -1,15 +1,19 @@
-{ lib
-, stdenv
-, cups
-, fetchzip
-, patchPpdFilesHook
+{
+  lib,
+  stdenv,
+  cups,
+  fetchzip,
+  patchPpdFilesHook,
 }:
 
 let
   platform =
-    if stdenv.hostPlatform.system == "x86_64-linux" then "64bit"
-    else if stdenv.hostPlatform.system == "i686-linux" then "32bit"
-         else throw "Unsupported system: ${stdenv.hostPlatform.system}";
+    if stdenv.hostPlatform.system == "x86_64-linux" then
+      "64bit"
+    else if stdenv.hostPlatform.system == "i686-linux" then
+      "32bit"
+    else
+      throw "Unsupported system: ${stdenv.hostPlatform.system}";
 
   libPath = lib.makeLibraryPath [ cups ];
 in
@@ -52,7 +56,6 @@ stdenv.mkDerivation {
     homepage = "https://www.kyoceradocumentsolutions.ru/index/service_support/download_center.false.driver.FS1040._.EN.html#";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
-    maintainers = [ maintainers.vanzef ];
     platforms = platforms.linux;
   };
 }

@@ -17,15 +17,15 @@
 
 buildPythonPackage rec {
   pname = "apollo-fpga";
-  version = "1.1.0";
+  version = "1.1.1";
   pyproject = true;
   disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "greatscottgadgets";
     repo = "apollo";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-9BoHGdqjnWkP83zXdjzyoAhYB6n7SJ/zlr8pvqb+9kg=";
+    tag = "v${version}";
+    hash = "sha256-EDI+bRDePEbkxfQKuDgRsJtlAE0jqcIoQHjpgW0jIoY=";
   };
 
   postPatch = ''
@@ -55,7 +55,7 @@ buildPythonPackage rec {
 
   meta = {
     changelog = "https://github.com/greatscottgadgets/apollo/releases/tag/v${version}";
-    description = "microcontroller-based FPGA / JTAG programmer";
+    description = "Microcontroller-based FPGA / JTAG programmer";
     homepage = "https://github.com/greatscottgadgets/apollo";
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [ carlossless ];

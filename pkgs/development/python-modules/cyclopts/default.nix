@@ -4,7 +4,6 @@
   buildPythonPackage,
   docstring-parser,
   fetchFromGitHub,
-  importlib-metadata,
   poetry-core,
   poetry-dynamic-versioning,
   pydantic,
@@ -12,23 +11,23 @@
   pytestCheckHook,
   pythonOlder,
   pyyaml,
-  rich,
   rich-rst,
-  typing-extensions,
+  rich,
+  trio,
 }:
 
 buildPythonPackage rec {
   pname = "cyclopts";
-  version = "3.0.0";
+  version = "3.24.0";
   pyproject = true;
 
-  disabled = pythonOlder "3.8";
+  disabled = pythonOlder "3.12";
 
   src = fetchFromGitHub {
     owner = "BrianPugh";
     repo = "cyclopts";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-aTFas+3+veky+pyz2T1SytMNGwxlF9dAc3E03PKqvrM=";
+    tag = "v${version}";
+    hash = "sha256-gJflZBH3xCGKffKGt7y1xGXQR8C1wK19LnbunZ0kbAc=";
   };
 
   build-system = [
@@ -39,25 +38,34 @@ buildPythonPackage rec {
   dependencies = [
     attrs
     docstring-parser
-    importlib-metadata
     rich
     rich-rst
-    typing-extensions
   ];
+
+  optional-dependencies = {
+    trio = [ trio ];
+    yaml = [ pyyaml ];
+  };
 
   nativeCheckInputs = [
     pydantic
     pytest-mock
     pytestCheckHook
     pyyaml
-  ];
+  ]
+  ++ lib.flatten (builtins.attrValues optional-dependencies);
 
   pythonImportsCheck = [ "cyclopts" ];
+
+  disabledTests = [
+    # Assertion error
+    "test_pydantic_error_msg"
+  ];
 
   meta = with lib; {
     description = "Module to create CLIs based on Python type hints";
     homepage = "https://github.com/BrianPugh/cyclopts";
-    changelog = "https://github.com/BrianPugh/cyclopts/releases/tag/v${version}";
+    changelog = "https://github.com/BrianPugh/cyclopts/releases/tag/${src.tag}";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
   };

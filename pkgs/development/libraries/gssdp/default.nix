@@ -1,31 +1,37 @@
-{ stdenv
-, lib
-, fetchpatch2
-, fetchurl
-, meson
-, ninja
-, pkg-config
-, gobject-introspection
-, vala
-, gi-docgen
-, python3
-, libsoup
-, glib
-, gnome
-, gssdp-tools
-, buildPackages
-, withIntrospection ? lib.meta.availableOn stdenv.hostPlatform gobject-introspection && stdenv.hostPlatform.emulatorAvailable buildPackages
+{
+  stdenv,
+  lib,
+  fetchpatch2,
+  fetchurl,
+  meson,
+  ninja,
+  pkg-config,
+  gobject-introspection,
+  vala,
+  gi-docgen,
+  python3,
+  libsoup_2_4,
+  glib,
+  gnome,
+  gssdp-tools,
+  buildPackages,
+  withIntrospection ?
+    lib.meta.availableOn stdenv.hostPlatform gobject-introspection
+    && stdenv.hostPlatform.emulatorAvailable buildPackages,
 }:
 
 stdenv.mkDerivation rec {
   pname = "gssdp";
   version = "1.4.1";
 
-  outputs = [ "out" "dev" ]
-    ++ lib.optionals withIntrospection [ "devdoc" ];
+  outputs = [
+    "out"
+    "dev"
+  ]
+  ++ lib.optionals withIntrospection [ "devdoc" ];
 
   src = fetchurl {
-    url = "mirror://gnome/sources/gssdp/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
+    url = "mirror://gnome/sources/gssdp/${lib.versions.majorMinor version}/gssdp-${version}.tar.xz";
     sha256 = "VySWVDV9PVGxQDFRaaJMBnHeeqUsb3XIxcmr1Ao1JSk=";
   };
 
@@ -49,14 +55,15 @@ stdenv.mkDerivation rec {
     pkg-config
     glib
     python3
-  ] ++ lib.optionals withIntrospection [
+  ]
+  ++ lib.optionals withIntrospection [
     gobject-introspection
     vala
     gi-docgen
   ];
 
   buildInputs = [
-    libsoup
+    libsoup_2_4
   ];
 
   propagatedBuildInputs = [
@@ -84,7 +91,7 @@ stdenv.mkDerivation rec {
 
   passthru = {
     updateScript = gnome.updateScript {
-      packageName = pname;
+      packageName = "gssdp";
       freeze = true;
     };
 
@@ -97,7 +104,7 @@ stdenv.mkDerivation rec {
     description = "GObject-based API for handling resource discovery and announcement over SSDP";
     homepage = "http://www.gupnp.org/";
     license = licenses.lgpl2Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.all;
   };
 }

@@ -1,27 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, SDL2
-, SDL2_mixer
-, cmake
-, libpng
-, darwin
-, apple-sdk_11
-, libicns
-, imagemagick
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  SDL2,
+  SDL2_mixer,
+  cmake,
+  libpng,
+  darwin,
+  libicns,
+  imagemagick,
 }:
 stdenv.mkDerivation rec {
   pname = "julius";
-  version = "1.7.0";
+  version = "1.8.0";
 
   src = fetchFromGitHub {
     owner = "bvschaik";
     repo = "julius";
     rev = "v${version}";
-    hash = "sha256-I5GTaVWzz0ryGLDSS3rzxp+XFVXZa9hZmgwon/6r83A=";
+    hash = "sha256-ppA/lCugFfzcbANuyWUvH3/1STNRdYOhRNR4tlfWEhc=";
   };
 
   patches = [
+    # This fixes the build with cmake 4
+    ./cmake4.patch
     # This fixes the darwin bundle generation, sets min. deployment version
     # and patches SDL2_mixer include
     ./darwin-fixes.patch
@@ -29,7 +31,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     cmake
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.sigtool
     libicns
     imagemagick
@@ -39,7 +42,7 @@ stdenv.mkDerivation rec {
     SDL2
     SDL2_mixer
     libpng
-  ] ++ lib.optional stdenv.hostPlatform.isDarwin apple-sdk_11;
+  ];
 
   installPhase = lib.optionalString stdenv.hostPlatform.isDarwin ''
     runHook preInstall
@@ -53,7 +56,10 @@ stdenv.mkDerivation rec {
     description = "Open source re-implementation of Caesar III";
     mainProgram = "julius";
     license = licenses.agpl3Only;
-    maintainers = with maintainers; [ Thra11 matteopacini ];
+    maintainers = with maintainers; [
+      Thra11
+      matteopacini
+    ];
     platforms = platforms.all;
   };
 }

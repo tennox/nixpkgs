@@ -1,13 +1,17 @@
-{ fetchurl, lib, stdenv, cmake }:
+{
+  fetchurl,
+  lib,
+  stdenv,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "cmocka";
-  majorVersion = "1.1";
-  version = "${majorVersion}.7";
+  version = "1.1.8";
 
   src = fetchurl {
-    url = "https://cmocka.org/files/${majorVersion}/cmocka-${version}.tar.xz";
-    sha256 = "sha256-gQVw6wuNZIBDMfgrKf9Hx5DOnNaxY+mNR6SAcEfsrYI=";
+    url = "https://cmocka.org/files/${lib.versions.majorMinor version}/cmocka-${version}.tar.xz";
+    hash = "sha256-WENbVYdm1/THKboWO9867Di+07x2batoTjUm7Qqnx4A=";
   };
 
   patches = [
@@ -16,7 +20,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
-  cmakeFlags = lib.optional doCheck "-DUNIT_TESTING=ON"
+  cmakeFlags =
+    lib.optional doCheck "-DUNIT_TESTING=ON"
     ++ lib.optional stdenv.hostPlatform.isStatic "-DBUILD_SHARED_LIBS=OFF";
 
   doCheck = true;
@@ -51,6 +56,9 @@ stdenv.mkDerivation rec {
     homepage = "https://cmocka.org/";
     license = licenses.asl20;
     platforms = platforms.all;
-    maintainers = with maintainers; [ kragniz rasendubi ];
+    maintainers = with maintainers; [
+      kragniz
+      rasendubi
+    ];
   };
 }

@@ -1,31 +1,37 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, glibcLocales
-, meson
-, ninja
-, pkg-config
-, python3
-, cld2
-, coreutils
-, emacs
-, glib
-, gmime3
-, texinfo
-, xapian
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  glibcLocales,
+  meson,
+  ninja,
+  pkg-config,
+  python3,
+  cld2,
+  cli11,
+  fmt_11,
+  coreutils,
+  emacs,
+  glib,
+  gmime3,
+  texinfo,
+  xapian,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "mu";
-  version = "1.12.7";
+  version = "1.12.13";
 
-  outputs = [ "out" "mu4e" ];
+  outputs = [
+    "out"
+    "mu4e"
+  ];
 
   src = fetchFromGitHub {
     owner = "djcb";
     repo = "mu";
-    rev = "v${version}";
-    hash = "sha256-FhmxF+ID8w1aVRKQ3gg5aY/dYWiGlO0TC9SDak7uzGI=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-rz0bxgJtz4qHrfHRjJhnvxtFFNM89A39YH9oJ2YGC5g=";
   };
 
   postPatch = ''
@@ -57,28 +63,48 @@ stdenv.mkDerivation rec {
     fi
   '';
 
-  buildInputs = [ cld2 emacs glib gmime3 texinfo xapian ];
-
-  mesonFlags = [
-    "-Dguile=disabled"
-    "-Dreadline=disabled"
-    "-Dlispdir=${placeholder "mu4e"}/share/emacs/site-lisp"
+  buildInputs = [
+    cld2
+    cli11
+    emacs
+    fmt_11
+    glib
+    gmime3
+    texinfo
+    xapian
   ];
 
-  nativeBuildInputs = [ pkg-config meson ninja python3 glibcLocales ];
+  mesonFlags = [
+    (lib.strings.mesonEnable "guile" false)
+    (lib.strings.mesonEnable "readline" false)
+    (lib.strings.mesonEnable "tests" finalAttrs.doCheck)
+    (lib.strings.mesonOption "lispdir" "${placeholder "mu4e"}/share/emacs/site-lisp")
+  ];
+
+  nativeBuildInputs = [
+    pkg-config
+    meson
+    ninja
+    python3
+    glibcLocales
+  ];
 
   doCheck = true;
 
   # Tests need a UTF-8 aware locale configured
   env.LANG = "C.UTF-8";
 
-  meta = with lib; {
+  meta = {
     description = "Collection of utilities for indexing and searching Maildirs";
-    license = licenses.gpl3Plus;
+    license = lib.licenses.gpl3Plus;
     homepage = "https://www.djcbsoftware.nl/code/mu/";
-    changelog = "https://github.com/djcb/mu/releases/tag/v${version}";
-    maintainers = with maintainers; [ antono chvp peterhoeg ];
+    changelog = "https://github.com/djcb/mu/releases/tag/v${finalAttrs.version}";
+    maintainers = with lib.maintainers; [
+      antono
+      chvp
+      peterhoeg
+    ];
     mainProgram = "mu";
-    platforms = platforms.unix;
+    platforms = lib.platforms.unix;
   };
-}
+})

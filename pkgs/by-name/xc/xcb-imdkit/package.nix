@@ -1,11 +1,13 @@
-{ lib, stdenv
-, fetchFromGitHub
-, cmake
-, extra-cmake-modules
-, uthash
-, xcbutil
-, xcbutilkeysyms
-, xorgproto
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  extra-cmake-modules,
+  uthash,
+  xcbutil,
+  xcbutilkeysyms,
+  xorgproto,
 }:
 
 stdenv.mkDerivation rec {
@@ -18,6 +20,8 @@ stdenv.mkDerivation rec {
     rev = version;
     hash = "sha256-QfuetGPY6u4OhFiE5/CoVEpdODWnd1PHWBtM3ymsZ98=";
   };
+
+  strictDeps = true;
 
   nativeBuildInputs = [
     cmake
@@ -32,7 +36,7 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with lib; {
-    description = "input method development support for xcb";
+    description = "Input method development support for xcb";
     homepage = "https://github.com/fcitx/xcb-imdkit";
     license = licenses.lgpl21Plus;
     maintainers = with maintainers; [ poscat ];

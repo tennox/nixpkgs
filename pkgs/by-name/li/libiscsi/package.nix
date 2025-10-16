@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchFromGitHub, autoreconfHook }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libiscsi";
@@ -24,7 +29,7 @@ stdenv.mkDerivation rec {
   };
 
   meta = with lib; {
-    description = "iscsi client library and utilities";
+    description = "iSCSI client library and utilities";
     homepage = "https://github.com/sahlberg/libiscsi";
     license = licenses.lgpl2;
     platforms = platforms.unix;

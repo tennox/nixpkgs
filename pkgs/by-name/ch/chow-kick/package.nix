@@ -1,38 +1,38 @@
-{ alsa-lib
-, at-spi2-core
-, brotli
-, cmake
-, curl
-, dbus
-, libepoxy
-, fetchFromGitHub
-, libglut
-, freetype
-, gtk2-x11
-, lib
-, libGL
-, libXcursor
-, libXdmcp
-, libXext
-, libXinerama
-, libXrandr
-, libXtst
-, libdatrie
-, libjack2
-, libpsl
-, libselinux
-, libsepol
-, libsysprof-capture
-, libthai
-, libxkbcommon
-, lv2
-, pcre
-, pkg-config
-, python3
-, sqlite
-, stdenv
-, util-linuxMinimal
-, webkitgtk_4_0
+{
+  alsa-lib,
+  at-spi2-core,
+  brotli,
+  cmake,
+  curl,
+  dbus,
+  libepoxy,
+  fetchFromGitHub,
+  libglut,
+  freetype,
+  gtk2-x11,
+  lib,
+  libGL,
+  libXcursor,
+  libXdmcp,
+  libXext,
+  libXinerama,
+  libXrandr,
+  libXtst,
+  libdatrie,
+  libjack2,
+  libpsl,
+  libselinux,
+  libsepol,
+  libsysprof-capture,
+  libthai,
+  libxkbcommon,
+  lv2,
+  pcre,
+  pkg-config,
+  python3,
+  sqlite,
+  stdenv,
+  util-linuxMinimal,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -42,7 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "Chowdhury-DSP";
     repo = "ChowKick";
-    rev = "v${finalAttrs.version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-YYcNiJGGw21aVY03tyQLu3wHCJhxYiDNJZ+LWNbQdj4=";
     fetchSubmodules = true;
   };
@@ -81,7 +81,6 @@ stdenv.mkDerivation (finalAttrs: {
     python3
     sqlite
     util-linuxMinimal
-    webkitgtk_4_0
   ];
 
   cmakeFlags = [

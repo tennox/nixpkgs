@@ -1,45 +1,47 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, rustPlatform
-, cargo
-, rustc
-, pkg-config
-, asciidoc
-, ncurses
-, glibc
-, dbus
-, cryptsetup
-, util-linux
-, lvm2
-, python3
-, systemd
-, xfsprogs
-, thin-provisioning-tools
-, clevis
-, jose
-, jq
-, curl
-, tpm2-tools
-, coreutils
-, clevisSupport ? false
-, nixosTests
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  cargo,
+  rustc,
+  pkg-config,
+  asciidoc,
+  ncurses,
+  glibc,
+  dbus,
+  cryptsetup,
+  util-linux,
+  lvm2,
+  python3,
+  systemd,
+  xfsprogs,
+  thin-provisioning-tools,
+  clevis,
+  jose,
+  jq,
+  curl,
+  tpm2-tools,
+  coreutils,
+  udevCheckHook,
+  clevisSupport ? false,
+  nixosTests,
 }:
 
 stdenv.mkDerivation rec {
   pname = "stratisd";
-  version = "3.7.3";
+  version = "3.8.2";
 
   src = fetchFromGitHub {
     owner = "stratis-storage";
-    repo = pname;
-    rev = "refs/tags/stratisd-v${version}";
-    hash = "sha256-W8ssLTFU36t6iLrt9S9V8qcN7EP4IsL7VbhNPLpftio=";
+    repo = "stratisd";
+    tag = "stratisd-v${version}";
+    hash = "sha256-7AT1+kqMFcsJXNsdArwbjLyOTe69X85iMhSbqn6929w=";
   };
 
-  cargoDeps = rustPlatform.fetchCargoTarball {
+  cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
-    hash = "sha256-Qv2qknWNx2OQeucUFwL1veu3MSF+fd19jFfHCCVGprM=";
+    hash = "sha256-zehtQHCjvDjNoY2UNte77kbUCq5j6dkUwIGhyh2VXgo=";
   };
 
   postPatch = ''
@@ -64,6 +66,7 @@ stdenv.mkDerivation rec {
     pkg-config
     asciidoc
     ncurses # tput
+    udevCheckHook
   ];
 
   buildInputs = [
@@ -77,26 +80,37 @@ stdenv.mkDerivation rec {
     (python3.withPackages (ps: [ ps.dbus-python ]))
   ];
 
-  outputs = [ "out" "initrd" ];
+  outputs = [
+    "out"
+    "initrd"
+  ];
 
-  env.EXECUTABLES_PATHS = lib.makeBinPath ([
-    xfsprogs
-    thin-provisioning-tools
-  ] ++ lib.optionals clevisSupport [
-    clevis
-    jose
-    jq
-    cryptsetup
-    curl
-    tpm2-tools
-    coreutils
-  ]);
+  env.EXECUTABLES_PATHS = lib.makeBinPath (
+    [
+      xfsprogs
+      thin-provisioning-tools
+    ]
+    ++ lib.optionals clevisSupport [
+      clevis
+      jose
+      jq
+      cryptsetup
+      curl
+      tpm2-tools
+      coreutils
+    ]
+  );
 
-  makeFlags = [ "PREFIX=${placeholder "out"}" "INSTALL=install" ];
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+    "INSTALL=install"
+  ];
   buildFlags = [ "build-all" ];
 
   doCheck = true;
   checkTarget = "test";
+
+  doInstallCheck = true;
 
   # remove files for supporting dracut
   postInstall = ''

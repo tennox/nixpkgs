@@ -1,11 +1,12 @@
-{ lib
-, stdenvNoCC
-, fetchFromGitHub
-, nixosTests
-, php
+{
+  lib,
+  stdenvNoCC,
+  fetchFromGitHub,
+  nixosTests,
+  php,
 }:
 
-stdenvNoCC.mkDerivation rec {
+stdenvNoCC.mkDerivation {
   pname = "anuko-time-tracker";
   version = "1.22.19.5806";
 
@@ -37,6 +38,6 @@ stdenvNoCC.mkDerivation rec {
     license = lib.licenses.sspl;
     homepage = "https://github.com/anuko/timetracker/";
     platforms = php.meta.platforms;
-    maintainers = with lib.maintainers; [ michaelshmitty ];
+    maintainers = [ ];
   };
 }

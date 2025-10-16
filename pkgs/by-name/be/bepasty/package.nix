@@ -1,6 +1,7 @@
-{ lib
-, python3
-, fetchPypi
+{
+  lib,
+  python3,
+  fetchPypi,
 }:
 
 let
@@ -9,7 +10,7 @@ let
   bepastyPython = python3.override {
     self = bepastyPython;
     packageOverrides = self: super: {
-      xstatic-font-awesome = super.xstatic-font-awesome.overridePythonAttrs(oldAttrs: rec {
+      xstatic-font-awesome = super.xstatic-font-awesome.overridePythonAttrs (oldAttrs: rec {
         version = "4.7.0.0";
         src = oldAttrs.src.override {
           inherit version;
@@ -26,7 +27,7 @@ in
 
 bepastyPython.pkgs.buildPythonPackage rec {
   pname = "bepasty";
-  version = "1.2.1";
+  version = "1.2.2";
   format = "pyproject";
 
   propagatedBuildInputs = with bepastyPython.pkgs; [
@@ -49,14 +50,14 @@ bepastyPython.pkgs.buildPythonPackage rec {
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-08cyr2AruGAfHAwHHS8WMfJh7DBKymaYyz4AxI/ubkE=";
+    hash = "sha256-teazPj+IrgbVeUkWqgWhpIldgfCTbZYJAqn5Q5blcm8=";
   };
 
   nativeCheckInputs = with bepastyPython.pkgs; [
     build
     flake8
     pytestCheckHook
-    pytest-cov
+    pytest-cov-stub
     selenium
     tox
     twine
@@ -76,6 +77,9 @@ bepastyPython.pkgs.buildPythonPackage rec {
     homepage = "https://github.com/bepasty/bepasty-server";
     description = "Binary pastebin server";
     license = licenses.bsd2;
-    maintainers = with maintainers; [ aither64 makefu ];
+    maintainers = with maintainers; [
+      aither64
+      makefu
+    ];
   };
 }

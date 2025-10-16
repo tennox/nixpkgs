@@ -1,4 +1,14 @@
-{ lib, stdenv, fetchurl, libXext, Xaw3d, ghostscriptX, perl, pkg-config, libiconv }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  libXext,
+  Xaw3d,
+  ghostscriptX,
+  perl,
+  pkg-config,
+  libiconv,
+}:
 
 stdenv.mkDerivation rec {
   pname = "gv";
@@ -19,7 +29,8 @@ stdenv.mkDerivation rec {
     Xaw3d
     ghostscriptX
     perl
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     libiconv
   ];
 

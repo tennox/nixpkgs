@@ -1,16 +1,17 @@
-{ cmake
-, fetchFromGitLab
-, lib
-, libnotify
-, mkDerivation
-, pkg-config
-, qtbase
-, qtdeclarative
-, qtgraphicaleffects
-, qtquickcontrols2
-, qttools
-, qtwebengine
-, stdenv
+{
+  cmake,
+  fetchFromGitLab,
+  lib,
+  libnotify,
+  mkDerivation,
+  pkg-config,
+  qtbase,
+  qtdeclarative,
+  qtgraphicaleffects,
+  qtquickcontrols2,
+  qttools,
+  qtwebengine,
+  stdenv,
 }:
 
 mkDerivation rec {
@@ -24,7 +25,10 @@ mkDerivation rec {
     hash = "sha256-rsF2xQet7U8d4oGU/HgghvE3vvmkxjlGXPBlLD9mWTk=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
   buildInputs = [
     libnotify
@@ -49,8 +53,9 @@ mkDerivation rec {
     export QT_QPA_PLATFORM=offscreen
   ''
   # TODO: The tests are failing because it can't locate QT plugins. Is there a better way to do this?
-  + (builtins.concatStringsSep "\n" (lib.lists.flatten (builtins.map
-      (pkg: [
+  + (builtins.concatStringsSep "\n" (
+    lib.lists.flatten (
+      map (pkg: [
         (lib.optionalString (pkg ? qtPluginPrefix) ''
           export QT_PLUGIN_PATH="${pkg}/${pkg.qtPluginPrefix}"''${QT_PLUGIN_PATH:+':'}$QT_PLUGIN_PATH
         '')
@@ -58,7 +63,9 @@ mkDerivation rec {
         (lib.optionalString (pkg ? qtQmlPrefix) ''
           export QML2_IMPORT_PATH="${pkg}/${pkg.qtQmlPrefix}"''${QML2_IMPORT_PATH:+':'}$QML2_IMPORT_PATH
         '')
-      ]) buildInputs)));
+      ]) buildInputs
+    )
+  ));
 
   meta = with lib; {
     inherit (qtbase.meta) platforms;

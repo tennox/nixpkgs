@@ -1,15 +1,17 @@
-{ fetchFromGitHub
-, lib, stdenv
-, perl
+{
+  fetchFromGitHub,
+  lib,
+  stdenv,
+  perl,
 }:
 
 stdenv.mkDerivation rec {
   pname = "doona";
-  version = "unstable-2019-03-08";
+  version = "0-unstable-2019-03-08";
 
   src = fetchFromGitHub {
     owner = "wireghoul";
-    repo = pname;
+    repo = "doona";
     rev = "master";
     sha256 = "0x9irwrw5x2ia6ch6gshadrlqrgdi1ivkadmr7j4m75k04a7nvz1";
   };

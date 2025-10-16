@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchurl }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "khmeros";
@@ -19,7 +23,7 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "KhmerOS Unicode fonts for the Khmer language";
+    description = "Unicode fonts for the Khmer language";
     homepage = "http://www.khmeros.info/";
     license = licenses.gpl2Plus;
     maintainers = with lib.maintainers; [ serge ];

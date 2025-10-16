@@ -1,10 +1,11 @@
-{ stdenv
-, lib
-, fetchFromGitLab
-, cmake
-, pkg-config
-, libusb1
-, libftdi1
+{
+  stdenv,
+  lib,
+  fetchFromGitLab,
+  cmake,
+  pkg-config,
+  libusb1,
+  libftdi1,
 }:
 
 stdenv.mkDerivation {
@@ -18,6 +19,12 @@ stdenv.mkDerivation {
     rev = "abdd574ebe3640047988cb928bb6789a15dd1390";
     hash = "sha256-j0Z2Uo1LBXlHZVHPm4Xjx3LZaI6Qq0nSdViyC/CjWC8=";
   };
+
+  postPatch = ''
+    substituteInPlace CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 3.1)' \
+      'cmake_minimum_required(VERSION 4.0)'
+  '';
 
   nativeBuildInputs = [
     cmake

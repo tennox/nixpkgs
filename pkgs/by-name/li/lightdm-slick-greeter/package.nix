@@ -1,34 +1,34 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, meson
-, ninja
-, pkg-config
-, python3
-, vala
-, wrapGAppsHook3
-, xapp
-, lightdm
-, gtk3
-, pixman
-, libcanberra
-, libgnomekbd
-, libX11
-, libXext
-, linkFarm
-, lightdm-slick-greeter
-, numlockx
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  meson,
+  ninja,
+  pkg-config,
+  python3,
+  vala,
+  wrapGAppsHook3,
+  lightdm,
+  gtk3,
+  pixman,
+  libcanberra,
+  libgnomekbd,
+  libX11,
+  libXext,
+  linkFarm,
+  lightdm-slick-greeter,
+  numlockx,
 }:
 
 stdenv.mkDerivation rec {
   pname = "lightdm-slick-greeter";
-  version = "2.0.6";
+  version = "2.2.2";
 
   src = fetchFromGitHub {
     owner = "linuxmint";
     repo = "slick-greeter";
     rev = version;
-    sha256 = "sha256-Q6V4axKlGhX1/uaugNkjoynHSL5jWA/eqzAsbJYcRSo=";
+    hash = "sha256-32H2Q/JdT5v0xrdsZfSJobJ4Dxx63LPgbiB9OKIyc1U=";
   };
 
   nativeBuildInputs = [
@@ -42,7 +42,6 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    xapp
     lightdm
     gtk3
     pixman
@@ -89,16 +88,21 @@ stdenv.mkDerivation rec {
     )
   '';
 
-  passthru.xgreeters = linkFarm "lightdm-slick-greeter-xgreeters" [{
-    path = "${lightdm-slick-greeter}/share/xgreeters/slick-greeter.desktop";
-    name = "lightdm-slick-greeter.desktop";
-  }];
+  passthru.xgreeters = linkFarm "lightdm-slick-greeter-xgreeters" [
+    {
+      path = "${lightdm-slick-greeter}/share/xgreeters/slick-greeter.desktop";
+      name = "lightdm-slick-greeter.desktop";
+    }
+  ];
 
   meta = with lib; {
     description = "Slick-looking LightDM greeter";
     homepage = "https://github.com/linuxmint/slick-greeter";
     license = licenses.gpl3Only;
-    maintainers = with maintainers; [ water-sucks bobby285271 ];
+    maintainers = with maintainers; [
+      water-sucks
+      bobby285271
+    ];
     platforms = platforms.linux;
   };
 }

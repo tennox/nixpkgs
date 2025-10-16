@@ -1,29 +1,54 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch
-, SDL2, SDL2_image
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  SDL2,
+  SDL2_image,
+  pkg-config,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "klystrack";
   version = "1.7.6";
 
   src = fetchFromGitHub {
     owner = "kometbomb";
-    repo = pname;
-    rev = version;
+    repo = "klystrack";
+    tag = finalAttrs.version;
     fetchSubmodules = true;
-    sha256 = "1h99sm2ddaq483hhk2s3z4bjbgn0d2h7qna7l7qq98wvhqix8iyz";
+    hash = "sha256-30fUI4abo4TxoUdZfKBowL4lF/lDiwnhQASr1kTVKcE=";
   };
 
-  buildInputs = [
-    SDL2 SDL2_image
+  # https://github.com/kometbomb/klystrack/commit/6dac9eb5e75801ce4dec1d8b339f78e3df2f54bc fixes build but doesn't apply as-is, just patch in the flag
+  # Make embedded date reproducible
+  # Use pkg-config instead of sdl2-config
+  postPatch = ''
+    substituteInPlace Makefile \
+      --replace-fail '-DUSESDL_IMAGE' '-DUSESDL_IMAGE -DUSESDL_RWOPS'
+
+    substituteInPlace Makefile klystron/Makefile \
+      --replace-fail 'date' 'date --date @$(SOURCE_DATE_EPOCH)'
+
+    substituteInPlace klystron/common.mk klystron/tools/makebundle/Makefile \
+      --replace-fail 'sdl2-config' 'pkg-config sdl2 SDL2_image'
+  '';
+
+  strictDeps = true;
+
+  nativeBuildInputs = [
+    pkg-config
   ];
-  nativeBuildInputs = [ pkg-config ];
+
+  buildInputs = [
+    SDL2
+    SDL2_image
+  ];
 
   patches = [
     (fetchpatch {
       url = "https://github.com/kometbomb/klystrack/commit/bb537595d02140176831c4a1b8e9121978b32d22.patch";
-      sha256 = "06gl9q0jwg039kpxb13lg9x0k59s11968qn4lybgkadvzmhxkgmi";
+      hash = "sha256-sb7ZYf27qfmWp8RiZFIIOpUJenp0hNXvTAM8LgFO9Bk=";
     })
   ];
 
@@ -33,9 +58,14 @@ stdenv.mkDerivation rec {
   # TODO: remove it for 1.7.7+ release as it was fixed upstream.
   env.NIX_CFLAGS_COMPILE = "-fcommon";
 
-  buildFlags = [ "PREFIX=${placeholder "out"}" "CFG=release" ];
+  buildFlags = [
+    "PREFIX=${placeholder "out"}"
+    "CFG=release"
+  ];
 
   installPhase = ''
+    runHook preInstall
+
     install -Dm755 bin.release/klystrack $out/bin/klystrack
 
     mkdir -p $out/lib/klystrack
@@ -46,14 +76,16 @@ stdenv.mkDerivation rec {
     mkdir -p $out/share/applications
     substitute linux/klystrack.desktop $out/share/applications/klystrack.desktop \
       --replace "klystrack %f" "$out/bin/klystrack %f"
+
+    runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Chiptune tracker";
     homepage = "https://kometbomb.github.io/klystrack";
-    license = licenses.mit;
-    maintainers = with maintainers; [ suhr ];
-    platforms = platforms.linux;
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ suhr ];
+    platforms = lib.platforms.linux;
     mainProgram = "klystrack";
   };
-}
+})

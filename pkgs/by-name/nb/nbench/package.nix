@@ -1,4 +1,8 @@
-{ lib, stdenv, fetchurl }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+}:
 
 stdenv.mkDerivation rec {
   pname = "nbench-byte";
@@ -12,7 +16,8 @@ stdenv.mkDerivation rec {
   prePatch = ''
     substituteInPlace nbench1.h --replace '"NNET.DAT"' "\"$out/NNET.DAT\""
     substituteInPlace sysspec.h --replace "malloc.h" "stdlib.h"
-  '' + lib.optionalString stdenv.hostPlatform.isDarwin ''
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace Makefile --replace "-static" ""
   '';
 

@@ -1,21 +1,27 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 buildGoModule rec {
   pname = "buildkite-agent-metrics";
-  version = "5.9.9";
+  version = "5.10.0";
 
-  outputs = [ "out" "lambda" ];
+  __darwinAllowLocalNetworking = true;
+
+  outputs = [
+    "out"
+    "lambda"
+  ];
 
   src = fetchFromGitHub {
     owner = "buildkite";
     repo = "buildkite-agent-metrics";
     rev = "v${version}";
-    hash = "sha256-Y39v+OBhR4WpytCeQN6qBuQpdwKlEgiKgeG5U79QFxU=";
+    hash = "sha256-QE4IY1yU8X1zG+jf7eBWiSjN3HvDqr2Avhs3Bub+xB0=";
   };
 
-  vendorHash = "sha256-i2+nefRE4BD93rG842oZj0/coamYVRMPxEHio80bdWk=";
+  vendorHash = "sha256-r088XQKYx0D0OVfz/nqhWL0LLCf4X13WqYikJKlLr3c=";
 
   postInstall = ''
     mkdir -p $lambda/bin
@@ -26,6 +32,6 @@ buildGoModule rec {
     description = "Command-line tool (and Lambda) for collecting Buildkite agent metrics";
     homepage = "https://github.com/buildkite/buildkite-agent-metrics";
     license = licenses.mit;
-    maintainers = teams.determinatesystems.members;
+    teams = [ teams.determinatesystems ];
   };
 }

@@ -1,5 +1,5 @@
 {
-  bazel_6,
+  bazel_7,
   buildBazelPackage,
   fcitx5,
   fetchFromGitHub,
@@ -8,6 +8,7 @@
   mozc,
   nixosTests,
   pkg-config,
+  protobuf_27,
   python3,
   stdenv,
   unzip,
@@ -15,7 +16,7 @@
 
 buildBazelPackage {
   pname = "fcitx5-mozc";
-  version = "2.30.5544.102";
+  version = "2.30.5544.102"; # make sure to update protobuf if needed
 
   src = fetchFromGitHub {
     owner = "fcitx";
@@ -38,10 +39,13 @@ buildBazelPackage {
   ];
 
   postPatch = ''
+    # replace protobuf with our own
+    rm -r src/third_party/protobuf
+    cp -r ${protobuf_27.src} src/third_party/protobuf
     sed -i -e 's|^\(LINUX_MOZC_SERVER_DIR = \).\+|\1"${mozc}/lib/mozc"|' src/config.bzl
   '';
 
-  bazel = bazel_6;
+  bazel = bazel_7;
   removeRulesCC = false;
   dontAddBazelOpts = true;
 
@@ -59,10 +63,13 @@ buildBazelPackage {
 
   fetchAttrs = {
     preInstall = ''
+      # Remove reference to buildInput
       rm -rf $bazelOut/external/fcitx5
+      # Remove reference to the host platform
+      rm -rv "$bazelOut"/external/host_platform
     '';
 
-    sha256 = "sha256-rrRp/v1pty7Py80/6I8rVVQvkeY72W+nlixUeYkjp+o=";
+    hash = "sha256-nFPGhZWvzzBOSeIa35XQbK6dHgJJSYum/5X8eAA0uCY=";
   };
 
   preConfigure = ''

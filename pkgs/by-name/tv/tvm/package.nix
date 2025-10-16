@@ -1,24 +1,23 @@
-{ lib, stdenv, fetchFromGitHub, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "tvm";
-  version = "0.17.0";
+  version = "0.19.0";
 
   src = fetchFromGitHub {
     owner = "apache";
     repo = "incubator-tvm";
-    rev = "v${version}";
+    tag = "v${version}";
     fetchSubmodules = true;
-    hash = "sha256-5Jr+xubQoASNgy/UR/K5pvzMs4szP9LidFOLs3h+KSY=";
+    hash = "sha256-/5IpOraFTgg6sQ1TLHoepq/C8VHKg5BXKrNMBSyYajA=";
   };
 
   nativeBuildInputs = [ cmake ];
-  # TVM CMake build uses some sources in the project's ./src/target/opt/
-  # directory which errneously gets mangled by the eager `fixCmakeFiles`
-  # function in Nix's CMake setup-hook.sh to ./src/target/var/empty/,
-  # which then breaks the build. Toggling this flag instructs Nix to
-  # not mangle the legitimate use of the opt/ folder.
-  dontFixCmake = true;
 
   meta = with lib; {
     homepage = "https://tvm.apache.org/";

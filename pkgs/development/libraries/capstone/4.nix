@@ -1,8 +1,9 @@
-{ lib
-, stdenv
-, cmake
-, fetchFromGitHub
-, fixDarwinDylibNames
+{
+  lib,
+  stdenv,
+  cmake,
+  fetchFromGitHub,
+  fixDarwinDylibNames,
 }:
 
 stdenv.mkDerivation rec {
@@ -18,7 +19,8 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     cmake
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     fixDarwinDylibNames
   ];
 
@@ -26,10 +28,13 @@ stdenv.mkDerivation rec {
 
   meta = {
     description = "Advanced disassembly library";
-    homepage    = "http://www.capstone-engine.org";
-    license     = lib.licenses.bsd3;
-    maintainers = with lib.maintainers; [ thoughtpolice ris ];
+    homepage = "http://www.capstone-engine.org";
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [
+      thoughtpolice
+      ris
+    ];
     mainProgram = "cstool";
-    platforms   = lib.platforms.unix;
+    platforms = lib.platforms.unix;
   };
 }

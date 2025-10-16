@@ -1,7 +1,8 @@
-{ buildGoModule
-, fetchFromGitHub
-, lib
-, tags ? [
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  tags ? [
     # `RELEASE_TAGS` from https://github.com/lightningnetwork/lnd/blob/master/make/release_flags.mk
     "autopilotrpc"
     "chainrpc"
@@ -17,23 +18,26 @@
     "watchtowerrpc"
     # Extra tags useful for testing
     "routerrpc"
-  ]
+  ],
 }:
 
 buildGoModule rec {
   pname = "lnd";
-  version = "0.18.3-beta";
+  version = "0.19.3-beta";
 
   src = fetchFromGitHub {
     owner = "lightningnetwork";
     repo = "lnd";
     rev = "v${version}";
-    hash = "sha256-CNCMVYuLUVmNgW5YTTn3TR1+2UCLbF3/gXXZWiREj/E=";
+    hash = "sha256-j37tLwVmAI18N0Xb3epACKRpJbs60HamZOlKDxWngFA=";
   };
 
-  vendorHash = "sha256-dr8Ra8ywy+Zow8JF3K21XZ7lDIIdxvjRz+OD3E+348o=";
+  vendorHash = "sha256-Ah5jOknXSoWEOnn0UKRuuwqT+E4eAkCg1h4qzW0rSHM=";
 
-  subPackages = [ "cmd/lncli" "cmd/lnd" ];
+  subPackages = [
+    "cmd/lncli"
+    "cmd/lnd"
+  ];
 
   inherit tags;
 
@@ -41,6 +45,10 @@ buildGoModule rec {
     description = "Lightning Network Daemon";
     homepage = "https://github.com/lightningnetwork/lnd";
     license = licenses.mit;
-    maintainers = with maintainers; [ cypherpunk2140 prusnak ];
+    maintainers = with maintainers; [
+      bleetube
+      cypherpunk2140
+      prusnak
+    ];
   };
 }

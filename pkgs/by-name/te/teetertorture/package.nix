@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchurl, SDL, SDL_image, SDL_mixer }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  SDL,
+  SDL_image,
+  SDL_mixer,
+}:
 
 stdenv.mkDerivation rec {
   pname = "teeter-torture";
@@ -8,10 +15,18 @@ stdenv.mkDerivation rec {
     sha256 = "175gdbkx3m82icyzvwpyzs4v2fd69c695k5n8ca0lnjv81wnw2hr";
   };
 
-  buildInputs = [ SDL SDL_image SDL_mixer];
+  buildInputs = [
+    SDL
+    SDL_image
+    SDL_mixer
+  ];
 
   configurePhase = ''
+    runHook preConfigure
+
     sed -i s,data/,$out/share/teetertorture/, src/teetertorture.c
+
+    runHook postConfigure
   '';
 
   patchPhase = ''
@@ -28,7 +43,7 @@ stdenv.mkDerivation rec {
     homepage = "http://www.newbreedsoftware.com/teetertorture/";
     description = "Simple shooting game with your cannon is sitting atop a teeter totter";
     license = lib.licenses.gpl2Plus;
-    platforms = lib.platforms.linux;
+    inherit (SDL.meta) platforms;
     mainProgram = "teetertorture";
   };
 }

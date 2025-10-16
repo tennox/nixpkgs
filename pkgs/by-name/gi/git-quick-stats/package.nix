@@ -1,29 +1,31 @@
-{ lib, stdenv
-, fetchFromGitHub
-, makeWrapper
-, coreutils
-, gawk
-, git
-, gnugrep
-, ncurses
-, util-linux
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  coreutils,
+  gawk,
+  git,
+  gnugrep,
+  ncurses,
+  util-linux,
 }:
 
 stdenv.mkDerivation rec {
   pname = "git-quick-stats";
-  version = "2.5.7";
+  version = "2.8.0";
 
   src = fetchFromGitHub {
     repo = "git-quick-stats";
     owner = "arzzen";
     rev = version;
-    sha256 = "sha256-TGwoW4jpXbFdxk9HAZJTDhXIHhR1QEcDRCjspBv2KdQ=";
+    sha256 = "sha256-YVvlrlNRDDci7fH9LW4NxZcIkakVgvKe9FhJ2gCfoXg=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
 
   installFlags = [
-    "PREFIX=${builtins.placeholder "out"}"
+    "PREFIX=${placeholder "out"}"
   ];
 
   postInstall =

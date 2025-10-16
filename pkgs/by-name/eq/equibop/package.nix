@@ -2,7 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  substituteAll,
+  replaceVars,
   makeWrapper,
   makeDesktopItem,
   copyDesktopItems,
@@ -12,39 +12,37 @@
   pipewire,
   libpulseaudio,
   autoPatchelfHook,
-  pnpm_9,
+  pnpm_10,
   nodejs,
   nix-update-script,
   withTTS ? true,
   withMiddleClickScroll ? false,
-  # Enables the use of Equicord from nixpkgs instead of
-  # letting Equibop manage it's own version
-  withSystemEquicord ? false,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "equibop";
-  version = "2.1.1";
+  version = "2.1.7";
 
   src = fetchFromGitHub {
     owner = "Equicord";
     repo = "Equibop";
-    rev = "refs/tags/v${finalAttrs.version}";
-    hash = "sha256-LGgmWaC7iYj0Mx5wPKmLkYV2ozyhkiwrE4v4uFB0erg=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-wvg06YSQOZvP/NHl3WPfnI9F0+KN0cJ2CBwaZD8Xpfk=";
   };
 
-  pnpmDeps = pnpm_9.fetchDeps {
+  pnpmDeps = pnpm_10.fetchDeps {
     inherit (finalAttrs)
       pname
       version
       src
       patches
       ;
-    hash = "sha256-dIz/HyhzFU86QqQEQ9qWSthKB9HfoRJbmpc3raWNbcA=";
+    fetcherVersion = 1;
+    hash = "sha256-HQxQIMbj2xsxD1jwj/itfAW6KHxX81Eu60ouzxQDu44=";
   };
 
   nativeBuildInputs = [
     nodejs
-    pnpm_9.configHook
+    pnpm_10.configHook
     # XXX: Equibop *does not* ship venmic as a prebuilt node module. The package
     # seems to build with or without this hook, but I (NotAShelf) don't have the
     # time to test the consequences of removing this hook. Please open a pull
@@ -62,12 +60,9 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.getLib stdenv.cc.cc)
   ];
 
-  patches =
-    [ ./disable_update_checking.patch ]
-    ++ lib.optional withSystemEquicord (substituteAll {
-      inherit equicord;
-      src = ./use_system_equicord.patch;
-    });
+  patches = [
+    ./disable_update_checking.patch
+  ];
 
   env = {
     ELECTRON_SKIP_BINARY_DOWNLOAD = 1;
@@ -110,7 +105,7 @@ stdenv.mkDerivation (finalAttrs: {
       --add-flags $out/opt/Equibop/resources/app.asar \
       ${lib.optionalString withTTS "--add-flags \"--enable-speech-dispatcher\""} \
       ${lib.optionalString withMiddleClickScroll "--add-flags \"--enable-blink-features=MiddleClickAutoscroll\""} \
-      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime}}"
+      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}"
   '';
 
   desktopItems = makeDesktopItem {

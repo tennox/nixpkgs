@@ -1,16 +1,32 @@
-{ lib, stdenv, fetchFromGitHub, fuse, fuse3, bzip2, zlib, attr, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fuse,
+  fuse3,
+  bzip2,
+  zlib,
+  attr,
+  cmake,
+}:
 
 stdenv.mkDerivation {
   pname = "apfs-fuse";
-  version = "unstable-2023-03-12";
+  version = "0-unstable-2023-03-12";
 
   src = fetchFromGitHub {
-    owner  = "sgan81";
-    repo   = "apfs-fuse";
-    rev    = "66b86bd525e8cb90f9012543be89b1f092b75cf3";
+    owner = "sgan81";
+    repo = "apfs-fuse";
+    rev = "66b86bd525e8cb90f9012543be89b1f092b75cf3";
     hash = "sha256-uYAlqnQp0K880XEWuH1548DUA3ii53+hfsuh/T3Vwzg=";
     fetchSubmodules = true;
   };
+
+  patches = [
+    # fix for CMake v4
+    # https://github.com/sgan81/apfs-fuse/pull/211
+    ./cmake-v4.patch
+  ];
 
   postPatch = lib.optionalString stdenv.hostPlatform.isDarwin ''
     substituteInPlace CMakeLists.txt \
@@ -23,7 +39,8 @@ stdenv.mkDerivation {
     (if stdenv.hostPlatform.isDarwin then fuse else fuse3)
     bzip2
     zlib
-  ] ++ lib.optional stdenv.hostPlatform.isLinux attr;
+  ]
+  ++ lib.optional stdenv.hostPlatform.isLinux attr;
 
   cmakeFlags = lib.optional stdenv.hostPlatform.isDarwin "-DUSE_FUSE3=OFF";
 
@@ -34,11 +51,11 @@ stdenv.mkDerivation {
   '';
 
   meta = with lib; {
-    homepage    = "https://github.com/sgan81/apfs-fuse";
+    homepage = "https://github.com/sgan81/apfs-fuse";
     description = "FUSE driver for APFS (Apple File System)";
-    license     = licenses.gpl2Plus;
+    license = licenses.gpl2Plus;
     mainProgram = "apfs-fuse";
     maintainers = with maintainers; [ ealasu ];
-    platforms   = platforms.unix;
+    platforms = platforms.unix;
   };
 }

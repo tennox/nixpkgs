@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchurl }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "unfonts-core";
@@ -27,6 +31,5 @@ stdenvNoCC.mkDerivation rec {
     '';
     license = licenses.gpl2;
     platforms = platforms.all;
-    maintainers = [ maintainers.ehmry ];
   };
 }

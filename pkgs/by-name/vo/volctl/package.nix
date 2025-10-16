@@ -1,14 +1,26 @@
-{ lib, python3Packages, fetchFromGitHub, wrapGAppsHook3, gobject-introspection, libpulseaudio, glib, gtk3, pango, xorg }:
+{
+  lib,
+  python3Packages,
+  fetchFromGitHub,
+  wrapGAppsHook3,
+  gobject-introspection,
+  libpulseaudio,
+  glib,
+  gtk3,
+  pango,
+  xorg,
+}:
 
 python3Packages.buildPythonApplication rec {
   pname = "volctl";
-  version = "0.9.4";
+  version = "0.9.5";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "buzz";
-    repo = pname;
+    repo = "volctl";
     rev = "v${version}";
-    sha256 = "sha256-jzS97KV17wKeBI6deKE4rEj5lvqC38fq1JGundHn2So=";
+    sha256 = "sha256-zL1m/DeSOrNkjt9B+8pdy2jUgjSp7tt81UpAueGsIwQ=";
   };
 
   postPatch = ''
@@ -26,7 +38,11 @@ python3Packages.buildPythonApplication rec {
     wrapGAppsHook3
   ];
 
-  propagatedBuildInputs = [ pango gtk3 ] ++ (with python3Packages; [
+  propagatedBuildInputs = [
+    pango
+    gtk3
+  ]
+  ++ (with python3Packages; [
     pulsectl
     click
     pycairo

@@ -1,20 +1,21 @@
-{ lib
-, writeText
-, rustPlatform
-, fetchFromGitHub
-, curl
-, installShellFiles
-, pkg-config
-, bzip2
-, libgit2
-, openssl
-, zlib
-, zstd
-, stdenv
-, darwin
-, spdx-license-list-data
-, nix
-, nurl
+{
+  lib,
+  writeText,
+  rustPlatform,
+  fetchFromGitHub,
+  curl,
+  installShellFiles,
+  pkg-config,
+  bzip2,
+  libgit2,
+  openssl,
+  zlib,
+  zstd,
+  spdx-license-list-data,
+  nix,
+  nurl,
+  versionCheckHook,
+  nix-update-script,
 }:
 
 let
@@ -23,18 +24,16 @@ let
   };
 in
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "nix-init";
   version = "0.3.2";
 
   src = fetchFromGitHub {
     owner = "nix-community";
     repo = "nix-init";
-    rev = "v${version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-0RLEPVtYnwYH+pMnpO0/Evbp7x9d0RMobOVAqwgMJz4=";
   };
-
-  useFetchCargoVendor = true;
 
   cargoHash = "sha256-kk/SaP/ZtSorSSewAdf0Bq7tiMhB5dZb8v9MlsaUa0M=";
 
@@ -51,10 +50,6 @@ rustPlatform.buildRustPackage rec {
     openssl
     zlib
     zstd
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-  ] ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) [
-    darwin.apple_sdk.frameworks.CoreFoundation
   ];
 
   buildNoDefaultFeatures = true;
@@ -82,18 +77,25 @@ rustPlatform.buildRustPackage rec {
 
   env = {
     GEN_ARTIFACTS = "artifacts";
-    LIBGIT2_NO_VENDOR = 1;
+    # FIXME: our libgit2 is currently too new
+    # LIBGIT2_NO_VENDOR = 1;
     NIX = lib.getExe nix;
     NURL = lib.getExe nurl;
     ZSTD_SYS_USE_PKG_CONFIG = true;
   };
 
-  meta = with lib; {
+  nativeInstallCheckInputs = [ versionCheckHook ];
+  versionCheckProgramArg = "--version";
+  doInstallCheck = true;
+
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
     description = "Command line tool to generate Nix packages from URLs";
     mainProgram = "nix-init";
     homepage = "https://github.com/nix-community/nix-init";
-    changelog = "https://github.com/nix-community/nix-init/blob/${src.rev}/CHANGELOG.md";
-    license = licenses.mpl20;
-    maintainers = with maintainers; [ figsoda ];
+    changelog = "https://github.com/nix-community/nix-init/blob/${finalAttrs.src.tag}/CHANGELOG.md";
+    license = lib.licenses.mpl20;
+    maintainers = with lib.maintainers; [ figsoda ];
   };
-}
+})

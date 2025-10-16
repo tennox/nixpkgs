@@ -1,52 +1,60 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, pkg-config
-, installShellFiles
-, buildGoModule
-, gpgme
-, lvm2
-, btrfs-progs
-, libapparmor
-, libseccomp
-, libselinux
-, systemd
-, go-md2man
-, nixosTests
-, python3
-, makeWrapper
-, runtimeShell
-, symlinkJoin
-, substituteAll
-, extraPackages ? [ ]
-, crun
-, runc
-, conmon
-, extraRuntimes ? lib.optionals stdenv.hostPlatform.isLinux [ runc ]  # e.g.: runc, gvisor, youki
-, fuse-overlayfs
-, util-linux
-, iptables
-, iproute2
-, catatonit
-, gvproxy
-, aardvark-dns
-, netavark
-, passt
-, vfkit
-, testers
-, podman
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  installShellFiles,
+  buildGoModule,
+  gpgme,
+  lvm2,
+  btrfs-progs,
+  libapparmor,
+  libseccomp,
+  libselinux,
+  systemd,
+  go-md2man,
+  nixosTests,
+  python3,
+  makeWrapper,
+  symlinkJoin,
+  replaceVars,
+  extraPackages ? [ ],
+  crun,
+  runc,
+  conmon,
+  extraRuntimes ? lib.optionals stdenv.hostPlatform.isLinux [ runc ], # e.g.: runc, gvisor, youki
+  fuse-overlayfs,
+  util-linuxMinimal,
+  nftables,
+  iptables,
+  iproute2,
+  catatonit,
+  gvproxy,
+  aardvark-dns,
+  netavark,
+  passt,
+  vfkit,
+  versionCheckHook,
+  writableTmpDirAsHomeHook,
+  coreutils,
+  runtimeShell,
 }:
 let
   # do not add qemu to this wrapper, store paths get written to the podman vm config and break when GCed
 
-  binPath = lib.makeBinPath (lib.optionals stdenv.hostPlatform.isLinux [
-    fuse-overlayfs
-    util-linux
-    iptables
-    iproute2
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    vfkit
-  ] ++ extraPackages);
+  binPath = lib.makeBinPath (
+    lib.optionals stdenv.hostPlatform.isLinux [
+      fuse-overlayfs
+      util-linuxMinimal
+      iptables
+      iproute2
+      nftables
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      vfkit
+    ]
+    ++ extraPackages
+  );
 
   helpersBin = symlinkJoin {
     name = "podman-helper-binary-wrapper";
@@ -54,30 +62,31 @@ let
     # this only works for some binaries, others may need to be added to `binPath` or in the modules
     paths = [
       gvproxy
-    ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       aardvark-dns
       catatonit # added here for the pause image and also set in `containersConf` for `init_path`
       netavark
       passt
       conmon
       crun
-    ] ++ extraRuntimes;
+    ]
+    ++ extraRuntimes;
   };
 in
 buildGoModule rec {
   pname = "podman";
-  version = "5.3.0";
+  version = "5.6.2";
 
   src = fetchFromGitHub {
     owner = "containers";
     repo = "podman";
     rev = "v${version}";
-    hash = "sha256-v7srZ1S4qnEOgXvhj+61tSWqzx9qFv0m3iBEUoMu7+U=";
+    hash = "sha256-VVPwnzcGOm3UDHtoLbP1I+9NIluMU/wHuerM+ePiKhg=";
   };
 
   patches = [
-    (substituteAll {
-      src = ./hardcode-paths.patch;
+    (replaceVars ./hardcode-paths.patch {
       bin_path = helpersBin;
     })
 
@@ -89,9 +98,18 @@ buildGoModule rec {
 
   doCheck = false;
 
-  outputs = [ "out" "man" ];
+  outputs = [
+    "out"
+    "man"
+  ];
 
-  nativeBuildInputs = [ pkg-config go-md2man installShellFiles makeWrapper python3 ];
+  nativeBuildInputs = [
+    pkg-config
+    go-md2man
+    installShellFiles
+    makeWrapper
+    python3
+  ];
 
   buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     btrfs-progs
@@ -109,23 +127,32 @@ buildGoModule rec {
   buildPhase = ''
     runHook preBuild
     patchShebangs .
-    substituteInPlace Makefile --replace "/bin/bash" "${runtimeShell}"
-    ${if stdenv.hostPlatform.isDarwin then ''
-      make podman-remote # podman-mac-helper uses FHS paths
-    '' else ''
-      make bin/podman bin/rootlessport bin/quadlet
-    ''}
+    ${
+      if stdenv.hostPlatform.isDarwin then
+        ''
+          make podman-remote # podman-mac-helper uses FHS paths
+        ''
+      else
+        ''
+          make bin/podman bin/rootlessport bin/quadlet
+        ''
+    }
     make docs
     runHook postBuild
   '';
 
   installPhase = ''
     runHook preInstall
-    ${if stdenv.hostPlatform.isDarwin then ''
-      install bin/darwin/podman -Dt $out/bin
-    '' else ''
-      make install.bin install.systemd
-    ''}
+    ${
+      if stdenv.hostPlatform.isDarwin then
+        ''
+          install bin/darwin/podman -Dt $out/bin
+        ''
+      else
+        ''
+          make install.bin install.systemd
+        ''
+    }
     make install.completions install.man
     mkdir -p ${HELPER_BINARIES_DIR}
     ln -s ${helpersBin}/bin/* ${HELPER_BINARIES_DIR}
@@ -137,14 +164,20 @@ buildGoModule rec {
   postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
     RPATH=$(patchelf --print-rpath $out/bin/.podman-wrapped)
     patchelf --set-rpath "${lib.makeLibraryPath [ systemd ]}":$RPATH $out/bin/.podman-wrapped
+    substituteInPlace "$out/share/systemd/user/podman-user-wait-network-online.service" \
+      --replace-fail sleep '${coreutils}/bin/sleep' \
+      --replace-fail /bin/sh '${runtimeShell}'
   '';
 
-  passthru.tests = {
-    version = testers.testVersion {
-      package = podman;
-      command = "HOME=$TMPDIR podman --version";
-    };
-  } // lib.optionalAttrs stdenv.hostPlatform.isLinux {
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+    writableTmpDirAsHomeHook
+  ];
+  versionCheckKeepEnvironment = [ "HOME" ];
+  versionCheckProgramArg = "--version";
+
+  passthru.tests = lib.optionalAttrs stdenv.hostPlatform.isLinux {
     inherit (nixosTests) podman;
     # related modules
     inherit (nixosTests)
@@ -153,7 +186,7 @@ buildGoModule rec {
     oci-containers-podman = nixosTests.oci-containers.podman;
   };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://podman.io/";
     description = "Program for managing pods, containers and container images";
     longDescription = ''
@@ -162,8 +195,8 @@ buildGoModule rec {
       To install on NixOS, please use the option `virtualisation.podman.enable = true`.
     '';
     changelog = "https://github.com/containers/podman/blob/v${version}/RELEASE_NOTES.md";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ ] ++ teams.podman.members;
+    license = lib.licenses.asl20;
+    teams = [ lib.teams.podman ];
     mainProgram = "podman";
   };
 }

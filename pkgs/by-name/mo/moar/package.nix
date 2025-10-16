@@ -1,17 +1,22 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+}:
 
 buildGoModule rec {
   pname = "moar";
-  version = "1.27.2";
+  version = "1.33.0";
 
   src = fetchFromGitHub {
     owner = "walles";
-    repo = pname;
+    repo = "moar";
     rev = "v${version}";
-    hash = "sha256-ZWAQrf4Y/Qse02T5Yt7byGXZheH1y7RvBsPP2xiF5Kw=";
+    hash = "sha256-+06cup9iG+iMyluQPzUQ7vrnFHoeU4KNHGra3AsRRw0=";
   };
 
-  vendorHash = "sha256-Orgh0X/HPfaKvliUvTllhk72LkQ/O3Eh9N/38Cj4Rew=";
+  vendorHash = "sha256-ComKeqnw1PvDaCRVXfInRjSzhyZWGkD/hp5piwhwxds=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -20,8 +25,10 @@ buildGoModule rec {
   '';
 
   ldflags = [
-    "-s" "-w"
-    "-X" "main.versionString=v${version}"
+    "-s"
+    "-w"
+    "-X"
+    "main.versionString=v${version}"
   ];
 
   meta = with lib; {

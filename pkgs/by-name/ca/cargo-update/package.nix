@@ -1,36 +1,37 @@
-{ lib
-, rustPlatform
-, fetchCrate
-, cmake
-, installShellFiles
-, pkg-config
-, ronn
-, stdenv
-, curl
-, libgit2
-, libssh2
-, openssl
-, zlib
-, darwin
+{
+  lib,
+  rustPlatform,
+  fetchCrate,
+  cmake,
+  installShellFiles,
+  pkg-config,
+  ronn,
+  stdenv,
+  curl,
+  libgit2,
+  libssh2,
+  openssl,
+  zlib,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-update";
-  version = "16.0.0";
+  version = "18.0.0";
 
   src = fetchCrate {
     inherit pname version;
-    hash = "sha256-jLv/9Fvg+1HNIhfm0D/vvMR9J+Enztj9rXQE1kZITGI=";
+    hash = "sha256-G2x5ZSNF/IqTThnM+iD7U5XHxS5zC5AfHt8wu2jQBLE=";
   };
 
-  cargoHash = "sha256-rwXpQkL6ysMBraLIMk2zQe0vmb9uuePWufBjRVzaBOA=";
+  cargoHash = "sha256-1hshZ6+JFVLSzgy/Hvch2Xu1o8OPGwShWuZ56YyXjZo=";
 
   nativeBuildInputs = [
     cmake
     installShellFiles
     pkg-config
     ronn
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     curl
   ];
 
@@ -39,9 +40,9 @@ rustPlatform.buildRustPackage rec {
     libssh2
     openssl
     zlib
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
     curl
-    darwin.apple_sdk.frameworks.Security
   ];
 
   postBuild = ''
@@ -59,11 +60,16 @@ rustPlatform.buildRustPackage rec {
     LIBGIT2_NO_VENDOR = 1;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Cargo subcommand for checking and applying updates to installed executables";
     homepage = "https://github.com/nabijaczleweli/cargo-update";
     changelog = "https://github.com/nabijaczleweli/cargo-update/releases/tag/v${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ gerschtli Br1ght0ne johntitor matthiasbeyer ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      gerschtli
+      Br1ght0ne
+      johntitor
+      matthiasbeyer
+    ];
   };
 }

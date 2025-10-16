@@ -1,28 +1,30 @@
 {
   lib,
-  stdenv,
   cacert,
   nixosTests,
   rustPlatform,
   fetchFromGitHub,
-  darwin,
+  nix-update-script,
 }:
-rustPlatform.buildRustPackage rec {
+
+rustPlatform.buildRustPackage {
   pname = "redlib";
-  version = "0.35.1-unstable-2024-11-01";
+  version = "0.36.0-unstable-2025-09-09";
 
   src = fetchFromGitHub {
     owner = "redlib-org";
     repo = "redlib";
-    rev = "f03bdcf472d32d51a1093528071dc329b348379d";
-    hash = "sha256-fbk0m20NpaUCWvH/l9hfmx+VKw4U3pkTkXdAeHL7bHs=";
+    rev = "a989d19ca92713878e9a20dead4252f266dc4936";
+    hash = "sha256-YJZVkCi8JQ1U47s52iOSyyf32S3b35pEqw4YTW8FHVY=";
   };
 
-  cargoHash = "sha256-PNqecQSx0Q+K3bBfbOJYWPdl7JdUTDQ4f95RUuW0vPw=";
+  cargoHash = "sha256-L35VSQdIbKGGsBPU2Sj/MoYohy1ZibgZ+7NVa3yNjH8=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-  ];
+  postInstall = ''
+    install -D contrib/redlib.service $out/lib/systemd/system/redlib.service
+    substituteInPlace $out/lib/systemd/system/redlib.service \
+      --replace-fail "/usr/bin/redlib" "$out/bin/redlib"
+  '';
 
   checkFlags = [
     # All these test try to connect to Reddit.
@@ -38,6 +40,8 @@ rustPlatform.buildRustPackage rec {
     "--skip=test_private_sub"
     "--skip=test_banned_sub"
     "--skip=test_gated_sub"
+    "--skip=test_default_subscriptions"
+    "--skip=test_rate_limit_check"
 
     # subreddit.rs
     "--skip=test_fetching_subreddit"
@@ -58,16 +62,19 @@ rustPlatform.buildRustPackage rec {
     SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
   };
 
-  passthru.tests = {
-    inherit (nixosTests) redlib;
+  passthru = {
+    tests = nixosTests.redlib;
+    updateScript = nix-update-script { extraArgs = [ "--version=branch" ]; };
   };
 
   meta = {
-    changelog = "https://github.com/redlib-org/redlib/releases/tag/v${version}";
     description = "Private front-end for Reddit (Continued fork of Libreddit)";
     homepage = "https://github.com/redlib-org/redlib";
     license = lib.licenses.agpl3Only;
     mainProgram = "redlib";
-    maintainers = with lib.maintainers; [ soispha ];
+    maintainers = with lib.maintainers; [
+      bpeetz
+      Guanran928
+    ];
   };
 }

@@ -1,28 +1,42 @@
-{ lib, fetchFromGitHub, buildGoModule }:
+{
+  lib,
+  fetchFromGitHub,
+  buildGo125Module,
+  exiftool,
+  nix-update-script,
+}:
 
-buildGoModule rec {
+buildGo125Module (finalAttrs: {
   pname = "f2";
-  version = "1.9.1";
+  version = "2.2.1";
 
   src = fetchFromGitHub {
     owner = "ayoisaiah";
     repo = "f2";
-    rev = "v${version}";
-    sha256 = "sha256-vpyI6WtK/0UpPiB8y+HpPd0IsKKkMHa/eIreYo32iAA=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-zAhJ1giOhAhcDlRO/M+pf275m6lVydet1WCSiBIUkjw=";
   };
 
-  vendorHash = "sha256-Bz3Igjcyq4rkMkgv1J3+JiAqroAjxyAvHw4d4eZJgAM=";
+  vendorHash = "sha256-DHUX+8gw+pmjEQRUeukzTimfYo0iHyN90MjrOlpjoJg=";
 
-  ldflags = [ "-s" "-w" "-X=main.Version=${version}" ];
+  ldflags = [
+    "-s"
+    "-w"
+    "-X=github.com/ayoisaiah/f2/v2/app.VersionString=${finalAttrs.version}"
+  ];
 
-  # has no tests
-  doCheck = false;
+  nativeCheckInputs = [ exiftool ];
 
-  meta = with lib; {
+  passthru.updateScript = nix-update-script { };
+
+  meta = {
     description = "Command-line batch renaming tool";
     homepage = "https://github.com/ayoisaiah/f2";
-    license = licenses.mit;
-    maintainers = with maintainers; [ zendo ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
+      prince213
+      zendo
+    ];
     mainProgram = "f2";
   };
-}
+})

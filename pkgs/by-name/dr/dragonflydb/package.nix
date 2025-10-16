@@ -1,27 +1,28 @@
-{ fetchFromGitHub
-, fetchurl
-, lib
-, stdenv
-, double-conversion
-, gperftools
-, mimalloc
-, rapidjson
-, liburing
-, xxHash
-, gbenchmark
-, glog
-, gtest
-, jemalloc
-, gcc-unwrapped
-, autoconf
-, autoconf-archive
-, automake
-, cmake
-, ninja
-, boost
-, libunwind
-, libtool
-, openssl
+{
+  fetchFromGitHub,
+  fetchurl,
+  lib,
+  stdenv,
+  double-conversion,
+  gperftools,
+  mimalloc,
+  rapidjson,
+  liburing,
+  xxHash,
+  gbenchmark,
+  glog,
+  gtest,
+  jemalloc,
+  gcc-unwrapped,
+  autoconf,
+  autoconf-archive,
+  automake,
+  cmake,
+  ninja,
+  boost,
+  libunwind,
+  libtool,
+  openssl,
 }:
 
 let
@@ -31,7 +32,7 @@ let
   src = fetchFromGitHub {
     owner = pname;
     repo = "dragonfly";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-P6WMW/n+VezWDXGagT4B+ZYyCp8oufDV6MTrpKpLZcs=";
     fetchSubmodules = true;
   };

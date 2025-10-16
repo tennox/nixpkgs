@@ -1,24 +1,43 @@
-{ stdenv, lib
-, fetchurl
-, pkg-config, meson, ninja, makeWrapper
-, libbsd, numactl, libbpf, zlib, elfutils, jansson, openssl, libpcap, rdma-core
-, doxygen, python3, pciutils
-, withExamples ? []
-, shared ? false
-, machine ? (
-    if stdenv.hostPlatform.isx86_64 then "nehalem"
-    else if stdenv.hostPlatform.isAarch64 then "generic"
-    else null
-  )
+{
+  stdenv,
+  lib,
+  fetchurl,
+  pkg-config,
+  meson,
+  ninja,
+  makeWrapper,
+  libbsd,
+  numactl,
+  libbpf,
+  zlib,
+  elfutils,
+  jansson,
+  openssl,
+  libpcap,
+  rdma-core,
+  doxygen,
+  python3,
+  pciutils,
+  fetchpatch,
+  withExamples ? [ ],
+  shared ? false,
+  machine ? (
+    if stdenv.hostPlatform.isx86_64 then
+      "nehalem"
+    else if stdenv.hostPlatform.isAarch64 then
+      "generic"
+    else
+      null
+  ),
 }:
 
 stdenv.mkDerivation rec {
   pname = "dpdk";
-  version = "23.11";
+  version = "25.07";
 
   src = fetchurl {
     url = "https://fast.dpdk.org/rel/dpdk-${version}.tar.xz";
-    sha256 = "sha256-ZPpY/fyelRDo5BTjvt0WW9PUykZaIxsoAyP4PNU/2GU=";
+    sha256 = "sha256-aIbL7cNQu4y+80fRA2fWJZ42Q1Yn+7J9V4rb3A07QQ0=";
   };
 
   nativeBuildInputs = [
@@ -59,9 +78,9 @@ stdenv.mkDerivation rec {
     "-Denable_docs=true"
     "-Ddeveloper_mode=disabled"
   ]
-  ++ [(if shared then "-Ddefault_library=shared" else "-Ddefault_library=static")]
+  ++ [ (if shared then "-Ddefault_library=shared" else "-Ddefault_library=static") ]
   ++ lib.optional (machine != null) "-Dmachine=${machine}"
-  ++ lib.optional (withExamples != []) "-Dexamples=${builtins.concatStringsSep "," withExamples}";
+  ++ lib.optional (withExamples != [ ]) "-Dexamples=${builtins.concatStringsSep "," withExamples}";
 
   postInstall = ''
     # Remove Sphinx cache files. Not only are they not useful, but they also
@@ -70,20 +89,32 @@ stdenv.mkDerivation rec {
 
     wrapProgram $out/bin/dpdk-devbind.py \
       --prefix PATH : "${lib.makeBinPath [ pciutils ]}"
-  '' + lib.optionalString (withExamples != []) ''
+  ''
+  + lib.optionalString (withExamples != [ ]) ''
     mkdir -p $examples/bin
     find examples -type f -executable -exec install {} $examples/bin \;
   '';
 
-  outputs =
-    [ "out" "doc" ]
-    ++ lib.optional (withExamples != []) "examples";
+  outputs = [
+    "out"
+    "doc"
+  ]
+  ++ lib.optional (withExamples != [ ]) "examples";
 
   meta = with lib; {
     description = "Set of libraries and drivers for fast packet processing";
     homepage = "http://dpdk.org/";
-    license = with licenses; [ lgpl21 gpl2Only bsd2 ];
-    platforms =  platforms.linux;
-    maintainers = with maintainers; [ magenbluten orivej mic92 zhaofengli ];
+    license = with licenses; [
+      lgpl21
+      gpl2Only
+      bsd2
+    ];
+    platforms = platforms.linux;
+    maintainers = with maintainers; [
+      magenbluten
+      orivej
+      mic92
+      zhaofengli
+    ];
   };
 }

@@ -1,19 +1,23 @@
-{ cxx-rs, fetchFromGitHub, lib, rustPlatform, testers }:
+{
+  cxx-rs,
+  fetchFromGitHub,
+  lib,
+  rustPlatform,
+  testers,
+}:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cxx-rs";
-  version = "1.0.94";
+  version = "1.0.175";
 
   src = fetchFromGitHub {
     owner = "dtolnay";
     repo = "cxx";
-    rev = version;
-    sha256 = "sha256-h6TmQyxhoOhaAWBZr9rRPCf0BE2QMBIYm5uTVKD2paE=";
+    tag = finalAttrs.version;
+    sha256 = "sha256-haAcBBI5ol+gcqKzasyHU43ewGA0L4FlL4o1QlJJukc=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-  };
+  cargoLock.lockFile = ./Cargo.lock;
 
   postPatch = ''
     cp ${./Cargo.lock} Cargo.lock
@@ -30,7 +34,11 @@ rustPlatform.buildRustPackage rec {
 
   cargoTestFlags = [ "--workspace" ];
 
-  outputs = [ "out" "doc" "dev" ];
+  outputs = [
+    "out"
+    "doc"
+    "dev"
+  ];
 
   postInstall = ''
     mkdir -p $doc
@@ -52,4 +60,4 @@ rustPlatform.buildRustPackage rec {
     license = licenses.mit;
     maintainers = with maintainers; [ centromere ];
   };
-}
+})

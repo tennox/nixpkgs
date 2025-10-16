@@ -9,8 +9,14 @@ FileSender uses [SimpleSAMLphp](https://simplesamlphp.org/) for authentication, 
 Minimal working instance of FileSender that uses password-authentication would look like this:
 
 ```nix
+let
+  format = pkgs.formats.php { };
+in
 {
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
   services.filesender = {
     enable = true;
     localDomain = "filesender.example.com";

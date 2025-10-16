@@ -1,14 +1,15 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, cmake
-, pkg-config
-, callPackage
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+  callPackage,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "teensy-cmake-macros";
-  version = "unstable-2023-04-15";
+  version = "0-unstable-2023-04-15";
 
   src = fetchFromGitHub {
     owner = "newdigate";
@@ -17,7 +18,10 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-E+BOlsCJtOScr3B5GSv1WM6rFv6cFYvm/iJ893fsmXM=";
   };
 
-  propagatedBuildInputs = [ cmake pkg-config ];
+  propagatedBuildInputs = [
+    cmake
+    pkg-config
+  ];
 
   passthru = {
     hook = callPackage ./hook.nix {

@@ -1,20 +1,21 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "complgen";
-  version = "0.1.8";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "adaszko";
     repo = "complgen";
     rev = "v${version}";
-    hash = "sha256-pcMyI9jK5yyqZ7OlzDuG+9bK9QdZvXAxm4QS9awyqXk=";
+    hash = "sha256-GgGFlrAJN9w+bsoXmVJaYUyx/ViH9m4E4EeJlmWRo6o=";
   };
 
-  cargoHash = "sha256-gZoK0EuULoZ5D6YPrjmn0Cv1Wu9t9xzJhP6/3OrBHeY=";
+  cargoHash = "sha256-JexvR/djdRGq3BsOWfEhFCbTe3OaP/jqQgiO+RkK1Tg=";
 
   meta = with lib; {
     description = "Generate {bash,fish,zsh} completions from a single EBNF-like grammar";

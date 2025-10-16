@@ -1,9 +1,18 @@
-{ lib, stdenv, fetchFromGitHub, cmake, openssl, sqlite, pkg-config
-, systemd, tlsSupport ? false }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  openssl,
+  sqlite,
+  pkg-config,
+  systemd,
+  tlsSupport ? false,
+}:
 
 assert tlsSupport -> openssl != null;
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "uhub";
   version = "unstable-2019-12-13";
 
@@ -14,8 +23,15 @@ stdenv.mkDerivation rec {
     hash = "sha256-CdTTf82opnpjd7I9TTY+JDEZSfdGFPE0bq/xsafwm/w=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ sqlite systemd ] ++ lib.optional tlsSupport openssl;
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    sqlite
+    systemd
+  ]
+  ++ lib.optional tlsSupport openssl;
 
   postPatch = ''
     substituteInPlace CMakeLists.txt \
@@ -32,7 +48,6 @@ stdenv.mkDerivation rec {
     description = "High performance peer-to-peer hub for the ADC network";
     homepage = "https://www.uhub.org/";
     license = licenses.gpl3;
-    maintainers = [ maintainers.ehmry ];
     platforms = platforms.unix;
   };
 }

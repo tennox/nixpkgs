@@ -1,12 +1,19 @@
-{ lib, stdenv, fetchFromGitHub
-, useCoefficients ? false
-, indicateProgress ? false
-, useGoogleHashmap ? false, sparsehash ? null
-, fileFormat ? "lowerTriangularCsv"
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  useCoefficients ? false,
+  indicateProgress ? false,
+  useGoogleHashmap ? false,
+  sparsehash ? null,
+  fileFormat ? "lowerTriangularCsv",
 }:
 
-assert lib.assertOneOf "fileFormat" fileFormat
-  ["lowerTriangularCsv" "upperTriangularCsv" "dipha"];
+assert lib.assertOneOf "fileFormat" fileFormat [
+  "lowerTriangularCsv"
+  "upperTriangularCsv"
+  "dipha"
+];
 assert useGoogleHashmap -> sparsehash != null;
 
 let
@@ -35,8 +42,7 @@ stdenv.mkDerivation {
   ++ lib.optional useGoogleHashmap "-D USE_GOOGLE_HASHMAP"
   ++ lib.optional (fileFormat == "lowerTriangularCsv") "-D FILE_FORMAT_LOWER_TRIANGULAR_CSV"
   ++ lib.optional (fileFormat == "upperTriangularCsv") "-D FILE_FORMAT_UPPER_TRIANGULAR_CSV"
-  ++ lib.optional (fileFormat == "dipha") "-D FILE_FORMAT_DIPHA"
-  ;
+  ++ lib.optional (fileFormat == "dipha") "-D FILE_FORMAT_DIPHA";
 
   buildPhase = "c++ ripser.cpp -o ripser $buildFlags";
 
@@ -50,7 +56,7 @@ stdenv.mkDerivation {
     mainProgram = "ripser";
     homepage = "https://github.com/Ripser/ripser";
     license = lib.licenses.lgpl3;
-    maintainers = with lib.maintainers; [erikryb];
+    maintainers = with lib.maintainers; [ erikryb ];
     platforms = lib.platforms.linux;
   };
 }

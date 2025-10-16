@@ -1,11 +1,21 @@
-{ lib, stdenv, fetchurl, autoconf, automake, libtool, pkg-config
-, freetype, SDL, libX11 }:
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoconf,
+  automake,
+  libtool,
+  pkg-config,
+  freetype,
+  SDL,
+  libX11,
+}:
 
 stdenv.mkDerivation rec {
   pname = "agg";
   version = "2.5";
   src = fetchurl {
-    url = "https://www.antigrain.com/${pname}-${version}.tar.gz";
+    url = "https://www.antigrain.com/agg-${version}.tar.gz";
     sha256 = "07wii4i824vy9qsvjsgqxppgqmfdxq0xa87i5yk53fijriadq7mb";
   };
   nativeBuildInputs = [
@@ -17,7 +27,8 @@ stdenv.mkDerivation rec {
   buildInputs = [
     freetype
     SDL
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     libX11
   ];
 
@@ -36,7 +47,8 @@ stdenv.mkDerivation rec {
     (lib.enableFeature stdenv.hostPlatform.isLinux "platform")
     (lib.enableFeature (!stdenv.hostPlatform.isDarwin) "sdltest")
     "--enable-examples=no"
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     "--x-includes=${lib.getDev libX11}/include"
     "--x-libraries=${lib.getLib libX11}/lib"
   ];

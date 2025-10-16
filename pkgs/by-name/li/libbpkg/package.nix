@@ -1,15 +1,21 @@
-{ lib, stdenv
-, build2
-, fetchurl
-, libbutl
-, enableShared ? !stdenv.hostPlatform.isStatic
-, enableStatic ? !enableShared
+{
+  lib,
+  stdenv,
+  build2,
+  fetchurl,
+  libbutl,
+  enableShared ? !stdenv.hostPlatform.isStatic,
+  enableStatic ? !enableShared,
 }:
 
 stdenv.mkDerivation rec {
   pname = "libbpkg";
   version = "0.17.0";
-  outputs = [ "out" "dev" "doc" ];
+  outputs = [
+    "out"
+    "dev"
+    "doc"
+  ];
 
   src = fetchurl {
     url = "https://pkg.cppget.org/1/alpha/build2/libbpkg-${version}.tar.gz";
@@ -32,7 +38,7 @@ stdenv.mkDerivation rec {
   doCheck = true;
 
   meta = with lib; {
-    description = "build2 package dependency manager utility library";
+    description = "Build2 package dependency manager utility library";
     longDescription = ''
       This library defines the types and utilities for working with build2 packages.
       In particular, it provides C++ classes as well as the parser and serializer

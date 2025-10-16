@@ -1,17 +1,44 @@
-{ lib, bzip2, cmake, eigen, fetchFromGitHub, ffmpeg, fox_1_6, gdal,
-  git, gl2ps, gpp , gtest, jdk, libGL, libGLU, libX11, libjpeg,
-  libpng, libtiff, libxcrypt, openscenegraph , proj, python3,
-  python3Packages, stdenv, swig, xercesc, xorg, zlib }:
+{
+  lib,
+  bzip2,
+  cmake,
+  eigen,
+  fetchFromGitHub,
+  ffmpeg,
+  fox_1_6,
+  gdal,
+  git,
+  gl2ps,
+  gpp,
+  gtest,
+  jdk,
+  libGL,
+  libGLU,
+  libX11,
+  libjpeg,
+  libpng,
+  libtiff,
+  libxcrypt,
+  openscenegraph,
+  proj,
+  python3,
+  python3Packages,
+  stdenv,
+  swig,
+  xercesc,
+  xorg,
+  zlib,
+}:
 
 stdenv.mkDerivation rec {
   pname = "sumo";
-  version = "1.21.0";
+  version = "1.24.0";
 
   src = fetchFromGitHub {
     owner = "eclipse";
     repo = "sumo";
-    rev = "v${lib.replaceStrings ["."] ["_"] version}";
-    hash = "sha256-VST3ZJuDQBWf+YoN0kPyLrlXWmJABubUFDsKEMxfxHY=";
+    tag = "v${lib.replaceStrings [ "." ] [ "_" ] version}";
+    hash = "sha256-xf7/hUJpl+XmXx5MmFzYu2geFNe7JVaxDrraoqLrSuk=";
     fetchSubmodules = true;
   };
 
@@ -43,7 +70,8 @@ stdenv.mkDerivation rec {
     xercesc
     zlib
     python3
-  ] ++ (with xorg; [
+  ]
+  ++ (with xorg; [
     libX11
     libXcursor
     libXext
@@ -64,6 +92,6 @@ stdenv.mkDerivation rec {
     '';
     homepage = "https://github.com/eclipse/sumo";
     license = licenses.epl20;
-    maintainers = with maintainers; [ mtreca ];
+    maintainers = [ ];
   };
 }

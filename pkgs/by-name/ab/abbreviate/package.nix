@@ -1,7 +1,9 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 }:
 
 buildGoModule rec {
@@ -11,7 +13,7 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "dnnrly";
     repo = "abbreviate";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-foGg+o+BbPsfpph+XHIfyPaknQD1N1rcZW58kgZ5HYM=";
   };
 
@@ -21,21 +23,24 @@ buildGoModule rec {
     installShellFiles
   ];
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd abbreviate \
       --bash <($out/bin/abbreviate completion bash) \
       --fish <($out/bin/abbreviate completion fish) \
       --zsh <($out/bin/abbreviate completion zsh)
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Shorten your strings using common abbreviations";
     mainProgram = "abbreviate";
     homepage = "https://github.com/dnnrly/abbreviate";
     changelog = "https://github.com/dnnrly/abbreviate/releases/tag/${src.rev}";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ figsoda ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ figsoda ];
   };
 }

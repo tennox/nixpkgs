@@ -1,13 +1,14 @@
-{ augeas
-, buildGoModule
-, fetchFromGitHub
-, gotools
-, lib
-, libvirt
-, libxml2
-, nex
-, pkg-config
-, ragel
+{
+  augeas,
+  buildGoModule,
+  fetchFromGitHub,
+  gotools,
+  lib,
+  libvirt,
+  libxml2,
+  nex,
+  pkg-config,
+  ragel,
 }:
 buildGoModule rec {
   pname = "mgmt";
@@ -15,7 +16,7 @@ buildGoModule rec {
 
   src = fetchFromGitHub {
     owner = "purpleidea";
-    repo = pname;
+    repo = "mgmt";
     rev = "d8820fa1855668d9e0f7a7829d9dd0d122b2c5a9";
     hash = "sha256-jurZvEtiaTjWeDkmCJDIFlTzR5EVglfoDxkFgOilo8s=";
   };
@@ -46,11 +47,10 @@ buildGoModule rec {
     ragel
   ];
 
-
   ldflags = [
     "-s"
     "-w"
-    "-X main.program=${pname}"
+    "-X main.program=mgmt"
     "-X main.version=${version}"
   ];
 
@@ -59,7 +59,7 @@ buildGoModule rec {
   vendorHash = "sha256-Dtqy4TILN+7JXiHKHDdjzRTsT8jZYG5sPudxhd8znXY=";
 
   meta = with lib; {
-    description = "Next generation distributed, event-driven, parallel config management!";
+    description = "Next generation distributed, event-driven, parallel config management";
     homepage = "https://mgmtconfig.com";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ urandom ];

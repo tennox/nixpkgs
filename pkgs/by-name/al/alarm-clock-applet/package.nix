@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, fetchpatch
-, cmake
-, pkg-config
-, wrapGAppsHook3
-, gst_all_1
-, libnotify
-, libayatana-appindicator
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  pkg-config,
+  wrapGAppsHook3,
+  gst_all_1,
+  libnotify,
+  libayatana-appindicator,
 }:
 
 stdenv.mkDerivation rec {
@@ -17,7 +18,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = pname;
     repo = "alarm-clock";
-    rev = version;
+    tag = version;
     hash = "sha256-10hkWWEsAUJnGeu35bR5d0RFKd9CKDZI7WGMzmEM3rI=";
   };
 

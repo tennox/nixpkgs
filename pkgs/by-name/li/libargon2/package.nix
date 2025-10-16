@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, fixDarwinDylibNames }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  fixDarwinDylibNames,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libargon2";
@@ -29,8 +35,10 @@ stdenv.mkDerivation rec {
     "ARGON2_VERSION=${version}"
     "LIBRARY_REL=lib"
     "PKGCONFIG_REL=lib"
-  ] ++ lib.optionals stdenv.hostPlatform.isStatic [
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isStatic [
     "LIBRARIES=$(LIB_ST)"
+    "LINKED_LIB_EXT="
   ];
 
   meta = with lib; {
@@ -43,8 +51,14 @@ stdenv.mkDerivation rec {
       recommends using Argon2 rather than legacy algorithms.
     '';
     homepage = "https://www.argon2.com/";
-    license = with licenses; [ asl20 cc0 ];
-    maintainers = with maintainers; [ taeer olynch ];
+    license = with licenses; [
+      asl20
+      cc0
+    ];
+    maintainers = with maintainers; [
+      taeer
+      olynch
+    ];
     mainProgram = "argon2";
     platforms = platforms.all;
   };

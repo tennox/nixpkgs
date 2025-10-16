@@ -1,17 +1,18 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, bison
-, desktop-file-utils
-, gettext
-, pkg-config
-, glib
-, gtk2
-, libxml2
-, libbfd
-, zlib
-, gnutls
-, enableGui ? true
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  bison,
+  desktop-file-utils,
+  gettext,
+  pkg-config,
+  glib,
+  gtk2,
+  libxml2,
+  libbfd,
+  zlib,
+  gnutls,
+  enableGui ? true,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -37,7 +38,8 @@ stdenv.mkDerivation (finalAttrs: {
     libbfd
     libxml2
     zlib
-  ] ++ lib.optionals enableGui [
+  ]
+  ++ lib.optionals enableGui [
     gtk2
   ];
 
@@ -46,7 +48,8 @@ stdenv.mkDerivation (finalAttrs: {
     "--configure-only"
     # See https://sourceforge.net/p/gtk-gnutella/bugs/555/
     "--disable-malloc"
-  ] ++ lib.optionals (!enableGui) [
+  ]
+  ++ lib.optionals (!enableGui) [
     "--topless"
   ];
 

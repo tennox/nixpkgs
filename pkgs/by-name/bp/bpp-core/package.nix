@@ -1,11 +1,18 @@
-{ lib, stdenv, fetchFromGitHub, fetchpatch, cmake }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "bpp-core";
   version = "2.4.1";
 
-  src = fetchFromGitHub { owner = "BioPP";
-    repo = pname;
+  src = fetchFromGitHub {
+    owner = "BioPP";
+    repo = "bpp-core";
     rev = "v${version}";
     sha256 = "0ma2cl677l7s0n5sffh66cy9lxp5wycm50f121g8rx85p95vkgwv";
   };
@@ -17,11 +24,16 @@ stdenv.mkDerivation rec {
     })
   ];
 
+  postPatch = ''
+    substituteInPlace CMakeLists.txt --replace-fail \
+      'cmake_minimum_required (VERSION 2.8.11)' 'cmake_minimum_required (VERSION 4.1)'
+  '';
+
   nativeBuildInputs = [ cmake ];
 
   postFixup = ''
     substituteInPlace $out/lib/cmake/bpp-core/bpp-core-targets.cmake  \
-      --replace 'set(_IMPORT_PREFIX' '#set(_IMPORT_PREFIX'
+      --replace-fail 'set(_IMPORT_PREFIX' '#set(_IMPORT_PREFIX'
   '';
   # prevents cmake from exporting incorrect INTERFACE_INCLUDE_DIRECTORIES
   # of form /nix/store/.../nix/store/.../include,

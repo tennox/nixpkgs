@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, autoreconfHook, SDL }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoreconfHook,
+  SDL,
+}:
 
 stdenv.mkDerivation {
   pname = "vix";
@@ -23,7 +29,6 @@ stdenv.mkDerivation {
     description = "Visual Interface heXadecimal dump";
     homepage = "http://actinid.org/vix/";
     license = licenses.gpl3;
-    maintainers = [ maintainers.ehmry ];
     mainProgram = "vix";
     # sys/io.h missing on other platforms
     platforms = [ "x86_64-linux" ];

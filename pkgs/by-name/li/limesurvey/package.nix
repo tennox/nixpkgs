@@ -1,20 +1,27 @@
-{ lib, stdenv, fetchFromGitHub, writeText, nixosTests }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  writeText,
+  nixosTests,
+  nix-update-script,
+}:
 
 stdenv.mkDerivation rec {
   pname = "limesurvey";
-  version = "6.6.5+240924";
+  version = "6.15.14+250924";
 
   src = fetchFromGitHub {
     owner = "LimeSurvey";
     repo = "LimeSurvey";
-    rev = version;
-    hash = "sha256-CuuTFCDY7jnF2njZdyB6e8/nRf0n0ybKgZ0QscC2IAI=";
+    tag = version;
+    hash = "sha256-xxK6JEgeBVIj8CGb0qSzwfO1Se9+jMtGB9V3rsc9bBU=";
   };
 
   phpConfig = writeText "config.php" ''
-  <?php
-    return require(getenv('LIMESURVEY_CONFIG'));
-  ?>
+    <?php
+      return require(getenv('LIMESURVEY_CONFIG'));
+    ?>
   '';
 
   installPhase = ''
@@ -27,15 +34,16 @@ stdenv.mkDerivation rec {
     runHook postInstall
   '';
 
-  passthru.tests = {
-    smoke-test = nixosTests.limesurvey;
+  passthru = {
+    tests = { inherit (nixosTests) limesurvey; };
+    updateScript = nix-update-script { };
   };
 
   meta = with lib; {
     description = "Open source survey application";
     license = licenses.gpl2Plus;
     homepage = "https://www.limesurvey.org";
-    maintainers = with maintainers; [offline];
+    maintainers = with maintainers; [ offline ];
     platforms = with platforms; unix;
   };
 }

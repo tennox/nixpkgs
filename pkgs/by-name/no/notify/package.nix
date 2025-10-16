@@ -1,21 +1,22 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, nix-update-script
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  nix-update-script,
 }:
 
 buildGoModule rec {
   pname = "notify";
-  version = "1.0.6";
+  version = "1.0.7";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
-    repo = pname;
+    repo = "notify";
     rev = "v${version}";
-    sha256 = "sha256-9oakHqDhOZyqzlVqHPjTsG2f780DABt0+JRckmkWW64=";
+    sha256 = "sha256-QXioBUCMZ4ANkF2WOXiKUlExVq4abkaVFBd3efAGXMs=";
   };
 
-  vendorHash = "sha256-/FJECY1x9nMqOIzqdN6T+vdi9qjjY0YAoqvVNf0kN3s=";
+  vendorHash = "sha256-jO9d+wJr03rqlPrQ3mmWOxOXw2kL+0x8YkkXu/Msm+Q=";
 
   modRoot = ".";
   subPackages = [
@@ -30,7 +31,7 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = "Notify allows sending the output from any tool to Slack, Discord and Telegram";
+    description = "Allows sending the output from any tool to Slack, Discord and Telegram";
     longDescription = ''
       Notify is a helper utility written in Go that allows you to post the output from any tool
       to Slack, Discord, and Telegram.

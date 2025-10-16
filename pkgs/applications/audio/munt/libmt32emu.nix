@@ -1,27 +1,29 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
 }:
 
 stdenv.mkDerivation rec {
   pname = "libmt32emu";
-  version = "2.7.1";
+  version = "2.7.2";
 
   src = fetchFromGitHub {
     owner = "munt";
     repo = "munt";
     rev = "${pname}_${lib.replaceStrings [ "." ] [ "_" ] version}";
-    sha256 = "sha256-zY1AFcm8uvFkrKUZHsqtKY2CYTY4bWmkTJ7bZPqXoxk=";
+    sha256 = "sha256-wXIvdGoup/AOQggkeXvtbi3pXhyKUKWmyt/ZbGzufds=";
   };
 
-  outputs = [ "out" "dev" ];
+  outputs = [
+    "out"
+    "dev"
+  ];
 
   nativeBuildInputs = [
     cmake
   ];
-
-  dontFixCmake = true;
 
   cmakeFlags = [
     "-Dmunt_WITH_MT32EMU_SMF2WAV=OFF"

@@ -1,9 +1,10 @@
-{ buildGoModule
-, fetchFromGitHub
-, lib
-, runCommand
-, ran
-, curl
+{
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  runCommand,
+  ran,
+  curl,
 }:
 
 buildGoModule rec {
@@ -18,11 +19,13 @@ buildGoModule rec {
 
   vendorHash = "sha256-ObroruWWNilHIclqNvbEaa7vwk+1zMzDKbjlVs7Fito=";
 
-  CGO_ENABLED = 0;
+  env.CGO_ENABLED = 0;
 
   ldflags = [
-    "-X" "main._version_=v${version}"
-    "-X" "main._branch_=master"
+    "-X"
+    "main._version_=v${version}"
+    "-X"
+    "main._branch_=master"
   ];
 
   passthru.tests = {
@@ -39,7 +42,7 @@ buildGoModule rec {
 
   meta = with lib; {
     homepage = "https://github.com/m3ng9i/ran";
-    description = "Ran is a simple web server for serving static files";
+    description = "Simple web server for serving static files";
     mainProgram = "ran";
     license = licenses.mit;
     maintainers = with maintainers; [ tomberek ];

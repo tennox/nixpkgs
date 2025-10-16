@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, fontforge, python3 }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fontforge,
+  python3,
+}:
 
 stdenv.mkDerivation rec {
   pname = "rictydiminished-with-firacode";
@@ -7,7 +13,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "hakatashi";
     repo = "RictyDiminished-with-FiraCode";
-    rev = version;
+    tag = version;
     hash = "sha256-twh3yLAM4MUjWzSDNmo8gNIRf01hieXeOS334sNdFk4=";
     fetchSubmodules = true;
   };
@@ -46,4 +52,3 @@ stdenv.mkDerivation rec {
     maintainers = with maintainers; [ mt-caret ];
   };
 }
-

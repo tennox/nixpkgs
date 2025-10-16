@@ -1,8 +1,15 @@
-{ stdenv, lib, fetchFromGitHub, makeWrapper, unzip, catdoc }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  makeWrapper,
+  unzip,
+  catdoc,
+}:
 
 stdenv.mkDerivation {
   pname = "catdocx";
-  version = "unstable-2017-01-02";
+  version = "0-unstable-2017-01-02";
 
   src = fetchFromGitHub {
     owner = "jncraton";
@@ -17,7 +24,12 @@ stdenv.mkDerivation {
     mkdir -p $out/libexec $out/bin
     cp catdocx.sh $out/libexec
     chmod +x $out/libexec/catdocx.sh
-    wrapProgram $out/libexec/catdocx.sh --prefix PATH : "${lib.makeBinPath [ unzip catdoc ]}"
+    wrapProgram $out/libexec/catdocx.sh --prefix PATH : "${
+      lib.makeBinPath [
+        unzip
+        catdoc
+      ]
+    }"
     ln -s $out/libexec/catdocx.sh $out/bin/catdocx
   '';
 

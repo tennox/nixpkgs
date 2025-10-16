@@ -4,18 +4,16 @@
   fetchFromGitHub,
   nix-update-script,
   buildNpmPackage,
-  fetchpatch,
 }:
-
 buildGoModule rec {
   pname = "beszel";
-  version = "0.6.2";
+  version = "0.13.2";
 
   src = fetchFromGitHub {
     owner = "henrygd";
     repo = "beszel";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-x9HU+sDjxRthC4ROJaKbuKHPHgxFSpyn/dywyGWE/v8=";
+    tag = "v${version}";
+    hash = "sha256-5akfgX3533NkeszP/by9ZfwTmMPdG5/JKFjswP1FRp8=";
   };
 
   webui = buildNpmPackage {
@@ -28,17 +26,11 @@ buildGoModule rec {
 
     npmFlags = [ "--legacy-peer-deps" ];
 
-    patches = [
-      # add missing @esbuild for multi platform
-      # https://github.com/henrygd/beszel/pull/235
-      # add missing @esbuild for multi platform
-      # https://github.com/henrygd/beszel/pull/235
-      ./0001-fix-build.patch
-    ];
-
     buildPhase = ''
       runHook preBuild
 
+      npx lingui extract --overwrite
+      npx lingui compile
       node --max_old_space_size=1024000 ./node_modules/vite/bin/vite.js build
 
       runHook postBuild
@@ -53,18 +45,16 @@ buildGoModule rec {
       runHook postInstall
     '';
 
-    sourceRoot = "${src.name}/beszel/site";
+    sourceRoot = "${src.name}/internal/site";
 
-    npmDepsHash = "sha256-t7Qcuvqbt0sPHAu3vcZaU8/Ij2yY5/g1TguozlKu0mU=";
+    npmDepsHash = "sha256-7+3K8MhA+FXWRXQR5edUYbL/XcxPmUqWQPxl5k8u1xs=";
   };
 
-  sourceRoot = "${src.name}/beszel";
-
-  vendorHash = "sha256-/FePQkqoeuH63mV81v1NxpFw9osMUCcZ1bP+0yN1Qlo=";
+  vendorHash = "sha256-IfwgL4Ms5Uho1l0yGCyumbr1N/SN+j5HaFl4hACkTsQ=";
 
   preBuild = ''
-    mkdir -p site/dist
-    cp -r ${webui}/* site/dist
+    mkdir -p internal/site/dist
+    cp -r ${webui}/* internal/site/dist
   '';
 
   postInstall = ''
@@ -72,7 +62,12 @@ buildGoModule rec {
     mv $out/bin/hub $out/bin/beszel-hub
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    extraArgs = [
+      "--subpackage"
+      "webui"
+    ];
+  };
 
   meta = {
     homepage = "https://github.com/henrygd/beszel";

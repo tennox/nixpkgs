@@ -1,28 +1,39 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+}:
 
 buildGoModule rec {
   pname = "istioctl";
-  version = "1.23.2";
+  version = "1.27.2";
 
   src = fetchFromGitHub {
     owner = "istio";
     repo = "istio";
     rev = version;
-    hash = "sha256-Vyd32T19dw0j7PfuAcs6cuDlAhtMnRcUZXvYtEM7D4w=";
+    hash = "sha256-o+rKTm1Yc2J+/uDp1DCkCpmOrODpfQ7bQ/FB62UyKfk=";
   };
-  vendorHash = "sha256-Sh/SsVIque5xdyOGCNU188pi0JCDXv90LlV7NCmgpGQ=";
+  vendorHash = "sha256-AJzEAFZZe4QtuYRcIJ8GwosbBi5gWn+DAOpVS8JnAdQ=";
 
   nativeBuildInputs = [ installShellFiles ];
 
   # Bundle release metadata
-  ldflags = let
-    attrs = [
-      "istio.io/istio/pkg/version.buildVersion=${version}"
-      "istio.io/istio/pkg/version.buildStatus=Nix"
-      "istio.io/istio/pkg/version.buildTag=${version}"
-      "istio.io/istio/pkg/version.buildHub=docker.io/istio"
+  ldflags =
+    let
+      attrs = [
+        "istio.io/istio/pkg/version.buildVersion=${version}"
+        "istio.io/istio/pkg/version.buildStatus=Nix"
+        "istio.io/istio/pkg/version.buildTag=${version}"
+        "istio.io/istio/pkg/version.buildHub=docker.io/istio"
+      ];
+    in
+    [
+      "-s"
+      "-w"
+      "${lib.concatMapStringsSep " " (attr: "-X ${attr}") attrs}"
     ];
-  in ["-s" "-w" "${lib.concatMapStringsSep " " (attr: "-X ${attr}") attrs}"];
 
   subPackages = [ "istioctl/cmd/istioctl" ];
 
@@ -43,6 +54,10 @@ buildGoModule rec {
     mainProgram = "istioctl";
     homepage = "https://istio.io/latest/docs/reference/commands/istioctl";
     license = licenses.asl20;
-    maintainers = with maintainers; [ bryanasdev000 veehaitch ];
+    maintainers = with maintainers; [
+      bryanasdev000
+      veehaitch
+      ryan4yin
+    ];
   };
 }

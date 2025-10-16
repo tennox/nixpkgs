@@ -1,20 +1,31 @@
-{ fetchzip, lib, rustPlatform, git, installShellFiles }:
+{
+  fetchzip,
+  lib,
+  rustPlatform,
+  git,
+  installShellFiles,
+  versionCheckHook,
+  nix-update-script,
+}:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (final: {
   pname = "helix";
-  version = "24.07";
+  version = "25.07.1";
 
   # This release tarball includes source code for the tree-sitter grammars,
   # which is not ordinarily part of the repository.
   src = fetchzip {
-    url = "https://github.com/helix-editor/helix/releases/download/${version}/helix-${version}-source.tar.xz";
-    hash = "sha256-R8foMx7YJ01ZS75275xPQ52Ns2EB3OPop10F4nicmoA=";
+    url = "https://github.com/helix-editor/helix/releases/download/${final.version}/helix-${final.version}-source.tar.xz";
+    hash = "sha256-Pj/lfcQXRWqBOTTWt6+Gk61F9F1UmeCYr+26hGdG974=";
     stripRoot = false;
   };
 
-  cargoHash = "sha256-Y8zqdS8vl2koXmgFY0hZWWP1ZAO8JgwkoPTYPVpkWsA=";
+  cargoHash = "sha256-Mf0nrgMk1MlZkSyUN6mlM5lmTcrOHn3xBNzmVGtApEU=";
 
-  nativeBuildInputs = [ git installShellFiles ];
+  nativeBuildInputs = [
+    git
+    installShellFiles
+  ];
 
   env.HELIX_DEFAULT_RUNTIME = "${placeholder "out"}/lib/runtime";
 
@@ -30,11 +41,27 @@ rustPlatform.buildRustPackage rec {
     cp contrib/helix.png $out/share/icons/hicolor/256x256/apps
   '';
 
-  meta = with lib; {
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgram = "${placeholder "out"}/bin/hx";
+  versionCheckProgramArg = "--version";
+  doInstallCheck = true;
+
+  passthru = {
+    updateScript = nix-update-script { };
+  };
+
+  meta = {
     description = "Post-modern modal text editor";
     homepage = "https://helix-editor.com";
-    license = licenses.mpl20;
+    changelog = "https://github.com/helix-editor/helix/blob/${final.version}/CHANGELOG.md";
+    license = lib.licenses.mpl20;
     mainProgram = "hx";
-    maintainers = with maintainers; [ danth yusdacra zowoq ];
+    maintainers = with lib.maintainers; [
+      danth
+      yusdacra
+      zowoq
+    ];
   };
-}
+})

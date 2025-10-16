@@ -1,15 +1,16 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, makeWrapper
-, libglut
-, libGLU
-, libGL
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  libglut,
+  libGLU,
+  libGL,
 }:
 
 stdenv.mkDerivation {
   pname = "newtonwars";
-  version = "unstable-2023-04-08";
+  version = "0-unstable-2023-04-08";
 
   src = fetchFromGitHub {
     owner = "Draradech";
@@ -19,7 +20,11 @@ stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ makeWrapper ];
-  buildInputs = [ libglut libGL libGLU ];
+  buildInputs = [
+    libglut
+    libGL
+    libGLU
+  ];
 
   patchPhase = ''
     sed -i "s;font24.raw;$out/share/font24.raw;g" display.c

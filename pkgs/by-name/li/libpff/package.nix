@@ -1,28 +1,36 @@
-{ stdenv
-, lib
-, fetchzip
-, pkg-config
-, autoreconfHook
+{
+  stdenv,
+  lib,
+  fetchzip,
+  pkg-config,
+  autoreconfHook,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "libpff";
-  version = "20211114";
+  version = "20231205";
 
   src = fetchzip {
-    url = "https://github.com/libyal/libpff/releases/download/${version}/libpff-alpha-${version}.tar.gz";
-    sha256 = "sha256-UmGRBgi78nDSuuOXi/WmODojWU5AbQGKNQwLseoh714=";
+    url = "https://github.com/libyal/libpff/releases/download/${finalAttrs.version}/libpff-alpha-${finalAttrs.version}.tar.gz";
+    hash = "sha256-VrdfZRC2iwTfv3YrObQvIH9QZPTi9pUQoAyUcBVJyes=";
   };
 
-  nativeBuildInputs = [ pkg-config autoreconfHook ];
-  outputs = [ "bin" "dev" "out" ];
+  nativeBuildInputs = [
+    pkg-config
+    autoreconfHook
+  ];
+  outputs = [
+    "bin"
+    "dev"
+    "out"
+  ];
 
   meta = {
     description = "Library and tools to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format";
     homepage = "https://github.com/libyal/libpff";
     downloadPage = "https://github.com/libyal/libpff/releases";
-    changelog = "https://github.com/libyal/libpff/blob/${version}/ChangeLog";
+    changelog = "https://github.com/libyal/libpff/blob/${finalAttrs.version}/ChangeLog";
     license = lib.licenses.lgpl3Only;
     maintainers = with lib.maintainers; [ hacker1024 ];
   };
-}
+})

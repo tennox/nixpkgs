@@ -1,8 +1,12 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule {
   pname = "protoc-gen-twirp_typescript";
-  version = "unstable-2022-08-14";
+  version = "0-unstable-2022-08-14";
 
   src = fetchFromGitHub {
     owner = "larrymyers";
@@ -21,6 +25,9 @@ buildGoModule {
     mainProgram = "protoc-gen-twirp_typescript";
     homepage = "https://github.com/larrymyers/protoc-gen-twirp_typescript";
     license = licenses.mit;
-    maintainers = with maintainers; [ jojosch dgollings ];
+    maintainers = with maintainers; [
+      jojosch
+      dgollings
+    ];
   };
 }

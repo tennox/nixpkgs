@@ -1,7 +1,12 @@
-{ lib, stdenv, fetchFromGitHub
-, makeWrapper, installShellFiles
-, python3, sqlite
-, nixosTests
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  makeWrapper,
+  installShellFiles,
+  python3,
+  sqlite,
+  nixosTests,
 }:
 
 stdenv.mkDerivation rec {
@@ -15,11 +20,17 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-pYGtgv9hPBG/URD2nOWg6qJYYLtlqLW+t5mCLpzKlEc=";
   };
 
-  nativeBuildInputs = [ makeWrapper installShellFiles ];
+  nativeBuildInputs = [
+    makeWrapper
+    installShellFiles
+  ];
 
   buildInputs = [ python3 ];
 
-  outputs = [ "out" "man" ];
+  outputs = [
+    "out"
+    "man"
+  ];
 
   installPhase = ''
     mkdir -p $out/bin
@@ -44,7 +55,7 @@ stdenv.mkDerivation rec {
     changelog = "https://github.com/rfrail3/tuptime/blob/master/CHANGELOG";
     license = licenses.gpl2Plus;
     platforms = platforms.all;
-    maintainers = [ maintainers.evils ];
+    maintainers = [ ];
     mainProgram = "tuptime";
   };
 }

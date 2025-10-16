@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, makeWrapper
-, fetchFromGitHub
-, gradle_7
-, openjdk17
+{
+  lib,
+  stdenv,
+  makeWrapper,
+  fetchFromGitHub,
+  gradle_7,
+  openjdk17,
 }:
 
 let
   pname = "fastddsgen";
-  version = "4.0.2";
+  version = "4.2.0";
 
   gradle = gradle_7;
 
@@ -19,9 +20,9 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "eProsima";
     repo = "Fast-DDS-Gen";
-    rev = "v${version}";
+    tag = "v${version}";
     fetchSubmodules = true;
-    hash = "sha256-dwShzcS0sCiVZghpjvPYvYu89NNkGWUWPsAzwdzfAqo=";
+    hash = "sha256-weGS340MvPitWMgWx1cWTgYgGcQfJSTUus8EcBob7hY=";
   };
 
   nativeBuildInputs = [
@@ -37,7 +38,10 @@ stdenv.mkDerivation {
 
   __darwinAllowLocalNetworking = true;
 
-  gradleFlags = [ "-x" "submodulesUpdate" ];
+  gradleFlags = [
+    "-x"
+    "submodulesUpdate"
+  ];
 
   installPhase = ''
     runHook preInstall

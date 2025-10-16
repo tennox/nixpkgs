@@ -1,20 +1,21 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, parted
-, systemd
-, argp-standalone
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  parted,
+  systemd,
+  argp-standalone,
 }:
 
 stdenv.mkDerivation rec {
   pname = "f3";
-  version = "8.0";
+  version = "9.0";
 
   src = fetchFromGitHub {
     owner = "AltraMayor";
-    repo = pname;
+    repo = "f3";
     rev = "v${version}";
-    sha256 = "17l5vspfcgfbkqg7bakp3gql29yb05gzawm8n3im30ilzdr53678";
+    sha256 = "sha256-ZajlFGXJcYUVe/wUFfdPYVW8stOo1Aqe8uD2Bm9KIk0=";
   };
 
   postPatch = ''
@@ -26,7 +27,11 @@ stdenv.mkDerivation rec {
     done
   '';
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ systemd parted ]
+  buildInputs =
+    lib.optionals stdenv.hostPlatform.isLinux [
+      systemd
+      parted
+    ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [ argp-standalone ];
 
   buildFlags = [
@@ -45,13 +50,15 @@ stdenv.mkDerivation rec {
 
   postInstall = ''
     install -Dm555 -t $out/bin f3write.h2w log-f3wr
-    install -Dm444 -t $out/share/doc/${pname} LICENSE README.rst
+    install -Dm444 -t $out/share/doc/f3 LICENSE README.rst
   '';
 
   meta = with lib; {
     description = "Fight Flash Fraud";
     homepage = "https://fight-flash-fraud.readthedocs.io/en/stable/";
     license = licenses.gpl3Plus;
-    maintainers = with maintainers; [ makefu evils ];
+    maintainers = with maintainers; [
+      makefu
+    ];
   };
 }

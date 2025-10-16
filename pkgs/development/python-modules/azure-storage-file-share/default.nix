@@ -12,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "azure-storage-file-share";
-  version = "12.19.0";
+  version = "12.22.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -20,7 +20,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "azure_storage_file_share";
     inherit version;
-    hash = "sha256-6npBdNxsUvUKyMMPIoFZ/MNnXR+Lp3G40O/LwxB0Ang=";
+    hash = "sha256-5YPI4IbufW7FDMI9r0KDnBjc4Rs2s9E2TBNxTAi1NFI=";
   };
 
   build-system = [ setuptools ];

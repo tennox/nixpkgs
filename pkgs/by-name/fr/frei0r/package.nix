@@ -1,33 +1,36 @@
-{ lib
-, config
-, stdenv
-, fetchFromGitHub
-, cairo
-, cmake
-, opencv
-, pcre
-, pkg-config
-, cudaSupport ? config.cudaSupport
-, cudaPackages
+{
+  lib,
+  config,
+  stdenv,
+  fetchFromGitHub,
+  cairo,
+  cmake,
+  opencv,
+  pkg-config,
+  cudaSupport ? config.cudaSupport,
+  cudaPackages,
 }:
 
 stdenv.mkDerivation rec {
   pname = "frei0r-plugins";
-  version = "2.3.3";
+  version = "2.4.0";
 
   src = fetchFromGitHub {
     owner = "dyne";
     repo = "frei0r";
     rev = "v${version}";
-    hash = "sha256-uKYCJD88TnrJTTnzCCietNt01QPeFW+hhnjcBNKUWsY=";
+    hash = "sha256-95d1aXfCq4mPccY8VKmO7jkX57li6OVSwtfIf9459n4=";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
   buildInputs = [
     cairo
     opencv
-    pcre
-  ] ++ lib.optionals cudaSupport [
+  ]
+  ++ lib.optionals cudaSupport [
     cudaPackages.cuda_cudart
     cudaPackages.cuda_nvcc
   ];
@@ -43,6 +46,6 @@ stdenv.mkDerivation rec {
     description = "Minimalist, cross-platform, shared video plugins";
     license = licenses.gpl2Plus;
     maintainers = [ ];
-    platforms = platforms.linux ++ platforms.darwin;
+    platforms = platforms.unix;
   };
 }

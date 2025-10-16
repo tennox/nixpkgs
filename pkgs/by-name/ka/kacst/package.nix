@@ -1,4 +1,8 @@
-{ lib, stdenvNoCC, fetchurl }:
+{
+  lib,
+  stdenvNoCC,
+  fetchurl,
+}:
 
 stdenvNoCC.mkDerivation rec {
   pname = "kacst";
@@ -19,7 +23,7 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "KACST Latin-Arabic TrueType fonts";
+    description = "Latin-Arabic TrueType fonts";
     license = licenses.gpl2Only;
     maintainers = with lib.maintainers; [ serge ];
     platforms = platforms.all;

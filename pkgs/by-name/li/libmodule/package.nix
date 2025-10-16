@@ -1,15 +1,20 @@
-{ lib, stdenv, fetchFromGitHub
-, cmake, pkg-config }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  pkg-config,
+}:
 
 stdenv.mkDerivation rec {
   pname = "libmodule";
-  version = "5.0.1";
+  version = "5.0.2";
 
   src = fetchFromGitHub {
     owner = "FedeDP";
     repo = "libmodule";
     rev = version;
-    sha256 = "sha256-wkRiDWO9wUyxkAeqvm99u22Jq4xnQJx6zS7Sb+R8iMg=";
+    sha256 = "sha256-93ItLKThtT9JRc+X/bRm06pugsN31HAF3qTUqqCu6nE=";
   };
 
   nativeBuildInputs = [

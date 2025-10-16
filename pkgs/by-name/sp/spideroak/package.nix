@@ -1,19 +1,39 @@
-{ lib, stdenv, fetchurl, makeWrapper, patchelf
-, fontconfig, freetype, glib, libICE, libSM
-, libX11, libXext, libXrender, zlib
+{
+  lib,
+  stdenv,
+  fetchurl,
+  makeWrapper,
+  patchelf,
+  fontconfig,
+  freetype,
+  glib,
+  libICE,
+  libSM,
+  libX11,
+  libXext,
+  libXrender,
+  zlib,
 }:
 
 let
   sha256 = "6d6ca2b383bcc81af1217c696eb77864a2b6db7428f4b5bde5b5913ce705eec5";
 
   ldpath = lib.makeLibraryPath [
-    fontconfig freetype glib libICE libSM
-    libX11 libXext libXrender zlib
+    fontconfig
+    freetype
+    glib
+    libICE
+    libSM
+    libX11
+    libXext
+    libXrender
+    zlib
   ];
 
   version = "7.5.0";
 
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   pname = "spideroak";
   inherit version;
 
@@ -48,14 +68,16 @@ in stdenv.mkDerivation {
     sed -i 's/^Exec=.*/Exec=spideroak/' $out/share/applications/SpiderOakONE.desktop
   '';
 
-  nativeBuildInputs = [ patchelf makeWrapper ];
+  nativeBuildInputs = [
+    patchelf
+    makeWrapper
+  ];
 
   meta = {
     homepage = "https://spideroak.com";
     description = "Secure online backup and sychronization";
     sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
     license = lib.licenses.unfree;
-    maintainers = with lib.maintainers; [ amorsillo ];
     platforms = lib.platforms.linux;
     mainProgram = "spideroak";
   };

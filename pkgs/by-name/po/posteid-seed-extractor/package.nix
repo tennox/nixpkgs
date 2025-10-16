@@ -1,11 +1,12 @@
-{ lib
-, python3Packages
-, fetchFromGitHub
+{
+  lib,
+  python3Packages,
+  fetchFromGitHub,
 }:
 
 python3Packages.buildPythonApplication {
   pname = "posteid-seed-extractor";
-  version = "unstable-2022-02-23";
+  version = "0-unstable-2022-02-23";
 
   src = fetchFromGitHub {
     owner = "simone36050";
@@ -17,19 +18,19 @@ python3Packages.buildPythonApplication {
   format = "other";
 
   pythonPath = with python3Packages; [
-   certifi
-   cffi
-   charset-normalizer
-   cryptography
-   idna
-   jwcrypto
-   pycparser
-   pycryptodome
-   pyotp
-   qrcode
-   requests
-   urllib3
-   wrapt
+    certifi
+    cffi
+    charset-normalizer
+    cryptography
+    idna
+    jwcrypto
+    pycparser
+    pycryptodome
+    pyotp
+    qrcode
+    requests
+    urllib3
+    wrapt
   ];
 
   installPhase = ''

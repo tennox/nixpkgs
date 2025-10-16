@@ -1,8 +1,21 @@
-{ lib, stdenv, pkg-config, fetchFromGitHub, fetchpatch, cmake, wrapGAppsHook3, avahi, avahi-compat, openssl, gst_all_1, libplist }:
+{
+  lib,
+  stdenv,
+  pkg-config,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
+  wrapGAppsHook3,
+  avahi,
+  avahi-compat,
+  openssl,
+  gst_all_1,
+  libplist,
+}:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "rpiplay";
-  version = "unstable-2021-06-14";
+  version = "0-unstable-2021-06-14";
 
   src = fetchFromGitHub {
     owner = "FD-";

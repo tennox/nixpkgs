@@ -1,25 +1,27 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, aws-c-cal
-, aws-c-common
-, aws-c-compression
-, aws-c-http
-, aws-c-io
-, cmake
-, nix
-, s2n-tls
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  aws-c-cal,
+  aws-c-common,
+  aws-c-compression,
+  aws-c-http,
+  aws-c-io,
+  cmake,
+  nix,
+  s2n-tls,
 }:
 
 stdenv.mkDerivation rec {
   pname = "aws-c-mqtt";
-  version = "0.10.5";
+  # nixpkgs-update: no auto update
+  version = "0.13.3";
 
   src = fetchFromGitHub {
     owner = "awslabs";
     repo = "aws-c-mqtt";
     rev = "v${version}";
-    hash = "sha256-PByF0P+4gwSQKk7qHc79p025TbWZ0QeFXqO2GOtuaII=";
+    hash = "sha256-Nf8c5iVl+NOPZFjsAPCMOGq2e7D8e7PafuMQh6t0DYw=";
   };
 
   nativeBuildInputs = [

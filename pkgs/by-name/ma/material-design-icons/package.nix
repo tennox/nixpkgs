@@ -1,7 +1,8 @@
-{ lib
-, fetchFromGitHub
-, stdenvNoCC
-, nix-update-script
+{
+  lib,
+  fetchFromGitHub,
+  stdenvNoCC,
+  nix-update-script,
 }:
 
 stdenvNoCC.mkDerivation rec {
@@ -11,7 +12,7 @@ stdenvNoCC.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "Templarian";
     repo = "MaterialDesign-Webfont";
-    rev = "v${version}";
+    tag = "v${version}";
     hash = "sha256-7t3i3nPJZ/tRslLBfY+9kXH8TR145GC2hPFYJeMHRL8=";
     sparseCheckout = [ "fonts" ];
   };
@@ -40,6 +41,9 @@ stdenvNoCC.mkDerivation rec {
     homepage = "https://materialdesignicons.com";
     license = licenses.asl20;
     platforms = platforms.all;
-    maintainers = with maintainers; [ vlaci dixslyf ];
+    maintainers = with maintainers; [
+      vlaci
+      dixslyf
+    ];
   };
 }

@@ -1,13 +1,13 @@
-{ lib
-, stdenv
-, fetchurl
-, cmake
-, zlib
-, libpng
-, libGL
-, libGLU
-, libglut
-, darwin
+{
+  lib,
+  stdenv,
+  fetchurl,
+  cmake,
+  zlib,
+  libpng,
+  libGL,
+  libGLU,
+  libglut,
 }:
 
 stdenv.mkDerivation rec {
@@ -19,6 +19,12 @@ stdenv.mkDerivation rec {
     sha256 = "1sgzv547h7hrskb9qd0x5yp45kmhvibjwj2mfswv95lg070h074d";
   };
 
+  # fix build with cmake v4
+  postPatch = ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail 'cmake_minimum_required(VERSION 2.8 FATAL_ERROR)' 'cmake_minimum_required(VERSION 3.10)'
+  '';
+
   nativeBuildInputs = [
     cmake
   ];
@@ -26,12 +32,11 @@ stdenv.mkDerivation rec {
   buildInputs = [
     zlib
     libpng
-  ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
     libGL
     libGLU
     libglut
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.OpenGL
   ];
 
   meta = with lib; {
@@ -39,6 +44,9 @@ stdenv.mkDerivation rec {
     description = "OpenGL to PostScript printing library";
     platforms = platforms.all;
     license = licenses.lgpl2;
-    maintainers = with maintainers; [ raskin twhitehead ];
+    maintainers = with maintainers; [
+      raskin
+      twhitehead
+    ];
   };
 }

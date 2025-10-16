@@ -1,27 +1,50 @@
-{ aacgain
-, ffmpeg
-, flac
-, imagemagick
-, keyfinder-cli
-, mp3gain
-, mp3val
-, python3Packages
-, ...
-}: {
+{
+  aacgain,
+  chromaprint,
+  ffmpeg,
+  flac,
+  imagemagick,
+  keyfinder-cli,
+  mp3gain,
+  mp3val,
+  python3Packages,
+  version,
+  lib,
+  ...
+}:
+{
   absubmit = {
     deprecated = true;
     testPaths = [ ];
   };
-
-  acousticbrainz.propagatedBuildInputs = [ python3Packages.requests ];
+  advancedrewrite = {
+    testPaths = [ ];
+  };
+  acousticbrainz = {
+    deprecated = true;
+    propagatedBuildInputs = [ python3Packages.requests ];
+  };
   albumtypes = { };
   aura = {
-    propagatedBuildInputs = with python3Packages; [ flask pillow ];
-    testPaths = [ ];
+    propagatedBuildInputs = with python3Packages; [
+      flask
+      flask-cors
+      pillow
+    ];
+  };
+  autobpm = {
+    propagatedBuildInputs = with python3Packages; [
+      librosa
+      # An optional dependency of librosa, needed for beets' autobpm
+      resampy
+    ];
   };
   badfiles = {
     testPaths = [ ];
-    wrapperBins = [ mp3val flac ];
+    wrapperBins = [
+      mp3val
+      flac
+    ];
   };
   bareasc = { };
   beatport.propagatedBuildInputs = [ python3Packages.requests-oauthlib ];
@@ -33,13 +56,19 @@
   chroma = {
     propagatedBuildInputs = [ python3Packages.pyacoustid ];
     testPaths = [ ];
+    wrapperBins = [
+      chromaprint
+    ];
   };
   convert.wrapperBins = [ ffmpeg ];
   deezer = {
     propagatedBuildInputs = [ python3Packages.requests ];
     testPaths = [ ];
   };
-  discogs.propagatedBuildInputs = with python3Packages; [ discogs-client requests ];
+  discogs.propagatedBuildInputs = with python3Packages; [
+    discogs-client
+    requests
+  ];
   duplicates.testPaths = [ ];
   edit = { };
   embedart = {
@@ -49,7 +78,12 @@
   embyupdate.propagatedBuildInputs = [ python3Packages.requests ];
   export = { };
   fetchart = {
-    propagatedBuildInputs = with python3Packages; [ requests pillow ];
+    propagatedBuildInputs = with python3Packages; [
+      beautifulsoup4
+      langdetect
+      pillow
+      requests
+    ];
     wrapperBins = [ imagemagick ];
   };
   filefilter = { };
@@ -76,11 +110,19 @@
     propagatedBuildInputs = [ python3Packages.pylast ];
     testPaths = [ ];
   };
+  limit = { };
+  listenbrainz = {
+    testPaths = [ ];
+  };
   loadext = {
     propagatedBuildInputs = [ python3Packages.requests ];
     testPaths = [ ];
   };
-  lyrics.propagatedBuildInputs = [ python3Packages.beautifulsoup4 ];
+  lyrics.propagatedBuildInputs = with python3Packages; [
+    beautifulsoup4
+    langdetect
+    requests
+  ];
   mbcollection.testPaths = [ ];
   mbsubmit = { };
   mbsync = { };
@@ -91,14 +133,20 @@
     propagatedBuildInputs = [ python3Packages.mpd2 ];
     testPaths = [ ];
   };
+  musicbrainz = { };
   parentwork = { };
   permissions = { };
   play = { };
   playlist.propagatedBuildInputs = [ python3Packages.requests ];
   plexupdate = { };
   random = { };
-  replaygain.wrapperBins = [ aacgain ffmpeg mp3gain ];
-  rewrite.testPaths= [ ];
+  replace = { };
+  replaygain.wrapperBins = [
+    aacgain
+    ffmpeg
+    mp3gain
+  ];
+  rewrite.testPaths = [ ];
   scrub.testPaths = [ ];
   smartplaylist = { };
   sonosupdate = {
@@ -111,31 +159,26 @@
     testPaths = [ ];
   };
   subsonicupdate.propagatedBuildInputs = [ python3Packages.requests ];
+  substitute = {
+    testPaths = [ ];
+  };
   the = { };
   thumbnails = {
-    propagatedBuildInputs = with python3Packages; [ pillow pyxdg ];
+    propagatedBuildInputs = with python3Packages; [
+      pillow
+      pyxdg
+    ];
     wrapperBins = [ imagemagick ];
   };
   types.testPaths = [ "test/plugins/test_types_plugin.py" ];
   unimported.testPaths = [ ];
-  web.propagatedBuildInputs = [ python3Packages.flask ];
+  web.propagatedBuildInputs = with python3Packages; [
+    flask
+    flask-cors
+  ];
   zero = { };
-  limit = { };
-  substitute = {
+  _typing = {
     testPaths = [ ];
   };
-  advancedrewrite = {
-    testPaths = [ ];
-  };
-  autobpm = {
-    propagatedBuildInputs = with python3Packages; [
-      librosa
-      # An optional dependency of librosa, needed for beets' autobpm
-      resampy
-    ];
-    testPaths = [ ];
-  };
-  listenbrainz = {
-    testPaths = [ ];
-  };
+  _utils = { };
 }
