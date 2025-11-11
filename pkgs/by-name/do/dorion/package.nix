@@ -26,8 +26,8 @@ let
   };
 
   shelter = fetchurl {
-    url = "https://raw.githubusercontent.com/uwu/shelter-builds/fab6f100bd0ab8583d67f792f66722a7d2a14bd1/shelter.js";
-    hash = "sha256-d9vaKLrl8RYNcHnE1iGN49ov6U/Y+9XpEsio+c1Sguc=";
+    url = "https://raw.githubusercontent.com/uwu/shelter-builds/1b35b8802a85809742af99f454bb941f56f759a3/shelter.js";
+    hash = "sha256-g4xe4Wj8OSaA/btlv2O8aawi+Bx8qttL95mnINOrTgg=";
     meta = {
       homepage = "https://github.com/uwu/shelter";
       sourceProvenance = [ lib.sourceTypes.binaryBytecode ]; # actually, minified JS
@@ -38,28 +38,24 @@ in
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "dorion";
-  version = "6.7.1";
+  version = "6.11.0";
 
   src = fetchFromGitHub {
     owner = "SpikeHD";
     repo = "Dorion";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-d4G3royqhz+te5wPWVLNqqG/w0qOvTd7dKcWSzxUMUo=";
+    hash = "sha256-be21MAAVfxouO1relcqLLbB9W8w5iDRe0Yr6snSKyq0=";
   };
-
-  cargoPatches = [
-    ./no-cargo-patch.patch
-  ];
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-1xpAJkS31DjrZCY5WJ4/Z1t1ALED5gz7xYLhVR1Qzww=";
+  cargoHash = "sha256-9zH0Coiyoz6NK2go2XVL5xYaCrXzrOMKaK+3pDXqrGs=";
 
   pnpmDeps = pnpm_9.fetchDeps {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-xBonUzA4+1zbViEsKap6CaG6ZRldW1LjNYIB+FmVRFs=";
+    fetcherVersion = 1;
+    hash = "sha256-SO/9GkjNP+7IEeULCyWAp32RYIxyzgmbc8YZiTCTjF8=";
   };
 
   # CMake (webkit extension)
@@ -103,11 +99,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # remove updater
     rm -rf updater
 
-    # patch cargo-deps
-    pushd $cargoDepsCopy/tauri-plugin-shell-*
-    patch -p1 < /build/source/src-tauri/patches/tauri-plugin-shell+*.patch
-    popd
-
     substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
       --replace-fail "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
 
@@ -120,17 +111,21 @@ rustPlatform.buildRustPackage (finalAttrs: {
     ln -s ${shelter} src-tauri/injection/shelter.js
 
     # link html/frontend data
-    ln -s /build/source/src /build/source/src-tauri/html
+    ln -s $(pwd)/src src-tauri/html
   '';
 
   configurePhase = ''
+    runHook preConfigure
+
     cmakeConfigurePhase
     pnpmConfigHook
+
+    runHook postConfigure
   '';
 
   buildPhase = ''
     ninjaBuildPhase
-    cd /build/source
+    cd ../..
     tauriBuildHook
   '';
 

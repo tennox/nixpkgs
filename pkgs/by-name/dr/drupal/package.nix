@@ -3,27 +3,35 @@
   fetchFromGitLab,
   php,
   nixosTests,
+  writeScript,
 }:
 
 php.buildComposerProject2 (finalAttrs: {
   pname = "drupal";
-  version = "11.1.7";
+  version = "11.2.7";
 
   src = fetchFromGitLab {
     domain = "git.drupalcode.org";
     owner = "project";
     repo = "drupal";
     tag = finalAttrs.version;
-    hash = "sha256-jf28r44VDP9MzShoJMFD+6xSUcKBRGYJ1/ruQ3nGTRE=";
+    hash = "sha256-mLpdLMacj3ueY8e8YtBA+0D2HOIE2A25Gt3+1E5NqoA=";
   };
 
-  vendorHash = "sha256-LUZTf/Zn8p+V2K1LjhvrgaGBiTcSmGRsG1t9vXUcbeY=";
+  vendorHash = "sha256-s9pUsCJF8PJmiZRqLNEDulGu5fElaN8HVYk+3VtP6CY=";
   composerNoPlugins = false;
 
   passthru = {
     tests = {
       inherit (nixosTests) drupal;
     };
+    updateScript = writeScript "update.sh" ''
+      #!/usr/bin/env nix-shell
+      #!nix-shell -i bash -p nix-update xmlstarlet
+      set -eu -o pipefail
+      version=$(curl -k --silent --globoff "https://updates.drupal.org/release-history/drupal/current" | xmlstarlet sel -t -v "project/releases/release[1]/tag")
+      nix-update drupal --version $version
+    '';
   };
 
   meta = {
@@ -31,7 +39,6 @@ php.buildComposerProject2 (finalAttrs: {
     license = lib.licenses.mit;
     homepage = "https://drupal.org/";
     maintainers = with lib.maintainers; [
-      drupol
       OulipianSummer
     ];
     platforms = php.meta.platforms;

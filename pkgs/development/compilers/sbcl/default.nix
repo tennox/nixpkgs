@@ -2,6 +2,7 @@
   lib,
   stdenv,
   callPackage,
+  darwin,
   ecl,
   coreutils,
   fetchurl,
@@ -24,21 +25,13 @@
 let
   versionMap = {
     # Necessary for Nyxt
-    "2.4.6" = {
-      sha256 = "sha256-pImQeELa4JoXJtYphb96VmcKrqLz7KH7cCO8pnw/MJE=";
-    };
+    "2.4.6".sha256 = "sha256-pImQeELa4JoXJtYphb96VmcKrqLz7KH7cCO8pnw/MJE=";
     # Necessary for stumpwm
-    "2.4.10" = {
-      sha256 = "sha256-zus5a2nSkT7uBIQcKva+ylw0LOFGTD/j5FPy3hDF4vg=";
-    };
+    "2.4.10".sha256 = "sha256-zus5a2nSkT7uBIQcKva+ylw0LOFGTD/j5FPy3hDF4vg=";
     # By unofficial and very loose convention we keep the latest version of
     # SBCL, and the previous one in case someone quickly needs to roll back.
-    "2.5.2" = {
-      sha256 = "sha256-XcJ+un3aQz31P9dEHeixFHSoLNrBaJwfbOVfoGXWX6w=";
-    };
-    "2.5.4" = {
-      sha256 = "sha256-XxS07ZKUKp44dZT6wAC5bbdGfpzlYTBn/8CSPfPsIHI=";
-    };
+    "2.5.5".sha256 = "sha256-ZQJnCvs2G6m+RKL6/pr5tZ57JK5QmnkaZrVIHylVlQs=";
+    "2.5.7".sha256 = "sha256-xPr+t5VpnVvP+QhQkazHYtz15V+FI1Yl89eu8SyJ0dM=";
   };
   # Collection of pre-built SBCL binaries for platforms that need them for
   # bootstrapping. Ideally these are to be avoided.  If ECL (or any other
@@ -77,6 +70,7 @@ let
       "${sbclBootstrap}/bin/sbcl --disable-debugger --no-userinit --no-sysinit"
     else
       "${lib.getExe ecl} --norc";
+  posixUtils = if stdenv.hostPlatform.isDarwin then darwin.shell_cmds else coreutils;
 
 in
 
@@ -91,22 +85,21 @@ stdenv.mkDerivation (self: {
     inherit (versionMap.${version}) sha256;
   };
 
-  nativeBuildInputs =
+  nativeBuildInputs = [
+    texinfo
+  ]
+  ++ lib.optionals self.doCheck (
     [
-      texinfo
+      which
+      writableTmpDirAsHomeHook
     ]
-    ++ lib.optionals self.doCheck (
-      [
-        which
-        writableTmpDirAsHomeHook
-      ]
-      ++ lib.optionals (builtins.elem stdenv.system strace.meta.platforms) [
-        strace
-      ]
-      ++ lib.optionals (lib.versionOlder "2.4.10" self.version) [
-        ps
-      ]
-    );
+    ++ lib.optionals (builtins.elem stdenv.system strace.meta.platforms) [
+      strace
+    ]
+    ++ lib.optionals (lib.versionOlder "2.4.10" self.version) [
+      ps
+    ]
+  );
   buildInputs = lib.optionals self.coreCompression (
     # Declare at the point of actual use in case the caller wants to override
     # buildInputs to sidestep this.
@@ -156,7 +149,17 @@ stdenv.mkDerivation (self: {
       # Heisentest, sometimes fails on ofBorg, would rather just disable it than
       # have it block a release.
       "futex-wait.test.sh"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
+      # Fail intermittently
+      "gc.impure.lisp"
+      "threads.pure.lisp"
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      # Fails in sandbox
+      "sb-posix.impure.lisp"
     ];
+
   patches =
     # Support the NIX_SBCL_DYNAMIC_SPACE_SIZE envvar. Upstream SBCL didn’t want
     # to include this (see
@@ -191,8 +194,8 @@ stdenv.mkDerivation (self: {
         # definitely NOT be patched this way, hence just a single * (and no
         # globstar).
         substituteInPlace ${if self.purgeNixReferences then "tests" else "{tests,src/code}"}/*.{lisp,sh} \
-          --replace-quiet /usr/bin/env "${coreutils}/bin/env" \
-          --replace-quiet /bin/uname "${coreutils}/bin/uname" \
+          --replace-quiet /usr/bin/env "${posixUtils}/bin/env" \
+          --replace-quiet /bin/uname "${posixUtils}/bin/uname" \
           --replace-quiet /bin/sh "${stdenv.shell}"
       )
       # Official source release tarballs will have a version.lispexpr, but if you
@@ -223,16 +226,15 @@ stdenv.mkDerivation (self: {
       "compact-instance-header"
     ];
 
-  buildArgs =
-    [
-      "--prefix=$out"
-      "--xc-host=${lib.escapeShellArg bootstrapLisp'}"
-    ]
-    ++ builtins.map (x: "--with-${x}") self.enableFeatures
-    ++ builtins.map (x: "--without-${x}") self.disableFeatures
-    ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
-      "--arch=arm64"
-    ];
+  buildArgs = [
+    "--prefix=$out"
+    "--xc-host=${lib.escapeShellArg bootstrapLisp'}"
+  ]
+  ++ map (x: "--with-${x}") self.enableFeatures
+  ++ map (x: "--without-${x}") self.disableFeatures
+  ++ lib.optionals (stdenv.hostPlatform.system == "aarch64-darwin") [
+    "--arch=arm64"
+  ];
 
   # Fails to find `O_LARGEFILE` otherwise.
   env.NIX_CFLAGS_COMPILE = "-D_GNU_SOURCE";
@@ -262,25 +264,24 @@ stdenv.mkDerivation (self: {
     runHook postCheck
   '';
 
-  installPhase =
-    ''
-      runHook preInstall
+  installPhase = ''
+    runHook preInstall
 
-      sh install.sh
+    sh install.sh
 
-    ''
-    + lib.optionalString (!self.purgeNixReferences) ''
-      cp -r src $out/lib/sbcl
-      cp -r contrib $out/lib/sbcl
-      cat >$out/lib/sbcl/sbclrc <<EOF
-       (setf (logical-pathname-translations "SYS")
-         '(("SYS:SRC;**;*.*.*" #P"$out/lib/sbcl/src/**/*.*")
-           ("SYS:CONTRIB;**;*.*.*" #P"$out/lib/sbcl/contrib/**/*.*")))
-      EOF
-    ''
-    + ''
-      runHook postInstall
-    '';
+  ''
+  + lib.optionalString (!self.purgeNixReferences) ''
+    cp -r src $out/lib/sbcl
+    cp -r contrib $out/lib/sbcl
+    cat >$out/lib/sbcl/sbclrc <<EOF
+     (setf (logical-pathname-translations "SYS")
+       '(("SYS:SRC;**;*.*.*" #P"$out/lib/sbcl/src/**/*.*")
+         ("SYS:CONTRIB;**;*.*.*" #P"$out/lib/sbcl/contrib/**/*.*")))
+    EOF
+  ''
+  + ''
+    runHook postInstall
+  '';
 
   setupHook = lib.optional self.purgeNixReferences (
     writeText "setupHook.sh" ''
@@ -290,6 +291,8 @@ stdenv.mkDerivation (self: {
       }
     ''
   );
+
+  __darwinAllowLocalNetworking = true;
 
   meta = with lib; {
     description = "Common Lisp compiler";

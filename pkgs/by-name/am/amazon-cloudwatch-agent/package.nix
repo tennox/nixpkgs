@@ -11,16 +11,16 @@
 
 buildGoModule rec {
   pname = "amazon-cloudwatch-agent";
-  version = "1.300056.0";
+  version = "1.300061.0";
 
   src = fetchFromGitHub {
     owner = "aws";
     repo = "amazon-cloudwatch-agent";
     tag = "v${version}";
-    hash = "sha256-SqXu9CjkSXN0pQwmm+oc2u/MihsfgNWFl++PUn49ohA=";
+    hash = "sha256-Qt17JyD9zW914nVcxcpY3af42CqKJtKBEISSMy6/ong=";
   };
 
-  vendorHash = "sha256-UU8o2kCRCY0FdoqsBovTsu42DFy7VD1kdI+tOA3l/Ac=";
+  vendorHash = "sha256-g06fRyuCRypOP6AvHTp73ml5JycAdp2OeceU4GAesvA=";
 
   # See the list in https://github.com/aws/amazon-cloudwatch-agent/blob/v1.300049.1/Makefile#L68-L77.
   subPackages = [
@@ -43,7 +43,7 @@ buildGoModule rec {
 
   nativeInstallCheckInputs = [ versionCheckHook ];
 
-  versionCheckProgram = "${builtins.placeholder "out"}/bin/amazon-cloudwatch-agent";
+  versionCheckProgram = "${placeholder "out"}/bin/amazon-cloudwatch-agent";
 
   versionCheckProgramArg = "-version";
 

@@ -7,13 +7,13 @@
 
 buildGoModule rec {
   pname = "postfix-tlspol";
-  version = "1.8.11";
+  version = "1.8.20";
 
   src = fetchFromGitHub {
     owner = "Zuplu";
     repo = "postfix-tlspol";
     tag = "v${version}";
-    hash = "sha256-hQSJ0bp3ghfi5chislf2zuCrvPhhoA0jjChRdGYHcFY=";
+    hash = "sha256-/+FWTrb39PB1L6UDXAr3w0c0bMrpptX23g8WHI794GA=";
   };
 
   vendorHash = null;
@@ -28,10 +28,15 @@ buildGoModule rec {
   };
 
   meta = {
-    description = "Lightweight MTA-STS + DANE/TLSA resolver and TLS policy server for Postfix, prioritizing DANE.";
+    changelog = "https://github.com/Zuplu/postfix-tlspol/releases/tag/${src.tag}";
+    description = "Lightweight MTA-STS + DANE/TLSA resolver and TLS policy server for Postfix, prioritizing DANE";
     homepage = "https://github.com/Zuplu/postfix-tlspol";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ valodim ];
+    maintainers = with lib.maintainers; [
+      hexa
+      valodim
+    ];
     mainProgram = "postfix-tlspol";
+    platforms = lib.platforms.linux;
   };
 }

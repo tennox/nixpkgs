@@ -7,81 +7,81 @@
 
 version:
 builtins.getAttr version {
-  "2.7.1" = {
-    x86_64-linux-39 = {
-      name = "torch-2.7.1-cp39-cp39-linux_x86_64.whl";
-      url = "https://download.pytorch.org/whl/cu128/torch-2.7.1%2Bcu128-cp39-cp39-manylinux_2_28_x86_64.whl";
-      hash = "sha256-c4rJs6155iohJW49JQzuhY3pVfk/ifqxFNqNGRk0fQY=";
-    };
+  "2.9.0" = {
     x86_64-linux-310 = {
-      name = "torch-2.7.1-cp310-cp310-linux_x86_64.whl";
-      url = "https://download.pytorch.org/whl/cu128/torch-2.7.1%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl";
-      hash = "sha256-1sPLoZjck/k0IqhUX0imaXiQNm5LlwH1Q1H8J+IwS9M=";
+      name = "torch-2.9.0-cp310-cp310-linux_x86_64.whl";
+      url = "https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl";
+      hash = "sha256-gWVAKG/OJFqK85BKGUqDr5ySkq10Uut5Fgt6Oxzvt+M=";
     };
     x86_64-linux-311 = {
-      name = "torch-2.7.1-cp311-cp311-linux_x86_64.whl";
-      url = "https://download.pytorch.org/whl/cu128/torch-2.7.1%2Bcu128-cp311-cp311-manylinux_2_28_x86_64.whl";
-      hash = "sha256-wwHcKARYr9lUUK95SSTJj+B1It0Uj/OEc5uBDj4xefI=";
+      name = "torch-2.9.0-cp311-cp311-linux_x86_64.whl";
+      url = "https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp311-cp311-manylinux_2_28_x86_64.whl";
+      hash = "sha256-6XwmRHjJ/Ej5GDJ0nZYPHjSa6yFCJOvmX7CUNd1kxZo=";
     };
     x86_64-linux-312 = {
-      name = "torch-2.7.1-cp312-cp312-linux_x86_64.whl";
-      url = "https://download.pytorch.org/whl/cu128/torch-2.7.1%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl";
-      hash = "sha256-C2T30KbypzntBSupWfe2fGdwKMlWbOUZl/n5D+Vz3ao=";
+      name = "torch-2.9.0-cp312-cp312-linux_x86_64.whl";
+      url = "https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl";
+      hash = "sha256-h8YtO5XxoicL0Rbb1H3FFcCyA1B2+7SgO0Nl6iieicQ=";
     };
     x86_64-linux-313 = {
-      name = "torch-2.7.1-cp313-cp313-linux_x86_64.whl";
-      url = "https://download.pytorch.org/whl/cu128/torch-2.7.1%2Bcu128-cp313-cp313-manylinux_2_28_x86_64.whl";
-      hash = "sha256-lWBCX56hrxeRUH6Mpw1bns9i/tfKImqV/NWNDrLMp48=";
+      name = "torch-2.9.0-cp313-cp313-linux_x86_64.whl";
+      url = "https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp313-cp313-manylinux_2_28_x86_64.whl";
+      hash = "sha256-l97wCH+O8XG5AC6lALr/3UQMe91VnCPDi7+HgbZ+k2Q=";
     };
-    aarch64-darwin-39 = {
-      name = "torch-2.7.1-cp39-none-macosx_11_0_arm64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1-cp39-none-macosx_11_0_arm64.whl";
-      hash = "sha256-NRvpBdG6aT8xe+YDRB5O2VgO2ajX7hez2uYPov9Jv/c=";
+    x86_64-linux-314 = {
+      name = "torch-2.9.0-cp314-cp314-linux_x86_64.whl";
+      url = "https://download.pytorch.org/whl/cu128/torch-2.9.0%2Bcu128-cp314-cp314-manylinux_2_28_x86_64.whl";
+      hash = "sha256-VaIYTtifISC8HiyIfumOUoDe5IvDMOnf4paqE1o3D30=";
     };
     aarch64-darwin-310 = {
-      name = "torch-2.7.1-cp310-none-macosx_11_0_arm64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1-cp310-none-macosx_11_0_arm64.whl";
-      hash = "sha256-+MO+4mGwyOCQ9jR0kNxu4q6/1mHrDz9q6uBtmS2O1W8=";
+      name = "torch-2.9.0-cp310-none-macosx_11_0_arm64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0-cp310-none-macosx_11_0_arm64.whl";
+      hash = "sha256-WUhBk7ASmb9mlSBQWnKynVmgAorkxtlfSSk48YZZIgg=";
     };
     aarch64-darwin-311 = {
-      name = "torch-2.7.1-cp311-none-macosx_11_0_arm64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1-cp311-none-macosx_11_0_arm64.whl";
-      hash = "sha256-aKNSx/Q1q7XLR+LAMtzRASdyriustvyLg7DBsRh0qzo=";
+      name = "torch-2.9.0-cp311-none-macosx_11_0_arm64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0-cp311-none-macosx_11_0_arm64.whl";
+      hash = "sha256-qkSDYCWGzJo10c8zdxqZd/BfZCuRYVGKKJ42VIoLd8I=";
     };
     aarch64-darwin-312 = {
-      name = "torch-2.7.1-cp312-none-macosx_11_0_arm64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1-cp312-none-macosx_11_0_arm64.whl";
-      hash = "sha256-e0+LK4O9CPfTmQJamnsyO9u1PSBWbx4NWEaJu5LYL5o=";
+      name = "torch-2.9.0-cp312-none-macosx_11_0_arm64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0-cp312-none-macosx_11_0_arm64.whl";
+      hash = "sha256-TeDtjLxFelBtvKQDduIGop7+4QdWoA8fNAS/Z61zfQQ=";
     };
     aarch64-darwin-313 = {
-      name = "torch-2.7.1-cp313-none-macosx_11_0_arm64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1-cp313-none-macosx_11_0_arm64.whl";
-      hash = "sha256-fs2GighkaOG890uR20JcHClRqc/NBZLExzN3t+Qkha4=";
+      name = "torch-2.9.0-cp313-none-macosx_11_0_arm64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0-cp313-none-macosx_11_0_arm64.whl";
+      hash = "sha256-4kg22Wi1TvTfsFWUABphlYcRrJIkAmKR5OP5L4Om/X8=";
     };
-    aarch64-linux-39 = {
-      name = "torch-2.7.1-cp39-cp39-manylinux_2_28_aarch64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1%2Bcpu-cp39-cp39-manylinux_2_28_aarch64.whl";
-      hash = "sha256-pFUcuXuD31+T/A11ODMlNYKFgeHbLxea/ChwJ6+91ug=";
+    aarch64-darwin-314 = {
+      name = "torch-2.9.0-cp314-cp314-macosx_11_0_arm64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0-cp314-cp314-macosx_11_0_arm64.whl";
+      hash = "sha256-2OKrf4YBAzC9zDnIsseVWQzHXjffSCPNruLJjW4/9KM=";
     };
     aarch64-linux-310 = {
-      name = "torch-2.7.1-cp310-cp310-manylinux_2_28_aarch64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl";
-      hash = "sha256-wN8Xzul2U9CaToRIijPSEhf5skIIWDxVzyjwBFqrB2Y=";
+      name = "torch-2.9.0-cp310-cp310-manylinux_2_28_aarch64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl";
+      hash = "sha256-siR5LqVntSx/HOHXiVZ/aSDgb9OzOfoeGwWUiEX3g60=";
     };
     aarch64-linux-311 = {
-      name = "torch-2.7.1-cp311-cp311-manylinux_2_28_aarch64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl";
-      hash = "sha256-X+YEW49Ca/LQQm5P4AnxZnqVTsKuuC8b0L9gxteoVEU=";
+      name = "torch-2.9.0-cp311-cp311-manylinux_2_28_aarch64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl";
+      hash = "sha256-2nc0HMq6MXYtkjiwlCwWXEWComgY8wRbBSs5zr3XrZ0=";
     };
     aarch64-linux-312 = {
-      name = "torch-2.7.1-cp312-cp312-manylinux_2_28_aarch64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl";
-      hash = "sha256-O/LbWt93tDOETwgIh63gScRwXd+f4aMgI/+E/3Napa0=";
+      name = "torch-2.9.0-cp312-cp312-manylinux_2_28_aarch64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl";
+      hash = "sha256-OmUUNK4SSLBWjBK1+eOsyJQusoN42dBKeTApOLaMbyQ=";
     };
     aarch64-linux-313 = {
-      name = "torch-2.7.1-cp313-cp313-manylinux_2_28_aarch64.whl";
-      url = "https://download.pytorch.org/whl/cpu/torch-2.7.1%2Bcpu-cp313-cp313-manylinux_2_28_aarch64.whl";
-      hash = "sha256-6xdkZ5KsQ3T/yH5CNp9F0h7/F8eQholjuQSD7wtttO8=";
+      name = "torch-2.9.0-cp313-cp313-manylinux_2_28_aarch64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp313-cp313-manylinux_2_28_aarch64.whl";
+      hash = "sha256-vkQ42NrX8NWl5U8P7viok0RolOyH8QK7HYLcxFGFQuQ=";
+    };
+    aarch64-linux-314 = {
+      name = "torch-2.9.0-cp314-cp314-manylinux_2_28_aarch64.whl";
+      url = "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp314-cp314-manylinux_2_28_aarch64.whl";
+      hash = "sha256-RKrbc1d01KmVJdLsKRJrIwFsRKB7As5sI336YaIj3VI=";
     };
   };
 }

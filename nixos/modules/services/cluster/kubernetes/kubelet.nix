@@ -108,9 +108,7 @@ let
       };
     };
 
-  taints = concatMapStringsSep "," (v: "${v.key}=${v.value}:${v.effect}") (
-    mapAttrsToList (n: v: v) cfg.taints
-  );
+  taints = concatMapStringsSep "," (v: "${v.key}=${v.value}:${v.effect}") (attrValues cfg.taints);
 in
 {
   imports = [
@@ -336,10 +334,7 @@ in
           [
             gitMinimal
             openssh
-            # TODO (#409339): remove this patch. We had to add it to avoid a mass rebuild
-            # for the 25.05 release. Once the staging cycle referenced in the above PR completes,
-            # switch back to plain util-linux.
-            util-linux.withPatches
+            util-linuxMinimal
             iproute2
             ethtool
             thin-provisioning-tools
@@ -367,7 +362,6 @@ in
         '';
         serviceConfig = {
           Slice = "kubernetes.slice";
-          CPUAccounting = true;
           MemoryAccounting = true;
           Restart = "on-failure";
           RestartSec = "1000ms";

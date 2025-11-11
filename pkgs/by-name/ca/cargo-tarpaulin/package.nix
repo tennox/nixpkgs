@@ -10,26 +10,26 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-tarpaulin";
-  version = "0.32.7";
+  version = "0.34.1";
 
   src = fetchFromGitHub {
     owner = "xd009642";
     repo = "tarpaulin";
-    rev = version;
-    hash = "sha256-e7U9xhS703Ww9m0Ky1QRKgSmO0M15UR4if/ZdbLSiTs=";
+    tag = version;
+    hash = "sha256-HJgcFQrHINm4BPfZ4c5ZHQYBTSBVYdSl/n0qBlSsNOI=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-neG0W3AxgQ2/F9y1e176DHsS247Fx4WcHykc6GdPZvc=";
+  cargoHash = "sha256-/IIO462dN1v7r05uDGo+QbH8gkSGa93StjLleP/KUPw=";
 
   nativeBuildInputs = [
     pkg-config
   ];
-  buildInputs =
-    [ openssl ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      curl
-    ];
+  buildInputs = [
+    openssl
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    curl
+  ];
 
   doCheck = false;
 
@@ -43,7 +43,6 @@ rustPlatform.buildRustPackage rec {
       asl20
     ];
     maintainers = with maintainers; [
-      figsoda
       hugoreeves
     ];
   };

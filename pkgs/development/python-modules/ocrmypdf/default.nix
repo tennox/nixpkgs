@@ -28,7 +28,7 @@
 
 buildPythonPackage rec {
   pname = "ocrmypdf";
-  version = "16.10.2";
+  version = "16.11.1";
   pyproject = true;
 
   src = fetchFromGitHub {
@@ -41,7 +41,7 @@ buildPythonPackage rec {
     postFetch = ''
       rm "$out/.git_archival.txt"
     '';
-    hash = "sha256-kEPVufS8wpoGi/A4Eh1u9gLVIEdJmoPDmAiY38DYDv4=";
+    hash = "sha256-EPGAM7hRmhKTk4NZz529yC0j5uJjB2Q/00tU1sjx1Zw=";
   };
 
   patches = [
@@ -82,6 +82,16 @@ buildPythonPackage rec {
   ];
 
   pythonImportsCheck = [ "ocrmypdf" ];
+
+  disabledTests = [
+    # Broken by Python 3.13.4 change
+    # https://github.com/python/cpython/commit/8e923f36596370aedfdfb12251447bface41317a
+    # https://github.com/ocrmypdf/OCRmyPDF/blob/9f6e5a48ada5df7006a8c68b84e2aeae61943d8b/src/ocrmypdf/_exec/ghostscript.py#L66
+    "TestDuplicateFilter"
+
+    "test_masks"
+    "test_content_preservation"
+  ];
 
   postInstall = ''
     installShellCompletion --cmd ocrmypdf \

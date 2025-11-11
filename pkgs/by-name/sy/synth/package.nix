@@ -15,7 +15,6 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-/z2VEfeCCuffxlMh4WOpYkMSAgmh+sbx3ajcD5d4DdE=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-sJSU85f4bLh89qo8fojWJNfJ9t7i/Hlg5pnLcxcwKt4=";
 
   checkFlags = [
@@ -30,6 +29,6 @@ rustPlatform.buildRustPackage rec {
     description = "Tool for generating realistic data using a declarative data model";
     homepage = "https://github.com/getsynth/synth";
     license = licenses.asl20;
-    maintainers = with maintainers; [ figsoda ];
+    maintainers = [ ];
   };
 }

@@ -19,7 +19,6 @@
   libsoup_2_4,
   openssl,
   parallel-disk-usage,
-  webkitgtk_4_0,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -36,8 +35,7 @@ rustPlatform.buildRustPackage rec {
   cargoRoot = "src-tauri";
   buildAndTestSubdir = "src-tauri";
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-dFTdbMX355klZ2wY160bYcgMiOiOGplEU7/e6Btv5JI=";
+  cargoHash = "sha256-PfpbzawgwkqykG4u2G05rgZwksuxWJUcv6asnJvZJvU=";
 
   npmDeps = fetchNpmDeps {
     name = "squirreldisk-${version}-npm-deps";
@@ -51,25 +49,31 @@ rustPlatform.buildRustPackage rec {
     ./update-pdu-json-format.patch
   ];
 
+  cargoPatches = [
+    # Remove dependency on parallel-disk-usage crate. The version is outdated and
+    # does not compile anymore with Rust 1.87.0.
+    # https://github.com/adileo/squirreldisk/pull/49
+    ./remove-pdu-crate.patch
+  ];
+
   postPatch = ''
     # Use pdu binary from nixpkgs instead of the vendored prebuilt binary
     rm src-tauri/bin/pdu-*
     cp ${parallel-disk-usage}/bin/pdu src-tauri/bin/pdu-${stdenv.hostPlatform.rust.rustcTarget}
   '';
 
-  nativeBuildInputs =
-    [
-      cargo-tauri_1.hook
-      npmHooks.npmConfigHook
-      nodejs
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      pkg-config
-      wrapGAppsHook3
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      makeBinaryWrapper
-    ];
+  nativeBuildInputs = [
+    cargo-tauri_1.hook
+    npmHooks.npmConfigHook
+    nodejs
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    pkg-config
+    wrapGAppsHook3
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    makeBinaryWrapper
+  ];
 
   buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     dbus
@@ -77,7 +81,7 @@ rustPlatform.buildRustPackage rec {
     gtk3
     libsoup_2_4
     openssl
-    webkitgtk_4_0
+    # webkitgtk_4_0
   ];
 
   # Disable checkPhase, since the project doesn't contain tests
@@ -97,6 +101,8 @@ rustPlatform.buildRustPackage rec {
     '';
 
   meta = with lib; {
+    # webkitgtk_4_0 was removed
+    broken = true;
     description = "Cross-platform disk usage analysis tool";
     homepage = "https://www.squirreldisk.com/";
     license = licenses.agpl3Only;

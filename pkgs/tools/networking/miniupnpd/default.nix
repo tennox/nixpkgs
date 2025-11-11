@@ -4,6 +4,7 @@
   fetchurl,
   iptables-legacy,
   libuuid,
+  linuxHeaders,
   openssl,
   pkg-config,
   which,
@@ -54,16 +55,15 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-Zss8PWl6srs6YdPEhigWbWujKNfC2+uViY/fKjICr3s=";
   };
 
-  buildInputs =
-    [
-      iptables-legacy
-      libuuid
-      openssl
-    ]
-    ++ lib.optionals (firewall == "nftables") [
-      libmnl
-      libnftnl
-    ];
+  buildInputs = [
+    iptables-legacy
+    libuuid
+    openssl
+  ]
+  ++ lib.optionals (firewall == "nftables") [
+    libmnl
+    libnftnl
+  ];
   nativeBuildInputs = [
     pkg-config
     makeWrapper
@@ -72,7 +72,12 @@ stdenv.mkDerivation rec {
   # ./configure is not a standard configure file, errors with:
   # Option not recognized : --prefix=
   dontAddPrefix = true;
+  # Similar for cross flags --host/--build
+  configurePlatforms = [ ];
   configureFlags = [
+    "--host-os=${stdenv.hostPlatform.uname.system}"
+    "--host-os-version=${linuxHeaders.version}"
+    "--host-machine=${stdenv.hostPlatform.uname.processor}"
     "--firewall=${firewall}"
     # allow using various config options
     "--ipv6"

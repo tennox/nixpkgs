@@ -1,24 +1,24 @@
 {
   lib,
+  stdenv,
   buildGoModule,
   fetchFromGitHub,
   installShellFiles,
   testers,
-  okteto,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "okteto";
-  version = "3.8.0";
+  version = "3.13.0";
 
   src = fetchFromGitHub {
     owner = "okteto";
     repo = "okteto";
-    rev = finalAttrs.version;
-    hash = "sha256-ntRMh7sctnAxYN4XZRig/DmYZ/zC/jMyLFDwaH+F9LA=";
+    tag = finalAttrs.version;
+    hash = "sha256-B5znl9MV9XAhgesq9jLYn6mLF0/o2eY0RXoA2mjNNwQ=";
   };
 
-  vendorHash = "sha256-A3ZZcyms7XSEB7n3YBytrXhMcI4mWf2pPsLwkF+Z1aQ=";
+  vendorHash = "sha256-/gB/7NCzoZhaKUIkPaABGrKNoruHuAwTIcH75SBBAMg=";
 
   postPatch = ''
     # Disable some tests that need file system & network access.
@@ -66,7 +66,7 @@ buildGoModule (finalAttrs: {
     in
     [ "-skip=^${builtins.concatStringsSep "$|^" skippedTests}$" ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd okteto \
       --bash <($out/bin/okteto completion bash) \
       --fish <($out/bin/okteto completion fish) \
@@ -74,7 +74,7 @@ buildGoModule (finalAttrs: {
   '';
 
   passthru.tests.version = testers.testVersion {
-    package = okteto;
+    package = finalAttrs.finalPackage;
     command = "HOME=\"$(mktemp -d)\" okteto version";
   };
 

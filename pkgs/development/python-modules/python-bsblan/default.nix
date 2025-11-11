@@ -6,45 +6,40 @@
   backoff,
   buildPythonPackage,
   fetchFromGitHub,
+  hatchling,
   mashumaro,
   orjson,
   packaging,
-  poetry-core,
   pytest-asyncio,
   pytest-cov-stub,
   pytest-mock,
   pytestCheckHook,
-  pythonOlder,
   yarl,
 }:
 
 buildPythonPackage rec {
   pname = "python-bsblan";
-  version = "2.1.0";
+  version = "3.1.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.12";
 
   src = fetchFromGitHub {
     owner = "liudger";
     repo = "python-bsblan";
     tag = "v${version}";
-    hash = "sha256-HaB1ypC2IkSEnM5Ek583CFvwWt1nm1gWUdoh5MH09YQ=";
+    hash = "sha256-OIaUfrQMdFvDnONjpLRigzbHw6ZS3MA05BGatv63td4=";
   };
 
   postPatch = ''
-    sed -i "/ruff/d" pyproject.toml
+    substituteInPlace pyproject.toml \
+      --replace-fail 'version = "0.0.0"' 'version = "${version}"'
   '';
 
-  env.PACKAGE_VERSION = version;
-
-  build-system = [ poetry-core ];
+  build-system = [ hatchling ];
 
   pythonRelaxDeps = [ "async-timeout" ];
 
   dependencies = [
     aiohttp
-    async-timeout
     backoff
     mashumaro
     orjson
@@ -59,6 +54,8 @@ buildPythonPackage rec {
     pytest-mock
     pytestCheckHook
   ];
+
+  __darwinAllowLocalNetworking = true;
 
   pythonImportsCheck = [ "bsblan" ];
 

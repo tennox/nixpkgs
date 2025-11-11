@@ -35,24 +35,24 @@
   _experimental-update-script-combinators,
 }:
 let
-  version = "7";
+  version = "10";
   src = fetchFromGitLab {
     domain = "gitlab.futo.org";
     owner = "videostreaming";
     repo = "Grayjay.Desktop";
     tag = version;
-    hash = "sha256-EaAMkYbQwj0IXDraRZHqvdK19SlyKtXfqkIOGzkiY7Q=";
+    hash = "sha256-ap0NnjyBjvyFjHPu9vACQMoOXqwz90/8QqSfPFqfh5U=";
     fetchSubmodules = true;
     fetchLFS = true;
   };
   frontend = buildNpmPackage {
-    name = "grayjay-frontend";
+    pname = "grayjay-frontend";
     inherit version src;
 
     sourceRoot = "source/Grayjay.Desktop.Web";
 
     npmBuildScript = "build";
-    npmDepsHash = "sha256-pTEbMSAJwTY6ZRriPWfBFnRHSYufSsD0d+hWGz35xFM=";
+    npmDepsHash = "sha256-3RMUV6o6422PEuqYg7B+y6JjlaiHDhnwsgsaKEbu5BM=";
 
     installPhase = ''
       runHook preInstall
@@ -114,8 +114,17 @@ buildDotnetModule (finalAttrs: {
 
   nugetDeps = ./deps.json;
 
-  dotnet-sdk = dotnetCorePackages.sdk_9_0;
-  dotnet-runtime = dotnetCorePackages.aspnetcore_9_0;
+  dotnet-sdk = dotnetCorePackages.sdk_9_0 // {
+    inherit
+      (dotnetCorePackages.combinePackages [
+        dotnetCorePackages.sdk_9_0
+        dotnetCorePackages.sdk_8_0
+      ])
+      packages
+      targetPackages
+      ;
+  };
+  dotnet-runtime = dotnetCorePackages.aspnetcore_8_0;
 
   executables = [ "Grayjay" ];
 

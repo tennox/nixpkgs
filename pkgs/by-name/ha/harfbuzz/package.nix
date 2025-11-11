@@ -16,7 +16,7 @@
   icu,
   graphite2,
   harfbuzz, # The icu variant uses and propagates the non-icu one.
-  withCoreText ? false,
+  withCoreText ? stdenv.hostPlatform.isDarwin, # withCoreText is required for macOS
   withIcu ? false, # recommended by upstream as default, but most don't needed and it's big
   withGraphite2 ? true, # it is small and major distros do include it
   python3,
@@ -34,22 +34,21 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "harfbuzz${lib.optionalString withIcu "-icu"}";
-  version = "10.2.0";
+  version = "12.1.0";
 
   src = fetchurl {
     url = "https://github.com/harfbuzz/harfbuzz/releases/download/${finalAttrs.version}/harfbuzz-${finalAttrs.version}.tar.xz";
-    hash = "sha256-Yg40aPrsLqhoXTLEalhGm4UO9jBAs1Zc3gWVmCW0gic=";
+    hash = "sha256-5cgbf24LEC37AAz6QkU4uOiWq3ii9Lil7IyuYqtDNp4=";
   };
 
-  postPatch =
-    ''
-      patchShebangs src/*.py test
-    ''
-    + lib.optionalString stdenv.hostPlatform.isDarwin ''
-      # ApplicationServices.framework headers have cast-align warnings.
-      substituteInPlace src/hb.hh \
-        --replace '#pragma GCC diagnostic error   "-Wcast-align"' ""
-    '';
+  postPatch = ''
+    patchShebangs src/*.py test
+  ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+    # ApplicationServices.framework headers have cast-align warnings.
+    substituteInPlace src/hb.hh \
+      --replace-fail '#pragma GCC diagnostic error   "-Wcast-align"' ""
+  '';
 
   outputs = [
     "out"
@@ -87,7 +86,8 @@ stdenv.mkDerivation (finalAttrs: {
     gtk-doc
     docbook-xsl-nons
     docbook_xml_dtd_43
-  ] ++ lib.optional withIntrospection gobject-introspection;
+  ]
+  ++ lib.optional withIntrospection gobject-introspection;
 
   buildInputs = [
     glib

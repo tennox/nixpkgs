@@ -7,7 +7,7 @@
   numactl,
   mpi,
   sparsehash,
-  tbb_2022_0,
+  onetbb,
   gtest,
   mpiCheckPhaseHook,
 }:
@@ -56,7 +56,7 @@ stdenv.mkDerivation (finalAttrs: {
   propagatedBuildInputs = [
     mpi
     sparsehash
-    tbb_2022_0
+    onetbb
   ];
 
   cmakeFlags = [

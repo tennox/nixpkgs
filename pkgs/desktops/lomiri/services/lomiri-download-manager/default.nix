@@ -2,7 +2,6 @@
   stdenv,
   lib,
   fetchFromGitLab,
-  fetchpatch,
   gitUpdater,
   testers,
   boost,
@@ -29,28 +28,20 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "lomiri-download-manager";
-  version = "0.2.1";
+  version = "0.2.2";
 
   src = fetchFromGitLab {
     owner = "ubports";
     repo = "development/core/lomiri-download-manager";
     tag = finalAttrs.version;
-    hash = "sha256-dVyel4NL5LFORNTQzOyeTFkt9Wn23+4uwHsKcj+/0rk=";
+    hash = "sha256-e4HyUi8GXImEtM5I7dH27cDceUn+VCFpb9xgbMpQBJU=";
   };
 
   outputs = [
     "out"
     "dev"
-  ] ++ lib.optionals withDocumentation [ "doc" ];
-
-  patches = [
-    # Remove when version > 0.2.1
-    (fetchpatch {
-      name = "0001-lomiri-download-manager-treewide-Make-pkg-config-includedir-values-reasonable.patch";
-      url = "https://gitlab.com/ubports/development/core/lomiri-download-manager/-/commit/230aa1965917f90d235f55477a257eca1f5eaf46.patch";
-      hash = "sha256-Kdmu4U98Yc213pHS0o4DjpG8T5p50Q5hijRgdvscA/c=";
-    })
-  ];
+  ]
+  ++ lib.optionals withDocumentation [ "doc" ];
 
   postPatch = ''
     # Substitute systemd's prefix in pkg-config call
@@ -65,18 +56,17 @@ stdenv.mkDerivation (finalAttrs: {
 
   strictDeps = true;
 
-  nativeBuildInputs =
-    [
-      cmake
-      pkg-config
-      validatePkgConfig
-      wrapQtAppsHook
-    ]
-    ++ lib.optionals withDocumentation [
-      doxygen
-      graphviz
-      qttools # qdoc
-    ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+    validatePkgConfig
+    wrapQtAppsHook
+  ]
+  ++ lib.optionals withDocumentation [
+    doxygen
+    graphviz
+    qttools # qdoc
+  ];
 
   buildInputs = [
     boost
@@ -124,7 +114,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Performs uploads and downloads from a centralized location";
     homepage = "https://gitlab.com/ubports/development/core/lomiri-download-manager";
     changelog = "https://gitlab.com/ubports/development/core/lomiri-download-manager/-/blob/${
-      if (!builtins.isNull finalAttrs.src.tag) then finalAttrs.src.tag else finalAttrs.src.rev
+      if (!isNull finalAttrs.src.tag) then finalAttrs.src.tag else finalAttrs.src.rev
     }/ChangeLog";
     license = lib.licenses.lgpl3Only;
     teams = [ lib.teams.lomiri ];

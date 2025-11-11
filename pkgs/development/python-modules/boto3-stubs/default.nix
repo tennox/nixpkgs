@@ -351,7 +351,6 @@
   mypy-boto3-workspaces,
   mypy-boto3-workspaces-web,
   mypy-boto3-xray,
-  pythonOlder,
   setuptools,
   types-s3transfer,
   typing-extensions,
@@ -359,15 +358,13 @@
 
 buildPythonPackage rec {
   pname = "boto3-stubs";
-  version = "1.38.33";
+  version = "1.40.70";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "boto3_stubs";
     inherit version;
-    hash = "sha256-Z8kVHow+dVvAMVvhSFPZq/j9FtHQ6AXnyvpdWFVUEL8=";
+    hash = "sha256-s3RBeBFPSyE0I5egZtQW+PU7+FmgY2rMet9rMLSPdqM=";
   };
 
   build-system = [ setuptools ];

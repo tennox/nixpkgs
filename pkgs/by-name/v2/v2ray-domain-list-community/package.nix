@@ -9,16 +9,16 @@
 let
   generator = pkgsBuildBuild.buildGoModule rec {
     pname = "v2ray-domain-list-community";
-    version = "20250605152911";
+    version = "20251105132907";
     src = fetchFromGitHub {
       owner = "v2fly";
       repo = "domain-list-community";
       rev = version;
-      hash = "sha256-WmBRTr1DHsYgw1XBYCgJAqIvgoW+oqMHe7Ifh7pSG1I=";
+      hash = "sha256-yH3vykMcxxlGXRUlZm6kKBkvsaQrTrnv+bYnZywu3go=";
     };
-    vendorHash = "sha256-NLh14rXRci4hgDkBJVJDIDvobndB7KYRKAX7UjyqSsg=";
+    vendorHash = "sha256-HmIXpF7P3J+lPXpmWWoFpSYAu5zbBQSDrj6S88LgWSU=";
     meta = with lib; {
-      description = "community managed domain list";
+      description = "Community managed domain list";
       homepage = "https://github.com/v2fly/domain-list-community";
       license = licenses.mit;
       maintainers = with maintainers; [ nickcao ];

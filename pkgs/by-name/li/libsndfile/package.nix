@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
   autoreconfHook,
   autogen,
   pkg-config,
@@ -35,6 +36,15 @@ stdenv.mkDerivation rec {
     hash = "sha256-MOOX/O0UaoeMaQPW9PvvE0izVp+6IoE5VbtTx0RvMkI=";
   };
 
+  patches = [
+    # Fix build with gcc15
+    # https://github.com/libsndfile/libsndfile/pull/1055
+    (fetchpatch {
+      url = "https://github.com/libsndfile/libsndfile/commit/2251737b3b175925684ec0d37029ff4cb521d302.patch";
+      hash = "sha256-LaeptEicnjpVBExlK4dNMlN8+AAJhW8dIvemF6S4W2M=";
+    })
+  ];
+
   nativeBuildInputs = [
     autoreconfHook
     autogen
@@ -48,7 +58,8 @@ stdenv.mkDerivation rec {
     libogg
     libopus
     libvorbis
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ alsa-lib ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ alsa-lib ];
 
   enableParallelBuilding = true;
 

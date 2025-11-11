@@ -2,22 +2,23 @@
   lib,
   fetchFromGitHub,
   buildGoModule,
+  nixosTests,
   testers,
   temporal,
 }:
 
 buildGoModule rec {
   pname = "temporal";
-  version = "1.27.2";
+  version = "1.29.1";
 
   src = fetchFromGitHub {
     owner = "temporalio";
     repo = "temporal";
     rev = "v${version}";
-    hash = "sha256-3x94Cccy5CHAKb2eHdMThAC+ONQjuYZ4UyQ8YwrWvgU=";
+    hash = "sha256-rUm1zHxM0KYPgKpK7w0XLU7aF3H6sECgSe/UtbNdgJM=";
   };
 
-  vendorHash = "sha256-g3XASZFZPS2Zs7gvGQpy9GO5kpA9gSL4Ur3LQhKIL6Y=";
+  vendorHash = "sha256-HW2j8swbaWwU1i3udqlT8VyFreML6ZH14zWxF8L5NTQ=";
 
   excludedPackages = [ "./build" ];
 
@@ -46,8 +47,11 @@ buildGoModule rec {
     runHook postInstall
   '';
 
-  passthru.tests.version = testers.testVersion {
-    package = temporal;
+  passthru.tests = {
+    inherit (nixosTests) temporal;
+    version = testers.testVersion {
+      package = temporal;
+    };
   };
 
   meta = {

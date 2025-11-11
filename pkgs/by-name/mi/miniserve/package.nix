@@ -14,17 +14,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "miniserve";
-  version = "0.29.0";
+  version = "0.32.0";
 
   src = fetchFromGitHub {
     owner = "svenstaro";
     repo = "miniserve";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-HHTNBqMYf7WrqJl5adPmH87xfrzV4TKJckpwTPiiw7w=";
+    hash = "sha256-9x2LGJwPf6QEvHvGD8i9Bz3tV8DNAtd9Wp9tXsbI2qo=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-Rjql9cyw7RS66HE50iUrjNvS5JRhR1HBaalOY9eDGH4=";
+  cargoHash = "sha256-JVzWmo+28K1kG4QaiAkGgBr8kkdfqoylJBWi+Fo9L6c=";
 
   nativeBuildInputs = [
     pkg-config
@@ -70,7 +69,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     changelog = "https://github.com/svenstaro/miniserve/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = with lib.licenses; [ mit ];
     maintainers = with lib.maintainers; [
-      figsoda
       defelo
     ];
     mainProgram = "miniserve";

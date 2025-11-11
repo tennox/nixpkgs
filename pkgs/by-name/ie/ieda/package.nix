@@ -2,7 +2,6 @@
   lib,
   stdenv,
   fetchgit,
-  fetchFromGitHub,
   fetchpatch,
   callPackages,
   cmake,
@@ -22,47 +21,38 @@
   gmp,
   python3,
   onnxruntime,
+  pkg-config,
+  curl,
+  onetbb,
 }:
 let
-  glog-lock = glog.overrideAttrs (oldAttrs: rec {
-    version = "0.6.0";
-    src = fetchFromGitHub {
-      owner = "google";
-      repo = "glog";
-      rev = "v${version}";
-      sha256 = "sha256-xqRp9vaauBkKz2CXbh/Z4TWqhaUtqfbsSlbYZR/kW9s=";
-    };
-  });
   rootSrc = stdenv.mkDerivation {
     pname = "iEDA-src";
-    version = "2025-05-30";
+    version = "2025-09-10";
     src = fetchgit {
       url = "https://gitee.com/oscc-project/iEDA";
-      rev = "3096147fcea491c381da2928be6fb5a12c2d97b7";
-      sha256 = "sha256-rPkcE+QFMlEuwwJ/QBgyLTXP5lWLQPj5SOlZysJ6WTI=";
+      rev = "614a91b4d18ba7dc561315f2d5fdae4a5451f486";
+      sha256 = "sha256-xn1hpnSyO+jauYYhlsKjBkkD3RJ1GqbHtnWRe/My1R0=";
     };
 
     patches = [
       # This patch is to fix the build error caused by the missing of the header file,
       # and remove some libs or path that they hard-coded in the source code.
-      # Should be removed after we upstream these changes.
+      # Due to the way they organized the source code, it's hard to upstream this patch.
+      # So we have to maintain this patch locally.
       (fetchpatch {
-        url = "https://github.com/Emin017/iEDA/commit/e899b432776010048b558a939ad9ba17452cb44f.patch";
-        hash = "sha256-fLKsb/dgbT1mFCWEldFwhyrA1HSkKGMAbAs/IxV9pwM=";
+        url = "https://github.com/Emin017/iEDA/commit/c6b642f3db6c156eaf4f1203612592c86e49e1b5.patch";
+        hash = "sha256-L0bmW7kadmLLng9rZOT1NpvniBpuD8SUqCfeH2cCrdg=";
       })
-      # This patch is to fix the compile error on the newer version of gcc/g++
-      # which is caused by some incorrect declarations and usages of the Boost library.
-      # Should be removed after we upstream these changes.
-      (fetchpatch {
-        url = "https://github.com/Emin017/iEDA/commit/3a2c7e27a5bd349d72b3a7198358cd640c678802.patch";
-        hash = "sha256-2YROkQ92jGOJZr+4+LrwRJKxhA39Bypb1xFdo6aftu8=";
-      })
-    ];
-
-    postPatch = ''
       # Comment out the iCTS test cases that will fail due to some linking issues on aarch64-linux
-      sed -i '17,28s/^/# /' src/operation/iCTS/test/CMakeLists.txt
-    '';
+      (fetchpatch {
+        url = "https://github.com/Emin017/iEDA/commit/87c5dded74bc452249e8e69f4a77dd1bed7445c2.patch";
+        hash = "sha256-1Hd0DYnB5lVAoAcB1la5tDlox4cuQqApWDiiWtqWN0Q=";
+      })
+      # Fix CMake version requirement to support newer CMake versions,
+      # Should be removed once upstream fixed it.
+      ./fix-cmake-require.patch
+    ];
 
     dontBuild = true;
     dontFixup = true;
@@ -76,7 +66,7 @@ let
 in
 stdenv.mkDerivation {
   pname = "iEDA";
-  version = "0-unstable-2025-05-30";
+  version = "0.1.0-unstable-2025-09-10";
 
   src = rootSrc;
 
@@ -87,6 +77,7 @@ stdenv.mkDerivation {
     bison
     python3
     tcl
+    pkg-config
   ];
 
   cmakeFlags = [
@@ -107,7 +98,7 @@ stdenv.mkDerivation {
     rustpkgs.verilog-parser
     rustpkgs.liberty-parser
     gtest
-    glog-lock
+    glog
     gflags
     boost
     onnxruntime
@@ -118,6 +109,8 @@ stdenv.mkDerivation {
     gmp
     tcl
     zlib
+    curl
+    onetbb
   ];
 
   postInstall = ''
@@ -138,7 +131,7 @@ stdenv.mkDerivation {
     runHook postInstallCheck
   '';
 
-  doInstallCheck = true;
+  doInstallCheck = !stdenv.hostPlatform.isAarch64; # Tests will fail on aarch64-linux, wait for upstream fix: https://github.com/microsoft/onnxruntime/issues/10038
 
   enableParallelBuild = true;
 

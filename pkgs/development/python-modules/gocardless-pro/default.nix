@@ -11,14 +11,14 @@
 
 buildPythonPackage rec {
   pname = "gocardless-pro";
-  version = "3.0.0";
+  version = "3.2.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "gocardless";
     repo = "gocardless-pro-python";
     tag = "v${version}";
-    hash = "sha256-Bqqr3j9UJrwqxDdTEQMbWfkznHufnv1gk1Wd0SSF78M=";
+    hash = "sha256-nSgOHc4Y8wes2lYWWdhxkGXiXUaRnpaj1/gnmeA7dXA=";
   };
 
   build-system = [ setuptools ];
@@ -40,6 +40,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/gocardless/gocardless-pro-python";
     changelog = "https://github.com/gocardless/gocardless-pro-python/blob/${src.tag}/CHANGELOG.md";
     license = licenses.mit;
-    maintainers = with maintainers; [ ];
+    maintainers = [ ];
   };
 }

@@ -8,17 +8,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "sourcepawn-studio";
-  version = "8.1.3";
+  version = "8.1.8";
 
   src = fetchFromGitHub {
     owner = "Sarrus1";
     repo = "sourcepawn-studio";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-qeKaIYI9+t9D/6/SSoJrnkA6DX6Wv/51vZCJIHm/0ts=";
+    hash = "sha256-piUgAvU5tbsYydEiF+70BAZVBK2t6SzG18MLf9cN+xM=";
   };
 
-  useFetchCargoVendor = true;
-  cargoHash = "sha256-8/HTrniZhXT68Ni9zjze8/mDu0TrMJKw41EEWPOhKjw=";
+  cargoHash = "sha256-Cy8YPcmRWEyG6b4kouuj7KVmq2wBL8akw9v9sB30eF4=";
 
   nativeBuildInputs = [ pkg-config ];
 
@@ -37,6 +36,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://sarrus1.github.io/sourcepawn-studio/";
     changelog = "https://github.com/Sarrus1/sourcepawn-studio/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
-    maintainers = [ lib.maintainers.awwpotato ];
+    maintainers = [ lib.maintainers.da157 ];
   };
 })

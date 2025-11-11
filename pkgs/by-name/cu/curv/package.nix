@@ -11,7 +11,7 @@
   libGL,
   libpng,
   openexr,
-  tbb,
+  onetbb,
   xorg,
   ilmbase,
   llvmPackages,
@@ -38,26 +38,25 @@ stdenv.mkDerivation {
     pkg-config
   ];
 
-  buildInputs =
-    [
-      boost
-      eigen_3_4_0
-      glm
-      libGL
-      libpng
-      openexr
-      tbb
-      xorg.libX11
-      xorg.libXcursor
-      xorg.libXext
-      xorg.libXi
-      xorg.libXinerama
-      xorg.libXrandr
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      ilmbase
-      llvmPackages.openmp
-    ];
+  buildInputs = [
+    boost
+    eigen_3_4_0
+    glm
+    libGL
+    libpng
+    openexr
+    onetbb
+    xorg.libX11
+    xorg.libXcursor
+    xorg.libXext
+    xorg.libXi
+    xorg.libXinerama
+    xorg.libXrandr
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    ilmbase
+    llvmPackages.openmp
+  ];
 
   # force char to be unsigned on aarch64
   # https://codeberg.org/doug-moen/curv/issues/227
@@ -69,6 +68,11 @@ stdenv.mkDerivation {
     runHook preInstallCheck
     test "$(set -x; $out/bin/curv -x "2 + 2")" -eq "4"
     runHook postInstallCheck
+  '';
+
+  postPatch = ''
+    substituteInPlace extern/googletest/googletest/CMakeLists.txt \
+      --replace-fail "cmake_minimum_required(VERSION 2.6.2)" "cmake_minimum_required(VERSION 3.10)"
   '';
 
   passthru.updateScript = unstableGitUpdater { };

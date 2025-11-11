@@ -26,15 +26,15 @@ let
   isQt6 = lib.versions.major qt6Packages.qtbase.version == "6";
   pdfjs =
     let
-      version = "5.3.31";
+      version = "5.4.296";
     in
     fetchzip {
       url = "https://github.com/mozilla/pdf.js/releases/download/v${version}/pdfjs-${version}-dist.zip";
-      hash = "sha256-8QNFCIRSaF0y98P1mmx0u+Uf0/Zd7nYlFGXp9SkURTc=";
+      hash = "sha256-UQ7sYOh7s95mfzH2ZbfDyEvUZiXr7MI3u0WY8WNHWv4=";
       stripRoot = false;
     };
 
-  version = "3.5.1";
+  version = "3.6.1";
 in
 
 python3.pkgs.buildPythonApplication {
@@ -44,20 +44,19 @@ python3.pkgs.buildPythonApplication {
 
   src = fetchurl {
     url = "https://github.com/qutebrowser/qutebrowser/releases/download/v${version}/qutebrowser-${version}.tar.gz";
-    hash = "sha256-gmu6MooINXJI1eWob6qwpzZVSXQ5rVTSaeISBVkms44=";
+    hash = "sha256-9b31UPJzmsGCXmCAIb+8XMEjKnvFIEO0MozWluHYbZA=";
   };
 
   # Needs tox
   doCheck = false;
 
-  buildInputs =
-    [
-      qt6Packages.qtbase
-      glib-networking
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      qt6Packages.qtwayland
-    ];
+  buildInputs = [
+    qt6Packages.qtbase
+    glib-networking
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    qt6Packages.qtwayland
+  ];
 
   build-system = with python3.pkgs; [
     setuptools
@@ -70,7 +69,8 @@ python3.pkgs.buildPythonApplication {
     docbook_xsl
     libxml2
     libxslt
-  ] ++ lib.optional stdenv.hostPlatform.isDarwin desktopToDarwinBundle;
+  ]
+  ++ lib.optional stdenv.hostPlatform.isDarwin desktopToDarwinBundle;
 
   dependencies = with python3.pkgs; [
     colorama
@@ -97,15 +97,14 @@ python3.pkgs.buildPythonApplication {
 
   dontWrapQtApps = true;
 
-  postPatch =
-    ''
-      substituteInPlace qutebrowser/misc/quitter.py --subst-var-by qutebrowser "$out/bin/qutebrowser"
+  postPatch = ''
+    substituteInPlace qutebrowser/misc/quitter.py --subst-var-by qutebrowser "$out/bin/qutebrowser"
 
-      sed -i "s,/usr,$out,g" qutebrowser/utils/standarddir.py
-    ''
-    + lib.optionalString withPdfReader ''
-      sed -i "s,/usr/share/pdf.js,${pdfjs},g" qutebrowser/browser/pdfjs.py
-    '';
+    sed -i "s,/usr,$out,g" qutebrowser/utils/standarddir.py
+  ''
+  + lib.optionalString withPdfReader ''
+    sed -i "s,/usr/share/pdf.js,${pdfjs},g" qutebrowser/browser/pdfjs.py
+  '';
 
   installPhase = ''
     runHook preInstall
@@ -146,7 +145,7 @@ python3.pkgs.buildPythonApplication {
         # avoid persistant warning on starup
         --set QT_STYLE_OVERRIDE Fusion
         ${lib.optionalString pipewireSupport ''--prefix LD_LIBRARY_PATH : ${libPath}''}
-        ${lib.optionalString (enableVulkan) ''
+        ${lib.optionalString enableVulkan ''
           --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ vulkan-loader ]}
           --set-default QSG_RHI_BACKEND vulkan
         ''}

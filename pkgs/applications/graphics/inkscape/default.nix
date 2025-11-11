@@ -97,6 +97,26 @@ stdenv.mkDerivation (finalAttrs: {
       # Fix path to ps2pdf binary
       inherit ghostscript;
     })
+    (fetchpatch {
+      name = "fix-build-poppler-25.06.0.patch";
+      url = "https://gitlab.com/inkscape/inkscape/-/commit/40f5b15b7e29908b79c54e81db6f340936102e08.patch";
+      hash = "sha256-bYRd/KUh/7qFb7x0EuUgQYA9P8abcTf5XS67gzaAiXA=";
+    })
+    (fetchpatch {
+      name = "fix-build-poppler-25.07.0.patch";
+      url = "https://gitlab.com/inkscape/inkscape/-/commit/8ae83ca81bbaebcc0ff0abe82300d56d2c94e6f9.patch";
+      hash = "sha256-s7UMnv1pAiQA/HL5CEdBwCn4v/tsphc0MSnBJAoqolY=";
+    })
+    (fetchpatch {
+      name = "fix-build-poppler-25.09.0.patch";
+      url = "https://gitlab.com/inkscape/inkscape/-/commit/f48b429827dca510b41a5671d467e574ef348625.patch";
+      hash = "sha256-9CfmkTGMVHjZiiE3zvi4YOrytcir8a7O2z3PrhjcohI=";
+    })
+    (fetchpatch {
+      name = "fix-build-poppler-25.10.0.patch";
+      url = "https://gitlab.com/inkscape/inkscape/-/commit/4dba481fe898c6317696d50b109f5aed8f269c19.patch";
+      hash = "sha256-FFCkMU+Ec2qobG4ru89NPcM9Gxw8ZyFV+6jpW8ZwgE4=";
+    })
   ];
 
   postPatch = ''
@@ -116,63 +136,61 @@ stdenv.mkDerivation (finalAttrs: {
     shopt -u globstar
   '';
 
-  nativeBuildInputs =
-    [
-      pkg-config
-      cmake
-      ninja
-      python3Env
-      glib # for setup hook
-      gdk-pixbuf # for setup hook
-      wrapGAppsHook3
-      gobject-introspection
-    ]
-    ++ (with perlPackages; [
-      perl
-      XMLParser
-    ])
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      desktopToDarwinBundle
-    ];
+  nativeBuildInputs = [
+    pkg-config
+    cmake
+    ninja
+    python3Env
+    glib # for setup hook
+    gdk-pixbuf # for setup hook
+    wrapGAppsHook3
+    gobject-introspection
+  ]
+  ++ (with perlPackages; [
+    perl
+    XMLParser
+  ])
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    desktopToDarwinBundle
+  ];
 
-  buildInputs =
-    [
-      boehmgc
-      boost
-      gettext
-      glib
-      glibmm
-      gsl
-      gtkmm3
-      imagemagick
-      lcms
-      lib2geom
-      libcdr
-      libexif
-      libpng
-      librevenge
-      librsvg # for loading icons
-      libsigcxx
-      libvisio
-      libwpg
-      libXft
-      libxml2
-      libxslt
-      perlPackages.perl
-      poppler
-      popt
-      potrace
-      python3Env
-      zlib
-      libepoxy
-    ]
-    ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
-      gspell
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      cairo
-      gtk-mac-integration
-    ];
+  buildInputs = [
+    boehmgc
+    boost
+    gettext
+    glib
+    glibmm
+    gsl
+    gtkmm3
+    imagemagick
+    lcms
+    lib2geom
+    libcdr
+    libexif
+    libpng
+    librevenge
+    librsvg # for loading icons
+    libsigcxx
+    libvisio
+    libwpg
+    libXft
+    libxml2
+    libxslt
+    perlPackages.perl
+    poppler
+    popt
+    potrace
+    python3Env
+    zlib
+    libepoxy
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
+    gspell
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    cairo
+    gtk-mac-integration
+  ];
 
   # Make sure PyXML modules can be found at run-time.
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''

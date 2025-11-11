@@ -14,34 +14,12 @@
   nixosTests,
   xcbuild,
   faketty,
+  nodejs,
 }:
 
-let
-  # Grafana seems to just set it to the latest version available
-  # nowadays.
-  # NOTE: sometimes, this is a no-op (i.e. `--replace-fail "X" "X"`).
-  # This is because Grafana raises the Go version above the patch-level we have
-  # on master if a security fix landed in Go (and our go may go through staging first).
-  #
-  # I(Ma27) decided to leave the code a no-op if this is not the case because
-  # pulling it out of the Git history every few months and checking which files
-  # we need to update now is slightly annoying.
-  patchGoVersion = ''
-    find . -name go.mod -not -path "./.bingo/*" -print0 | while IFS= read -r -d ''' line; do
-      substituteInPlace "$line" \
-        --replace-fail "go 1.24.3" "go 1.24.2"
-    done
-    find . -name go.work -print0 | while IFS= read -r -d ''' line; do
-      substituteInPlace "$line" \
-        --replace-fail "go 1.24.3" "go 1.24.2"
-    done
-    substituteInPlace Makefile \
-      --replace-fail "GO_VERSION = 1.24.3" "GO_VERSION = 1.24.2"
-  '';
-in
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "grafana";
-  version = "12.0.1+security-01";
+  version = "12.2.1";
 
   subPackages = [
     "pkg/cmd/grafana"
@@ -52,13 +30,14 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "grafana";
     repo = "grafana";
-    rev = "v${version}";
-    hash = "sha256-cYEWNXuIrTrtXR3XHqizDJ17QyBYkaccIThSorWO5GA=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-fOlf+NTV1DIotC0JyG+PCMe8uPr+mfe/CLQP7dmRtkg=";
   };
 
   # borrowed from: https://github.com/NixOS/nixpkgs/blob/d70d9425f49f9aba3c49e2c389fe6d42bac8c5b0/pkgs/development/tools/analysis/snyk/default.nix#L20-L22
   env = {
     CYPRESS_INSTALL_BINARY = 0;
+    PUPPETEER_SKIP_DOWNLOAD = 1;
 
     # The build OOMs on memory constrained aarch64 without this
     NODE_OPTIONS = "--max_old_space_size=4096";
@@ -66,15 +45,27 @@ buildGoModule rec {
 
   missingHashes = ./missing-hashes.json;
   offlineCache = yarn-berry_4.fetchYarnBerryDeps {
-    inherit src missingHashes;
-    hash = "sha256-Vjr/jyXqHoM/3o49IDJ2aT1s1tMkP90H+2E+yUiviF4=";
+    inherit (finalAttrs) src missingHashes;
+    hash = "sha256-aXWi2hriPHm1Gsmd6Zg8eTR//KuI6SrvJAYhTeRZTug=";
   };
 
-  disallowedRequisites = [ offlineCache ];
+  disallowedRequisites = [ finalAttrs.offlineCache ];
 
-  postPatch = patchGoVersion;
+  vendorHash = "sha256-TvKG/fUBure2wiZDVFD7dHGVDBl8gqWRkv2YBYNcIDQ=";
 
-  vendorHash = "sha256-Vlao6eNEHtl1+6vAAjDOxINuGxSwAqdi6Hc8oVniTO8=";
+  # Grafana seems to just set it to the latest version available
+  # nowadays.
+  # However, while `substituteInPlace --replace-fail` is desirable to keep
+  # the section up-to-date, this gets increasingly annoying since there's
+  # an inconsistent 1% with a different version. So we now blindly set all
+  # `go` directives to whatever nixpkgs provides and make it the maintainer's
+  # duty to ensure that the mandated
+  # Go version is compatible with what we provide.
+  # This is still better than maintaining some list of go.mod files (or exclusions of that)
+  # where to patch the go version (and where to not do that).
+  postPatch = ''
+    find . \( -name go.mod -or -name "go.work" \) -type f -exec sed -i -e 's/^go .*/go ${finalAttrs.passthru.go.version}/g' {} \;
+  '';
 
   proxyVendor = true;
 
@@ -86,9 +77,11 @@ buildGoModule rec {
     # required to run old node-gyp
     (python3.withPackages (ps: [ ps.distutils ]))
     faketty
+    nodejs
     yarn-berry_4
     yarn-berry_4.yarnBerryConfigHook
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcbuild.xcbuild ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ xcbuild.xcbuild ];
 
   # We have to remove this setupHook, otherwise it also runs in the `goModules`
   # derivation and fails because `offlineCache` is missing there.
@@ -122,7 +115,7 @@ buildGoModule rec {
   ldflags = [
     "-s"
     "-w"
-    "-X main.version=${version}"
+    "-X main.version=${finalAttrs.version}"
   ];
 
   # Tests start http servers which need to bind to local addresses:
@@ -161,6 +154,7 @@ buildGoModule rec {
       globin
       ma27
       Frostman
+      ryan4yin
     ];
     platforms = [
       "x86_64-linux"
@@ -170,4 +164,4 @@ buildGoModule rec {
     ];
     mainProgram = "grafana-server";
   };
-}
+})

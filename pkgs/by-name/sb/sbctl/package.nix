@@ -7,20 +7,22 @@
   asciidoc,
   databasePath ? "/etc/secureboot",
   nix-update-script,
+  pkg-config,
+  pcsclite,
 }:
 
 buildGoModule rec {
   pname = "sbctl";
-  version = "0.17";
+  version = "0.18";
 
   src = fetchFromGitHub {
     owner = "Foxboron";
     repo = "sbctl";
     tag = version;
-    hash = "sha256-7dCaWemkus2GHxILBEx5YvzdAmv89JfcPbqZZ6QwriI";
+    hash = "sha256-Q8uQ74XvteMRcnUPu1PjLAPWt3jeI7aF4m3QMjiZJis=";
   };
 
-  vendorHash = "sha256-gpHEJIbLnB0OiYB00rHK6OwrnHTHCj/tTVlUzuFjFKY=";
+  vendorHash = "sha256-PwLdWoC8tjdKoUAg2xvopggpgZ9WKaUslO3ZBtBah2k=";
 
   ldflags = [
     "-s"
@@ -32,7 +34,10 @@ buildGoModule rec {
   nativeBuildInputs = [
     installShellFiles
     asciidoc
+    pkg-config
   ];
+
+  buildInputs = [ pcsclite ];
 
   postBuild = ''
     make docs/sbctl.conf.5 docs/sbctl.8
@@ -44,16 +49,15 @@ buildGoModule rec {
     "github.com/google/go-tpm-tools/.*"
   ];
 
-  postInstall =
-    ''
-      installManPage docs/sbctl.conf.5 docs/sbctl.8
-    ''
-    + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
-      installShellCompletion --cmd sbctl \
-        --bash <($out/bin/sbctl completion bash) \
-        --fish <($out/bin/sbctl completion fish) \
-        --zsh <($out/bin/sbctl completion zsh)
-    '';
+  postInstall = ''
+    installManPage docs/sbctl.conf.5 docs/sbctl.8
+  ''
+  + lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+    installShellCompletion --cmd sbctl \
+      --bash <($out/bin/sbctl completion bash) \
+      --fish <($out/bin/sbctl completion fish) \
+      --zsh <($out/bin/sbctl completion zsh)
+  '';
 
   passthru.updateScript = nix-update-script { };
 

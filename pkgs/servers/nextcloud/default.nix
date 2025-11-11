@@ -5,8 +5,8 @@
   nixosTests,
   cacert,
   caBundle ? "${cacert}/etc/ssl/certs/ca-bundle.crt",
-  nextcloud30Packages,
   nextcloud31Packages,
+  nextcloud32Packages,
 }:
 
 let
@@ -58,16 +58,16 @@ let
     };
 in
 {
-  nextcloud30 = generic {
-    version = "30.0.12";
-    hash = "sha256-nhmyX0InPUNhIYQmtHYqdmvuQIz6aqghn4wn9yCVp6g=";
-    packages = nextcloud30Packages;
+  nextcloud31 = generic {
+    version = "31.0.10";
+    hash = "sha256-6FZxPwIo8+Ju6F72+ZFetNBYwNIYML1Y7l10K+3wpmk=";
+    packages = nextcloud31Packages;
   };
 
-  nextcloud31 = generic {
-    version = "31.0.6";
-    hash = "sha256-pqvOG+hK5lCQYliV7leWxuYx/RDLF2RexNc/fZs3Jig=";
-    packages = nextcloud31Packages;
+  nextcloud32 = generic {
+    version = "32.0.1";
+    hash = "sha256-WBCwbnVng4SXPY2GOH7jn0wIbXnfqS8V/LdDqro26qk=";
+    packages = nextcloud32Packages;
   };
 
   # tip: get the sha with:

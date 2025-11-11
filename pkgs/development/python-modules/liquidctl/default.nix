@@ -16,6 +16,7 @@
   colorlog,
   crcmod,
   pillow,
+  udevCheckHook,
 }:
 
 buildPythonPackage rec {
@@ -37,6 +38,7 @@ buildPythonPackage rec {
     setuptools
     setuptools-scm
     wheel
+    udevCheckHook
   ];
 
   propagatedBuildInputs = [
@@ -81,7 +83,6 @@ buildPythonPackage rec {
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [
       arturcygan
-      evils
     ];
     mainProgram = "liquidctl";
   };

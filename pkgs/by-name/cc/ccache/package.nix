@@ -22,7 +22,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ccache";
-  version = "4.11.3";
+  version = "4.12.1";
 
   src = fetchFromGitHub {
     owner = "ccache";
@@ -41,7 +41,7 @@ stdenv.mkDerivation (finalAttrs: {
         exit 1
       fi
     '';
-    hash = "sha256-w41e73Zh5HhYhgLPtaaSiJ48BklBNtnK9S859tol5wc=";
+    hash = "sha256-EfX5cLb23VpRbImXTfOTS+dHq6UTd6ecuPWdmz4nLDs=";
   };
 
   outputs = [
@@ -60,6 +60,10 @@ stdenv.mkDerivation (finalAttrs: {
       objdump = "${binutils.bintools}/bin/${binutils.targetPrefix}objdump";
     })
   ];
+
+  postPatch = ''
+    patchShebangs --build test/fake-compilers
+  '';
 
   strictDeps = true;
 
@@ -86,22 +90,22 @@ stdenv.mkDerivation (finalAttrs: {
     bashInteractive
     ctestCheckHook
     writableTmpDirAsHomeHook
-  ] ++ lib.optional stdenv.hostPlatform.isDarwin xcodebuild;
+  ]
+  ++ lib.optional stdenv.hostPlatform.isDarwin xcodebuild;
 
   checkInputs = [
     doctest
   ];
 
-  disabledTests =
-    [
-      "test.trim_dir" # flaky on hydra (possibly filesystem-specific?)
-      "test.fileclone" # flaky on hydra, also seems to fail on zfs
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      "test.basedir"
-      "test.multi_arch"
-      "test.nocpp2"
-    ];
+  disabledTests = [
+    "test.trim_dir" # flaky on hydra (possibly filesystem-specific?)
+    "test.fileclone" # flaky on hydra, also seems to fail on zfs
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    "test.basedir"
+    "test.multi_arch"
+    "test.nocpp2"
+  ];
 
   passthru = {
     # A derivation that provides gcc and g++ commands, but that
@@ -158,6 +162,10 @@ stdenv.mkDerivation (finalAttrs: {
               ln -s ${unwrappedCC}/$file $out/$file
             done
           '';
+
+        meta = {
+          inherit (unwrappedCC.meta) mainProgram;
+        };
       };
 
     updateScript = nix-update-script { };

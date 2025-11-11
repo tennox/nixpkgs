@@ -9,6 +9,7 @@
   flit-core,
 
   # dependencies
+  aiofiles,
   etils,
   humanize,
   importlib-resources,
@@ -17,13 +18,13 @@
   nest-asyncio,
   numpy,
   protobuf,
+  psutil,
   pyyaml,
   simplejson,
   tensorstore,
   typing-extensions,
 
   # tests
-  aiofiles,
   chex,
   google-cloud-logging,
   mock,
@@ -31,18 +32,19 @@
   portpicker,
   pytest-xdist,
   pytestCheckHook,
+  safetensors,
 }:
 
 buildPythonPackage rec {
   pname = "orbax-checkpoint";
-  version = "0.11.14";
+  version = "0.11.28";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "google";
     repo = "orbax";
     tag = "v${version}";
-    hash = "sha256-qZfC3rqfESfXdL/TMXodrJnM1/dQs9adDHM9DS0QlZ4=";
+    hash = "sha256-a7E60fZRmEXTA220mwr7EDMUc+zYbW7wG40vY7NeAOM=";
   };
 
   sourceRoot = "${src.name}/checkpoint";
@@ -55,6 +57,7 @@ buildPythonPackage rec {
 
   dependencies = [
     absl-py
+    aiofiles
     etils
     humanize
     importlib-resources
@@ -63,6 +66,7 @@ buildPythonPackage rec {
     nest-asyncio
     numpy
     protobuf
+    psutil
     pyyaml
     simplejson
     tensorstore
@@ -70,7 +74,6 @@ buildPythonPackage rec {
   ];
 
   nativeCheckInputs = [
-    aiofiles
     chex
     google-cloud-logging
     mock
@@ -78,6 +81,7 @@ buildPythonPackage rec {
     portpicker
     pytest-xdist
     pytestCheckHook
+    safetensors
   ];
 
   pythonImportsCheck = [
@@ -85,26 +89,53 @@ buildPythonPackage rec {
     "orbax.checkpoint"
   ];
 
-  disabledTests =
-    [
-      # Flaky
-      # AssertionError: 2 not greater than 2.0046136379241943
-      "test_async_mkdir_parallel"
-      "test_async_mkdir_sequential"
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # Probably failing because of a filesystem impurity
-      # self.assertFalse(os.path.exists(dst_dir))
-      # AssertionError: True is not false
-      "test_create_snapshot"
-    ];
+  disabledTests = [
+    # Flaky
+    # AssertionError: 2 not greater than 2.0046136379241943
+    "test_async_mkdir_parallel"
+    "test_async_mkdir_sequential"
+
+    # AssertionError:
+    # "Handler type string "(?:__main__|orbax.checkpoint._src.handlers.handler_type_registry_test)\.TestHandler" not found in the registry."
+    # does not match
+    # "'Handler type string "handler_type_registry_test.TestHandler" not found in the registry.'"
+    "test_get_handler_type_not_found"
+    "test_no_typestr"
+    "test_register_duplicate_handler_type"
+
+    # AssertionError: False is not true
+    "test_register_and_get"
+    "test_register_different_modules"
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    # Probably failing because of a filesystem impurity
+    # self.assertFalse(os.path.exists(dst_dir))
+    # AssertionError: True is not false
+    "test_create_snapshot"
+  ];
 
   disabledTestPaths = [
     # E   absl.flags._exceptions.DuplicateFlagError: The flag 'num_processes' is defined twice.
     # First from multiprocess_test, Second from orbax.checkpoint._src.testing.multiprocess_test.
     # Description from first occurrence: Number of processes to use.
     # https://github.com/google/orbax/issues/1580
+    "orbax/checkpoint/_src/testing/multiprocess_test.py"
     "orbax/checkpoint/experimental/emergency/"
+
+    # ValueError: Distributed system is not available; please initialize it via `jax.distributed.initialize()` at the start of your program.
+    "orbax/checkpoint/_src/handlers/array_checkpoint_handler_test.py"
+
+    # import file mismatch:
+    # imported module 'registry_test' has this __file__ attribute:
+    #   /build/source/checkpoint/orbax/checkpoint/experimental/v1/_src/layout/registry_test.py
+    # which is not the same as the test file we want to collect:
+    #   /build/source/checkpoint/orbax/checkpoint/experimental/v1/_src/serialization/registry_test.py
+    # HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file module
+    "orbax/checkpoint/experimental/v1/_src/serialization/registry_test.py"
+
+    # E   FileNotFoundError: [Errno 2] No such file or directory:
+    # '/build/absl_testing/DefaultSnapshotTest/runTest/root/path/to/source/data.txt'
+    "orbax/checkpoint/_src/path/snapshot/snapshot_test.py"
 
     # Circular dependency flax
     "orbax/checkpoint/_src/metadata/empty_values_test.py"
@@ -114,6 +145,7 @@ buildPythonPackage rec {
     "orbax/checkpoint/_src/tree/parts_of_test.py"
     "orbax/checkpoint/_src/tree/structure_utils_test.py"
     "orbax/checkpoint/_src/tree/utils_test.py"
+    "orbax/checkpoint/checkpoint_manager_test.py"
     "orbax/checkpoint/single_host_test.py"
     "orbax/checkpoint/transform_utils_test.py"
   ];

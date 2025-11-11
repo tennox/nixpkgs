@@ -17,13 +17,14 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "tennox";
     repo = "browserpass-native";
-    rev = "c4c71108293b259bf592ec5d9a7f13559a5f8fca";
-    sha256 = "sha256-hYvdKPme719qpOnGGwvrlhNelLtbGwLngI5ggmVUahA=";
+    tag = version;
+    sha256 = "sha256-UZzOPRRiCUIG7uSSp9AEPMDN/+4cgyK47RhrI8oUx8U=";
   };
 
   nativeBuildInputs = [
     makeWrapper
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
 
   vendorHash = "sha256-Qihtt86MrCaFqxWnS57vxNPWwD6ZYt9ESJFyUp+uCXQ=";
 

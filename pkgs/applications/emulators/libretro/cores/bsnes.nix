@@ -5,13 +5,13 @@
 }:
 mkLibretroCore {
   core = "bsnes";
-  version = "0-unstable-2025-05-30";
+  version = "0-unstable-2025-10-10";
 
   src = fetchFromGitHub {
     owner = "libretro";
     repo = "bsnes-libretro";
-    rev = "c2df3ccaeb8f40852a63a4b66a381d82d4e9b95d";
-    hash = "sha256-bPW4ftbdUXsgAs/CEi5/x4iq1NKvgRmHOpMiNJ2W/Gc=";
+    rev = "57155d8037463346307123daabeaa27298e0f956";
+    hash = "sha256-eQaeAdQ7OWRzPVSbNOPUmMKIvkztZYGm2tzBavJO4Gs=";
   };
 
   makefile = "Makefile";

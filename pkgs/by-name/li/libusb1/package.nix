@@ -8,6 +8,7 @@
   enableUdev ?
     stdenv.hostPlatform.isLinux && !stdenv.hostPlatform.isStatic && !stdenv.hostPlatform.isAndroid,
   udev,
+  udevCheckHook,
   withExamples ? false,
   withStatic ? false,
   withDocs ? stdenv.buildPlatform.canExecute stdenv.hostPlatform,
@@ -15,25 +16,31 @@
 
 stdenv.mkDerivation rec {
   pname = "libusb";
-  version = "1.0.28";
+  version = "1.0.29";
 
   src = fetchFromGitHub {
     owner = "libusb";
     repo = "libusb";
     rev = "v${version}";
-    sha256 = "sha256-ntfDh/+HYm5cthhO8FkAJHo4RcxvZUKmHf4AOrHLysM=";
+    sha256 = "sha256-m1w+uF8+2WCn72LvoaGUYa+R0PyXHtFFONQjdRfImYY=";
   };
 
   outputs = [
     "out"
     "dev"
-  ] ++ lib.optionals withDocs [ "doc" ];
+  ]
+  ++ lib.optionals withDocs [ "doc" ];
 
   nativeBuildInputs = [
     pkg-config
     autoreconfHook
-  ] ++ lib.optionals withDocs [ doxygen ];
+  ]
+  ++ lib.optionals withDocs [ doxygen ];
   propagatedBuildInputs = lib.optional enableUdev udev;
+
+  # Many dependents are dealing with hardware devices, exposing udev rules for them.
+  # Checking these by propagated hook might improve discoverability
+  propagatedNativeBuildInputs = lib.optional enableUdev udevCheckHook;
 
   dontDisableStatic = withStatic;
 
@@ -41,8 +48,7 @@ stdenv.mkDerivation rec {
   dontAddDisableDepTrack = stdenv.hostPlatform.isWindows;
 
   configureFlags =
-    lib.optional (!enableUdev) "--disable-udev"
-    ++ lib.optional (withExamples) "--enable-examples-build";
+    lib.optional (!enableUdev) "--disable-udev" ++ lib.optional withExamples "--enable-examples-build";
 
   postBuild = lib.optionalString withDocs ''
     make -C doc
@@ -62,7 +68,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://libusb.info/";
-    description = "cross-platform user-mode USB device library";
+    description = "Cross-platform user-mode USB device library";
     longDescription = ''
       libusb is a cross-platform user-mode library that provides access to USB devices.
     '';
@@ -70,7 +76,7 @@ stdenv.mkDerivation rec {
     license = licenses.lgpl21Plus;
     maintainers = with maintainers; [
       prusnak
-      realsnick
+      logger
     ];
   };
 }

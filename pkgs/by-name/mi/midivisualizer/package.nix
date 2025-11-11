@@ -5,6 +5,7 @@
   cmake,
   pkg-config,
   libX11,
+  libnotify,
   glfw,
   makeWrapper,
   libXrandr,
@@ -16,13 +17,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "midivisualizer";
-  version = "7.0";
+  version = "7.2";
 
   src = fetchFromGitHub {
     owner = "kosua20";
     repo = "MIDIVisualizer";
     rev = "v${finalAttrs.version}";
-    sha256 = "sha256-wfPSPH+E9cErVvfJZqHttFtjiUYJopM/u6w6NpRHifE=";
+    sha256 = "sha256-Ilsqc14PBTqreLhrEpvMOZAp37xOY/OwuhHTjeOjqm8=";
   };
 
   nativeBuildInputs = [
@@ -31,18 +32,18 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
-  buildInputs =
-    [
-      glfw
-      ffmpeg-full
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      libX11
-      libXrandr
-      libXinerama
-      libXcursor
-      gtk3
-    ];
+  buildInputs = [
+    glfw
+    ffmpeg-full
+    libnotify
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    libX11
+    libXrandr
+    libXinerama
+    libXcursor
+    gtk3
+  ];
 
   installPhase =
     if stdenv.hostPlatform.isDarwin then
@@ -66,6 +67,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://github.com/kosua20/MIDIVisualizer";
     license = licenses.mit;
     platforms = platforms.unix;
+    broken = stdenv.hostPlatform.isDarwin;
     maintainers = [ maintainers.ericdallo ];
   };
 })
