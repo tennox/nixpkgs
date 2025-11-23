@@ -26,14 +26,14 @@ let
   );
 in
 stdenv.mkDerivation (finalAttrs: {
-  version = "0.10.0.post1";
+  version = "0.10.0.post3";
   pname = "dolfinx";
 
   src = fetchFromGitHub {
     owner = "fenics";
     repo = "dolfinx";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ZsaEcJdvsf3dxJ739/CU20+drjbAvuc/HkIGCfh9U5A=";
+    hash = "sha256-YsFya92lz9Twc1PsSLGj6tJNvKb+MQfpmN/qOFxbe34=";
   };
 
   preConfigure = ''
