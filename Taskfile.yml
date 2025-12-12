@@ -1,0 +1,8 @@
+version: '3'
+
+tasks:
+  merge-upstream:
+    desc: "Merge upstream master branch"
+    cmds:
+      - git fetch upstream master
+      - git merge upstream/master
