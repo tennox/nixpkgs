@@ -9,11 +9,11 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-shell-extension-pano-gom";
-  version = "25-alpha1";
+  version = "25-alpha4";
 
   src = fetchzip {
     url = "https://github.com/tennox/gnome-shell-pano/releases/download/v${finalAttrs.version}/pano-gom@txlab.io.zip";
-    hash = "sha256-OEujc8AuV+vRDQHIGPeGFalfIyeYFew0tYaP/Mb8FYw=";
+    hash = "sha256-APbqK9ay79+l7/KHLFhyFQ+zhJ/ivgSgUGPoGNmWdsE=";
     stripRoot = false;
   };
 
