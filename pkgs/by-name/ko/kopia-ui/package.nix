@@ -10,12 +10,12 @@
   kopia,
 }:
 let
-  version = "0.22.0";
+  version = "0.22.3";
   src = fetchFromGitHub {
     owner = "kopia";
     repo = "kopia";
     tag = "v${version}";
-    hash = "sha256-5ItNevLcZhAsYgxdJd2u62z9NkKyYUojWcRQgk/NTmU=";
+    hash = "sha256-5oNam99Mij78snSO6jiGPYzeD68sXEBKM2dGQtTUrww=";
   };
 in
 buildNpmPackage {
@@ -88,7 +88,7 @@ buildNpmPackage {
     downloadPage = "https://github.com/kopia/kopia";
     changelog = "https://github.com/kopia/kopia/releases/tag/v${version}";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ blenderfreaky ];
+    maintainers = with lib.maintainers; [ kilyanni ];
     platforms = lib.platforms.linux;
   };
 }

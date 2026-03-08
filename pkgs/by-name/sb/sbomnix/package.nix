@@ -13,15 +13,7 @@ let
   python = python3.override {
     self = python3;
     packageOverrides = self: super: {
-      pyrate-limiter = super.pyrate-limiter.overridePythonAttrs (oldAttrs: rec {
-        version = "2.10.0";
-        src = fetchFromGitHub {
-          inherit (oldAttrs.src) owner repo;
-          tag = "v${version}";
-          hash = "sha256-CPusPeyTS+QyWiMHsU0ii9ZxPuizsqv0wQy3uicrDw0=";
-        };
-        doCheck = false;
-      });
+      pyrate-limiter = super.pyrate-limiter_2;
     };
   };
 
@@ -83,15 +75,15 @@ python.pkgs.buildPythonApplication rec {
   # Tests require network access
   doCheck = false;
 
-  meta = with lib; {
+  meta = {
     description = "Utilities to help with software supply chain challenges on nix targets";
     homepage = "https://github.com/tiiuae/sbomnix";
-    license = with licenses; [
+    license = with lib.licenses; [
       asl20
       bsd3
       cc-by-30
     ];
-    maintainers = with maintainers; [
+    maintainers = with lib.maintainers; [
       henrirosten
       jk
     ];

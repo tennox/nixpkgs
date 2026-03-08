@@ -5,14 +5,14 @@
   lib,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "lightning-loop";
   version = "0.31.5-beta";
 
   src = fetchFromGitHub {
     owner = "lightninglabs";
     repo = "loop";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-pmZturc7b3wd+qgSQPNzeY0LoMTF82dqUgOe8NfPeZw=";
   };
 
@@ -36,13 +36,13 @@ buildGoModule rec {
     installManPage docs/loop.1
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Lightning Loop Client";
     homepage = "https://github.com/lightninglabs/loop";
-    license = licenses.mit;
-    maintainers = with maintainers; [
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [
       proofofkeags
       starius
     ];
   };
-}
+})

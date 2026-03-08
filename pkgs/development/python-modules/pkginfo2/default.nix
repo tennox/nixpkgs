@@ -8,14 +8,14 @@
 
 buildPythonPackage rec {
   pname = "pkginfo2";
-  version = "30.0.0";
+  version = "30.1.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "nexB";
     repo = "pkginfo2";
     tag = "v${version}";
-    hash = "sha256-E9EyaN3ncf/34vvvhRe0rwV28VrjqJo79YFgXq2lKWU=";
+    hash = "sha256-M6fJbW1XCe+LKyjIupKnLmVkH582r1+AH44r9JA0Sxg=";
   };
 
   build-system = [ setuptools ];
@@ -29,12 +29,12 @@ buildPythonPackage rec {
     "test_ctor_w_path"
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Query metadatdata from sdists, bdists or installed packages";
     homepage = "https://github.com/nexB/pkginfo2";
     changelog = "https://github.com/aboutcode-org/pkginfo2/releases/tag/${src.tag}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ fab ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ fab ];
     mainProgram = "pkginfo2";
   };
 }

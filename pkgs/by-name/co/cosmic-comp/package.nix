@@ -20,17 +20,17 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cosmic-comp";
-  version = "1.0.0-beta.7";
+  version = "1.0.8";
 
   # nixpkgs-update: no auto update
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-comp";
     tag = "epoch-${finalAttrs.version}";
-    hash = "sha256-qE+m/LEe1ky+7A4PAzQrhZyguRsCID7IFwCx/yriYQE=";
+    hash = "sha256-TGTKUF7rYZ/Koem4rPBFYHatzhhqpWe/1WmAqlY3odg=";
   };
 
-  cargoHash = "sha256-xaA0qwOxT/RNyUXOazJeO8oVR5pzxW15KFZ+IrWsL5o=";
+  cargoHash = "sha256-MI8cJzjZd2UeWBESu8xEDYQv0Oa4PRhc4pOCN0zDNO4=";
 
   separateDebugInfo = true;
 
@@ -68,10 +68,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
         cosmic-autologin-noxwayland
         ;
     };
+
     updateScript = nix-update-script {
       extraArgs = [
-        "--version"
-        "unstable"
         "--version-regex"
         "epoch-(.*)"
       ];

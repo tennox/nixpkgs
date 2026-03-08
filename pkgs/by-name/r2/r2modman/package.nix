@@ -1,33 +1,33 @@
 {
   lib,
   stdenv,
-  yarn,
+  copyDesktopItems,
   dart-sass,
-  fetchYarnDeps,
-  fixup-yarn-lock,
-  nodejs,
   electron,
   fetchFromGitHub,
-  nix-update-script,
-  makeWrapper,
   makeDesktopItem,
-  copyDesktopItems,
+  makeWrapper,
+  nix-update-script,
+  nodejs,
+  yarn-berry,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "r2modman";
-  version = "3.2.9";
+  version = "3.2.14";
 
   src = fetchFromGitHub {
     owner = "ebkr";
     repo = "r2modmanPlus";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-rnW8itUsP2a09gQU3IXZI7kSVKIxxCgbt15NoH/g0a8=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-iB4qUFiXFT+n9lczA1kvMW/IHRuB0H44fg43v//AzKA=";
   };
 
-  offlineCache = fetchYarnDeps {
+  missingHashes = ./missing-hashes.json;
+  offlineCache = yarn-berry.fetchYarnBerryDeps {
+    inherit (finalAttrs) src patches missingHashes;
     yarnLock = "${finalAttrs.src}/yarn.lock";
-    hash = "sha256-V6N0RIjT3etoP6XdZhnQv4XViLRypp/JWxnb0sBc6Oo=";
+    hash = "sha256-5XTkUa31D83oZRZBQ9yUDjgf/4gWCDd+pr4FTNDW9F0=";
   };
 
   patches = [
@@ -36,38 +36,26 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   nativeBuildInputs = [
-    yarn
-    dart-sass
-    fixup-yarn-lock
-    nodejs
-    makeWrapper
     copyDesktopItems
+    dart-sass
+    makeWrapper
+    nodejs
+    yarn-berry
+    yarn-berry.yarnBerryConfigHook
   ];
 
-  configurePhase = ''
-    runHook preConfigure
-
-    # Workaround for webpack bug
-    # https://github.com/webpack/webpack/issues/14532
-    export NODE_OPTIONS="--openssl-legacy-provider"
-    export HOME=$(mktemp -d)
-    yarn config --offline set yarn-offline-mirror $offlineCache
-    fixup-yarn-lock yarn.lock
-    yarn install --offline --frozen-lockfile --ignore-platform --ignore-scripts --no-progress --non-interactive
-    patchShebangs node_modules/
-    substituteInPlace node_modules/sass-embedded/dist/lib/src/compiler-path.js \
-      --replace-fail 'compilerCommand = (() => {' 'compilerCommand = (() => { return ["${lib.getExe dart-sass}"];'
-
-    runHook postConfigure
-  '';
+  env = {
+    # Required, as the build process won't have network access. Uses the wrapped electron binary instead.
+    ELECTRON_SKIP_BINARY_DOWNLOAD = true;
+  };
 
   buildPhase = ''
     runHook preBuild
 
-    yarn --offline quasar build --mode electron --skip-pkg
+    substituteInPlace node_modules/sass-embedded/dist/lib/src/compiler-path.js \
+      --replace-fail 'compilerCommand = (() => {' 'compilerCommand = (() => { return ["${lib.getExe dart-sass}"];'
 
-    # Remove dev dependencies.
-    yarn install --production --offline --frozen-lockfile --ignore-platform --ignore-scripts --no-progress --non-interactive
+    yarn quasar build --mode electron --skip-pkg
 
     runHook postBuild
   '';
@@ -123,6 +111,7 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "r2modman";
     maintainers = with lib.maintainers; [
       huantian
+      hythera
     ];
     inherit (electron.meta) platforms;
   };

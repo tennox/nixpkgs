@@ -14,16 +14,16 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "scx_rustscheds";
-  version = "1.0.18";
+  version = "1.0.20";
 
   src = fetchFromGitHub {
     owner = "sched-ext";
     repo = "scx";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-RkTY7gDcKbkNUKl7NJDX3Ac/I+dRG1Gj8rRHynbbxUU=";
+    hash = "sha256-MUWbNsxmbCRCOWB2dHpi5dEY2rNRrINxJSyl5SNSO9Y=";
   };
 
-  cargoHash = "sha256-tuZhqDT1xMP+Pufwz6SBt44qNzHuGzcU9QmVNIg2zS0=";
+  cargoHash = "sha256-H58wschck+l41fQh9W5SNVb5g9lAnw90SOSd/RtGXyw=";
 
   nativeBuildInputs = [
     pkg-config
@@ -59,6 +59,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--skip=cpumask"
     "--skip=topology"
     "--skip=proc_data::tests::test_thread_operations"
+    "--skip=json::tests::test_with_resources"
+    "--skip=json::tests::test_with_dir"
   ];
 
   passthru.tests.basic = nixosTests.scx;

@@ -26,7 +26,7 @@ let
   ];
 in
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "tiled";
   # nixpkgs-update: no auto update
   version = "1.11.2";
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "mapeditor";
     repo = "tiled";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     sha256 = "sha256-9oUKn51MQcsStgIJrp9XW5YAIpAUcO0kzfGnYA3gz/E=";
   };
 
@@ -83,17 +83,17 @@ stdenv.mkDerivation rec {
     runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Free, easy to use and flexible tile map editor";
     homepage = "https://www.mapeditor.org/";
-    license = with licenses; [
+    license = with lib.licenses; [
       bsd2 # libtiled and tmxviewer
       gpl2Plus # all the rest
     ];
-    maintainers = with maintainers; [
+    maintainers = with lib.maintainers; [
       dywedir
       ryan4yin
     ];
-    platforms = platforms.linux;
+    platforms = lib.platforms.linux;
   };
-}
+})

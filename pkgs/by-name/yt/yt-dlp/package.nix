@@ -1,5 +1,6 @@
 {
   lib,
+  stdenvNoCC,
   python3Packages,
   atomicparsley,
   deno,
@@ -13,6 +14,7 @@
   javascriptSupport ? true,
   rtmpSupport ? true,
   withAlias ? false, # Provides bin/youtube-dl for backcompat
+  withSecretStorage ? !stdenvNoCC.hostPlatform.isDarwin,
   nix-update-script,
 }:
 
@@ -21,23 +23,26 @@ python3Packages.buildPythonApplication rec {
   # The websites yt-dlp deals with are a very moving target. That means that
   # downloads break constantly. Because of that, updates should always be backported
   # to the latest stable release.
-  version = "2025.11.12";
+  version = "2026.03.03";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "yt-dlp";
     repo = "yt-dlp";
     tag = version;
-    hash = "sha256-Em8FLcCizSfvucg+KPuJyhFZ5MJ8STTjSpqaTD5xeKI=";
+    hash = "sha256-BPZzMT1IrZvgva/m5tYMaDYoUaP3VmpmcYeOUOwuoUY=";
   };
 
   postPatch = ''
     substituteInPlace yt_dlp/version.py \
       --replace-fail "UPDATE_HINT = None" 'UPDATE_HINT = "Nixpkgs/NixOS likely already contain an updated version.\n       To get it run nix-channel --update or nix flake update in your config directory."'
-    # Until yt-dlp supports curl-cffi 0.14.x, this patch is needed:
-    substituteInPlace yt_dlp/networking/_curlcffi.py \
-      --replace-fail "if curl_cffi_version != (0, 5, 10) and not (0, 10) <= curl_cffi_version < (0, 14)" \
-      "if curl_cffi_version != (0, 5, 10) and not (0, 10) <= curl_cffi_version"
+    ${lib.optionalString javascriptSupport ''
+      # deno is required for full YouTube support (since 2025.11.12).
+      # This makes yt-dlp find deno even if it is used as a python dependency, i.e. in kodiPackages.sendtokodi.
+      # Crafted so people can replace deno with one of the other JS runtimes.
+      substituteInPlace yt_dlp/utils/_jsruntime.py \
+        --replace-fail "path = _determine_runtime_path(self._path, '${deno.meta.mainProgram}')" "path = '${lib.getExe deno}'"
+    ''}
   '';
 
   build-system = with python3Packages; [ hatchling ];
@@ -48,7 +53,10 @@ python3Packages.buildPythonApplication rec {
   ];
 
   # expose optional-dependencies, but provide all features
-  dependencies = lib.flatten (lib.attrValues optional-dependencies);
+  dependencies =
+    optional-dependencies.default
+    ++ optional-dependencies.curl-cffi
+    ++ lib.optionals withSecretStorage optional-dependencies.secretstorage;
 
   optional-dependencies = {
     default = with python3Packages; [
@@ -87,7 +95,6 @@ python3Packages.buildPythonApplication rec {
 
   # Ensure these utilities are available in $PATH:
   # - ffmpeg: post-processing & transcoding support
-  # - deno: required for full YouTube support (since 2025.11.12)
   # - rtmpdump: download files over RTMP
   # - atomicparsley: embedding thumbnails
   makeWrapperArgs =
@@ -95,11 +102,13 @@ python3Packages.buildPythonApplication rec {
       packagesToBinPath =
         lib.optional atomicparsleySupport atomicparsley
         ++ lib.optional ffmpegSupport ffmpeg-headless
-        ++ lib.optional javascriptSupport deno
         ++ lib.optional rtmpSupport rtmpdump;
     in
     lib.optionals (packagesToBinPath != [ ]) [
-      ''--prefix PATH : "${lib.makeBinPath packagesToBinPath}"''
+      "--prefix"
+      "PATH"
+      ":"
+      ''"${lib.makeBinPath packagesToBinPath}"''
     ];
 
   checkPhase = ''

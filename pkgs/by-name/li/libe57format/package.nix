@@ -27,7 +27,7 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-JARpxp6Z2VioBfY0pZSyQU2mG/EllbaF3qteSFM9u8o=";
   };
 
-  CXXFLAGS = [
+  env.CXXFLAGS = toString [
     # GCC 13: error: 'int16_t' has not been declared in 'std'
     "-include cstdint"
   ];
@@ -77,14 +77,14 @@ stdenv.mkDerivation (finalAttrs: {
     fi
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Library for reading & writing the E57 file format";
     homepage = "https://github.com/asmaloney/libE57Format";
-    license = licenses.boost;
-    maintainers = with maintainers; [
+    license = lib.licenses.boost;
+    maintainers = with lib.maintainers; [
       chpatrick
       nh2
     ];
-    platforms = platforms.linux; # because of the .so buiding in `postInstall` above
+    platforms = lib.platforms.linux; # because of the .so buiding in `postInstall` above
   };
 })

@@ -7,14 +7,14 @@
   libgit2,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cocogitto";
   version = "6.5.0";
 
   src = fetchFromGitHub {
     owner = "oknozor";
     repo = "cocogitto";
-    tag = version;
+    tag = finalAttrs.version;
     hash = "sha256-aAVoPPeuJN6QPcuc3oBF93dP6U+74bAoSDw93XR01Vo=";
   };
 
@@ -35,11 +35,11 @@ rustPlatform.buildRustPackage rec {
       --zsh  <($out/bin/cog generate-completions zsh)
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Set of cli tools for the conventional commit and semver specifications";
     mainProgram = "cog";
     homepage = "https://github.com/oknozor/cocogitto";
-    license = licenses.mit;
+    license = lib.licenses.mit;
     maintainers = [ ];
   };
-}
+})

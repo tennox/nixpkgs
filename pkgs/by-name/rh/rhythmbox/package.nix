@@ -42,7 +42,7 @@ stdenv.mkDerivation rec {
   version = "3.4.9";
 
   src = fetchurl {
-    url = "mirror://gnome/sources/${pname}/${lib.versions.majorMinor version}/${pname}-${version}.tar.xz";
+    url = "mirror://gnome/sources/rhythmbox/${lib.versions.majorMinor version}/rhythmbox-${version}.tar.xz";
     sha256 = "5CKRoY33oh/+azUr9z8F1+KYu04FvOWWf5jujO5ECPE=";
   };
 
@@ -122,11 +122,11 @@ stdenv.mkDerivation rec {
     };
   };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://gitlab.gnome.org/GNOME/rhythmbox";
     description = "Music playing application for GNOME";
-    license = licenses.gpl2Plus;
-    platforms = platforms.linux;
-    maintainers = [ maintainers.rasendubi ];
+    license = lib.licenses.gpl2Plus;
+    platforms = lib.platforms.linux;
+    maintainers = [ ];
   };
 }

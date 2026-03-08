@@ -57,7 +57,7 @@ let
 
   rocmRequested = shouldEnable "rocm" config.rocmSupport;
   cudaRequested = shouldEnable "cuda" config.cudaSupport;
-  vulkanRequested = shouldEnable "vulkan" false;
+  vulkanRequested = acceleration == "vulkan";
 
   enableRocm = rocmRequested && stdenv.hostPlatform.isLinux;
   enableCuda = cudaRequested && stdenv.hostPlatform.isLinux;
@@ -137,17 +137,17 @@ let
 in
 goBuild (finalAttrs: {
   pname = "ollama";
-  # don't forget to invalidate all hashes each update
-  version = "0.12.11";
+  version = "0.17.7";
 
   src = fetchFromGitHub {
     owner = "ollama";
     repo = "ollama";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-o6jjn9VyLRwD1wFoUv8nNwf5QC6TOVipmMrcHtikNjI=";
+    hash = "sha256-cAqc38NHvUo5gphq1csTyosTcpUjFcs0dzB0wreEGjs=";
   };
 
-  vendorHash = "sha256-rKRRcwmon/3K2bN7iQaMap5yNYKMCZ7P0M1C2hv4IlQ=";
+  vendorHash = "sha256-Lc1Ktdqtv2VhJQssk8K1UOimeEjVNvDWePE9WkamCos=";
+  proxyVendor = true;
 
   env =
     lib.optionalAttrs enableRocm {
@@ -187,6 +187,12 @@ goBuild (finalAttrs: {
   postPatch = ''
     substituteInPlace version/version.go \
       --replace-fail 0.0.0 '${finalAttrs.version}'
+    rm -r app
+  ''
+  # disable tests that fail in sandbox due to Metal init failure
+  + lib.optionalString stdenv.hostPlatform.isDarwin ''
+    rm ml/backend/ggml/ggml_test.go
+    rm ml/nn/pooling/pooling_test.go
   '';
 
   overrideModAttrs = (
@@ -263,7 +269,6 @@ goBuild (finalAttrs: {
     writableTmpDirAsHomeHook
   ];
   versionCheckKeepEnvironment = "HOME";
-  versionCheckProgramArg = "--version";
 
   passthru = {
     tests = {
@@ -292,7 +297,6 @@ goBuild (finalAttrs: {
       if (rocmRequested || cudaRequested || vulkanRequested) then platforms.linux else platforms.unix;
     mainProgram = "ollama";
     maintainers = with maintainers; [
-      abysssol
       dit7ya
       prusnak
     ];

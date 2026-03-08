@@ -10,13 +10,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "plasma-panel-spacer-extended";
-  version = "1.11.3";
+  version = "1.13.0";
 
   src = fetchFromGitHub {
     owner = "luisbocanegra";
     repo = "plasma-panel-spacer-extended";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-FJbRKL/jALKxS97uVftyKwjSUhADtHv/hgOJA5VvGNQ=";
+    hash = "sha256-1O8JS2yaKWxengyj3Ibuuyy/vCrmKKOp5EPVuSiCnVI=";
   };
 
   nativeBuildInputs = [

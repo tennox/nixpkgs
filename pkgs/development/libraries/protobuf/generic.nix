@@ -13,7 +13,6 @@
   zlib,
   version,
   hash,
-  replaceVars,
   versionCheckHook,
 
   # downstream dependencies
@@ -42,21 +41,46 @@ stdenv.mkDerivation (finalAttrs: {
       --replace-fail 'tmpnam(b)' '"'$TMPDIR'/foo"'
   '';
 
-  patches = lib.optionals (lib.versionOlder version "22") [
-    # fix protobuf-targets.cmake installation paths, and allow for CMAKE_INSTALL_LIBDIR to be absolute
-    # https://github.com/protocolbuffers/protobuf/pull/10090
-    (fetchpatch {
-      url = "https://github.com/protocolbuffers/protobuf/commit/a7324f88e92bc16b57f3683403b6c993bf68070b.patch";
-      hash = "sha256-SmwaUjOjjZulg/wgNmR/F5b8rhYA2wkKAjHIOxjcQdQ=";
-    })
-  ];
+  patches =
+    lib.optionals (lib.versionOlder version "22") [
+      # fix protobuf-targets.cmake installation paths, and allow for CMAKE_INSTALL_LIBDIR to be absolute
+      # https://github.com/protocolbuffers/protobuf/pull/10090
+      (fetchpatch {
+        url = "https://github.com/protocolbuffers/protobuf/commit/a7324f88e92bc16b57f3683403b6c993bf68070b.patch";
+        hash = "sha256-SmwaUjOjjZulg/wgNmR/F5b8rhYA2wkKAjHIOxjcQdQ=";
+      })
+    ]
+    ++ lib.optionals (lib.versions.major version == "29") [
+      # fix temporary directory handling to avoid test failures on darwin
+      # https://github.com/NixOS/nixpkgs/issues/464439
+      (fetchpatch {
+        url = "https://github.com/protocolbuffers/protobuf/commit/0e9d0f6e77280b7a597ebe8361156d6bb1971dca.patch";
+        hash = "sha256-rIP+Ft/SWVwh9Oy8y8GSUBgP6CtLCLvGmr6nOqmyHhY=";
+      })
+    ]
+    ++ lib.optionals (lib.versionAtLeast version "30") [
+      # workaround nvcc bug in message_lite.h
+      # https://github.com/protocolbuffers/protobuf/issues/21542
+      # Caused by: https://github.com/protocolbuffers/protobuf/commit/8f7aab29b21afb89ea0d6e2efeafd17ca71486a9
+      #
+      # A specific consequence of this bug is a test failure when building onnxruntime with cudaSupport
+      # See https://github.com/NixOS/nixpkgs/pull/450587#discussion_r2698215974
+      (fetchpatch {
+        url = "https://github.com/protocolbuffers/protobuf/commit/211f52431b9ec30d4d4a1c76aafd64bd78d93c43.patch";
+        hash = "sha256-2/vc4anc+kH7otfLHfBtW8dRowPyObiXZn0+HtQktak=";
+      })
+    ];
+
+  preHook = ''
+    export build_protobuf=${
+      if (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) then
+        buildPackages."protobuf_${lib.versions.major version}"
+      else
+        (placeholder "out")
+    };
+  '';
 
   # hook to provide the path to protoc executable, used at build time
-  build_protobuf =
-    if (!stdenv.buildPlatform.canExecute stdenv.hostPlatform) then
-      buildPackages."protobuf_${lib.versions.major version}"
-    else
-      (placeholder "out");
   setupHook = ./setup-hook.sh;
 
   nativeBuildInputs = [
@@ -73,6 +97,8 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   strictDeps = true;
+
+  separateDebugInfo = true;
 
   cmakeDir = if lib.versionOlder version "22" then "../cmake" else null;
   cmakeFlags = [
@@ -97,8 +123,11 @@ stdenv.mkDerivation (finalAttrs: {
     versionCheckHook
   ];
   versionCheckProgram = [ "${placeholder "out"}/bin/protoc" ];
-  versionCheckProgramArg = "--version";
   doInstallCheck = true;
+
+  env = lib.optionalAttrs (lib.versions.major version == "29") {
+    GTEST_DEATH_TEST_STYLE = "threadsafe";
+  };
 
   passthru = {
     tests = {

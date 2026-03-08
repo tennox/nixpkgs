@@ -18,14 +18,14 @@ let
 in
 flutter332.buildFlutterApplication rec {
   pname = "ente-auth";
-  version = "4.4.10";
+  version = "4.4.12";
 
   src = fetchFromGitHub {
     owner = "ente-io";
     repo = "ente";
     sparseCheckout = [ "mobile" ];
     tag = "auth-v${version}";
-    hash = "sha256-JzDFzopXNurkOtdheiQZJ5aBQWu7YZumiHs2RghGeVc=";
+    hash = "sha256-1GJWGTzErV+wSkeAg3z0u7tBPFrq6hPc0fWniKT8w9M=";
   };
 
   sourceRoot = "${src.name}/mobile/apps/auth";
@@ -61,7 +61,7 @@ flutter332.buildFlutterApplication rec {
   ];
 
   # https://github.com/juliansteenbakker/flutter_secure_storage/issues/965
-  CXXFLAGS = [ "-Wno-deprecated-literal-operator" ];
+  env.CXXFLAGS = toString [ "-Wno-deprecated-literal-operator" ];
 
   # Based on https://github.com/ente-io/ente/blob/main/auth/linux/packaging/rpm/make_config.yaml
   # and https://github.com/ente-io/ente/blob/main/auth/linux/packaging/enteauth.appdata.xml

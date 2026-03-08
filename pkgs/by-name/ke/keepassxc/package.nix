@@ -2,7 +2,6 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  fetchpatch2,
   cmake,
   libsForQt5,
 
@@ -11,8 +10,8 @@
   botan3,
   curl,
   darwinMinVersionHook,
-  libXi,
-  libXtst,
+  libxi,
+  libxtst,
   libargon2,
   libusb1,
   minizip,
@@ -38,32 +37,32 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "keepassxc";
-  version = "2.7.10";
+  version = "2.7.11";
 
   src = fetchFromGitHub {
     owner = "keepassxreboot";
     repo = "keepassxc";
     tag = finalAttrs.version;
-    hash = "sha256-FBoqCYNM/leN+w4aV0AJMx/G0bjHbI9KVWrnmq3NfaI=";
+    hash = "sha256-Hec3RBC/f0GV6ZBniy+BjMAkABlg111mShrQv0aYm6g=";
   };
 
-  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang (toString [
-    "-Wno-old-style-cast"
-    "-Wno-error"
-    "-D__BIG_ENDIAN__=${if stdenv.hostPlatform.isBigEndian then "1" else "0"}"
-  ]);
-
-  NIX_LDFLAGS = lib.optionalString stdenv.hostPlatform.isDarwin "-rpath ${libargon2}/lib";
+  env =
+    lib.optionalAttrs stdenv.cc.isClang {
+      NIX_CFLAGS_COMPILE = toString [
+        "-Wno-old-style-cast"
+        "-Wno-error"
+        "-D__BIG_ENDIAN__=${if stdenv.hostPlatform.isBigEndian then "1" else "0"}"
+      ];
+    }
+    // lib.optionalAttrs stdenv.hostPlatform.isDarwin {
+      NIX_LDFLAGS = toString [
+        "-rpath"
+        "${libargon2}/lib"
+      ];
+    };
 
   patches = [
     ./darwin.patch
-    # Fixes a static_cast related compilation issue by converting to dynamic cast.
-    # Will be included in next release > 2.7.10 and can be dropped on bump.
-    (fetchpatch2 {
-      name = "fix-botan-3.10.patch";
-      url = "https://github.com/keepassxreboot/keepassxc/commit/fedcbf60c5c0dc7c3602c49a984d53a45c154c73.patch";
-      hash = "sha256-UntT7/LDjslyqHqt5gJjzC/vMw/RVZLNj2ZxzBPL9xI=";
-    })
   ];
 
   cmakeFlags = [
@@ -148,8 +147,8 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     botan3
     curl
-    libXi
-    libXtst
+    libxi
+    libxtst
     libargon2
     libsForQt5.qtbase
     libsForQt5.qtsvg
@@ -196,6 +195,7 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "keepassxc";
     maintainers = with lib.maintainers; [
       sigmasquadron
+      ryand56
     ];
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };

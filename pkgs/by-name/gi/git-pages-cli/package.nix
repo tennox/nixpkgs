@@ -1,6 +1,6 @@
 {
   buildGoModule,
-  fetchFromGitea,
+  fetchFromCodeberg,
   lib,
   nix-update-script,
   versionCheckHook,
@@ -8,17 +8,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "git-pages-cli";
-  version = "1.3.0";
+  version = "1.5.2";
 
-  src = fetchFromGitea {
-    domain = "codeberg.org";
+  src = fetchFromCodeberg {
     owner = "git-pages";
     repo = "git-pages-cli";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-Uwp7/l4AsVwKPWKkPjPJqPqR7f+N4ksgq44HctLBiGo=";
+    hash = "sha256-58fEurUoRw1hJ2eYHrXrsVDElVVo5BH0bZFw7h1yM0w=";
   };
 
-  vendorHash = "sha256-5vjUhN3lCr41q91lOD7v0F9c6a8GJj7wBGnnzgFBhJU=";
+  vendorHash = "sha256-Mico/PFTb8YoRZCP42QETS0DkzMABUGTzBvy692XDJc=";
 
   ldflags = [
     "-X"

@@ -12,6 +12,7 @@
   pydantic,
 
   # tests
+  blockbuster,
   langchain,
   langchain-tests,
   pytest-asyncio,
@@ -21,19 +22,19 @@
   gitUpdater,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage (finalAttrs: {
   pname = "langchain-anthropic";
-  version = "1.0.0";
+  version = "1.3.4";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
     repo = "langchain";
-    tag = "langchain-anthropic==${version}";
-    hash = "sha256-3kW5w98t5F199k14MoCY2dZGrC/HdBzKuRpM37EY3LQ=";
+    tag = "langchain-anthropic==${finalAttrs.version}";
+    hash = "sha256-8dGP26N2aheMTtI2wYMBVitlzrTsJZa5Zt5xVl+vqI4=";
   };
 
-  sourceRoot = "${src.name}/libs/partners/anthropic";
+  sourceRoot = "${finalAttrs.src.name}/libs/partners/anthropic";
 
   build-system = [ hatchling ];
 
@@ -43,21 +44,21 @@ buildPythonPackage rec {
     pydantic
   ];
 
-  pythonRelaxDeps = [
-    # Each component release requests the exact latest core.
-    # That prevents us from updating individual components.
-    "langchain-core"
-  ];
-
   nativeCheckInputs = [
+    blockbuster
     langchain
     langchain-tests
     pytest-asyncio
     pytestCheckHook
   ];
 
-  disabledTestPaths = [
-    "tests/integration_tests"
+  enabledTestPaths = [
+    "tests/unit_tests"
+  ];
+
+  disabledTests = [
+    # Fails when langchain-core gets ahead of this
+    "test_serdes"
   ];
 
   pythonImportsCheck = [ "langchain_anthropic" ];
@@ -71,7 +72,7 @@ buildPythonPackage rec {
   };
 
   meta = {
-    changelog = "https://github.com/langchain-ai/langchain-anthropic/releases/tag/${src.tag}";
+    changelog = "https://github.com/langchain-ai/langchain-anthropic/releases/tag/${finalAttrs.src.tag}";
     description = "Build LangChain applications with Anthropic";
     homepage = "https://github.com/langchain-ai/langchain/tree/master/libs/partners/anthropic";
     license = lib.licenses.mit;
@@ -79,4 +80,4 @@ buildPythonPackage rec {
       lib.maintainers.sarahec
     ];
   };
-}
+})

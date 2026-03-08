@@ -39,7 +39,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "vte";
-  version = "0.82.1";
+  version = "0.82.3";
 
   outputs = [
     "out"
@@ -49,7 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "mirror://gnome/sources/vte/${lib.versions.majorMinor finalAttrs.version}/vte-${finalAttrs.version}.tar.xz";
-    hash = "sha256-eTdtcEAtJx4tOEJEGOGupyNXk00nLjIeOQa3Fwanjjo=";
+    hash = "sha256-bcYnj2/uMNB9GgPiujM1sepOjSlWzrWdhhlDEV2TCoU=";
   };
 
   patches = [
@@ -62,21 +62,10 @@ stdenv.mkDerivation (finalAttrs: {
       hash = "sha256-FkVyhsM0mRUzZmS2Gh172oqwcfXv6PyD6IEgjBhy2uU=";
     })
 
-    # Skip test depending on gdk when building without gtk3 and gtk4
-    (fetchpatch {
-      url = "https://github.com/GNOME/vte/commit/f946e5bacf97305453d731c507885c52d4c34171.patch";
-      hash = "sha256-axi16Fpt4d32akFYeAR+SuUIwzRhjhK2oHp/yAXVRgk=";
-    })
     # https://gitlab.gnome.org/GNOME/vte/-/merge_requests/11
     (fetchpatch {
       url = "https://gitlab.gnome.org/GNOME/vte/-/commit/f672ed15a88dd3e25c33aa0a5ef6f6d291a6d5c7.patch";
       hash = "sha256-JdLDild5j7marvR5n2heW9YD00+bwzJIoxDlzO5r/6w=";
-    })
-
-    # Add option to not build the vte application
-    (fetchpatch {
-      url = "https://github.com/GNOME/vte/commit/6b7a6a7df9df99368b7ce5ac5903bd2578167567.patch";
-      hash = "sha256-s3HigfTZLtGmsZS6dfD3YE95ZdBjB4WOWDvuoatOu3o=";
     })
   ];
 
@@ -171,11 +160,11 @@ stdenv.mkDerivation (finalAttrs: {
         termite
         xfce4-terminal
         ;
-      blackbox-terminal = blackbox-terminal.override { sixelSupport = true; };
+      inherit blackbox-terminal;
     };
   };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://www.gnome.org/";
     description = "Library implementing a terminal emulator widget for GTK";
     longDescription = ''
@@ -186,11 +175,11 @@ stdenv.mkDerivation (finalAttrs: {
       character set conversion, as well as emulating any terminal known to
       the system's terminfo database.
     '';
-    license = licenses.lgpl3Plus;
-    maintainers = with maintainers; [
+    license = lib.licenses.lgpl3Plus;
+    maintainers = with lib.maintainers; [
       antono
     ];
-    teams = [ teams.gnome ];
-    platforms = platforms.unix;
+    teams = [ lib.teams.gnome ];
+    platforms = lib.platforms.unix;
   };
 })

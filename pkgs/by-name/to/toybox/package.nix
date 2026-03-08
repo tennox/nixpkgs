@@ -15,14 +15,14 @@ let
   inherit (lib) optionals;
 in
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "toybox";
   version = "0.8.13";
 
   src = fetchFromGitHub {
     owner = "landley";
     repo = "toybox";
-    rev = version;
+    rev = finalAttrs.version;
     sha256 = "sha256-b5sigIxyg4T4wVc5z8Das+RdEXmNBPFsXpWwXxU/ERE=";
   };
 
@@ -87,12 +87,12 @@ stdenv.mkDerivation rec {
 
   env.NIX_CFLAGS_COMPILE = "-Wno-error";
 
-  meta = with lib; {
+  meta = {
     description = "Lightweight implementation of some Unix command line utilities";
     homepage = "https://landley.net/toybox/";
-    license = licenses.bsd0;
-    platforms = with platforms; linux ++ darwin ++ freebsd;
-    maintainers = with maintainers; [ hhm ];
+    license = lib.licenses.bsd0;
+    platforms = with lib.platforms; linux ++ darwin ++ freebsd;
+    maintainers = with lib.maintainers; [ hhm ];
     priority = 10;
   };
-}
+})

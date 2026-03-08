@@ -21,7 +21,7 @@ buildNpmPackage rec {
     hash = "sha256-vOEz2KGJLCiiX+Or9y0JE9UF7sYbwaSCVm5iBv4jIdI=";
   };
 
-  npmDepsHash = "sha256-zfZAZqnkKwsGkwGgfPvb3me4tFgAofE5H3d23mdAtqY=";
+  npmDepsHash = "sha256-aiCJKutOnxnRNVy+b/LoIXNCLnFiFIBsczRrX6qMrps=";
 
   env = {
     PUPPETEER_SKIP_DOWNLOAD = true;

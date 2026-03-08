@@ -15,19 +15,31 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "libphonenumber";
-  version = "9.0.19";
+  version = "9.0.25";
 
   src = fetchFromGitHub {
     owner = "google";
     repo = "libphonenumber";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-mAf4jgI8aum/XbO8OKOoLCMWxwUMee5erDocxV8/TMA=";
+    hash = "sha256-lNXZXcBxRKKVPyJ4/3IBmlz/i4W7J52L+dIEQVTotD0=";
   };
 
   patches = [
     # An earlier version of this patch was submitted upstream but did not get
     # any interest there - https://github.com/google/libphonenumber/pull/2921
     ./build-reproducibility.patch
+    # Fix include directory in generated cmake files with split outputs
+    ./cmake-include-dir.patch
+    # Finding `boost_system` fails because the stub compiled library of
+    # Boost.System, which has been a header-only library since 1.69, was
+    # removed in 1.89.
+    # Upstream PR: https://github.com/google/libphonenumber/pull/3903
+    ./boost-1.89.patch
+  ];
+
+  outputs = [
+    "out"
+    "dev"
   ];
 
   nativeBuildInputs = [
@@ -64,12 +76,12 @@ stdenv.mkDerivation (finalAttrs: {
       (lib.cmakeFeature "PROTOC_BIN" (lib.getExe buildPackages.protobuf))
     ];
 
-  meta = with lib; {
+  meta = {
     changelog = "https://github.com/google/libphonenumber/blob/${finalAttrs.src.rev}/release_notes.txt";
     description = "Google's i18n library for parsing and using phone numbers";
     homepage = "https://github.com/google/libphonenumber";
-    license = licenses.asl20;
-    maintainers = with maintainers; [
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
       illegalprime
       wegank
     ];

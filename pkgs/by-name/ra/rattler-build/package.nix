@@ -14,16 +14,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rattler-build";
-  version = "0.50.0";
+  version = "0.58.0";
 
   src = fetchFromGitHub {
     owner = "prefix-dev";
     repo = "rattler-build";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-cLlSVl+1Ukne9L658eoSsYpxi3x5rQ0WASLf1gN+W44=";
+    hash = "sha256-PQXPAovUYOzPdMzK1Pu2TcQT+8LTXtJrlSII7uwORLI=";
   };
 
-  cargoHash = "sha256-q4MA/LvYNsTHSBnqVT/cHmf5A72XfEjemyjpaTDaho8=";
+  cargoHash = "sha256-h/0zlZj4+GD8tYcr9Ta1g6JAILK4LbM5an448+VrVHE=";
 
   doCheck = false; # test requires network access
 
@@ -54,7 +54,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = "--version";
 
   passthru.updateScript = nix-update-script { };
 

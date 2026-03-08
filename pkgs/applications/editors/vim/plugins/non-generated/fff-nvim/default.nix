@@ -2,25 +2,26 @@
   lib,
   fetchFromGitHub,
   rustPlatform,
-  pkg-config,
-  perl,
-  openssl,
-  vimUtils,
   nix-update-script,
+  openssl,
+  perl,
+  pkg-config,
+  stdenv,
+  vimUtils,
 }:
 let
-  version = "65aeacf-unstable-2025-11-03";
+  version = "896355b-unstable-2026-02-07";
   src = fetchFromGitHub {
     owner = "dmtrKovalenko";
     repo = "fff.nvim";
-    rev = "65aeacf9e2c663c9af2b1003727aa25acac96db4";
-    hash = "sha256-rGfV/BxSwvcNZXmVUk54gni8fKFyoTsQl+gBtYci4jE=";
+    rev = "d7bc72786d4362ca70aa05d397f8d08bbaf39604";
+    hash = "sha256-CqX2QoDO7InjXYMzvljufA0QYhvFbsht2auE0+nVktw=";
   };
   fff-nvim-lib = rustPlatform.buildRustPackage {
     pname = "fff-nvim-lib";
     inherit version src;
 
-    cargoHash = "sha256-ZZt4BlMgRik4LH92F5cgS84WI1Jeuw68jP+y1+QXfDE=";
+    cargoHash = "sha256-jch2snZVoDqPkbeuF++yc/3ikoWal29bTKZjkyDgVjU=";
 
     nativeBuildInputs = [
       pkg-config
@@ -35,6 +36,9 @@ let
       RUSTC_BOOTSTRAP = 1; # We need rust unstable features
 
       OPENSSL_NO_VENDOR = true;
+
+      # Allow undefined symbols on Darwin - they will be provided by Neovim's LuaJIT runtime
+      RUSTFLAGS = lib.optionalString stdenv.hostPlatform.isDarwin "-C link-arg=-undefined -C link-arg=dynamic_lookup";
     };
   };
 in
@@ -45,9 +49,14 @@ vimUtils.buildVimPlugin {
   postPatch = ''
     substituteInPlace lua/fff/download.lua \
       --replace-fail \
-        "return plugin_dir .. '/../target'" \
+        "return plugin_dir .. '/../target/release'" \
         "return '${fff-nvim-lib}/lib'"
   '';
+
+  nvimSkipModule = [
+    # Skip single file dev config for testing fff.nvim locally
+    "empty_config"
+  ];
 
   passthru = {
     updateScript = nix-update-script {
@@ -65,6 +74,7 @@ vimUtils.buildVimPlugin {
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [
       GaetanLepage
+      saadndm
     ];
   };
 }

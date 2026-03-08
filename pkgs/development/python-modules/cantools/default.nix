@@ -18,12 +18,12 @@
 
 buildPythonPackage rec {
   pname = "cantools";
-  version = "41.0.1";
+  version = "41.1.1";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-WycDUgKJuRFR5fPFT8wBxoijgrqDqjf6RnQxV4Pl8uk=";
+    hash = "sha256-cMZk7kpca7JqbC/o3GjKCYbJowQdRD1NZwL14vLeXeg=";
   };
 
   build-system = [
@@ -51,12 +51,12 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "cantools" ];
 
-  meta = with lib; {
+  meta = {
     description = "Tools to work with CAN bus";
     homepage = "https://github.com/cantools/cantools";
     changelog = "https://github.com/cantools/cantools/releases/tag/${version}";
-    license = licenses.mit;
-    maintainers = with maintainers; [ gray-heron ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ gray-heron ];
     mainProgram = "cantools";
   };
 }

@@ -12,19 +12,16 @@
   typecode-libmagic,
   pytestCheckHook,
   pytest-xdist,
-  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "typecode";
-  version = "30.0.2";
+  version = "30.1.0";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-F2idIK8K5hFueX7yxd5l8M6AkSjPDmhHmzS9a6S8OJg=";
+    hash = "sha256-/KNhekPDB1eGVtcGNMKHx9oyruP97of7ydzx+9P7dQ8=";
   };
 
   dontConfigure = true;
@@ -70,11 +67,11 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "typecode" ];
 
-  meta = with lib; {
+  meta = {
     description = "Comprehensive filetype and mimetype detection using libmagic and Pygments";
     homepage = "https://github.com/aboutcode-org/typecode";
     changelog = "https://github.com/aboutcode-org/typecode/releases/tag/v${version}";
-    license = licenses.asl20;
+    license = lib.licenses.asl20;
     maintainers = [ ];
   };
 }

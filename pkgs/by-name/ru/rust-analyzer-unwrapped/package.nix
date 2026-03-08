@@ -11,17 +11,17 @@
   versionCheckHook,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rust-analyzer-unwrapped";
-  version = "2025-10-28";
+  version = "2026-02-16";
 
-  cargoHash = "sha256-iw+Pgtv5VkCRSa07ap5fjhVZQgo+sfNjp5A4yaHdX1M=";
+  cargoHash = "sha256-1Brx4mvT8683zhrFkfL15/ynfgewyd7WcFFdKvDL3+Q=";
 
   src = fetchFromGitHub {
     owner = "rust-lang";
     repo = "rust-analyzer";
-    rev = version;
-    hash = "sha256-rNsxpCKWzVNJ5FR71mpZFSEPxuvZfAQzcVpgfwgajQU=";
+    rev = finalAttrs.version;
+    hash = "sha256-1TZROjtryMzOJHgHhAUQUoAMnnWal231G7gM1pfNlK4=";
   };
 
   cargoBuildFlags = [
@@ -49,7 +49,7 @@ rustPlatform.buildRustPackage rec {
 
   buildFeatures = lib.optional useMimalloc "mimalloc";
 
-  env.CFG_RELEASE = version;
+  env.CFG_RELEASE = finalAttrs.version;
 
   inherit doCheck;
   preCheck = lib.optionalString doCheck ''
@@ -69,14 +69,14 @@ rustPlatform.buildRustPackage rec {
     # tests.neovim-lsp = callPackage ./test-neovim-lsp.nix { };
   };
 
-  meta = with lib; {
-    description = "Modular compiler frontend for the Rust language";
+  meta = {
+    description = "Language server for the Rust language";
     homepage = "https://rust-analyzer.github.io";
-    license = with licenses; [
+    license = with lib.licenses; [
       mit
       asl20
     ];
-    maintainers = with maintainers; [ oxalica ];
+    maintainers = with lib.maintainers; [ oxalica ];
     mainProgram = "rust-analyzer";
   };
-}
+})

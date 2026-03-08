@@ -4,7 +4,6 @@
   buildPythonPackage,
   fetchFromGitHub,
   hypothesis,
-  pythonOlder,
   jbig2dec,
   deprecated,
   lxml,
@@ -25,7 +24,7 @@
 
 buildPythonPackage rec {
   pname = "pikepdf";
-  version = "10.0.2";
+  version = "10.3.0";
   pyproject = true;
 
   src = fetchFromGitHub {
@@ -38,7 +37,7 @@ buildPythonPackage rec {
     postFetch = ''
       rm "$out/.git_archival.txt"
     '';
-    hash = "sha256-ncWgIcQp6/GOrNwIvwJ4nvf+SUfr0N53MXYq9LpfiB4=";
+    hash = "sha256-fEIzmC17RYic4CFwBh5FdGbJmaWaiaPBK7eCQ7RCmr0=";
   };
 
   patches = [
@@ -80,11 +79,11 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "pikepdf" ];
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/pikepdf/pikepdf";
     description = "Read and write PDFs with Python, powered by qpdf";
-    license = licenses.mpl20;
-    maintainers = with maintainers; [ dotlambda ];
+    license = lib.licenses.mpl20;
+    maintainers = with lib.maintainers; [ dotlambda ];
     changelog = "https://github.com/pikepdf/pikepdf/blob/${src.tag}/docs/releasenotes/version${lib.versions.major version}.md";
   };
 }

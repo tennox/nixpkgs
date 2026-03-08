@@ -14,7 +14,7 @@
   libsamplerate,
   libvorbis,
   libxml2,
-  libX11,
+  libx11,
   makeWrapper,
   movit,
   opencv4,
@@ -39,14 +39,14 @@
   libarchive,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "mlt";
   version = "7.34.1";
 
   src = fetchFromGitHub {
     owner = "mltframework";
     repo = "mlt";
-    tag = "v${version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-zdfjl4ZrdmX445hYx2CoKj1NuXQslQpTC5m96zPrZes=";
     # The submodule contains glaxnimate code, since MLT uses internally some functions defined in glaxnimate.
     # Since glaxnimate is not available as a library upstream, we cannot remove for now this dependency on
@@ -104,7 +104,7 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals enableSDL2 [
     SDL2
-    libX11
+    libx11
   ];
 
   outputs = [
@@ -155,14 +155,14 @@ stdenv.mkDerivation rec {
     rev-prefix = "v";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Open source multimedia framework, designed for television broadcasting";
     homepage = "https://www.mltframework.org/";
-    license = with licenses; [
+    license = with lib.licenses; [
       lgpl21Plus
       gpl2Plus
     ];
     maintainers = [ ];
-    platforms = platforms.unix;
+    platforms = lib.platforms.unix;
   };
-}
+})

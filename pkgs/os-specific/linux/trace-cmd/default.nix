@@ -54,7 +54,7 @@ stdenv.mkDerivation rec {
     "devman"
   ];
 
-  MANPAGE_DOCBOOK_XSL = "${docbook_xsl}/xml/xsl/docbook/manpages/docbook.xsl";
+  env.MANPAGE_DOCBOOK_XSL = "${docbook_xsl}/xml/xsl/docbook/manpages/docbook.xsl";
 
   dontConfigure = true;
 
@@ -92,16 +92,16 @@ stdenv.mkDerivation rec {
     rev-prefix = "trace-cmd-v";
   };
 
-  meta = with lib; {
+  meta = {
     description = "User-space tools for the Linux kernel ftrace subsystem";
     mainProgram = "trace-cmd";
     homepage = "https://www.trace-cmd.org/";
-    license = with licenses; [
+    license = with lib.licenses; [
       lgpl21Only
       gpl2Only
     ];
-    platforms = platforms.linux;
-    maintainers = with maintainers; [
+    platforms = lib.platforms.linux;
+    maintainers = with lib.maintainers; [
       thoughtpolice
       basvandijk
       wentasah

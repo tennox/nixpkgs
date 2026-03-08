@@ -4,14 +4,14 @@
   rustPlatform,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "sendme";
   version = "0.31.0";
 
   src = fetchFromGitHub {
     owner = "n0-computer";
     repo = "sendme";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-zh0YYJoljcOQz0ltAk+UBScSGZhsoSqIa+F0Qm4/3iw=";
   };
 
@@ -20,14 +20,14 @@ rustPlatform.buildRustPackage rec {
   # The tests require contacting external servers.
   doCheck = false;
 
-  meta = with lib; {
+  meta = {
     description = "Tool to send files and directories, based on iroh";
     homepage = "https://iroh.computer/sendme";
-    license = with licenses; [
+    license = with lib.licenses; [
       asl20
       mit
     ];
-    maintainers = with maintainers; [ cameronfyfe ];
+    maintainers = with lib.maintainers; [ cameronfyfe ];
     mainProgram = "sendme";
   };
-}
+})

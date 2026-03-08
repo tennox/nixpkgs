@@ -11,12 +11,16 @@
 
 stdenv.mkDerivation rec {
   pname = "socat";
-  version = "1.8.0.3";
+  version = "1.8.1.0";
 
   src = fetchurl {
-    url = "http://www.dest-unreach.org/socat/download/${pname}-${version}.tar.bz2";
-    hash = "sha256-AesBc2HZW7OmlB6EC1nkRjo/q/kt9BVO0CsWou1qAJU=";
+    url = "http://www.dest-unreach.org/socat/download/socat-${version}.tar.bz2";
+    hash = "sha256-kfIi7mVVkDZgDCUFuZms6+1IuJnw4uU64cnDHWmGtqQ=";
   };
+
+  patches = [
+    ./musl.patch
+  ];
 
   postPatch = ''
     patchShebangs test.sh
@@ -50,12 +54,12 @@ stdenv.mkDerivation rec {
     musl = buildPackages.pkgsMusl.socat;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Utility for bidirectional data transfer between two independent data channels";
     homepage = "http://www.dest-unreach.org/socat/";
-    platforms = platforms.unix;
-    license = with licenses; [ gpl2Only ];
-    maintainers = with maintainers; [ ryan4yin ];
+    platforms = lib.platforms.unix;
+    license = with lib.licenses; [ gpl2Only ];
+    maintainers = with lib.maintainers; [ ryan4yin ];
     mainProgram = "socat";
   };
 }

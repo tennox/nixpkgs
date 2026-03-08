@@ -2,6 +2,7 @@
   stdenvNoCC,
   fetchurl,
   lib,
+  installFonts,
 }:
 
 stdenvNoCC.mkDerivation rec {
@@ -12,20 +13,13 @@ stdenvNoCC.mkDerivation rec {
     hash = "sha256-secUl91sR6AgHD1ac96ka4BtaMjdQYUPnzVM7jgv5n4=";
   };
 
-  installPhase = ''
-    runHook preInstall
+  nativeBuildInputs = [ installFonts ];
 
-    mkdir -p $out/share/fonts/truetype
-    mv *.ttf $out/share/fonts/truetype
-
-    runHook postInstall
-  '';
-
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/lxgw/LxgwWenKaiTC";
     description = "Traditional Chinese Edition of LXGW WenKai";
-    license = licenses.ofl;
-    platforms = platforms.all;
-    maintainers = with maintainers; [ lebensterben ];
+    license = lib.licenses.ofl;
+    platforms = lib.platforms.all;
+    maintainers = with lib.maintainers; [ lebensterben ];
   };
 }

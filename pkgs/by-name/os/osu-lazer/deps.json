@@ -300,11 +300,6 @@
     "hash": "sha256-Nn3imJvnqLe02gR1GyUHYH4+XkrNnhLy9dyCjJCkB7M="
   },
   {
-    "pname": "managed-midi",
-    "version": "1.10.1",
-    "hash": "sha256-iuqpyp8vM7ZjtcM9KNqx9se/UhQHsYrQ+lxL4EntyXU="
-  },
-  {
     "pname": "Markdig",
     "version": "0.23.0",
     "hash": "sha256-4Kjeb54eyas0pCMbTHGPK13vW9zEnFyZ5VStwwtClq8="
@@ -596,13 +591,18 @@
   },
   {
     "pname": "ppy.LocalisationAnalyser",
-    "version": "2024.802.0",
-    "hash": "sha256-vyRWbdPUp5n8hJPJReU9LUy2o/bwwLT1po9f2M16tMA="
+    "version": "2025.1208.0",
+    "hash": "sha256-klogAaNxpEVJKd1NcySgTUwv5WwrvaUXBRypj5wKX5Y="
   },
   {
     "pname": "ppy.LocalisationAnalyser.Tools",
-    "version": "2024.802.0",
-    "hash": "sha256-bniBSY8rS005OHO/ixn2NFM0/KIMiawHyMSXhlAEqwc="
+    "version": "2025.1208.0",
+    "hash": "sha256-diVAckS1zNyVE1UGkbiu9jH/25j/c+Ad5XC3EjdLDsg="
+  },
+  {
+    "pname": "ppy.managed-midi",
+    "version": "1.10.2",
+    "hash": "sha256-JqKDea1yCsMIlQGu8OUxw+6J0ZxmHz+VysVzcsZBd4w="
   },
   {
     "pname": "ppy.ManagedBass",
@@ -626,8 +626,8 @@
   },
   {
     "pname": "ppy.osu.Framework",
-    "version": "2025.1028.0",
-    "hash": "sha256-np5O4DOajO/UB2ihWUYYo81q+he4HWG1AAtn/P5rFgw="
+    "version": "2026.303.0",
+    "hash": "sha256-wkbRfNuatxkweNe+62I3gkq9KYBbT/mVOPXOK7LRhPw="
   },
   {
     "pname": "ppy.osu.Framework.NativeLibs",
@@ -636,13 +636,13 @@
   },
   {
     "pname": "ppy.osu.Framework.SourceGeneration",
-    "version": "2024.1128.0",
-    "hash": "sha256-7ovye7QXFeFr68IxmwIAWA9Fgm686NTYVTUXGQWtKPM="
+    "version": "2025.1121.1",
+    "hash": "sha256-B4uPnJYYtQiuqAEDRbCtW4jJboPE0sRVSfle8eZGYn4="
   },
   {
     "pname": "ppy.osu.Game.Resources",
-    "version": "2025.1006.0",
-    "hash": "sha256-ZHwi8l8JVu+wTEtAkgoLSFmt8z8vVJIIsTR29gRbrCA="
+    "version": "2026.305.0",
+    "hash": "sha256-f79dXDjW5AH+T77mP1s36kuMZ+ukjjCnn/3Wfd7d6ys="
   },
   {
     "pname": "ppy.osuTK.NS20",
@@ -656,8 +656,8 @@
   },
   {
     "pname": "ppy.SDL3-CS",
-    "version": "2025.920.0",
-    "hash": "sha256-gNy0f95tR3hXkagzLH/mngGSsDA7UqIMKYyTf00nsCI="
+    "version": "2026.302.0",
+    "hash": "sha256-7e+HN9StGkK4je1QITNT2Fsk/wrPVDEXb97xjlZx6yY="
   },
   {
     "pname": "ppy.Veldrid",

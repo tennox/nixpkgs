@@ -7,10 +7,10 @@
 let
   pname = "lmstudio";
 
-  version_aarch64-darwin = "0.3.31-7";
-  hash_aarch64-darwin = "sha256-OyPHKUmZsIU0kc3JxwxdxACSN7hR6gFWjMnGp1x5diQ=";
-  version_x86_64-linux = "0.3.31-7";
-  hash_x86_64-linux = "sha256-NeVteQlzygHkwwgLkB5n7meH02WhFE68KkbGRulDiC0=";
+  version_aarch64-darwin = "0.4.5-2";
+  hash_aarch64-darwin = "sha256-mSszzDsoXv2D9Ky3K/P2Nn/mixq3HzGMonS1I4mz5+s=";
+  version_x86_64-linux = "0.4.5-2";
+  hash_x86_64-linux = "sha256-G+swwY9ff0Mqbdu8ZRbgm5KHrPhnOAaOYvH3dEVZ1+A=";
 
   meta = {
     description = "LM Studio is an easy to use desktop app for experimenting with local and open-source Large Language Models (LLMs)";
@@ -23,7 +23,6 @@ let
       "aarch64-darwin"
     ];
     sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-    broken = stdenv.hostPlatform.isDarwin; # Upstream issue: https://github.com/lmstudio-ai/lmstudio-bug-tracker/issues/347
   };
 in
 if stdenv.hostPlatform.isDarwin then

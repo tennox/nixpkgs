@@ -152,8 +152,6 @@ let
 
   passthru =
     let
-      # When we override the interpreter we also need to override the spliced versions of the interpreter
-      inputs' = lib.filterAttrs (n: v: n != "passthruFun" && !lib.isDerivation v) inputs;
       # Memoization of the splices to avoid re-evaluating this function for all combinations of splices e.g.
       # python3.pythonOnBuildForHost.pythonOnBuildForTarget == python3.pythonOnBuildForTarget by consuming
       # __splices as an arg and using the cache if populated.
@@ -170,13 +168,9 @@ let
       override =
         attr:
         let
-          python = attr.override (
-            inputs'
-            // {
-              self = python;
-              __splices = splices;
-            }
-          );
+          python = attr.override {
+            self = python;
+          };
         in
         python;
     in
@@ -208,10 +202,16 @@ let
   nativeBuildInputs = [
     nukeReferences
   ]
-  ++ optionals (!stdenv.hostPlatform.isDarwin && !withMinimalDeps) [
-    autoconf-archive # needed for AX_CHECK_COMPILE_FLAG
-    autoreconfHook
-  ]
+  ++
+    optionals
+      (
+        (!stdenv.hostPlatform.isDarwin && !withMinimalDeps)
+        || (stdenv.hostPlatform != stdenv.buildPlatform && stdenv.hostPlatform.isFreeBSD)
+      )
+      [
+        autoconf-archive # needed for AX_CHECK_COMPILE_FLAG
+        autoreconfHook
+      ]
   ++
     optionals ((!stdenv.hostPlatform.isDarwin || passthru.pythonAtLeast "3.14") && !withMinimalDeps)
       [
@@ -362,19 +362,13 @@ stdenv.mkDerivation (finalAttrs: {
     # Make the mimetypes module refer to the right file
     ./mimetypes.patch
   ]
-  ++ optionals (pythonAtLeast "3.9" && pythonOlder "3.11" && stdenv.hostPlatform.isDarwin) [
-    # Stop checking for TCL/TK in global macOS locations
-    ./3.9/darwin-tcl-tk.patch
-  ]
   ++ optionals (hasDistutilsCxxPatch && pythonOlder "3.12") [
     # Fix for http://bugs.python.org/issue1222585
     # Upstream distutils is calling C compiler to compile C++ code, which
     # only works for GCC and Apple Clang. This makes distutils to call C++
     # compiler when needed.
     (
-      if pythonAtLeast "3.7" && pythonOlder "3.11" then
-        ./3.7/python-3.x-distutils-C++.patch
-      else if pythonAtLeast "3.11" then
+      if pythonAtLeast "3.11" then
         ./3.11/python-3.x-distutils-C++.patch
       else
         fetchpatch {
@@ -398,6 +392,10 @@ stdenv.mkDerivation (finalAttrs: {
   ++ optionals (pythonAtLeast "3.11" && pythonOlder "3.13") [
     # backport fix for https://github.com/python/cpython/issues/95855
     ./platform-triplet-detection.patch
+  ]
+  ++ optionals (version == "3.13.10" || version == "3.14.1") [
+    # https://github.com/python/cpython/issues/142218
+    ./${lib.versions.majorMinor version}/gh-142218.patch
   ]
   ++ optionals (stdenv.hostPlatform.isMinGW) (
     let
@@ -790,11 +788,6 @@ stdenv.mkDerivation (finalAttrs: {
       inherit src;
       name = "python${pythonVersion}-${version}-doc";
 
-      postPatch = lib.optionalString (pythonAtLeast "3.9" && pythonOlder "3.11") ''
-        substituteInPlace Doc/tools/extensions/pyspecific.py \
-          --replace-fail "from sphinx.util import status_iterator" "from sphinx.util.display import status_iterator"
-      '';
-
       dontConfigure = true;
 
       dontBuild = true;
@@ -818,12 +811,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   enableParallelBuilding = true;
 
-  meta = with lib; {
+  meta = {
     homepage = "https://www.python.org";
     changelog =
       let
-        majorMinor = versions.majorMinor version;
-        dashedVersion = replaceStrings [ "." "a" "b" ] [ "-" "-alpha-" "-beta-" ] version;
+        majorMinor = lib.versions.majorMinor version;
+        dashedVersion = lib.replaceStrings [ "." "a" "b" ] [ "-" "-alpha-" "-beta-" ] version;
       in
       if sourceVersion.suffix == "" then
         "https://docs.python.org/release/${version}/whatsnew/changelog.html"
@@ -839,9 +832,10 @@ stdenv.mkDerivation (finalAttrs: {
       hierarchical packages; exception-based error handling; and very
       high level dynamic data types.
     '';
-    license = licenses.psfl;
+    license = lib.licenses.psfl;
     pkgConfigModules = [ "python3" ];
-    platforms = platforms.linux ++ platforms.darwin ++ platforms.windows ++ platforms.freebsd;
+    platforms =
+      lib.platforms.linux ++ lib.platforms.darwin ++ lib.platforms.windows ++ lib.platforms.freebsd;
     mainProgram = executable;
     teams = [ lib.teams.python ];
     # static build on x86_64-darwin/aarch64-darwin breaks with:

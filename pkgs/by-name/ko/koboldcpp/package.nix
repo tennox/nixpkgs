@@ -39,13 +39,13 @@ let
 in
 effectiveStdenv.mkDerivation (finalAttrs: {
   pname = "koboldcpp";
-  version = "1.101.1";
+  version = "1.105.4";
 
   src = fetchFromGitHub {
     owner = "LostRuins";
     repo = "koboldcpp";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-gPbvzbbgm13HjXISPY5hpcCgUejQ5OHkmMu2zCwm/sQ=";
+    hash = "sha256-m3rpvp7Lqs9RUEYwtxHjfNv0ByCWEVrtGvQFtzreMI4=";
   };
 
   enableParallelBuilding = true;
@@ -116,7 +116,7 @@ effectiveStdenv.mkDerivation (finalAttrs: {
   '';
 
   postFixup = ''
-    wrapPythonProgramsIn "$out/bin" "$pythonPath"
+    wrapPythonProgramsIn "$out/bin" "''${pythonPath[*]}"
     makeWrapper "$out/bin/koboldcpp.unwrapped" "$out/bin/koboldcpp" \
       --prefix PATH : ${lib.makeBinPath [ tk ]} ${libraryPathWrapperArgs}
   '';

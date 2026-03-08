@@ -20,15 +20,20 @@
 
 buildPythonPackage rec {
   pname = "asdf-astropy";
-  version = "0.9.0";
+  version = "0.10.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "astropy";
     repo = "asdf-astropy";
     tag = version;
-    hash = "sha256-JYzC1dEnq1caNSPffWCgk7c3mgUERywP0ladS+RwEnk=";
+    hash = "sha256-8atPmtVWb+4Dj1Lf0UIusBtAIW7lF5D+1ay7G7Ay3PA=";
   };
+
+  postPatch = ''
+    # pytest chokes on unhandled options in the [tool.pytest.ini_options] section
+    sed -i "/asdf_schema_/d" pyproject.toml
+  '';
 
   build-system = [
     setuptools
@@ -55,11 +60,11 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "asdf_astropy" ];
 
-  meta = with lib; {
+  meta = {
     description = "Extension library for ASDF to provide support for Astropy";
     homepage = "https://github.com/astropy/asdf-astropy";
     changelog = "https://github.com/astropy/asdf-astropy/blob/${src.tag}/CHANGES.rst";
-    license = licenses.bsd3;
-    maintainers = with maintainers; [ fab ];
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [ fab ];
   };
 }

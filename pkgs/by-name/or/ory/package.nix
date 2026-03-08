@@ -6,14 +6,14 @@
   installShellFiles,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "ory";
   version = "0.3.4";
 
   src = fetchFromGitHub {
     owner = "ory";
     repo = "cli";
-    tag = "v${version}";
+    tag = "v${finalAttrs.version}";
     hash = "sha256-q7+Fpttgx62GbKxCCiEDlX//e/pNO24e7KhhBeGRDH0=";
   };
 
@@ -24,6 +24,11 @@ buildGoModule rec {
   subPackages = [ "." ];
 
   env.CGO_ENABLED = 1;
+
+  ldflags = [
+    "-X=github.com/ory/cli/buildinfo.Version=v${finalAttrs.version}"
+    "-X=github.com/ory/cli/buildinfo.GitHash=${finalAttrs.src.rev}"
+  ];
 
   tags = [
     "sqlite"
@@ -41,14 +46,15 @@ buildGoModule rec {
       --zsh <($out/bin/ory completion zsh)
   '';
 
-  meta = with lib; {
+  meta = {
     description = "CLI for Ory";
     mainProgram = "ory";
     homepage = "https://www.ory.sh/cli";
-    license = licenses.asl20;
-    maintainers = with maintainers; [
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [
       luleyleo
       nicolas-goudry
+      debtquity
     ];
   };
-}
+})

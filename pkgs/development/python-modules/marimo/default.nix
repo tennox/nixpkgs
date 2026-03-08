@@ -1,15 +1,10 @@
 {
   lib,
   buildPythonPackage,
-  fetchFromGitHub,
-  fetchpatch2,
   fetchPypi,
-  pythonOlder,
 
   # build-system
-  setuptools,
   uv-build,
-  versioneer,
 
   # dependencies
   click,
@@ -28,45 +23,22 @@
   ruff,
   starlette,
   tomlkit,
-  typing-extensions,
   uvicorn,
   websockets,
 
   # tests
   versionCheckHook,
 }:
-
-let
-  msgspec-m = msgspec.overridePythonAttrs (old: {
-    version = "0.19.2";
-    src = fetchFromGitHub {
-      owner = "marimo-team";
-      repo = "msgspec";
-      rev = "0.19.2";
-      hash = "sha256-rZv/6xZsE6NNbQnTXq5HKsAHm3yHpzlrgNOP2v8s0KI=";
-    };
-    build-system = [ setuptools versioneer ];
-  });
-in
 buildPythonPackage rec {
   pname = "marimo";
-  version = "0.17.0";
+  version = "0.20.4";
   pyproject = true;
 
   # The github archive does not include the static assets
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-9jThrtwfTXhKHMkukWpHS3PK0C/UtyqrUCI3vPEEQ0o=";
+    hash = "sha256-f0bOg3lTcXUEZz4z5H+0KmGb9fnSAA0aOjsWY6R8VJg=";
   };
-
-  patches = [
-    # https://github.com/marimo-team/marimo/pull/6714
-    (fetchpatch2 {
-      name = "uv-build.patch";
-      url = "https://github.com/Prince213/marimo/commit/b1c690e82e8117c451a74fdf172eb51a4861853d.patch?full_index=1";
-      hash = "sha256-iFS5NSGjaGdECRk0LCRSA8XzRb1/sVSZCTRLy6taHNU=";
-    })
-  ];
 
   build-system = [ uv-build ];
 
@@ -77,7 +49,7 @@ buildPythonPackage rec {
     jedi
     loro
     markdown
-    msgspec-m
+    msgspec
     narwhals
     packaging
     psutil
@@ -89,8 +61,7 @@ buildPythonPackage rec {
     tomlkit
     uvicorn
     websockets
-  ]
-  ++ lib.optionals (pythonOlder "3.11") [ typing-extensions ];
+  ];
 
   pythonImportsCheck = [ "marimo" ];
 
@@ -98,7 +69,6 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = "--version";
 
   meta = {
     description = "Reactive Python notebook that's reproducible, git-friendly, and deployable as scripts or apps";

@@ -10,7 +10,6 @@
   pycurl,
   pyparsing,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
   six,
   fetchpatch2,
@@ -19,16 +18,14 @@
 
 buildPythonPackage rec {
   pname = "wfuzz";
-  version = "3.1.0";
+  version = "3.1.1";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "xmendez";
     repo = "wfuzz";
     tag = "v${version}";
-    hash = "sha256-RM6QM/iR00ymg0FBUtaWAtxPHIX4u9U/t5N/UT/T6sc=";
+    hash = "sha256-OYMZHo0ujRzwOcE+EKRNPxffxVbbiMHe+AqBz7q/u2A=";
   };
 
   patches = [
@@ -82,8 +79,8 @@ buildPythonPackage rec {
     cp -R -T "wordlist" "$out/share/wordlists/wfuzz"
   '';
 
-  meta = with lib; {
-    changelog = "https://github.com/xmendez/wfuzz/releases/tag/v${version}";
+  meta = {
+    changelog = "https://github.com/xmendez/wfuzz/releases/tag/${src.tag}";
     description = "Web content fuzzer to facilitate web applications assessments";
     longDescription = ''
       Wfuzz provides a framework to automate web applications security assessments
@@ -91,7 +88,7 @@ buildPythonPackage rec {
       web application vulnerabilities.
     '';
     homepage = "https://wfuzz.readthedocs.io";
-    license = with licenses; [ gpl2Only ];
-    maintainers = with maintainers; [ pamplemousse ];
+    license = with lib.licenses; [ gpl2Only ];
+    maintainers = with lib.maintainers; [ pamplemousse ];
   };
 }
