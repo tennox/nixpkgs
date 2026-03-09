@@ -28,9 +28,9 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   preInstall = ''
-    # Inject Gom typelib path at the beginning of extension.js
-    # This ensures the typelib is found before any imports attempt to load it
-    sed -i "1i imports.gi.GIRepository.Repository.prepend_search_path('${gom}/lib/girepository-1.0');" extension.js
+    substituteInPlace extension.js \
+      --replace-fail "const Gom = imports.gi.Gom;" \
+      "imports.gi.GIRepository.Repository.get_default().prepend_search_path('${gom}/lib/girepository-1.0'); const Gom = imports.gi.Gom;"
   '';
 
   installPhase = ''
