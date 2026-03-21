@@ -30,7 +30,7 @@ stdenv.mkDerivation (finalAttrs: {
   preInstall = ''
     substituteInPlace extension.js \
       --replace-fail "const Gom = imports.gi.Gom;" \
-      "imports.gi.GIRepository.Repository.get_default().prepend_search_path('${gom}/lib/girepository-1.0'); const Gom = imports.gi.Gom;"
+      "imports.gi.GIRepository.Repository.dup_default().prepend_search_path('${gom}/lib/girepository-1.0'); const Gom = imports.gi.Gom;"
   '';
 
   installPhase = ''
